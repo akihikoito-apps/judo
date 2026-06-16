@@ -1,0 +1,2695 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1a2b4a">
+<link rel="apple-touch-icon" id="appleIcon" href="data:image/png;base64,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">
+<link rel="apple-touch-icon-precomposed" id="appleIconPre" href="data:image/png;base64,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">
+<link rel="icon" type="image/png" id="faviconIcon" href="data:image/png;base64,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">
+<title>柔道チーム管理</title>
+<style>
+  :root{
+    --navy:#1a2b4a;
+    --navy-light:#2d4373;
+    --gold:#c8a44d;
+    --paper:#f5f2ea;
+    --paper-card:#ffffff;
+    --ink:#222;
+    --muted:#6b6b6b;
+    --green:#2e7d4f;
+    --red:#c0392b;
+    --amber:#d68910;
+    --line:#e0dccf;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{background:var(--paper) !important;}
+  body{background:var(--paper) !important;}
+  body{
+    margin:0;padding:0;
+    font-family:-apple-system,"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    font-size:18px;line-height:1.6;
+    padding-bottom:96px;
+    -webkit-text-size-adjust:100%;
+    min-height:100vh;
+  }
+  header{
+    background:var(--navy);color:#fff;padding:10px 16px;
+    position:sticky;top:0;z-index:10;box-shadow:0 1px 5px rgba(0,0,0,.1);
+  }
+  header .title{display:flex;align-items:center;gap:12px;}
+  header .crest{
+    width:48px;height:48px;border-radius:10px;flex-shrink:0;overflow:hidden;
+    background-size:cover;background-position:center;background-repeat:no-repeat;
+  }
+  header h1{font-size:24px;margin:0;font-weight:700;letter-spacing:.03em;line-height:1.1;}
+  header .sub{font-size:11px;color:var(--gold);margin-top:2px;letter-spacing:.02em;}
+
+  .screen{display:none;padding:16px;max-width:680px;margin:0 auto;}
+  .screen.active{display:block;}
+  .section-head{display:flex;align-items:center;justify-content:space-between;margin:6px 0 16px;gap:10px;flex-wrap:wrap;}
+  .section-head h2{font-size:22px;margin:0;color:var(--navy);}
+
+  .card{background:var(--paper-card);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08);border:1px solid var(--line);overflow:hidden;}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 20px;font-size:18px;font-weight:700;font-family:inherit;border:none;border-radius:12px;cursor:pointer;background:var(--navy);color:#fff;}
+  .btn:active{transform:scale(.98);}
+  .btn.full{width:100%;}
+  .btn.gold{background:var(--gold);color:#3a2e00;}
+  .btn.ghost{background:#fff;color:var(--navy);border:2px solid var(--navy);}
+  .btn.del-full{width:100%;margin-top:14px;background:#fff;color:var(--red);border:2px solid var(--red);font-weight:700;}
+  .toggle-line{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:600;color:var(--navy);cursor:pointer;}
+  .toggle-line input{width:22px;height:22px;flex-shrink:0;}
+  .chip-toggle{font-size:13px;font-weight:700;padding:7px 12px;border-radius:20px;border:2px solid var(--line);background:#fff;color:var(--muted);font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .chip-toggle.on{background:#e8821e;color:#fff;border-color:#e8821e;}
+  .chip-btn{font-size:13px;font-weight:700;padding:7px 12px;border-radius:20px;border:2px solid var(--navy);background:#fff;color:var(--navy);font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .mate-card{cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative;
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+    transition:transform .12s ease, box-shadow .12s ease;}
+  .mate-card:active{background:#f7f5ef;}
+  .mate-card.dragging{
+    opacity:.97;background:#fff;
+    transform:scale(1.04);
+    box-shadow:0 10px 24px rgba(0,0,0,.22);
+    border-radius:14px;border-color:var(--gold);
+    position:relative;z-index:20;
+  }
+  .mate-card .stu-top{align-items:center;}
+  .drag-handle{flex-shrink:0;color:var(--muted);font-size:22px;line-height:1;padding:0 4px;cursor:grab;touch-action:none;}
+  .filter-row{display:flex;gap:8px;margin-bottom:14px;}
+  .filter-btn{flex:1;font-size:15px;font-weight:700;padding:10px 0;border-radius:10px;border:2px solid var(--navy);background:#fff;color:var(--navy);font-family:inherit;cursor:pointer;}
+  .filter-btn.on{background:var(--navy);color:#fff;}
+  .result-btn{margin-top:8px;font-size:13px;font-weight:700;padding:6px 12px;border-radius:18px;border:2px solid var(--gold);background:#fff;color:#9a7400;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
+  .result-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;}
+  .bout-row{display:flex;gap:10px;align-items:flex-start;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .bout-row:active{background:#f7f5ef;}
+  .bout-mark{flex-shrink:0;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;}
+  .mark-win{background:#2e7d4f;}
+  .mark-lose{background:#c0392b;}
+  .mark-draw{background:#6b6b6b;}
+  .bout-body{flex:1;min-width:0;}
+  .bout-top{font-size:16px;font-weight:700;color:var(--navy);}
+  .bout-sub{font-size:13px;color:var(--muted);word-break:break-word;}
+  .mate-tag{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:#7d3c98;border-radius:8px;padding:1px 7px;margin-left:5px;vertical-align:middle;}
+  /* 団体戦カード */
+  .tm-score{flex-shrink:0;min-width:70px;height:38px;padding:0 8px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800;color:#fff;letter-spacing:1px;}
+  .tm-badge{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;color:#fff;margin-top:2px;}
+  .tm-badge.win{background:#2e7d4f;} .tm-badge.lose{background:#c0392b;} .tm-badge.draw{background:#6b6b6b;}
+  .card-head-summary{background:#f3f1ea;border-radius:12px;padding:10px 12px;font-size:15px;color:var(--ink);margin-bottom:12px;line-height:1.5;}
+  .bout-block{border:2px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px;background:#fbfaf6;}
+  .bout-block.rep{border-color:var(--gold);background:#fffaf0;}
+  .bb-head{font-weight:800;color:var(--navy);font-size:16px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .bb-head .pos-no{background:var(--navy);color:#fff;font-size:13px;border-radius:6px;padding:1px 8px;}
+  .bb-head.rep .pos-no{background:var(--gold);color:#5a4300;}
+  .bb-label{display:block;font-size:13px;color:var(--muted);margin:9px 0 4px;}
+  .bout-block .cat-pick button{min-height:44px;font-size:15px;padding:0 12px;}
+  .card-tally{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;border:2px solid var(--navy);border-radius:14px;margin:8px 0 14px;background:#fff;}
+  .card-tally .sc{font-size:34px;font-weight:800;letter-spacing:2px;line-height:1;}
+  .card-tally .sc.win{color:#2e7d4f;} .card-tally .sc.lose{color:#c0392b;} .card-tally .sc.draw{color:#6b6b6b;}
+  .card-tally .ct-note{font-size:13px;color:var(--muted);}
+  .tiebreak-wrap{border:2px dashed var(--gold);border-radius:14px;padding:12px;margin-bottom:14px;background:#fffdf6;}
+  .tiebreak-wrap .tb-title{font-size:15px;font-weight:700;color:#9a7400;margin-bottom:8px;}
+  .preset-inp{width:100%;margin-bottom:8px;}
+  .color-pick{display:flex;flex-wrap:wrap;gap:10px;}
+  .color-pick button{width:42px;height:42px;border-radius:50%;border:3px solid transparent;cursor:pointer;padding:0;}
+  .color-pick button.on{border-color:var(--navy);box-shadow:0 0 0 2px #fff inset;}
+  .btn.sm{min-height:44px;font-size:15px;padding:0 14px;}
+  .btn.danger{background:var(--red);}
+
+  label.fld{display:block;font-size:15px;color:var(--muted);margin:10px 0 4px;}
+  input,select{
+    display:block;width:100%;max-width:100%;min-height:52px;font-size:18px;font-family:inherit;
+    padding:0 14px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);
+  }
+  input:focus,select:focus{outline:none;border-color:var(--navy);}
+  input[type="date"]{ -webkit-appearance:none;appearance:none;text-align:center;font-size:20px;font-weight:700;color:var(--navy);display:flex;align-items:center;justify-content:center; }
+  input[type="date"]::-webkit-date-and-time-value{text-align:center;margin:0;line-height:48px;}
+  .date-pick{display:flex;align-items:stretch;gap:6px;}
+  .date-pick input[type="date"]{flex:1;min-width:0;}
+  .date-display-wrap{flex:1;min-width:0;position:relative;border:2px solid var(--line);border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;min-height:52px;overflow:hidden;padding:0 4px;}
+  .date-display-text{font-size:16px;font-weight:700;color:var(--navy);pointer-events:none;white-space:nowrap;}
+  .date-hidden-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;background:transparent;cursor:pointer;}
+  .date-arrow{flex-shrink:0;width:46px;min-height:52px;font-size:24px;font-weight:700;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-family:inherit;cursor:pointer;}
+  .date-arrow:active{transform:scale(.96);}
+  .today-btn{flex-shrink:0;min-height:52px;padding:0 12px;font-size:14px;font-weight:700;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .today-btn:active{transform:scale(.96);}
+
+  .att-row,.fee-row{display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid var(--line);gap:10px;}
+  .att-row:last-child,.fee-row:last-child{border-bottom:none;}
+  .name{font-size:19px;font-weight:600;}
+  .att-person{flex:1;min-width:0;display:flex;align-items:stretch;gap:10px;}
+  .vbar-group{display:flex;gap:4px;flex-shrink:0;}
+  .cat-vbar{
+    flex-shrink:0;width:24px;display:flex;align-items:center;justify-content:center;
+    writing-mode:vertical-rl;text-orientation:upright;
+    color:#fff;font-size:13px;font-weight:700;letter-spacing:1px;
+    border-radius:6px;padding:6px 0;
+  }
+  .person-name-only{font-size:20px;font-weight:700;line-height:1.3;word-break:break-word;display:flex;align-items:center;}
+  .stu-top .att-person{align-items:center;}
+  .stu-top .person-name-only{flex:1;min-width:0;font-size:18px;word-break:keep-all;overflow-wrap:break-word;}
+  .stu-top .stu-actions{flex-shrink:0;gap:4px;}
+  .stu-top .btn.sm{padding:0 10px;min-height:38px;font-size:15px;}
+  .stu-top .del-x{margin-left:2px;}
+  .person-name{font-size:19px;font-weight:700;line-height:1.3;word-break:break-word;}
+  .person-tags{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;}
+  .person-tags .cat-tag,.person-tags .grade-tag{margin-left:0;}
+  .grade-tag{font-size:13px;color:#fff;padding:2px 8px;border-radius:8px;margin-left:6px;white-space:nowrap;}
+  .cat-tag{font-size:13px;color:#fff;padding:2px 8px;border-radius:8px;margin-left:6px;font-weight:700;white-space:nowrap;}
+  .cat-pick{display:flex;flex-wrap:wrap;gap:8px;}
+  #rankPick{display:block;}
+  .rank-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+  .rank-row:last-child{margin-bottom:0;}
+  .cat-pick button{
+    min-height:48px;padding:0 16px;font-size:16px;font-weight:700;font-family:inherit;
+    border:2px solid var(--line);background:#fff;color:var(--muted);border-radius:12px;cursor:pointer;
+  }
+  .cat-pick button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .stu-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .stu-row{padding:10px 4px;border-bottom:1px solid var(--line);}
+  .stu-row:last-child{border-bottom:none;}
+  .stu-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .stu-name{font-size:20px;font-weight:700;line-height:1.3;flex:1;min-width:0;word-break:break-word;}
+  .stu-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .stu-tags .cat-tag,.stu-tags .grade-tag{margin-left:0;}
+  .cat-unset{background:#fff !important;color:var(--muted) !important;border:2px dashed var(--line);font-weight:600 !important;}
+  /* 入出金 */
+  .io-pick{display:flex;gap:8px;}
+  .io-pick button{flex:1;min-height:52px;font-size:18px;font-weight:700;font-family:inherit;border:2px solid var(--line);background:#fff;color:var(--muted);border-radius:12px;cursor:pointer;}
+  .io-pick button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  #sexM.on{background:#2d4373;border-color:#2d4373;}
+  #sexF.on{background:#c0392b;border-color:#c0392b;}
+  #sexO.on{background:#7d3c98;border-color:#7d3c98;}
+  .io-pick button#ioIn.on{background:var(--green);color:#fff;border-color:var(--green);}
+  .io-pick button#ioOut.on{background:var(--red);color:#fff;border-color:var(--red);}
+  .cash-item{display:flex;align-items:center;justify-content:space-between;padding:13px 4px;border-bottom:1px solid var(--line);gap:10px;}
+  .cash-item:last-child{border-bottom:none;}
+  .cash-left{flex:1;min-width:0;}
+  .cash-cat{font-size:17px;font-weight:700;}
+  .cash-meta{font-size:14px;color:var(--muted);}
+  .cash-amt{font-size:18px;font-weight:800;white-space:nowrap;}
+  .cash-amt.in{color:var(--green);}
+  .cash-amt.out{color:var(--red);}
+  .cash-io-tag{font-size:12px;color:#fff;padding:2px 7px;border-radius:7px;margin-right:6px;}
+  /* 月/年度トグル */
+  .view-toggle{display:flex;gap:8px;margin-bottom:14px;}
+  .view-toggle button{flex:1;min-height:48px;font-size:14px;font-weight:700;font-family:inherit;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2;padding:4px 2px;}
+  .view-toggle button small{font-size:11px;font-weight:600;opacity:.9;}
+  .view-toggle button.on{background:var(--navy);color:#fff;}
+  /* 会計表 */
+  .acct-section{margin-bottom:16px;}
+  .acct-head{font-size:16px;font-weight:800;color:#fff;padding:6px 12px;border-radius:8px;margin-bottom:6px;}
+  .acct-row{display:flex;justify-content:space-between;padding:8px 6px;border-bottom:1px solid var(--line);font-size:16px;}
+  .acct-row:last-child{border-bottom:none;}
+  .acct-row .amt{font-weight:700;white-space:nowrap;}
+  .acct-total{display:flex;justify-content:space-between;padding:10px 6px;font-size:17px;font-weight:800;border-top:2px solid var(--navy);margin-top:4px;}
+  .acct-net{display:flex;justify-content:space-between;padding:14px 12px;font-size:20px;font-weight:800;border-radius:12px;margin-top:12px;background:var(--paper);}
+  .ord-btn{width:42px;min-height:42px;font-size:20px;font-weight:800;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;font-family:inherit;cursor:pointer;}
+  .ord-stack{display:flex;flex-direction:column;gap:4px;}
+  .ord-btn.sm{width:34px;min-height:26px;font-size:15px;border-radius:7px;padding:0;line-height:1;}
+  .ord-btn:disabled{opacity:.3;border-color:var(--line);color:var(--line);cursor:default;}
+  .ord-btn:active:not(:disabled){background:var(--navy);color:#fff;}
+  .logo-area{display:flex;gap:14px;align-items:center;margin-top:10px;}
+  .logo-preview{width:72px;height:72px;border-radius:14px;background:transparent;flex-shrink:0;overflow:hidden;background-size:cover;background-position:center;background-repeat:no-repeat;}
+  .seg{display:flex;gap:6px;flex-shrink:0;}
+  .seg button{min-width:54px;min-height:46px;font-size:16px;font-weight:700;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--muted);font-family:inherit;cursor:pointer;}
+  .seg button.on-pres{background:var(--green);color:#fff;border-color:var(--green);}
+  .seg button.on-abs{background:var(--red);color:#fff;border-color:var(--red);}
+
+  .fee-status{font-size:16px;font-weight:700;padding:8px 12px;border-radius:10px;min-width:96px;text-align:center;border:none;font-family:inherit;cursor:pointer;}
+  .fee-amt-label{font-size:16px;font-weight:700;color:var(--navy);white-space:nowrap;}
+  .fee-actions{display:flex;flex-direction:column;align-items:stretch;gap:6px;flex-shrink:0;width:122px;}
+  .fee-actions .fee-amt-btn{justify-content:center;width:100%;font-size:15px;padding:7px 6px;}
+  .fee-actions .fee-status{min-width:0;width:100%;}
+  .fee-amt-btn{font-size:16px;font-weight:700;color:var(--navy);white-space:nowrap;background:#fff;border:2px solid var(--line);border-radius:10px;padding:6px 10px;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+  .fee-amt-btn:active{background:#f3f1ea;}
+  .fee-amt-btn.adjusted{border-color:var(--gold);color:#9a7400;}
+  .fee-amt-btn .adj-dot{font-size:10px;font-weight:700;color:#fff;background:#d68910;border-radius:7px;padding:1px 6px;}
+  .fee-paid{background:var(--green);color:#fff;}
+  .fee-unpaid{background:var(--red);color:#fff;}
+
+  .summary-bar{display:flex;gap:8px;margin-bottom:14px;align-items:stretch;}
+  .summary-box{flex:1;min-width:0;background:var(--navy);color:#fff;border-radius:12px;padding:12px 6px;text-align:center;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .summary-box .num{font-size:28px;font-weight:800;line-height:1.05;word-break:break-all;}
+  .summary-box .num.yen{font-size:19px;letter-spacing:-.02em;}
+  .summary-box .lbl{font-size:13px;color:var(--gold);margin-top:4px;}
+  .summary-box.alert{background:var(--red);}
+  .summary-box.alert .lbl{color:#ffe;}
+
+  /* ===== タイムライン型スケジュール ===== */
+  .tl-month{display:flex;align-items:stretch;gap:0;margin-bottom:4px;}
+  .tl-label{
+    flex-shrink:0;width:52px;position:relative;
+    display:flex;flex-direction:column;align-items:center;padding-top:6px;
+  }
+  .tl-label .yr{font-size:11px;color:var(--muted);font-weight:700;}
+  .tl-label .mo{font-size:24px;font-weight:800;color:var(--navy);line-height:1;}
+  .tl-label .mo small{font-size:12px;font-weight:700;}
+  .tl-label::after{ /* 縦の軸線 */
+    content:'';position:absolute;top:0;bottom:-4px;right:0;width:3px;background:var(--gold);border-radius:2px;
+  }
+  .tl-events{flex:1;min-width:0;padding:6px 0 14px 14px;}
+  .tl-card{
+    position:relative;display:flex;gap:12px;align-items:center;
+    background:#fff;border:1px solid var(--line);border-radius:12px;
+    padding:9px 12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.05);
+    cursor:pointer;-webkit-tap-highlight-color:transparent;
+  }
+  .tl-card:active{background:#f3f0e8;}
+  .tl-card:last-child{margin-bottom:0;}
+  .tl-card::before{ /* 軸につながる点 */
+    content:'';position:absolute;left:-15px;top:50%;margin-top:-5px;width:11px;height:11px;border-radius:50%;
+    background:var(--gold);border:2px solid var(--paper-card);box-shadow:0 0 0 2px var(--gold);
+  }
+  .tl-daybox{flex-shrink:0;min-width:74px;text-align:center;background:var(--navy);color:#fff;border-radius:9px;padding:5px 8px;}
+  .tl-daybox .drow{display:flex;align-items:baseline;justify-content:center;gap:4px;}
+  .tl-daybox .d{font-size:20px;font-weight:800;line-height:1.1;}
+  .tl-daybox .w{font-size:12px;font-weight:700;opacity:.9;}
+  .tl-daybox .tm{font-size:13px;font-weight:700;color:#fff;margin-top:1px;letter-spacing:.02em;}
+  .tl-info{flex:1;min-width:0;}
+  .tl-info .t{font-size:18px;font-weight:700;}
+  .tl-event{font-weight:600;color:var(--navy);margin-left:8px;word-break:break-word;}
+  .tl-info .meta{font-size:13px;color:var(--muted);word-break:break-word;}
+  .tl-note{}
+  .tl-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+
+  .sched-item{display:flex;gap:14px;align-items:flex-start;padding:14px 4px;border-bottom:1px solid var(--line);}
+  .month-divider{
+    background:var(--navy);color:#fff;font-size:17px;font-weight:800;letter-spacing:.05em;
+    padding:8px 14px;border-radius:10px;margin:18px 0 10px;display:flex;align-items:center;gap:8px;
+  }
+  .month-divider::before{content:'';width:6px;height:20px;background:var(--gold);border-radius:3px;}
+  .month-divider:first-child{margin-top:0;}
+  .sched-item:last-child{border-bottom:none;}
+  .sched-date{flex-shrink:0;width:62px;text-align:center;background:var(--navy);color:#fff;border-radius:10px;padding:8px 4px;}
+  .sched-date .d{font-size:24px;font-weight:800;line-height:1;}
+  .sched-date .m{font-size:12px;color:var(--gold);}
+  .sched-body{flex:1;min-width:0;}
+  .sched-body .t{font-size:19px;font-weight:700;}
+  .sched-body .meta{font-size:15px;color:var(--muted);word-break:break-word;}
+  .badge{font-size:12px;color:#fff;padding:2px 8px;border-radius:8px;margin-left:6px;}
+
+  .empty{text-align:center;color:var(--muted);padding:36px 12px;font-size:17px;}
+  .month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;}
+  .month-nav .lbl{font-size:20px;font-weight:700;color:var(--navy);}
+  .month-nav button{min-width:56px;min-height:48px;font-size:24px;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-weight:700;}
+
+  /* 時刻クイック選択 */
+  .time-quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .time-quick button{min-height:44px;padding:0 14px;font-size:16px;font-weight:700;border:2px solid var(--line);background:#fff;color:var(--navy);border-radius:10px;font-family:inherit;cursor:pointer;}
+  .time-quick button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  /* 履歴チップ */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  .chips button{min-height:40px;padding:0 12px;font-size:15px;border:2px solid var(--gold);background:#fff8e8;color:#5a4500;border-radius:20px;font-family:inherit;cursor:pointer;}
+
+  /* 一覧表（月別マトリクス） */
+  .matrix-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid var(--line);}
+  table.matrix{border-collapse:collapse;font-size:15px;background:#fff;min-width:100%;}
+  table.matrix th,table.matrix td{border:1px solid var(--line);padding:8px 6px;text-align:center;white-space:nowrap;}
+  table.matrix thead th{background:var(--navy);color:#fff;position:sticky;top:0;font-weight:700;}
+  table.matrix td.namecell,table.matrix th.namecell{position:sticky;left:0;background:#fff;text-align:left;font-weight:700;z-index:2;min-width:120px;box-shadow:1px 0 0 var(--line);}
+  table.matrix thead th.namecell{background:var(--navy);z-index:3;}
+  .mem-logo{display:inline-block;padding:3px 9px;border-radius:7px;font-size:13px;font-weight:700;white-space:nowrap;}
+  .member-table td.note-cell{text-align:left;white-space:normal;min-width:15em;max-width:22em;word-break:break-word;}
+  .cell-p{background:#e3f2e8;color:var(--green);font-weight:800;}
+  .cell-a{background:#fdeaea;color:var(--red);font-weight:800;}
+  .cell-fee-paid{background:var(--green);color:#fff;font-weight:800;}
+  .cell-fee-unpaid{background:var(--red);color:#fff;font-weight:800;}
+  .cell-total{background:#fff8e8;font-weight:800;color:#5a4500;}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend i{width:16px;height:16px;border-radius:4px;display:inline-block;}
+
+  nav.tabbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:20;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -2px 8px rgba(0,0,0,.06);}
+  nav.tabbar button{flex:1;background:none;border:none;font-family:inherit;padding:8px 2px;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:12px;transition:background .15s;}
+  nav.tabbar button .ico{font-size:21px;}
+  nav.tabbar button .tlbl{font-size:11px;font-weight:700;}
+  nav.tabbar button.active{color:#fff;background:var(--navy);}
+
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;align-items:flex-end;justify-content:center;}
+  .modal-bg.show{display:flex;}
+  .modal{background:#fff;width:100%;max-width:680px;border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;}
+  .modal h3{font-size:21px;margin:0 0 12px;color:var(--navy);}
+  .modal .row{display:flex;gap:10px;margin-top:18px;}
+  .modal .row .btn{flex:1;}
+
+  .toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:14px 22px;border-radius:30px;font-size:16px;z-index:100;opacity:0;transition:opacity .25s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+  .toast.show{opacity:1;}
+  .list-mini{font-size:15px;color:var(--muted);margin-top:6px;}
+  .del-x{background:none;border:none;color:var(--red);font-size:22px;padding:6px;cursor:pointer;}
+
+  /* ===================== 着せ替え：カラーテーマ（10種）===================== */
+  html[data-color="indigo"]{--navy:#1a2b4a;--navy-light:#2d4373;--gold:#c8a44d;--paper:#f5f2ea;--paper-card:#fff;--ink:#222;--muted:#6b6b6b;--green:#2e7d4f;--red:#c0392b;--amber:#d68910;--line:#e0dccf;}
+  html[data-color="onyx"]{--navy:#1f1f23;--navy-light:#3a3a40;--gold:#d4af37;--paper:#f3f3f1;--paper-card:#fff;--ink:#1c1c1e;--muted:#6b6b6b;--green:#2e7d4f;--red:#c0392b;--amber:#d68910;--line:#e3e1dc;}
+  html[data-color="forest"]{--navy:#1f4d3a;--navy-light:#2f6e52;--gold:#c39b46;--paper:#eef3ee;--paper-card:#fff;--ink:#1e2a23;--muted:#5f6b62;--green:#2e7d4f;--red:#c0392b;--amber:#cf8e2e;--line:#d7e1d6;}
+  html[data-color="wine"]{--navy:#5a2746;--navy-light:#7a3a60;--gold:#c8a44d;--paper:#f6f0f3;--paper-card:#fff;--ink:#2a1c25;--muted:#6b5b64;--green:#2e7d4f;--red:#c0392b;--amber:#d68910;--line:#e6dbe2;}
+  html[data-color="steel"]{--navy:#1f4e5f;--navy-light:#2f6e80;--gold:#e0a93b;--paper:#eef4f5;--paper-card:#fff;--ink:#1e2a2d;--muted:#5f6b6d;--green:#2e7d4f;--red:#c0392b;--amber:#d68910;--line:#d6e2e4;}
+  html[data-color="sumi"]{--navy:#2b2b2b;--navy-light:#4a4a4a;--gold:#c8973a;--paper:#f4f3f0;--paper-card:#fff;--ink:#222;--muted:#6b6b6b;--green:#2e7d4f;--red:#c0392b;--amber:#d68910;--line:#e2e0da;}
+  html[data-color="ultramarine"]{--navy:#21409a;--navy-light:#3a5bc0;--gold:#f0a500;--paper:#eef1f9;--paper-card:#fff;--ink:#1c2433;--muted:#5f6675;--green:#2e7d4f;--red:#c0392b;--amber:#f0a500;--line:#dbe0ee;}
+  html[data-color="sakura"]{--navy:#b03a6b;--navy-light:#c85788;--gold:#e0a94f;--paper:#fbf0f4;--paper-card:#fff;--ink:#3a2630;--muted:#8a6b76;--green:#2e7d4f;--red:#c0392b;--amber:#e08a2e;--line:#f2dde6;}
+  html[data-color="wakaba"]{--navy:#0e7268;--navy-light:#16998c;--gold:#ff8a5b;--paper:#eef7f4;--paper-card:#fff;--ink:#1e2a28;--muted:#5f6b68;--green:#2e7d4f;--red:#c0392b;--amber:#f08a3c;--line:#d6e8e3;}
+  html[data-color="fuji"]{--navy:#6a4c93;--navy-light:#8466b0;--gold:#d9a441;--paper:#f3f0f9;--paper-card:#fff;--ink:#281f33;--muted:#66607a;--green:#2e7d4f;--red:#c0392b;--amber:#d68910;--line:#e4dcef;}
+
+  /* ===================== 着せ替え：かたち（3種）===================== */
+  /* シャープ：角を立て、影を控えめに */
+  html[data-shape="sharp"] .btn, html[data-shape="sharp"] .btn.ghost, html[data-shape="sharp"] .filter-btn,
+  html[data-shape="sharp"] .chip-toggle, html[data-shape="sharp"] .chip-btn, html[data-shape="sharp"] .result-btn,
+  html[data-shape="sharp"] .io-pick button, html[data-shape="sharp"] .cat-pick button, html[data-shape="sharp"] .view-toggle button,
+  html[data-shape="sharp"] .date-arrow, html[data-shape="sharp"] .today-btn, html[data-shape="sharp"] .month-nav button,
+  html[data-shape="sharp"] .time-quick button, html[data-shape="sharp"] .ord-btn, html[data-shape="sharp"] .seg button,
+  html[data-shape="sharp"] .fee-status, html[data-shape="sharp"] .fee-amt-btn{border-radius:5px !important;}
+  html[data-shape="sharp"] .tm-badge, html[data-shape="sharp"] .mate-tag, html[data-shape="sharp"] .grade-tag,
+  html[data-shape="sharp"] .cat-tag, html[data-shape="sharp"] .bb-head .pos-no, html[data-shape="sharp"] .cash-io-tag,
+  html[data-shape="sharp"] .fee-amt-btn .adj-dot{border-radius:3px !important;}
+  html[data-shape="sharp"] .card, html[data-shape="sharp"] .bout-block, html[data-shape="sharp"] .card-head-summary,
+  html[data-shape="sharp"] .card-tally, html[data-shape="sharp"] .tiebreak-wrap, html[data-shape="sharp"] .acct-net,
+  html[data-shape="sharp"] .summary-box, html[data-shape="sharp"] .tm-score, html[data-shape="sharp"] .bout-mark,
+  html[data-shape="sharp"] .cat-vbar, html[data-shape="sharp"] .tl-daybox, html[data-shape="sharp"] .sched-date,
+  html[data-shape="sharp"] .crest, html[data-shape="sharp"] .logo-preview, html[data-shape="sharp"] .date-display-wrap,
+  html[data-shape="sharp"] .acct-head, html[data-shape="sharp"] input, html[data-shape="sharp"] select,
+  html[data-shape="sharp"] textarea{border-radius:5px !important;}
+  html[data-shape="sharp"] nav.tabbar button.active{border-radius:6px !important;}
+  html[data-shape="sharp"] .modal{border-radius:8px 8px 0 0 !important;}
+  html[data-shape="sharp"] .card{box-shadow:0 1px 2px rgba(0,0,0,.06) !important;}
+  html[data-shape="sharp"] header{box-shadow:0 1px 3px rgba(0,0,0,.12) !important;}
+
+  /* まんまる：ボタン/バッジはピル、箱は大きめ角丸 */
+  html[data-shape="pop"] .btn, html[data-shape="pop"] .btn.ghost, html[data-shape="pop"] .filter-btn,
+  html[data-shape="pop"] .chip-toggle, html[data-shape="pop"] .chip-btn, html[data-shape="pop"] .result-btn,
+  html[data-shape="pop"] .io-pick button, html[data-shape="pop"] .cat-pick button, html[data-shape="pop"] .view-toggle button,
+  html[data-shape="pop"] .date-arrow, html[data-shape="pop"] .today-btn, html[data-shape="pop"] .month-nav button,
+  html[data-shape="pop"] .time-quick button, html[data-shape="pop"] .ord-btn, html[data-shape="pop"] .seg button,
+  html[data-shape="pop"] .fee-status, html[data-shape="pop"] .fee-amt-btn{border-radius:999px !important;}
+  html[data-shape="pop"] .tm-badge, html[data-shape="pop"] .mate-tag, html[data-shape="pop"] .grade-tag,
+  html[data-shape="pop"] .cat-tag, html[data-shape="pop"] .bb-head .pos-no, html[data-shape="pop"] .cash-io-tag,
+  html[data-shape="pop"] .fee-amt-btn .adj-dot{border-radius:999px !important;}
+  html[data-shape="pop"] .card, html[data-shape="pop"] .bout-block, html[data-shape="pop"] .card-head-summary,
+  html[data-shape="pop"] .card-tally, html[data-shape="pop"] .tiebreak-wrap, html[data-shape="pop"] .acct-net,
+  html[data-shape="pop"] .summary-box, html[data-shape="pop"] .acct-head,
+  html[data-shape="pop"] .date-display-wrap{border-radius:20px !important;}
+  html[data-shape="pop"] .tm-score, html[data-shape="pop"] .bout-mark, html[data-shape="pop"] .cat-vbar,
+  html[data-shape="pop"] .tl-daybox, html[data-shape="pop"] .sched-date, html[data-shape="pop"] .crest,
+  html[data-shape="pop"] .logo-preview{border-radius:16px !important;}
+  html[data-shape="pop"] input, html[data-shape="pop"] select, html[data-shape="pop"] textarea{border-radius:16px !important;}
+  html[data-shape="pop"] nav.tabbar button.active{border-radius:18px !important;}
+  html[data-shape="pop"] .modal{border-radius:26px 26px 0 0 !important;}
+  html[data-shape="pop"] .card{box-shadow:0 2px 12px rgba(0,0,0,.10) !important;}
+
+  /* ===================== テーマ選択UI ===================== */
+  .theme-color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:8px 0 4px;}
+  .theme-sw{position:relative;aspect-ratio:1/1;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;background:#fff;}
+  .theme-sw .sw-main{flex:1;width:100%;}
+  .theme-sw .sw-acc{height:32%;width:100%;}
+  .theme-sw.on{border-color:var(--ink);box-shadow:0 0 0 2px #fff inset;}
+  .theme-sw.on::after{content:"✓";position:absolute;top:2px;right:5px;color:#fff;font-size:14px;font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,.5);}
+  .theme-shape-row{display:flex;gap:10px;margin:8px 0 4px;}
+  .theme-shape-btn{flex:1;border:3px solid var(--line);background:#fff;border-radius:12px;padding:12px 6px 8px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .theme-shape-btn.on{border-color:var(--navy);}
+  .theme-shape-btn .shape-demo{width:46px;height:30px;background:var(--navy);}
+  .theme-shape-btn[data-s="round"] .shape-demo{border-radius:10px;}
+  .theme-shape-btn[data-s="sharp"] .shape-demo{border-radius:2px;}
+  .theme-shape-btn[data-s="pop"] .shape-demo{border-radius:999px;}
+  .theme-shape-btn .shape-name{font-size:15px;font-weight:700;color:var(--navy);}
+  .theme-shape-btn .shape-desc{font-size:12px;color:var(--muted);}
+
+  /* ===================== パスコードロック画面 ===================== */
+  #lockScreen{display:none;position:fixed;inset:0;z-index:9999;background:var(--navy);color:#fff;align-items:center;justify-content:center;padding:24px;}
+  #lockScreen.show{display:flex;}
+  .lock-inner{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;}
+  .lock-logo{width:64px;height:64px;border-radius:14px;background-size:cover;background-position:center;margin-bottom:14px;}
+  .lock-title{font-size:19px;font-weight:700;margin-bottom:20px;letter-spacing:.03em;}
+  .lock-dots{display:flex;gap:18px;margin-bottom:10px;}
+  .lock-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.7);box-sizing:border-box;}
+  .lock-dot.filled{background:#fff;border-color:#fff;}
+  .lock-msg{min-height:22px;font-size:14px;color:#ffd9d2;margin-bottom:14px;}
+  .lock-dots.shake{animation:lockShake .4s;}
+  @keyframes lockShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+  .lock-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%;}
+  .lock-key{aspect-ratio:1/1;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.06);color:#fff;font-size:30px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+  .lock-key:active{background:rgba(255,255,255,.25);transform:scale(.95);}
+  .lock-key.blank{border:none;background:none;cursor:default;}
+  .lock-key.fn{font-size:17px;font-weight:700;border-color:transparent;background:none;}
+  .lock-cancel{margin-top:22px;background:none;border:none;color:rgba(255,255,255,.85);font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;text-decoration:underline;}
+</style>
+<script>
+/* ===== オフライン対応（PWA / Service Worker）===== */
+(function(){
+  if(!('serviceWorker' in navigator))return;
+  // 自分自身(現在のHTML)をキャッシュするService Workerをインライン生成
+  const swCode = `
+    const CACHE='judo-app-cache-v1';
+    const SELF='` + location.pathname + `';
+    self.addEventListener('install', e=>{
+      self.skipWaiting();
+      e.waitUntil(caches.open(CACHE).then(c=>c.addAll([SELF])));
+    });
+    self.addEventListener('activate', e=>{
+      e.waitUntil(
+        caches.keys().then(keys=>Promise.all(
+          keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))
+        )).then(()=>self.clients.claim())
+      );
+    });
+    self.addEventListener('fetch', e=>{
+      if(e.request.method!=='GET')return;
+      e.respondWith(
+        fetch(e.request).then(res=>{
+          const copy=res.clone();
+          caches.open(CACHE).then(c=>c.put(e.request,copy));
+          return res;
+        }).catch(()=>caches.match(e.request).then(r=>r||caches.match(SELF)))
+      );
+    });
+  `;
+  try{
+    const blob=new Blob([swCode],{type:'application/javascript'});
+    const url=URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).catch(()=>{});
+  }catch(e){}
+})();
+</script>
+</head>
+<body>
+
+<div id="lockScreen">
+  <div class="lock-inner">
+    <div class="lock-logo" id="lockLogo"></div>
+    <div class="lock-title" id="lockTitle">パスコードを入力</div>
+    <div class="lock-dots" id="lockDots"></div>
+    <div class="lock-msg" id="lockMsg"></div>
+    <div class="lock-keypad" id="lockKeypad"></div>
+    <button class="lock-cancel" id="lockCancel" onclick="cancelSetPasscode()" style="display:none">やめる</button>
+  </div>
+</div>
+
+<header>
+  <div class="title">
+    <div class="crest" id="headerCrest">柔</div>
+    <div>
+      <h1 id="teamName">柔道チーム管理</h1>
+      <div class="sub">事務管理アプリ</div>
+    </div>
+  </div>
+</header>
+
+<!-- 出欠 -->
+<section id="screen-att" class="screen active">
+  <div class="card">
+    <div class="date-pick">
+      <button class="date-arrow" onclick="shiftAttDate(-1)">‹</button>
+      <div class="date-display-wrap">
+        <span id="attDateDisplay" class="date-display-text"></span>
+        <input type="date" id="attDate" class="date-hidden-input">
+      </div>
+      <button class="date-arrow" onclick="shiftAttDate(1)">›</button>
+      <button class="today-btn" onclick="attToday()">今日</button>
+    </div>
+  </div>
+  <div class="summary-bar">
+    <div class="summary-box"><div class="num" id="attPresNum">0</div><div class="lbl">出席</div></div>
+    <div class="summary-box alert"><div class="num" id="attAbsNum">0</div><div class="lbl">欠席</div></div>
+    <div class="summary-box" style="background:var(--muted)"><div class="num" id="attNoneNum">0</div><div class="lbl">未回答</div></div>
+  </div>
+  <div class="card" id="attList"></div>
+</section>
+
+<!-- 月謝 -->
+<section id="screen-money" class="screen">
+  <div class="view-toggle">
+    <button id="moneyFeeTab" class="on" onclick="setMoneyView('fee')">月謝</button>
+    <button id="moneyCashTab" onclick="setMoneyView('cash')">入出金</button>
+  </div>
+
+  <!-- 月謝ビュー -->
+  <div id="moneyFeeView">
+    <div class="month-nav">
+      <button onclick="changeFeeMonth(-1)">‹</button>
+      <div class="lbl" id="feeMonthLbl"></div>
+      <button onclick="changeFeeMonth(1)">›</button>
+    </div>
+    <div class="summary-bar">
+      <div class="summary-box"><div class="num" id="feePaidNum">0</div><div class="lbl">支払済</div></div>
+      <div class="summary-box alert"><div class="num" id="feeUnpaidNum">0</div><div class="lbl">未納</div></div>
+      <div class="summary-box" style="background:var(--gold);color:#3a2e00"><div class="num yen" id="feeSum">¥0</div><div class="lbl" style="color:#5a4500">集金済</div></div>
+    </div>
+    <div class="card" id="feeList"></div>
+  </div>
+
+  <!-- 入出金ビュー -->
+  <div id="moneyCashView" style="display:none">
+    <div class="month-nav">
+      <button onclick="changeCashMonth(-1)">‹</button>
+      <div class="lbl" id="cashMonthLbl"></div>
+      <button onclick="changeCashMonth(1)">›</button>
+    </div>
+    <div class="summary-bar">
+      <div class="summary-box" style="background:var(--green)"><div class="num yen" id="cashInNum">¥0</div><div class="lbl" style="color:#dfeede">収入</div></div>
+      <div class="summary-box" style="background:var(--red)"><div class="num yen" id="cashOutNum">¥0</div><div class="lbl">支出</div></div>
+      <div class="summary-box"><div class="num yen" id="cashNetNum">¥0</div><div class="lbl">差引</div></div>
+    </div>
+    <button class="btn gold full" style="margin-bottom:14px" onclick="openCashModal()">＋ 記録する</button>
+    <div class="card" id="cashList"></div>
+  </div>
+</section>
+
+<!-- スケジュール -->
+<section id="screen-sched" class="screen">
+  <div class="section-head" style="justify-content:flex-end">
+    <button class="chip-btn" onclick="openPresetModal()">よく使う設定</button>
+    <button class="btn gold sm" onclick="openSchedModal()">＋ 予定を追加</button>
+  </div>
+  <div class="month-nav">
+    <button onclick="changeSchedYear(-1)">‹</button>
+    <div class="lbl" id="schedYearLbl"></div>
+    <button onclick="changeSchedYear(1)">›</button>
+  </div>
+  <div class="card" id="schedList"></div>
+</section>
+
+<!-- 仲間 -->
+<section id="screen-mates" class="screen">
+  <div class="section-head" style="justify-content:flex-end">
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="chip-toggle" id="retiredToggle" onclick="toggleRetired()">退会も表示</button>
+      <button class="chip-btn" onclick="openFeePresetModal()">よく使う設定</button>
+      <button class="btn gold sm" onclick="openStudentModal()">＋ 仲間を追加</button>
+    </div>
+  </div>
+  <div class="filter-row">
+    <button id="fAll" class="filter-btn on" onclick="setMateFilter('all')">全員</button>
+    <button id="fLeader" class="filter-btn" onclick="setMateFilter('leader')">指導者</button>
+    <button id="fStudent" class="filter-btn" onclick="setMateFilter('student')">生徒</button>
+  </div>
+  <div class="card">
+    <div id="studentList"></div>
+  </div>
+</section>
+
+<!-- 一覧（月別マトリクス） -->
+<section id="screen-list" class="screen">
+  <div class="view-toggle">
+    <button id="viewMonth" class="on" onclick="setListView('month')">月謝/出欠<small>(月)</small></button>
+    <button id="viewYear" onclick="setListView('year')">会計/出欠<small>(年度)</small></button>
+    <button id="viewMember" onclick="setListView('member')">仲間情報</button>
+    <button id="viewMatch" onclick="setListView('match')">試合結果</button>
+  </div>
+
+  <!-- 月ビュー -->
+  <div id="listMonthView">
+    <div class="month-nav">
+      <button onclick="changeListMonth(-1)">‹</button>
+      <div class="lbl" id="listMonthLbl"></div>
+      <button onclick="changeListMonth(1)">›</button>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:var(--navy);font-size:18px">月謝の支払い状況</h3>
+      <div class="matrix-wrap" id="listFeeMatrix"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:var(--navy);font-size:18px">出欠（練習日ごと）</h3>
+      <div class="matrix-wrap" id="listAttMatrix"></div>
+      <div class="legend">
+        <span><i style="background:#e3f2e8"></i>出席（○）</span>
+        <span><i style="background:#fdeaea"></i>欠席（×）</span>
+        <span><i style="background:#fff8e8"></i>合計</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 年度ビュー -->
+  <div id="listYearView" style="display:none">
+    <div class="month-nav">
+      <button onclick="changeFiscalYear(-1)">‹</button>
+      <div class="lbl" id="fiscalYearLbl"></div>
+      <button onclick="changeFiscalYear(1)">›</button>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:var(--navy);font-size:18px">会計まとめ</h3>
+      <div id="yearAccount"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:var(--navy);font-size:18px">出欠の年間合計（仲間ごと）</h3>
+      <div class="matrix-wrap" id="yearAttMatrix"></div>
+    </div>
+  </div>
+
+  <!-- メンバービュー -->
+  <div id="listMemberView" style="display:none">
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:var(--navy);font-size:18px">仲間一覧</h3>
+      <div class="matrix-wrap" id="memberMatrix"></div>
+    </div>
+  </div>
+
+  <div id="listMatchView" style="display:none">
+    <div class="card">
+      <h3 style="margin:0 0 6px;color:var(--navy);font-size:18px">試合結果</h3>
+      <p class="list-mini" id="matchSummaryHint">仲間をタップすると、その人の試合結果がすべて表示されます。</p>
+      <div id="matchMemberList" style="margin-top:10px"></div>
+    </div>
+    <div class="card" id="matchDetailCard" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px">
+        <h3 id="matchDetailName" style="margin:0;color:var(--navy);font-size:18px"></h3>
+        <button class="chip-btn" onclick="closeMatchDetail()">戻る</button>
+      </div>
+      <div id="matchDetailBody"></div>
+    </div>
+  </div>
+</section>
+<section id="screen-set" class="screen">
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--navy)">チーム名</h3>
+    <input type="text" id="teamNameInput" onchange="saveTeamName()" placeholder="例：〇〇柔道クラブ">
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--navy)">チームロゴ</h3>
+    <p class="list-mini">選んだ画像は自動で正方形に整えられ、左上のマークとホーム画面アイコンになります。</p>
+    <div class="logo-area">
+      <div class="logo-preview" id="logoPreview">柔</div>
+      <div style="flex:1">
+        <label class="btn gold full" style="cursor:pointer">画像を選ぶ
+          <input type="file" accept="image/*" style="display:none" onchange="uploadLogo(event)">
+        </label>
+        <button class="btn ghost full" style="margin-top:8px" onclick="resetLogo()">標準に戻す</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--navy)">デザイン（着せ替え）</h3>
+    <p class="list-mini">色は10種類、かたちは3種類。自由に組み合わせられます。タップですぐに反映され、この端末に記憶されます。</p>
+    <label class="fld">カラー：<span id="themeColorName" style="color:var(--navy);font-weight:700"></span></label>
+    <div class="theme-color-grid" id="themeColorGrid"></div>
+    <label class="fld">かたち：<span id="themeShapeName" style="color:var(--navy);font-weight:700"></span></label>
+    <div class="theme-shape-row" id="themeShapeRow"></div>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--navy)">データの保存・共有</h3>
+    <p class="list-mini">月に一度バックアップを保存してください。仲間への共有もこのファイルで行えます。</p>
+    <button class="btn full ghost" style="margin-top:10px" onclick="exportData()">💾 バックアップを保存</button>
+    <label class="btn full ghost" style="margin-top:10px;cursor:pointer">📂 バックアップから復元
+      <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+    </label>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--navy)">アプリのロック（パスコード）</h3>
+    <p class="list-mini">個人情報保護のため、起動時に4桁のパスコード入力を求められるようにできます（この端末のみ・バックアップには含まれません）。</p>
+    <label class="fld">起動時パスコード</label>
+    <div class="io-pick">
+      <button id="lockOff" class="on" onclick="setLockEnabled(false)">無効</button>
+      <button id="lockOn" onclick="setLockEnabled(true)">有効</button>
+    </div>
+    <button class="btn ghost full" id="lockChangeBtn" style="margin-top:10px;display:none" onclick="startSetPasscode()">パスコードを変更</button>
+  </div>
+</section>
+
+<nav class="tabbar">
+  <button data-tab="mates" onclick="switchTab('mates')"><span class="ico">🤝</span><span class="tlbl">仲間</span></button>
+  <button data-tab="att" class="active" onclick="switchTab('att')"><span class="ico">📋</span><span class="tlbl">出欠</span></button>
+  <button data-tab="money" onclick="switchTab('money')"><span class="ico">💴</span><span class="tlbl">お金</span></button>
+  <button data-tab="sched" onclick="switchTab('sched')"><span class="ico">📅</span><span class="tlbl">予定</span></button>
+  <button data-tab="list" onclick="switchTab('list')"><span class="ico">📊</span><span class="tlbl">集計</span></button>
+  <button data-tab="set" onclick="switchTab('set')"><span class="ico">⚙️</span><span class="tlbl">設定</span></button>
+</nav>
+
+<!-- 生徒モーダル -->
+<div class="modal-bg" id="studentModal">
+  <div class="modal">
+    <h3 id="studentModalTitle">仲間を追加</h3>
+    <label class="fld">名前</label>
+    <input type="text" id="stName" placeholder="例：山田 太郎">
+    <label class="fld">区分</label>
+    <div class="cat-pick" id="catPick"></div>
+    <label class="fld">段位 / 級（任意）</label>
+    <div class="cat-pick" id="rankPick"></div>
+    <input type="text" id="stRankFree" placeholder="その他（自由記載）" style="margin-top:8px">
+    <label class="fld">段位 / 級 取得年月日（任意）</label>
+    <input type="date" id="stRankDate">
+    <label class="fld">性別</label>
+    <div class="io-pick" id="sexPick">
+      <button id="sexM" onclick="pickSex('男性')">男性</button>
+      <button id="sexF" onclick="pickSex('女性')">女性</button>
+      <button id="sexO" onclick="pickSex('その他')">その他</button>
+    </div>
+    <label class="fld">組手（任意）</label>
+    <div class="io-pick" id="stGripPick">
+      <button id="stGripR" onclick="pickStuGrip('右')">右</button>
+      <button id="stGripL" onclick="pickStuGrip('左')">左</button>
+      <button id="stGripO" onclick="pickStuGrip('他')">他</button>
+    </div>
+    <label class="fld">月謝</label>
+    <div class="io-pick">
+      <button id="feeYes" class="on" onclick="pickFeeReq(true)">必要</button>
+      <button id="feeNo" onclick="pickFeeReq(false)">不要</button>
+    </div>
+    <div id="feeAmountArea">
+      <label class="fld">月謝の金額</label>
+      <div class="cat-pick" id="feeAmtPick"></div>
+      <input type="number" id="stFeeAmount" inputmode="numeric" placeholder="その他の金額を入力" style="margin-top:8px">
+    </div>
+    <label class="fld">在籍開始日</label>
+    <input type="date" id="stStart">
+    <label class="fld">在籍終了日</label>
+    <div class="io-pick" style="margin-bottom:8px">
+      <button id="enrollActive" class="on" onclick="pickEnroll(true)">在籍中</button>
+      <button id="enrollEnded" onclick="pickEnroll(false)">退会（日付指定）</button>
+    </div>
+    <input type="date" id="stEnd" style="display:none">
+    <label class="fld">生年月日（任意）<span id="ageDisplay" style="color:var(--navy);font-weight:700"></span></label>
+    <input type="date" id="stBirth" onchange="updateAgeDisplay()">
+    <label class="fld">柔道メンバーID（任意）</label>
+    <input type="text" id="stJudoId" placeholder="例：1234567">
+    <label class="fld">備考（任意）</label>
+    <input type="text" id="stNote" placeholder="例：アレルギーあり／〇〇大会出場予定">
+    <div class="row">
+      <button class="btn ghost" onclick="closeModal('studentModal')">やめる</button>
+      <button class="btn gold" onclick="saveStudent()">保存する</button>
+    </div>
+    <button class="btn del-full" id="stDeleteBtn" onclick="deleteStudentFromModal()">この仲間を削除する</button>
+  </div>
+</div>
+
+<!-- 削除確認モーダル -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal" style="max-width:340px">
+    <h3 style="color:var(--red);margin-top:0">削除の確認</h3>
+    <p id="confirmText" style="font-size:16px;line-height:1.6;margin:12px 0 20px"></p>
+    <div class="row">
+      <button class="btn ghost" onclick="closeModal('confirmModal')">やめる</button>
+      <button class="btn" id="confirmYesBtn" style="background:var(--red);color:#fff" onclick="confirmDeleteYes()">削除する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 月謝のよく使う設定モーダル -->
+<div class="modal-bg" id="feePresetModal">
+  <div class="modal">
+    <h3>よく使う月謝金額</h3>
+    <p class="list-mini">仲間の登録画面でボタンで選べる月謝金額を、4つまで登録できます。空欄や0のままでもOKです。</p>
+    <label class="fld">月謝金額（4つ・円）</label>
+    <div id="feePresetInputs"></div>
+    <div class="row">
+      <button class="btn ghost" onclick="closeModal('feePresetModal')">やめる</button>
+      <button class="btn gold" onclick="saveFeePresets()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 月謝の月別調整モーダル -->
+<div class="modal-bg" id="feeAdjustModal">
+  <div class="modal">
+    <h3>今月の月謝を調整</h3>
+    <p class="list-mini" id="feeAdjustSub"></p>
+    <label class="fld">かんたん設定</label>
+    <div class="cat-pick" id="feeAdjustQuick"></div>
+    <label class="fld">金額（円）</label>
+    <input type="number" id="feeAdjustAmount" inputmode="numeric" placeholder="例 2500">
+    <div class="row">
+      <button class="btn ghost" onclick="closeModal('feeAdjustModal')">やめる</button>
+      <button class="btn gold" onclick="saveFeeAdjust()">保存する</button>
+    </div>
+    <button class="btn del-full" id="feeResetBtn" onclick="resetFeeAdjust()">通常額（登録額）に戻す</button>
+  </div>
+</div>
+
+<!-- スケジュールモーダル -->
+<div class="modal-bg" id="schedModal">
+  <div class="modal">
+    <h3 id="schedModalTitle">予定を追加</h3>
+    <label class="fld">種類</label>
+    <div class="cat-pick" id="schTypePick"></div>
+    <input type="text" id="schTypeFree" placeholder="その他（自由記載）" style="margin-top:8px">
+    <label class="fld">イベント名（任意）</label>
+    <input type="text" id="schTitle" placeholder="例：中学生総合体育大会／夏季バーベキュー">
+    <label class="fld">試合結果ボタン</label>
+    <div class="io-pick">
+      <button id="smYes" onclick="pickShowMatch(true)">表示する</button>
+      <button id="smNo" class="on" onclick="pickShowMatch(false)">表示しない</button>
+    </div>
+    <label class="fld">日付<span id="schDateWeek" style="color:var(--navy);font-weight:700;margin-left:6px"></span></label>
+    <input type="date" id="schDate" onchange="updateSchedWeek()">
+    <label class="fld">開始時間</label>
+    <div class="cat-pick" id="schTimePick"></div>
+    <input type="text" id="schTimeFree" placeholder="その他（例 13:30）" style="margin-top:8px">
+    <label class="fld">場所</label>
+    <div class="cat-pick" id="schPlacePick"></div>
+    <input type="text" id="schPlaceFree" placeholder="その他（自由記載）" style="margin-top:8px">
+    <label class="fld">備考（任意）</label>
+    <input type="text" id="schNote" placeholder="例：上履き持参／集合は15分前">
+    <label class="fld">色</label>
+    <div class="color-pick" id="schColorPick"></div>
+    <div class="row">
+      <button class="btn ghost" onclick="closeModal('schedModal')">やめる</button>
+      <button class="btn gold" onclick="saveSched()">保存する</button>
+    </div>
+    <button class="btn del-full" id="schDeleteBtn" onclick="deleteSchedFromModal()">この予定を削除する</button>
+  </div>
+</div>
+
+<!-- よく使う設定モーダル -->
+<div class="modal-bg" id="presetModal">
+  <div class="modal">
+    <h3>よく使う設定</h3>
+    <p class="list-mini">予定を追加するときにボタンで選べる候補を、それぞれ4つまで登録できます。空欄のままでもOKです。</p>
+    <label class="fld">種類（4つ）</label>
+    <div id="presetTypes"></div>
+    <label class="fld">開始時間（4つ）</label>
+    <div id="presetTimes"></div>
+    <label class="fld">場所（4つ）</label>
+    <div id="presetPlaces"></div>
+    <div class="row">
+      <button class="btn ghost" onclick="closeModal('presetModal')">やめる</button>
+      <button class="btn gold" onclick="savePresets()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 試合結果モーダル（一覧＋シート切替） -->
+<div class="modal-bg" id="matchModal">
+  <div class="modal">
+    <h3 id="matchModalTitle">試合結果</h3>
+    <div class="filter-row" style="margin-bottom:12px">
+      <button id="msIndiv" class="filter-btn on" onclick="setMatchSheet('individual')">個人戦</button>
+      <button id="msTeam" class="filter-btn" onclick="setMatchSheet('team')">団体戦</button>
+    </div>
+    <div id="teamMeta" style="display:none">
+      <div class="bb-label" style="margin-top:0">対戦カードごとに「人数・回戦・相手チーム・対戦内容」をまとめて記録します。</div>
+    </div>
+    <div id="matchList"></div>
+    <button id="matchAddBtn" class="btn gold full" style="margin-top:12px" onclick="openBoutModal()">＋ 試合を追加</button>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost" onclick="closeModal('matchModal')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 試合（1試合分）入力モーダル -->
+<div class="modal-bg" id="boutModal">
+  <div class="modal">
+    <h3 id="boutModalTitle">試合を記録</h3>
+    <label class="fld">選手</label>
+    <select id="bSelfId" onchange="onBoutSelfChange()"></select>
+    <label class="fld">試合区分</label>
+    <input type="text" id="bDivision" placeholder="例 学年別／無差別">
+    <label class="fld">回戦</label>
+    <input type="text" id="bRound" placeholder="例 2回戦／準決勝／決勝">
+    <label class="fld">勝敗</label>
+    <div class="cat-pick" id="bResultPick"></div>
+    <label class="fld">決まり技</label>
+    <input type="text" id="bWaza" placeholder="例 大外刈／優勢／不戦">
+    <label class="fld">対戦相手</label>
+    <div class="io-pick">
+      <button id="mateOff" class="on" onclick="pickOppMate(false)">通常</button>
+      <button id="mateOn" onclick="pickOppMate(true)">同門対決</button>
+    </div>
+    <div id="oppNormalWrap">
+      <label class="fld">対戦相手の氏名</label>
+      <input type="text" id="bOppName" placeholder="例 山田 一郎">
+      <label class="fld" id="bOppAffilLabel">対戦相手の所属</label>
+      <input type="text" id="bOppAffil" placeholder="例 〇〇柔道クラブ">
+    </div>
+    <div id="oppMateWrap" style="display:none">
+      <label class="fld">対戦相手（仲間から選択）</label>
+      <select id="bOppId"></select>
+      <div class="bb-label" style="margin-top:6px">※相手側の試合結果一覧にも、勝敗を反転して自動で表示されます。組手は仲間情報に登録された内容が反映されます。</div>
+    </div>
+    <div id="bGripWrap">
+      <label class="fld">対戦相手の組手</label>
+      <div class="cat-pick" id="bGripPick"></div>
+    </div>
+    <label class="fld">備考（任意）</label>
+    <input type="text" id="bNote" placeholder="例 旗判定2-1">
+    <div class="row">
+      <button class="btn ghost" onclick="closeModal('boutModal')">やめる</button>
+      <button class="btn gold" onclick="saveBout()">保存する</button>
+    </div>
+    <button class="btn del-full" id="boutDeleteBtn" onclick="deleteBout()">この試合を削除する</button>
+  </div>
+</div>
+
+<!-- 対戦カード入力モーダル（団体戦）-->
+<div class="modal-bg" id="cardModal">
+  <div class="modal">
+    <h3 id="cardModalTitle">対戦カードを追加</h3>
+
+    <!-- ステップ1：カード設定 -->
+    <div id="cardStep1">
+      <label class="fld" style="margin-top:0">何人戦（人数）</label>
+      <input type="number" id="cdCount" inputmode="numeric" min="1" max="15" placeholder="例 5">
+      <label class="fld">試合区分</label>
+      <input type="text" id="cdDivision" placeholder="例 学年別／無差別">
+      <label class="fld">回戦</label>
+      <input type="text" id="cdRound" placeholder="例 2回戦／準決勝／決勝">
+      <label class="fld">同門対決（紅白戦など）</label>
+      <div class="io-pick">
+        <button id="cardMateOff" class="on" onclick="pickCardMate(false)">通常</button>
+        <button id="cardMateOn" onclick="pickCardMate(true)">同門対決</button>
+      </div>
+      <label class="fld" id="cdOppTeamLabel">対戦相手チーム</label>
+      <input type="text" id="cdOppTeam" placeholder="例 〇〇柔道クラブ">
+      <button class="btn gold full" style="margin-top:16px" onclick="cardNext()">次へ：対戦を入力する →</button>
+      <div class="row">
+        <button class="btn ghost" onclick="closeModal('cardModal')">やめる</button>
+      </div>
+      <button class="btn del-full" id="cardDeleteBtn" onclick="deleteCard()">この対戦カードを削除する</button>
+    </div>
+
+    <!-- ステップ2：対戦詳細 -->
+    <div id="cardStep2" style="display:none">
+      <div class="card-head-summary" id="cardHeadSummary"></div>
+      <div id="boutBlocks"></div>
+      <div class="card-tally" id="cardTally"></div>
+      <div class="tiebreak-wrap" id="tiebreakWrap" style="display:none">
+        <div class="tb-title">同点です。チームの決着方法を選んでください</div>
+        <div class="cat-pick" id="tiebreakPick"></div>
+        <div id="repWrap"></div>
+      </div>
+      <div class="row">
+        <button class="btn ghost" onclick="showCardStep(1)">← 設定にもどる</button>
+        <button class="btn gold" onclick="saveCard()">保存する</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 入出金モーダル -->
+<div class="modal-bg" id="cashModal">
+  <div class="modal">
+    <h3 id="cashModalTitle">入出金を記録</h3>
+    <label class="fld">収入 / 支出</label>
+    <div class="io-pick">
+      <button id="ioIn" class="on" onclick="pickIO('in')">収入</button>
+      <button id="ioOut" onclick="pickIO('out')">支出</button>
+    </div>
+    <label class="fld">項目</label>
+    <div class="cat-pick" id="cashCatPick"></div>
+    <label class="fld">金額（円）</label>
+    <input type="number" id="cashAmount" inputmode="numeric" placeholder="例：5000">
+    <label class="fld">日付</label>
+    <input type="date" id="cashDate">
+    <label class="fld">メモ（任意）</label>
+    <input type="text" id="cashMemo" placeholder="例：6月分大会参加費">
+    <div class="row">
+      <button class="btn ghost" onclick="closeModal('cashModal')">やめる</button>
+      <button class="btn gold" onclick="saveCash()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORE_KEY='judoTeamApp_v2';
+const DEFAULT_LOGO="data:image/png;base64,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";
+let DB={
+  team:'柔道チーム', feeAmount:3000,
+  students:[],
+  attendance:{},
+  fees:{}, schedule:[],
+  places:[], metaHistory:[], logo:DEFAULT_LOGO,
+  cash:[],
+  cashCats:{in:['寄付','参加費徴収','物販収入','補助金','その他収入'],out:['用具購入','会場費','大会遠征費','審査料','保険料','飲食費','その他支出']},
+  schedPresets:{types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['','','','']},
+  feePresets:[2000,3000,0,0],
+  feeOverrides:{},
+  themeColor:'indigo',
+  themeShape:'round',
+  matchResults:{}
+};
+const GRADE_COLOR={白帯:'#9aa0a6',黄帯:'#d4ac0d',橙帯:'#d68910',緑帯:'#2e7d4f',紫帯:'#7d3c98',茶帯:'#7b5230',黒帯:'#222'};
+const CATEGORIES=['小学生','中学生','高校生','大学生','一般','指導者'];
+const CAT_COLOR={小学生:'#2e7d4f',中学生:'#2d4373',高校生:'#7d3c98',大学生:'#c0392b',一般:'#6b6b6b',指導者:'#222'};
+const RANKS=['三級','二級','一級','初段','弍段','三段','四段'];
+const SEX_COLOR={男性:'#2d4373',女性:'#c0392b',その他:'#7d3c98'};
+const BADGE_COLOR={練習:'#2d4373',大会:'#c0392b',イベント:'#1a8c8c',昇級審査:'#d68910',合宿:'#2e7d4f',休み:'#9aa0a6',その他:'#6b6b6b'};
+const SCHED_COLORS=['#2d4373','#c0392b','#1a8c8c','#d68910','#2e7d4f','#7d3c98','#1a2b4a','#b8860b'];
+const SCHED_GRAY='#6b6b6b';
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}}
+function load(){try{const s=localStorage.getItem(STORE_KEY);if(s)DB=Object.assign(DB,JSON.parse(s));}catch(e){}
+  if(!DB.schedPresets)DB.schedPresets={types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['市民体育館','〇〇道場','','']};
+  if(!DB.feePresets)DB.feePresets=[2000,3000,0,0];
+  if(!DB.feeOverrides)DB.feeOverrides={};
+  if(!DB.themeColor)DB.themeColor='indigo';
+  if(!DB.themeShape)DB.themeShape='round';
+  // 旧ロゴ（赤丸の旧マーク・180x180）を新ロゴ（赤丸なし・虎拡大）へ自動更新
+  if(DB.logo && DB.logo.indexOf('SUhEUgAAALQAAAC0CAIAAACyr5Fl')!==-1) DB.logo=DEFAULT_LOGO;
+  if(!DB.matchResults)DB.matchResults={};
+  // 団体戦データの新形式(cards)への移行
+  Object.keys(DB.matchResults).forEach(k=>{
+    const mr=DB.matchResults[k];
+    if(mr&&mr.team&&!Array.isArray(mr.team.cards)){
+      const old=mr.team;const cards=[];
+      if(old.bouts&&old.bouts.length){
+        cards.push({id:uid(),count:Number(old.count)||old.bouts.length,division:'',round:'',oppTeam:'',
+          bouts:old.bouts.map(b=>Object.assign({},b)),tiebreak:'',rep:null});
+      }
+      mr.team={cards};
+    }
+  });
+}
+function seedIfEmpty(){
+  // 公開用・空データ版：サンプル選手は追加しません（バックアップから復元してご利用ください）
+}
+function todayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function thisMonthStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
+function shiftMonth(ym,delta){let[y,m]=ym.split('-').map(Number);m=m-1+delta;y+=Math.floor(m/12);m=((m%12)+12)%12;return `${y}-${String(m+1).padStart(2,'0')}`;}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+// その仲間の月謝額（個別設定がなければ全体設定。削除済みでも全体額で補完）
+function nameWithTags(s){
+  const cat=s.category||'';
+  const color=CAT_COLOR[s.category]||'#888';
+  const catBar=cat?`<div class="cat-vbar" style="background:${color}">${cat}</div>`:'';
+  const sexBar=s.sex?`<div class="cat-vbar" style="background:${SEX_COLOR[s.sex]||'#888'}">${s.sex}</div>`:'';
+  return `<div class="vbar-group">${catBar}${sexBar}</div><div class="person-name-only">${esc(s.name)}</div>`;
+}
+// 指定日(YYYY-MM-DD)に在籍しているか
+function isEnrolledOn(s,dateStr){
+  if(s.startDate && dateStr < s.startDate) return false;
+  if(s.endDate && dateStr > s.endDate) return false;
+  return true;
+}
+// 指定月(YYYY-MM)に在籍期間が少しでもかかるか
+function isEnrolledInMonth(s,ym){
+  const monthStart=ym+'-01';
+  const d=new Date(ym+'-01T00:00');d.setMonth(d.getMonth()+1);d.setDate(0);
+  const monthEnd=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  if(s.startDate && s.startDate > monthEnd) return false;
+  if(s.endDate && s.endDate < monthStart) return false;
+  return true;
+}
+function weekday(d){return ['日','月','火','水','木','金','土'][d.getDay()];}
+
+function switchTab(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+tab).classList.add('active');
+  document.querySelectorAll('nav.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  window.scrollTo(0,0);
+  ({att:renderAtt,money:renderMoney,sched:renderSched,mates:renderMates,list:renderList,set:renderSettings}[tab])();
+}
+
+/* 出欠 */
+function renderAtt(){
+  const date=document.getElementById('attDate').value||todayStr();
+  document.getElementById('attDate').value=date;
+  // 日付表示（曜日付き）
+  const dObj=new Date(date+'T00:00');
+  const dispEl=document.getElementById('attDateDisplay');
+  if(dispEl)dispEl.textContent=`${date.replace(/-/g,'/')}(${weekday(dObj)})`;
+  const day=DB.attendance[date]||{};
+  const list=document.getElementById('attList');
+  const roster=DB.students.filter(s=>isEnrolledOn(s,date));
+  if(roster.length===0){list.innerHTML='<div class="empty">この日に在籍している仲間がいません</div>';['attPresNum','attAbsNum','attNoneNum'].forEach(i=>document.getElementById(i).textContent=0);return;}
+  let p=0,a=0,n=0;
+  list.innerHTML=roster.map(s=>{
+    const st=day[s.id]; if(st==='present')p++;else if(st==='absent')a++;else n++;
+    return `<div class="att-row"><div class="att-person">${nameWithTags(s)}</div>
+      <div class="seg"><button class="${st==='present'?'on-pres':''}" onclick="setAtt('${date}','${s.id}','present')">出</button>
+      <button class="${st==='absent'?'on-abs':''}" onclick="setAtt('${date}','${s.id}','absent')">欠</button></div></div>`;
+  }).join('');
+  document.getElementById('attPresNum').textContent=p;
+  document.getElementById('attAbsNum').textContent=a;
+  document.getElementById('attNoneNum').textContent=n;
+}
+function setAtt(date,sid,val){
+  if(!DB.attendance[date])DB.attendance[date]={};
+  if(DB.attendance[date][sid]===val)delete DB.attendance[date][sid];else DB.attendance[date][sid]=val;
+  save();renderAtt();
+}
+document.getElementById('attDate').addEventListener('change',renderAtt);
+function shiftAttDate(delta){
+  const cur=document.getElementById('attDate').value||todayStr();
+  const d=new Date(cur+'T00:00');d.setDate(d.getDate()+delta);
+  document.getElementById('attDate').value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  renderAtt();
+}
+function attToday(){document.getElementById('attDate').value=todayStr();renderAtt();}
+
+/* 月謝 */
+/* お金（月謝＋入出金 統合） */
+let moneyView='fee';
+function renderMoney(){ moneyView==='fee'?renderFee():renderCash(); }
+function setMoneyView(v){
+  moneyView=v;
+  document.getElementById('moneyFeeTab').classList.toggle('on',v==='fee');
+  document.getElementById('moneyCashTab').classList.toggle('on',v==='cash');
+  document.getElementById('moneyFeeView').style.display=v==='fee'?'block':'none';
+  document.getElementById('moneyCashView').style.display=v==='cash'?'block':'none';
+  renderMoney();
+}
+let feeMonth=thisMonthStr();
+function changeFeeMonth(d){feeMonth=shiftMonth(feeMonth,d);renderFee();}
+function renderFee(){
+  const[y,m]=feeMonth.split('-');
+  document.getElementById('feeMonthLbl').textContent=`${y}年 ${Number(m)}月`;
+  const paid=DB.fees[feeMonth]||{};
+  const list=document.getElementById('feeList');
+  const roster=DB.students.filter(s=>s.feeReq!==false && isEnrolledInMonth(s,feeMonth));
+  if(roster.length===0){list.innerHTML='<div class="empty">この月に月謝対象の仲間がいません</div>';['feePaidNum','feeUnpaidNum'].forEach(i=>document.getElementById(i).textContent=0);document.getElementById('feeSum').textContent='¥0';return;}
+  let p=0,u=0,collected=0;
+  const ov=DB.feeOverrides[feeMonth]||{};
+  list.innerHTML=roster.map(s=>{
+    const rec=paid[s.id];
+    const isP=(rec!==undefined);
+    const amt=isP?paidAmount(rec,s):expectedFee(s);
+    const adjusted=(ov[s.id]!==undefined);
+    if(isP){p++;collected+=amt;}else u++;
+    return `<div class="fee-row"><div class="att-person">${nameWithTags(s)}</div>
+      <div class="fee-actions">
+        <button class="fee-amt-btn${adjusted?' adjusted':''}" onclick="openFeeAdjust('${s.id}')">¥${amt.toLocaleString()}${adjusted?'<span class="adj-dot">調整</span>':''}</button>
+        <button class="fee-status ${isP?'fee-paid':'fee-unpaid'}" onclick="toggleFee('${s.id}')">${isP?'支払済':'未納'}</button>
+      </div></div>`;
+  }).join('');
+  document.getElementById('feePaidNum').textContent=p;
+  document.getElementById('feeUnpaidNum').textContent=u;
+  document.getElementById('feeSum').textContent='¥'+collected.toLocaleString();
+}
+function toggleFee(sid){
+  if(!DB.fees[feeMonth])DB.fees[feeMonth]={};
+  if(DB.fees[feeMonth][sid]!==undefined){
+    delete DB.fees[feeMonth][sid]; // 未納に戻す＝記録クリア
+  }else{
+    const s=DB.students.find(x=>x.id===sid);
+    DB.fees[feeMonth][sid]=expectedFee(s); // その月の金額（調整があれば調整額）を焼き付け
+  }
+  save();renderFee();
+}
+// その月・その仲間に期待される月謝額（調整があれば調整額、なければ登録額）
+function expectedFee(s){
+  const ov=(DB.feeOverrides[feeMonth]||{})[s.id];
+  return (ov!==undefined)?ov:studentFee(s);
+}
+let feeAdjustSid=null;
+function openFeeAdjust(sid){
+  feeAdjustSid=sid;
+  const s=DB.students.find(x=>x.id===sid);
+  const def=studentFee(s);
+  const cur=expectedFee(s);
+  const[y,m]=feeMonth.split('-');
+  document.getElementById('feeAdjustSub').textContent=`${esc(s?s.name:'')}　${y}年${Number(m)}月（この月だけに反映／登録額 ¥${def.toLocaleString()}）`;
+  document.getElementById('feeAdjustAmount').value=cur;
+  renderFeeAdjustQuick(def);
+  const adjusted=((DB.feeOverrides[feeMonth]||{})[sid]!==undefined);
+  document.getElementById('feeResetBtn').style.display=adjusted?'block':'none';
+  openModal('feeAdjustModal');
+}
+function renderFeeAdjustQuick(def){
+  const opts=[['通常額',def],['半額',Math.round(def/2)],['¥0（免除）',0]];
+  document.getElementById('feeAdjustQuick').innerHTML=opts.map(([lbl,v])=>
+    `<button type="button" onclick="document.getElementById('feeAdjustAmount').value=${v}">${lbl}</button>`).join('');
+}
+function saveFeeAdjust(){
+  if(!feeAdjustSid)return;
+  const s=DB.students.find(x=>x.id===feeAdjustSid);
+  const def=studentFee(s);
+  const amt=Math.max(0,Number(document.getElementById('feeAdjustAmount').value)||0);
+  if(!DB.feeOverrides[feeMonth])DB.feeOverrides[feeMonth]={};
+  if(amt===def){delete DB.feeOverrides[feeMonth][feeAdjustSid];} // 登録額と同じなら調整解除
+  else DB.feeOverrides[feeMonth][feeAdjustSid]=amt;
+  // すでに支払済なら焼き付け額も更新
+  if(DB.fees[feeMonth]&&DB.fees[feeMonth][feeAdjustSid]!==undefined)DB.fees[feeMonth][feeAdjustSid]=amt;
+  save();closeModal('feeAdjustModal');renderFee();toast('調整しました');
+}
+function resetFeeAdjust(){
+  if(!feeAdjustSid)return;
+  const s=DB.students.find(x=>x.id===feeAdjustSid);
+  if(DB.feeOverrides[feeMonth])delete DB.feeOverrides[feeMonth][feeAdjustSid];
+  // 支払済なら登録額で焼き直し
+  if(DB.fees[feeMonth]&&DB.fees[feeMonth][feeAdjustSid]!==undefined)DB.fees[feeMonth][feeAdjustSid]=studentFee(s);
+  save();closeModal('feeAdjustModal');renderFee();toast('通常額に戻しました');
+}
+// 支払い記録から金額を取り出す（古い true 記録は現在額で補完）
+function studentFee(s){return (s && s.feeAmount!=null && s.feeAmount>0)?s.feeAmount:DB.feeAmount;}
+function paidAmount(rec,s){
+  if(typeof rec==='number') return rec; // 焼き付け済みの金額（削除されても不変）
+  if(rec===true) return studentFee(s);  // 旧データ互換（sが無ければ全体額で補完）
+  return 0;
+}
+
+/* 入出金 */
+let cashMonth=thisMonthStr();
+let pickedIO='in';
+function changeCashMonth(d){cashMonth=shiftMonth(cashMonth,d);renderCash();}
+function pickIO(io){
+  pickedIO=io;
+  document.getElementById('ioIn').classList.toggle('on',io==='in');
+  document.getElementById('ioOut').classList.toggle('on',io==='out');
+  renderCashCatPick();
+}
+let pickedCashCat='';
+function renderCashCatPick(){
+  const cats=DB.cashCats[pickedIO]||[];
+  if(!cats.includes(pickedCashCat))pickedCashCat=cats[0];
+  document.getElementById('cashCatPick').innerHTML=cats.map(c=>`<button class="${c===pickedCashCat?'on':''}" onclick="pickCashCat('${esc(c)}')">${esc(c)}</button>`).join('');
+}
+function pickCashCat(c){pickedCashCat=c;renderCashCatPick();}
+let editingCash=null;
+function openCashModal(id){
+  editingCash=id||null;
+  if(id){
+    const c=DB.cash.find(x=>x.id===id);
+    document.getElementById('cashModalTitle').textContent='記録を編集';
+    pickedIO=c.io;pickedCashCat=c.cat;
+    document.getElementById('cashAmount').value=c.amount;
+    document.getElementById('cashDate').value=c.date;
+    document.getElementById('cashMemo').value=c.memo||'';
+  }else{
+    document.getElementById('cashModalTitle').textContent='入出金を記録';
+    pickedIO='in';pickedCashCat='';
+    document.getElementById('cashAmount').value='';
+    document.getElementById('cashDate').value=todayStr();
+    document.getElementById('cashMemo').value='';
+  }
+  document.getElementById('ioIn').classList.toggle('on',pickedIO==='in');
+  document.getElementById('ioOut').classList.toggle('on',pickedIO==='out');
+  renderCashCatPick();
+  openModal('cashModal');
+}
+function saveCash(){
+  const amount=Number(document.getElementById('cashAmount').value)||0;
+  const date=document.getElementById('cashDate').value;
+  const memo=document.getElementById('cashMemo').value.trim();
+  if(amount<=0){toast('金額を入れてください');return;}
+  if(!date){toast('日付を選んでください');return;}
+  if(editingCash){
+    const c=DB.cash.find(x=>x.id===editingCash);
+    c.io=pickedIO;c.cat=pickedCashCat;c.amount=amount;c.date=date;c.memo=memo;
+  }else{
+    DB.cash.push({id:uid(),io:pickedIO,cat:pickedCashCat,amount,date,memo});
+  }
+  save();closeModal('cashModal');renderCash();toast(editingCash?'更新しました':'記録しました');
+}
+function delCash(id){DB.cash=DB.cash.filter(x=>x.id!==id);save();renderCash();toast('削除しました');}
+function renderCash(){
+  const[y,m]=cashMonth.split('-');
+  document.getElementById('cashMonthLbl').textContent=`${y}年 ${Number(m)}月`;
+  const items=DB.cash.filter(c=>c.date.startsWith(cashMonth)).sort((a,b)=>b.date.localeCompare(a.date));
+  let inSum=0,outSum=0;
+  items.forEach(c=>{if(c.io==='in')inSum+=c.amount;else outSum+=c.amount;});
+  document.getElementById('cashInNum').textContent='¥'+inSum.toLocaleString();
+  document.getElementById('cashOutNum').textContent='¥'+outSum.toLocaleString();
+  document.getElementById('cashNetNum').textContent='¥'+(inSum-outSum).toLocaleString();
+  const list=document.getElementById('cashList');
+  if(items.length===0){list.innerHTML='<div class="empty">右上の「記録する」から入出金を登録できます</div>';return;}
+  list.innerHTML=items.map(c=>{
+    const d=new Date(c.date+'T00:00');
+    return `<div class="cash-item"><div class="cash-left">
+      <div class="cash-cat"><span class="cash-io-tag" style="background:${c.io==='in'?'var(--green)':'var(--red)'}">${c.io==='in'?'収入':'支出'}</span>${esc(c.cat)}</div>
+      <div class="cash-meta">${d.getMonth()+1}/${d.getDate()}${c.memo?'　'+esc(c.memo):''}</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="cash-amt ${c.io}">${c.io==='in'?'+':'−'}¥${c.amount.toLocaleString()}</div>
+        <button class="btn sm ghost" style="min-height:36px;padding:0 8px" onclick="openCashModal('${c.id}')">編集</button>
+        <button class="del-x" onclick="delCash('${c.id}')">✕</button>
+      </div></div>`;
+  }).join('');
+}
+
+/* スケジュール */
+let pickedSchType='';
+let pickedShowMatch=false;   // 試合結果ボタンを表示するか
+let showMatchTouched=false;  // 手動で切り替えたか（自動連動の抑制用）
+function renderShowMatchPick(){
+  document.getElementById('smYes').classList.toggle('on',pickedShowMatch);
+  document.getElementById('smNo').classList.toggle('on',!pickedShowMatch);
+}
+function pickShowMatch(v){pickedShowMatch=v;showMatchTouched=true;renderShowMatchPick();}
+let pickedSchTime='';
+let pickedSchPlace='';
+const WEEK=['日','月','火','水','木','金','土'];
+function updateSchedWeek(){
+  const v=document.getElementById('schDate').value;
+  const el=document.getElementById('schDateWeek');
+  if(v){const d=new Date(v+'T00:00');el.textContent=`（${WEEK[d.getDay()]}）`;}else{el.textContent='';}
+}
+// 種類・時間・場所のプリセットボタン描画（手入力欄と連動）
+function renderSchedPicks(){
+  const P=DB.schedPresets;
+  const mk=(arr,picked,fn)=>arr.filter(x=>x&&x.trim()).map(x=>`<button class="${x===picked?'on':''}" onclick="${fn}('${esc(x)}')">${esc(x)}</button>`).join('');
+  document.getElementById('schTypePick').innerHTML=mk(P.types,pickedSchType,'pickSchType');
+  document.getElementById('schTimePick').innerHTML=mk(P.times,pickedSchTime,'pickSchTime');
+  document.getElementById('schPlacePick').innerHTML=mk(P.places,pickedSchPlace,'pickSchPlace');
+  // プリセット外の値は手入力欄に表示
+  const tf=document.getElementById('schTypeFree');
+  tf.value=(pickedSchType&&!P.types.includes(pickedSchType))?pickedSchType:'';
+  const mf=document.getElementById('schTimeFree');
+  mf.value=(pickedSchTime&&!P.times.includes(pickedSchTime))?pickedSchTime:'';
+  const pf=document.getElementById('schPlaceFree');
+  pf.value=(pickedSchPlace&&!P.places.includes(pickedSchPlace))?pickedSchPlace:'';
+}
+function pickSchType(v){pickedSchType=v;if(!showMatchTouched){pickedShowMatch=/試合|大会/.test(v);renderShowMatchPick();}renderSchedPicks();}
+function pickSchTime(v){pickedSchTime=v;renderSchedPicks();}
+function pickSchPlace(v){pickedSchPlace=v;renderSchedPicks();}
+let pickedSchColor=SCHED_COLORS[0];
+function renderSchColorPick(){
+  document.getElementById('schColorPick').innerHTML=SCHED_COLORS.map(c=>`<button class="${c===pickedSchColor?'on':''}" style="background:${c}" onclick="pickSchColor('${c}')"></button>`).join('');
+}
+function pickSchColor(c){pickedSchColor=c;renderSchColorPick();}
+function openSchedModal(id){
+  editingSched=id||null;
+  if(id){
+    const s=DB.schedule.find(x=>x.id===id);
+    document.getElementById('schedModalTitle').textContent='予定を編集';
+    pickedSchType=s.name||s.type||'';
+    document.getElementById('schTitle').value=s.title||'';
+    document.getElementById('schDate').value=s.date;
+    pickedSchTime=s.time||'';
+    pickedSchPlace=(s.place!==undefined)?s.place:'';
+    document.getElementById('schNote').value=s.note||'';
+    pickedSchColor=s.color||SCHED_COLORS[0];
+    if(s.showMatch===true||s.showMatch===false){pickedShowMatch=s.showMatch;showMatchTouched=true;}
+    else{pickedShowMatch=/試合|大会/.test(s.name||'');showMatchTouched=false;}
+  }else{
+    document.getElementById('schedModalTitle').textContent='予定を追加';
+    pickedSchType=(DB.schedPresets.types.find(x=>x&&x.trim()))||'';
+    document.getElementById('schTitle').value='';
+    document.getElementById('schDate').value=todayStr();
+    pickedSchTime='';
+    pickedSchPlace='';
+    document.getElementById('schNote').value='';
+    pickedSchColor=SCHED_COLORS[0];
+    pickedShowMatch=/試合|大会/.test(pickedSchType);showMatchTouched=false;
+  }
+  renderShowMatchPick();
+  renderSchedPicks();
+  renderSchColorPick();
+  updateSchedWeek();
+  document.getElementById('schDeleteBtn').style.display=editingSched?'block':'none';
+  openModal('schedModal');
+}
+let editingSched=null;
+function saveSched(){
+  const typeFree=document.getElementById('schTypeFree').value.trim();
+  const name=typeFree||pickedSchType;
+  const title=document.getElementById('schTitle').value.trim();
+  const date=document.getElementById('schDate').value;
+  const timeFree=document.getElementById('schTimeFree').value.trim();
+  const time=timeFree||pickedSchTime;
+  const placeFree=document.getElementById('schPlaceFree').value.trim();
+  const place=placeFree||pickedSchPlace;
+  const note=document.getElementById('schNote').value.trim();
+  const color=pickedSchColor||SCHED_COLORS[0];
+  if(!date){toast('日付を選んでください');return;}
+  if(!name){toast('種類を選んでください');return;}
+  if(editingSched){
+    const s=DB.schedule.find(x=>x.id===editingSched);
+    s.name=name;s.title=title;s.date=date;s.time=time;s.place=place;s.note=note;s.color=color;s.showMatch=pickedShowMatch;
+  }else{
+    DB.schedule.push({id:uid(),name,title,date,time,place,note,color,showMatch:pickedShowMatch});
+  }
+  schedYear=Number(date.slice(0,4));
+  save();closeModal('schedModal');renderSched();toast(editingSched?'予定を更新しました':'予定を追加しました');
+}
+function deleteSchedFromModal(){
+  if(!editingSched)return;
+  const s=DB.schedule.find(x=>x.id===editingSched);
+  if(!s)return;
+  pendingDeleteSched=editingSched;
+  document.getElementById('confirmText').innerHTML=`「${esc(s.name)}（${s.date.replace(/-/g,'/')}）」を削除します。この操作は取り消せません。`;
+  document.getElementById('confirmModal').dataset.kind='sched';
+  document.getElementById('confirmYesBtn').textContent='削除する';
+  openModal('confirmModal');
+}
+function delSched(id){DB.schedule=DB.schedule.filter(s=>s.id!==id);save();renderSched();toast('予定を削除しました');}
+
+/* ===== 試合結果 ===== */
+const RESULT_MARKS=['○','▲','×']; // 勝ち/負け/引分
+const GRIP_OPTS=['右','左','他'];
+let curMatchSched=null; // 対象スケジュールid
+let curSheet='individual';
+let editingBout=null;
+let pickedResult='○';
+let pickedGrip='右';
+function ensureMatch(id){
+  if(!DB.matchResults[id])DB.matchResults[id]={individual:[],team:{cards:[]}};
+  const mr=DB.matchResults[id];
+  if(!mr.individual)mr.individual=[];
+  if(!mr.team)mr.team={cards:[]};
+  if(!Array.isArray(mr.team.cards)){
+    const old=mr.team;const cards=[];
+    if(old.bouts&&old.bouts.length){
+      cards.push({id:uid(),count:Number(old.count)||old.bouts.length,division:'',round:'',oppTeam:'',
+        bouts:old.bouts.map(b=>Object.assign({},b)),tiebreak:'',rep:null});
+    }
+    mr.team={cards};
+  }
+  return mr;
+}
+function openMatchModal(schedId){
+  curMatchSched=schedId;
+  ensureMatch(schedId);
+  const s=DB.schedule.find(x=>x.id===schedId);
+  document.getElementById('matchModalTitle').textContent='試合結果'+(s?'（'+esc(schedLabel(s))+' '+s.date.replace(/-/g,'/')+'）':'');
+  setMatchSheet('individual');
+  openModal('matchModal');
+}
+function setMatchSheet(sheet){
+  curSheet=sheet;
+  document.getElementById('msIndiv').classList.toggle('on',sheet==='individual');
+  document.getElementById('msTeam').classList.toggle('on',sheet==='team');
+  document.getElementById('teamMeta').style.display=sheet==='team'?'block':'none';
+  const addBtn=document.getElementById('matchAddBtn');
+  if(sheet==='team'){addBtn.textContent='＋ 対戦カードを追加';addBtn.setAttribute('onclick','openCardModal()');}
+  else{addBtn.textContent='＋ 試合を追加';addBtn.setAttribute('onclick','openBoutModal()');}
+  renderMatchList();
+}
+function studentName(id){const s=DB.students.find(x=>x.id===id);return s?s.name:'(削除された仲間)';}
+function schedLabel(s){if(!s)return '';return s.name+(s.title?' '+s.title:'');}
+function renderMatchList(){
+  if(curSheet==='team'){renderTeamCards();return;}
+  const m=ensureMatch(curMatchSched);
+  const arr=m.individual;
+  const wrap=document.getElementById('matchList');
+  if(!arr.length){wrap.innerHTML='<div class="empty" style="padding:14px">まだ試合結果がありません</div>';return;}
+  wrap.innerHTML=arr.map((b,i)=>{
+    const oppName=boutOppName(b);
+    const oppExtra=b.oppIsMate?'<span class="mate-tag">同門</span>':(b.oppAffil?' / '+esc(b.oppAffil):'');
+    const parts=[b.division,b.round].filter(Boolean).map(esc).join('・');
+    return `<div class="bout-row" onclick="openBoutModal('${b.id}')">
+      <div class="bout-mark mark-${b.result==='○'?'win':b.result==='▲'?'lose':'draw'}">${b.result}</div>
+      <div class="bout-body">
+        <div class="bout-top">${esc(studentName(b.selfId))}${parts?'　<span class=\"bout-sub\">'+parts+'</span>':''}</div>
+        <div class="bout-sub">${b.waza?esc(b.waza):''}${oppName?'　vs '+esc(oppName)+oppExtra:''}${(()=>{const g=boutOppGrip(b);return g?'（'+esc(g)+'組み）':'';})()}</div>
+        ${b.note?'<div class="bout-sub">'+esc(b.note)+'</div>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function openBoutModal(boutId){
+  editingBout=boutId||null;
+  // 選手プルダウン（在籍者優先、全員選択可）
+  const opts=DB.students.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  document.getElementById('bSelfId').innerHTML=opts;
+  const m=ensureMatch(curMatchSched);
+  const arr=m.individual;
+  if(boutId){
+    const b=arr.find(x=>x.id===boutId);
+    document.getElementById('boutModalTitle').textContent='試合を編集';
+    document.getElementById('bSelfId').value=b.selfId;
+    document.getElementById('bDivision').value=b.division||'';
+    document.getElementById('bRound').value=b.round||'';
+    pickedResult=b.result||'○';
+    document.getElementById('bWaza').value=b.waza||'';
+    document.getElementById('bOppName').value=b.oppName||'';
+    document.getElementById('bOppAffil').value=b.oppAffil||'';
+    pickedGrip=b.grip||'右';
+    document.getElementById('bNote').value=b.note||'';
+    pickedOppMate=(b.oppIsMate===true);
+    pickOppMate(pickedOppMate);
+    if(pickedOppMate)document.getElementById('bOppId').value=b.oppId||'';
+  }else{
+    document.getElementById('boutModalTitle').textContent='試合を記録';
+    if(DB.students[0])document.getElementById('bSelfId').value=DB.students[0].id;
+    document.getElementById('bDivision').value='';
+    document.getElementById('bRound').value='';
+    pickedResult='○';
+    document.getElementById('bWaza').value='';
+    document.getElementById('bOppName').value='';
+    document.getElementById('bOppAffil').value='';
+    pickedGrip='右';
+    document.getElementById('bNote').value='';
+    pickedOppMate=false;
+    pickOppMate(false);
+  }
+  renderResultPick();renderGripPick();
+  document.getElementById('boutDeleteBtn').style.display=editingBout?'block':'none';
+  openModal('boutModal');
+}
+function renderResultPick(){
+  document.getElementById('bResultPick').innerHTML=RESULT_MARKS.map(r=>{
+    const lbl=r==='○'?'○ 勝ち':r==='▲'?'▲ 負け':'× 引分';
+    return `<button class="${r===pickedResult?'on':''}" onclick="pickResult('${r}')">${lbl}</button>`;
+  }).join('');
+}
+function pickResult(r){pickedResult=r;renderResultPick();}
+function renderGripPick(){
+  document.getElementById('bGripPick').innerHTML=GRIP_OPTS.map(g=>`<button class="${g===pickedGrip?'on':''}" onclick="pickGrip('${g}')">${g}</button>`).join('');
+}
+function pickGrip(g){pickedGrip=g;renderGripPick();}
+let pickedOppMate=false; // 同門対決（対戦相手も仲間）
+function pickOppMate(v){
+  pickedOppMate=v;
+  document.getElementById('mateOff').classList.toggle('on',!v);
+  document.getElementById('mateOn').classList.toggle('on',v);
+  document.getElementById('oppNormalWrap').style.display=v?'none':'block';
+  document.getElementById('oppMateWrap').style.display=v?'block':'none';
+  document.getElementById('bGripWrap').style.display=v?'none':'block';
+  if(v)refreshOppIdOptions();
+}
+function refreshOppIdOptions(){
+  const selfId=document.getElementById('bSelfId').value;
+  const sel=document.getElementById('bOppId');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">仲間を選ぶ</option>'+DB.students.filter(s=>s.id!==selfId).map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  if(cur&&cur!==selfId&&DB.students.some(s=>s.id===cur))sel.value=cur;
+}
+function onBoutSelfChange(){if(pickedOppMate)refreshOppIdOptions();}
+// 表示用の対戦相手名（同門なら仲間名を解決）
+function boutOppName(b){return (b.oppIsMate&&b.oppId)?studentName(b.oppId):(b.oppName||'');}
+// 表示用の対戦相手の組手（同門なら相手仲間のプロフィールから解決）
+function boutOppGrip(b){
+  if(b.oppIsMate&&b.oppId){const s=DB.students.find(x=>x.id===b.oppId);return s?(s.grip||''):'';}
+  return b.grip||'';
+}
+function saveBout(){
+  const m=ensureMatch(curMatchSched);
+  const arr=m.individual;
+  const selfId=document.getElementById('bSelfId').value;
+  const oppId=pickedOppMate?document.getElementById('bOppId').value:'';
+  if(pickedOppMate&&!oppId){toast('対戦相手の仲間を選んでください');return;}
+  if(pickedOppMate&&oppId===selfId){toast('対戦相手には別の仲間を選んでください');return;}
+  const rec={
+    id:editingBout||uid(),
+    selfId:selfId,
+    division:document.getElementById('bDivision').value.trim(),
+    round:document.getElementById('bRound').value.trim(),
+    result:pickedResult,
+    waza:document.getElementById('bWaza').value.trim(),
+    oppIsMate:pickedOppMate,
+    oppId:pickedOppMate?oppId:'',
+    oppName:pickedOppMate?'':document.getElementById('bOppName').value.trim(),
+    oppAffil:pickedOppMate?'':document.getElementById('bOppAffil').value.trim(),
+    grip:pickedGrip,
+    note:document.getElementById('bNote').value.trim(),
+    sheet:curSheet
+  };
+  if(editingBout){const idx=arr.findIndex(x=>x.id===editingBout);if(idx>=0)arr[idx]=rec;}
+  else arr.push(rec);
+  save();closeModal('boutModal');renderMatchList();toast(editingBout?'更新しました':'追加しました');
+}
+function deleteBout(){
+  if(!editingBout)return;
+  const m=ensureMatch(curMatchSched);
+  m.individual=m.individual.filter(x=>x.id!==editingBout);
+  save();closeModal('boutModal');renderMatchList();toast('削除しました');
+}
+
+/* ========== 団体戦（対戦カード）========== */
+const TB_OPTS=[['content_win','内容勝ち'],['content_lose','内容負け'],['rep','代表戦']];
+const POS={
+  3:['先鋒','中堅','大将'],
+  5:['先鋒','次鋒','中堅','副将','大将'],
+  7:['先鋒','二陣','三陣','中堅','五陣','副将','大将']
+};
+let curCard=null;     // 編集中カードの作業コピー
+let curCardId=null;   // 既存編集なら id、新規は null
+
+function positionLabel(count,i){
+  const p=POS[count];
+  return p?p[i]:(i+1)+'人目';
+}
+function circled(n){const c=['','①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮'];return (n>=1&&n<=15)?c[n]:('('+n+')');}
+function fw(n){return String(n).replace(/[0-9]/g,d=>'０１２３４５６７８９'[d]);}
+// チーム勝敗の自動集計（引分ノーカウント）
+function teamCalc(card){
+  const reg=card.bouts||[];
+  let self=reg.filter(b=>b.result==='○').length;
+  let opp =reg.filter(b=>b.result==='▲').length;
+  const regTied=(self===opp);
+  let decided=null; // 'win' | 'lose' | null
+  if(self>opp)decided='win';
+  else if(opp>self)decided='lose';
+  else{
+    if(card.tiebreak==='content_win')decided='win';
+    else if(card.tiebreak==='content_lose')decided='lose';
+    else if(card.tiebreak==='rep'&&card.rep){
+      if(card.rep.result==='○'){self++;decided='win';}
+      else if(card.rep.result==='▲'){opp++;decided='lose';}
+    }
+  }
+  return {self,opp,regTied,decided};
+}
+// ②ー２ 形式（勝者側を丸囲み、自チームが左）
+function scoreStr(r){
+  if(r.decided==='win')return circled(r.self)+'ー'+fw(r.opp);
+  if(r.decided==='lose')return fw(r.self)+'ー'+circled(r.opp);
+  return fw(r.self)+'ー'+fw(r.opp);
+}
+function renderTeamCards(){
+  const t=ensureMatch(curMatchSched).team;
+  const wrap=document.getElementById('matchList');
+  if(!t.cards.length){wrap.innerHTML='<div class="empty" style="padding:14px">まだ対戦カードがありません</div>';return;}
+  wrap.innerHTML=t.cards.map(c=>{
+    const r=teamCalc(c);
+    const cls=r.decided==='win'?'win':r.decided==='lose'?'lose':'draw';
+    const badge=r.decided==='win'?'<span class="tm-badge win">チームの勝ち</span>':
+                r.decided==='lose'?'<span class="tm-badge lose">チームの負け</span>':
+                '<span class="tm-badge draw">引分・未確定</span>';
+    const sub=[c.round,c.division,(c.count?c.count+'人戦':'')].filter(Boolean).map(esc).join('・');
+    const teamName=c.oppIsMate?(c.oppTeam?esc(c.oppTeam):'紅白戦（同門）'):esc(c.oppTeam||'(相手チーム未入力)');
+    const mateTag=c.oppIsMate?'<span class="mate-tag">同門</span>':'';
+    return `<div class="bout-row" onclick="openCardModal('${c.id}')">
+      <div class="tm-score mark-${cls}">${scoreStr(r)}</div>
+      <div class="bout-body">
+        <div class="bout-top">${teamName}${mateTag}</div>
+        ${sub?'<div class="bout-sub">'+sub+'</div>':''}
+        <div>${badge}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function newBout(){return {id:uid(),selfId:'',result:'○',waza:'',oppName:'',oppId:'',grip:'右',note:''};}
+function newRep(){return {id:uid(),selfId:'',result:'○',waza:'',oppName:'',oppId:'',grip:'右',note:''};}
+function openCardModal(cardId){
+  curCardId=cardId||null;
+  const t=ensureMatch(curMatchSched).team;
+  if(cardId){
+    const c=t.cards.find(x=>x.id===cardId);
+    curCard=JSON.parse(JSON.stringify(c));
+  }else{
+    curCard={id:uid(),count:5,division:'',round:'',oppTeam:'',oppIsMate:false,bouts:[],tiebreak:'',rep:null};
+  }
+  document.getElementById('cardModalTitle').textContent=cardId?'対戦カードを編集':'対戦カードを追加';
+  document.getElementById('cdCount').value=curCard.count||5;
+  document.getElementById('cdDivision').value=curCard.division||'';
+  document.getElementById('cdRound').value=curCard.round||'';
+  document.getElementById('cdOppTeam').value=curCard.oppTeam||'';
+  pickCardMate(curCard.oppIsMate===true);
+  document.getElementById('cardDeleteBtn').style.display=cardId?'block':'none';
+  showCardStep(1);
+  openModal('cardModal');
+}
+function showCardStep(n){
+  document.getElementById('cardStep1').style.display=n===1?'block':'none';
+  document.getElementById('cardStep2').style.display=n===2?'block':'none';
+  if(n===2)buildDetail();
+}
+function pickCardMate(v){
+  if(curCard)curCard.oppIsMate=v;
+  document.getElementById('cardMateOff').classList.toggle('on',!v);
+  document.getElementById('cardMateOn').classList.toggle('on',v);
+  const lbl=document.getElementById('cdOppTeamLabel');
+  const inp=document.getElementById('cdOppTeam');
+  if(v){lbl.textContent='相手チーム名（任意・紅白戦の組名など）';inp.placeholder='例：白組';}
+  else{lbl.textContent='対戦相手チーム';inp.placeholder='例 〇〇柔道クラブ';}
+}
+// 団体戦・同門時の相手プルダウン（自分を除外）
+function teamOppOptions(b){
+  return '<option value="">仲間を選ぶ</option>'+DB.students.filter(s=>s.id!==b.selfId).map(s=>`<option value="${s.id}" ${s.id===b.oppId?'selected':''}>${esc(s.name)}</option>`).join('');
+}
+function setBoutOpp(key,val){const b=boutByKey(key);if(b)b.oppId=val;}
+function onTeamSelfChange(key,val){
+  const b=boutByKey(key);if(!b)return;b.selfId=val;
+  if(curCard.oppIsMate){
+    if(b.oppId===val)b.oppId='';
+    if(key==='rep')renderRep();
+    else document.getElementById('boutBlocks').innerHTML=curCard.bouts.map((bb,i)=>boutBlockHtml(bb,String(i),false)).join('');
+  }
+}
+function cardNext(){
+  curCard.count=Math.max(1,Math.min(15,Number(document.getElementById('cdCount').value)||5));
+  curCard.division=document.getElementById('cdDivision').value.trim();
+  curCard.round=document.getElementById('cdRound').value.trim();
+  curCard.oppTeam=document.getElementById('cdOppTeam').value.trim();
+  if(!Array.isArray(curCard.bouts))curCard.bouts=[];
+  while(curCard.bouts.length<curCard.count)curCard.bouts.push(newBout());
+  if(curCard.bouts.length>curCard.count)curCard.bouts=curCard.bouts.slice(0,curCard.count);
+  showCardStep(2);
+}
+function boutByKey(key){return key==='rep'?curCard.rep:curCard.bouts[Number(key)];}
+function pre(key){return key==='rep'?'rep':'b'+key;}
+function resBtnsHtml(b,key){
+  const opts=key==='rep'?[['○','○ 勝ち'],['▲','▲ 負け']]:[['○','○ 勝ち'],['▲','▲ 負け'],['×','× 引分']];
+  return opts.map(([v,l])=>`<button type="button" class="${b.result===v?'on':''}" onclick="pickResult2('${key}','${v}')">${l}</button>`).join('');
+}
+function gripBtnsHtml(b,key){
+  return GRIP_OPTS.map(g=>`<button type="button" class="${b.grip===g?'on':''}" onclick="pickGrip2('${key}','${g}')">${g}</button>`).join('');
+}
+function boutBlockHtml(b,key,isRep){
+  const p=pre(key);
+  const head=isRep?`<div class="bb-head rep"><span class="pos-no">代表戦</span></div>`
+                  :`<div class="bb-head"><span class="pos-no">${positionLabel(curCard.count,Number(key))}</span></div>`;
+  const opts=`<option value="">選手を選ぶ</option>`+DB.students.map(s=>`<option value="${s.id}" ${s.id===b.selfId?'selected':''}>${esc(s.name)}</option>`).join('');
+  const mate=curCard.oppIsMate;
+  const selfChange=mate?`onTeamSelfChange('${key}',this.value)`:`setBoutField('${key}','selfId',this.value)`;
+  const oppArea=mate
+    ? `<span class="bb-label">対戦相手（仲間から選択）</span>
+       <select onchange="setBoutOpp('${key}',this.value)">${teamOppOptions(b)}</select>`
+    : `<span class="bb-label">相手の氏名</span>
+       <input type="text" value="${esc(b.oppName)}" placeholder="例 山田 一郎" oninput="setBoutField('${key}','oppName',this.value)">
+       <span class="bb-label">相手の組手</span>
+       <div class="cat-pick" id="grip_${p}">${gripBtnsHtml(b,key)}</div>`;
+  return `<div class="bout-block${isRep?' rep':''}">
+    ${head}
+    <span class="bb-label">選手</span>
+    <select onchange="${selfChange}">${opts}</select>
+    <span class="bb-label">勝敗</span>
+    <div class="cat-pick" id="res_${p}">${resBtnsHtml(b,key)}</div>
+    <span class="bb-label">決まり技</span>
+    <input type="text" value="${esc(b.waza)}" placeholder="例 大外刈／優勢／不戦" oninput="setBoutField('${key}','waza',this.value)">
+    ${oppArea}
+    <span class="bb-label">備考（任意）</span>
+    <input type="text" value="${esc(b.note)}" placeholder="例 旗判定2-1" oninput="setBoutField('${key}','note',this.value)">
+  </div>`;
+}
+function buildDetail(){
+  const c=curCard;
+  const oppLabel=c.oppIsMate?(c.oppTeam?esc(c.oppTeam):'紅白戦（同門）'):esc(c.oppTeam||'(相手チーム未入力)');
+  document.getElementById('cardHeadSummary').innerHTML=
+    '<b>'+oppLabel+'</b>'+(c.oppIsMate?' <span class="mate-tag">同門</span>':' 戦')+'<br>'+
+    ([c.round,c.division,(c.count?c.count+'人戦':'')].filter(Boolean).map(esc).join('・')||'—');
+  document.getElementById('boutBlocks').innerHTML=c.bouts.map((b,i)=>boutBlockHtml(b,String(i),false)).join('');
+  recalcTally();
+}
+function setBoutField(key,field,val){const b=boutByKey(key);if(b)b[field]=val;}
+function pickResult2(key,v){
+  const b=boutByKey(key);if(!b)return;b.result=v;
+  document.getElementById('res_'+pre(key)).innerHTML=resBtnsHtml(b,key);
+  recalcTally();
+}
+function pickGrip2(key,g){
+  const b=boutByKey(key);if(!b)return;b.grip=g;
+  document.getElementById('grip_'+pre(key)).innerHTML=gripBtnsHtml(b,key);
+}
+function recalcTally(){
+  const r=teamCalc(curCard);
+  const cls=r.decided==='win'?'win':r.decided==='lose'?'lose':'draw';
+  const note=r.decided==='win'?'チームの勝ち':r.decided==='lose'?'チームの負け':'引分・未確定';
+  document.getElementById('cardTally').innerHTML=
+    `<div class="sc ${cls}">${scoreStr(r)}</div><div class="ct-note">${note}（引分はノーカウント）</div>`;
+  // レギュラー戦が同点なら決着UIを表示
+  document.getElementById('tiebreakWrap').style.display=r.regTied?'block':'none';
+  if(!r.regTied){curCard.tiebreak='';curCard.rep=null;}
+  renderTiebreakPick();
+  renderRep();
+}
+function renderTiebreakPick(){
+  document.getElementById('tiebreakPick').innerHTML=
+    TB_OPTS.map(([v,l])=>`<button type="button" class="${curCard.tiebreak===v?'on':''}" onclick="pickTiebreak('${v}')">${l}</button>`).join('');
+}
+function pickTiebreak(v){
+  curCard.tiebreak=(curCard.tiebreak===v?'':v);
+  if(curCard.tiebreak==='rep'&&!curCard.rep)curCard.rep=newRep();
+  if(curCard.tiebreak!=='rep')curCard.rep=null;
+  renderTiebreakPick();
+  renderRep();
+  recalcTally();
+}
+function renderRep(){
+  const wrap=document.getElementById('repWrap');
+  if(curCard.tiebreak==='rep'&&curCard.rep){
+    wrap.innerHTML=boutBlockHtml(curCard.rep,'rep',true);
+  }else{
+    wrap.innerHTML='';
+  }
+}
+function saveCard(){
+  const t=ensureMatch(curMatchSched).team;
+  // 同門フラグを各対戦に反映（通常時はoppIdを、同門時はoppName/gripをクリア）
+  const stamp=b=>{if(!b)return;b.oppIsMate=!!curCard.oppIsMate;if(curCard.oppIsMate){b.oppName='';}else{b.oppId='';}};
+  (curCard.bouts||[]).forEach(stamp);
+  if(curCard.rep)stamp(curCard.rep);
+  // 整合性の整理：同点でなければ決着情報を消す
+  const reg=curCard.bouts||[];
+  const sw=reg.filter(b=>b.result==='○').length, ow=reg.filter(b=>b.result==='▲').length;
+  if(sw!==ow){curCard.tiebreak='';curCard.rep=null;}
+  else if(curCard.tiebreak!=='rep'){curCard.rep=null;}
+  if(curCardId){const idx=t.cards.findIndex(x=>x.id===curCardId);if(idx>=0)t.cards[idx]=curCard;else t.cards.push(curCard);}
+  else t.cards.push(curCard);
+  save();closeModal('cardModal');renderMatchList();toast(curCardId?'更新しました':'追加しました');
+}
+function deleteCard(){
+  if(!curCardId){closeModal('cardModal');return;}
+  const t=ensureMatch(curMatchSched).team;
+  t.cards=t.cards.filter(x=>x.id!==curCardId);
+  save();closeModal('cardModal');renderMatchList();toast('削除しました');
+}
+// 全試合を選手ごとに集約（個人戦＋団体戦をまたぐ）
+function allBoutsBySelf(){
+  const map={};
+  Object.keys(DB.matchResults||{}).forEach(schedId=>{
+    const sched=DB.schedule.find(s=>s.id===schedId);
+    const mr=DB.matchResults[schedId];
+    const push=(b,sheet)=>{(map[b.selfId]=map[b.selfId]||[]).push(Object.assign({},b,{
+      schedName:sched?schedLabel(sched):'(削除)',schedDate:sched?sched.date:'',sheet
+    }));};
+    (mr.individual||[]).forEach(b=>{
+      push(b,'個人戦');
+      // 同門対決は相手（仲間）側の試合結果にも、勝敗を反転して自動表示
+      if(b.oppIsMate&&b.oppId&&b.oppId!==b.selfId){
+        const inv=b.result==='○'?'▲':b.result==='▲'?'○':'×';
+        push(Object.assign({},b,{
+          selfId:b.oppId, oppId:b.selfId, oppIsMate:true,
+          result:inv, grip:'', oppName:'', oppAffil:''
+        }),'個人戦');
+      }
+    });
+    if(mr.team&&Array.isArray(mr.team.cards)){
+      mr.team.cards.forEach(card=>{
+        const enrich=b=>Object.assign({},b,{division:card.division||'',round:card.round||'',oppAffil:card.oppTeam||''});
+        const pushWithMirror=(b,roundOverride)=>{
+          const base=enrich(b);if(roundOverride)base.round=roundOverride;
+          push(base,'団体戦');
+          if(b.oppIsMate&&b.oppId&&b.oppId!==b.selfId){
+            const inv=b.result==='○'?'▲':b.result==='▲'?'○':'×';
+            const mir=enrich(Object.assign({},b,{selfId:b.oppId,oppId:b.selfId,result:inv,grip:'',oppName:''}));
+            if(roundOverride)mir.round=roundOverride;
+            push(mir,'団体戦');
+          }
+        };
+        (card.bouts||[]).forEach(b=>pushWithMirror(b));
+        if(card.tiebreak==='rep'&&card.rep){
+          pushWithMirror(card.rep,[card.round,'代表戦'].filter(Boolean).join('・'));
+        }
+      });
+    }
+  });
+  return map;
+}
+function renderMatchSummary(){
+  closeMatchDetail();
+  const map=allBoutsBySelf();
+  const wrap=document.getElementById('matchMemberList');
+  // 試合のある選手を、DB.studentsの並び順で
+  const rows=DB.students.filter(s=>map[s.id]&&map[s.id].length).map(s=>{
+    const bs=map[s.id];
+    const w=bs.filter(b=>b.result==='○').length;
+    const l=bs.filter(b=>b.result==='▲').length;
+    const d=bs.filter(b=>b.result==='×').length;
+    return `<div class="bout-row" onclick="showMatchDetail('${s.id}')">
+      <div class="bout-body">
+        <div class="bout-top">${esc(s.name)}</div>
+        <div class="bout-sub">${bs.length}試合　○${w}　▲${l}　×${d}</div>
+      </div>
+      <div class="bout-sub" style="align-self:center">›</div>
+    </div>`;
+  }).join('');
+  wrap.innerHTML=rows||'<div class="empty" style="padding:14px">まだ試合結果が登録されていません</div>';
+}
+function showMatchDetail(selfId){
+  const map=allBoutsBySelf();
+  const bs=(map[selfId]||[]).slice().sort((a,b)=>(b.schedDate||'').localeCompare(a.schedDate||''));
+  const s=DB.students.find(x=>x.id===selfId);
+  document.getElementById('matchDetailName').textContent=(s?s.name:'')+' の試合結果';
+  document.getElementById('matchDetailBody').innerHTML=bs.map(b=>{
+    const oppName=boutOppName(b);
+    const oppExtra=b.oppIsMate?'<span class="mate-tag">同門</span>':(b.oppAffil?' / '+esc(b.oppAffil):'');
+    const head=[b.schedDate?b.schedDate.replace(/-/g,'/'):'',b.schedName?esc(b.schedName):'',b.sheet].filter(Boolean).join('　');
+    const parts=[b.division,b.round].filter(Boolean).map(esc).join('・');
+    return `<div class="bout-row" style="cursor:default">
+      <div class="bout-mark mark-${b.result==='○'?'win':b.result==='▲'?'lose':'draw'}">${b.result}</div>
+      <div class="bout-body">
+        <div class="bout-sub">${head}</div>
+        <div class="bout-top">${parts||'　'}</div>
+        <div class="bout-sub">${b.waza?esc(b.waza):''}${oppName?'　vs '+esc(oppName)+oppExtra:''}${(()=>{const g=boutOppGrip(b);return g?'（'+esc(g)+'組み）':'';})()}</div>
+        ${b.note?'<div class="bout-sub">'+esc(b.note)+'</div>':''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('matchMemberList').parentElement.style.display='none';
+  document.getElementById('matchDetailCard').style.display='block';
+}
+function closeMatchDetail(){
+  const dc=document.getElementById('matchDetailCard');
+  if(dc)dc.style.display='none';
+  const ml=document.getElementById('matchMemberList');
+  if(ml)ml.parentElement.style.display='block';
+}
+/* よく使う設定 */
+function openPresetModal(){
+  const P=DB.schedPresets;
+  const rows=(arr,ph)=>{let h='';for(let i=0;i<4;i++){h+=`<input type="text" class="preset-inp" value="${esc(arr[i]||'')}" placeholder="${ph} ${i+1}">`;}return h;};
+  document.getElementById('presetTypes').innerHTML=rows(P.types,'種類');
+  document.getElementById('presetTimes').innerHTML=rows(P.times,'時間');
+  document.getElementById('presetPlaces').innerHTML=rows(P.places,'場所');
+  openModal('presetModal');
+}
+function savePresets(){
+  const get=id=>[...document.getElementById(id).querySelectorAll('.preset-inp')].map(i=>i.value.trim());
+  DB.schedPresets={types:get('presetTypes'),times:get('presetTimes'),places:get('presetPlaces')};
+  save();closeModal('presetModal');toast('保存しました');
+}
+function openFeePresetModal(){
+  const arr=DB.feePresets||[2000,3000,0,0];
+  let h='';
+  for(let i=0;i<4;i++){const v=(arr[i]&&arr[i]>0)?arr[i]:'';h+=`<input type="number" inputmode="numeric" class="preset-inp fee-preset-inp" value="${v}" placeholder="金額 ${i+1}">`;}
+  document.getElementById('feePresetInputs').innerHTML=h;
+  openModal('feePresetModal');
+}
+function saveFeePresets(){
+  const vals=[...document.getElementById('feePresetInputs').querySelectorAll('.fee-preset-inp')].map(i=>Number(i.value)||0);
+  DB.feePresets=vals;
+  const first=vals.find(v=>v>0);if(first)DB.feeAmount=first; // フォールバック額も同期
+  save();closeModal('feePresetModal');toast('保存しました');
+}
+let schedYear=new Date().getFullYear();
+function changeSchedYear(d){schedYear+=d;renderSched();}
+function renderSched(){
+  document.getElementById('schedYearLbl').textContent=`${schedYear}年`;
+  const list=document.getElementById('schedList');
+  const items=[...DB.schedule].filter(i=>i.date.slice(0,4)===String(schedYear)).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+  if(items.length===0){list.innerHTML='<div class="empty">'+schedYear+'年の予定はありません</div>';return;}
+  // 月ごとにグループ化
+  const groups={};
+  items.forEach(i=>{const ym=i.date.slice(0,7);(groups[ym]=groups[ym]||[]).push(i);});
+  let html='';
+  Object.keys(groups).sort().forEach(ym=>{
+    const[y,m]=ym.split('-');
+    let cards='';
+    groups[ym].forEach(i=>{
+      const d=new Date(i.date+'T00:00');
+      const place=(i.place!==undefined)?i.place:(i.meta||'').replace(i.time||'','').trim();
+      const col=i.color||BADGE_COLOR[i.name]||'#2d4373';
+      const noteHtml=i.note?`<span class="tl-note">${esc(i.note)}</span>`:'';
+      // 試合・大会、または既に結果がある予定に「試合結果」ボタンを表示
+      const hasResult=DB.matchResults[i.id]&&((DB.matchResults[i.id].individual||[]).length||(DB.matchResults[i.id].team&&(DB.matchResults[i.id].team.cards||[]).length));
+      // 明示設定があればそれに従う。旧データは種類から自動判定。結果が既にあれば必ず表示
+      const showMatch=(i.showMatch===true||i.showMatch===false)?i.showMatch:/試合|大会/.test(i.name||'');
+      const isMatch=showMatch||hasResult;
+      const resultBtn=isMatch?`<button class="result-btn" onclick="event.stopPropagation();openMatchModal('${i.id}')">🥋 試合結果${hasResult?'<span class="result-dot"></span>':''}</button>`:'';
+      cards+=`<div class="tl-card" onclick="openSchedModal('${i.id}')">
+        <div class="tl-daybox" style="background:${col}">
+          <div class="drow"><span class="d">${d.getDate()}</span><span class="w">${weekday(d)}</span></div>
+          ${i.time?`<div class="tm">${esc(i.time)}</div>`:''}
+        </div>
+        <div class="tl-info"><div class="t">${esc(i.name)}${i.title?'<span class="tl-event">'+esc(i.title)+'</span>':''}</div>
+        ${place||i.note?`<div class="meta">${place?esc(place):''}${place&&i.note?' / ':''}${noteHtml}</div>`:''}
+        ${resultBtn}</div>
+        </div>`;
+    });
+    html+=`<div class="tl-month">
+      <div class="tl-label"><div class="yr">${y}</div><div class="mo">${Number(m)}<small>月</small></div></div>
+      <div class="tl-events">${cards}</div>
+    </div>`;
+  });
+  list.innerHTML=html;
+}
+
+/* 月別一覧マトリクス */
+let listMonth=thisMonthStr();
+let listView='month';
+let fiscalYear=(()=>{const d=new Date();return d.getMonth()+1>=4?d.getFullYear():d.getFullYear()-1;})();
+function setListView(v){
+  listView=v;
+  document.getElementById('viewMonth').classList.toggle('on',v==='month');
+  document.getElementById('viewYear').classList.toggle('on',v==='year');
+  document.getElementById('viewMember').classList.toggle('on',v==='member');
+  document.getElementById('viewMatch').classList.toggle('on',v==='match');
+  document.getElementById('listMonthView').style.display=v==='month'?'block':'none';
+  document.getElementById('listYearView').style.display=v==='year'?'block':'none';
+  document.getElementById('listMemberView').style.display=v==='member'?'block':'none';
+  document.getElementById('listMatchView').style.display=v==='match'?'block':'none';
+  renderList();
+}
+function changeListMonth(d){listMonth=shiftMonth(listMonth,d);renderList();}
+function changeFiscalYear(d){fiscalYear+=d;renderList();}
+// 年度内の YYYY-MM 一覧（4月〜翌3月）
+function fiscalMonths(fy){const arr=[];for(let i=0;i<12;i++){const mo=4+i;const y=mo>12?fy+1:fy;const mm=((mo-1)%12)+1;arr.push(`${y}-${String(mm).padStart(2,'0')}`);}return arr;}
+function renderList(){
+  if(listView==='year'){renderYear();return;}
+  if(listView==='member'){renderMember();return;}
+  if(listView==='match'){renderMatchSummary();return;}
+  const[y,m]=listMonth.split('-');
+  document.getElementById('listMonthLbl').textContent=`${y}年 ${Number(m)}月`;
+  const paid=DB.fees[listMonth]||{};
+  if(DB.students.length===0){
+    document.getElementById('listFeeMatrix').innerHTML='<div class="empty">仲間がいません</div>';
+    document.getElementById('listAttMatrix').innerHTML='';return;
+  }
+  const feeRoster=DB.students.filter(s=>s.feeReq!==false && isEnrolledInMonth(s,listMonth));
+  let feeRows=feeRoster.length?feeRoster.map(s=>`<tr><td class="namecell">${esc(s.name)}</td><td class="${paid[s.id]!==undefined?'cell-fee-paid':'cell-fee-unpaid'}">${paid[s.id]!==undefined?'済':'未'}</td></tr>`).join(''):'';
+  document.getElementById('listFeeMatrix').innerHTML=feeRoster.length?`<table class="matrix"><thead><tr><th class="namecell">仲間</th><th>月謝</th></tr></thead><tbody>${feeRows}</tbody></table>`:'<div class="empty">この月の月謝対象者がいません</div>';
+  const days=Object.keys(DB.attendance).filter(dt=>dt.startsWith(listMonth)).sort();
+  const attRoster=DB.students.filter(s=>isEnrolledInMonth(s,listMonth));
+  let head=`<th class="namecell">仲間</th>`+days.map(dt=>{const d=new Date(dt+'T00:00');return `<th>${d.getDate()}<br>(${weekday(d)})</th>`;}).join('')+`<th>出席</th><th>欠席</th>`;
+  let body=attRoster.map(s=>{
+    let p=0,a=0;
+    const cells=days.map(dt=>{
+      const st=(DB.attendance[dt]||{})[s.id];
+      if(st==='present'){p++;return '<td class="cell-p">○</td>';}
+      if(st==='absent'){a++;return '<td class="cell-a">×</td>';}
+      return '<td>-</td>';
+    }).join('');
+    return `<tr><td class="namecell">${esc(s.name)}</td>${cells}<td class="cell-total">${p}</td><td class="cell-total">${a}</td></tr>`;
+  }).join('');
+  document.getElementById('listAttMatrix').innerHTML = days.length
+    ? `<table class="matrix"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`
+    : '<div class="empty">この月の出欠記録がまだありません</div>';
+}
+function renderYear(){
+  const fy=fiscalYear;
+  document.getElementById('fiscalYearLbl').innerHTML=`${fy}年度<br><span style="font-size:15px;color:var(--muted)">（${fy}/4〜${fy+1}/3）</span>`;
+  const months=fiscalMonths(fy);
+  // --- 会計 ---
+  // 月謝収入：各月の支払済人数 × 月謝額
+  let feeIncome=0;
+  months.forEach(ym=>{
+    const paid=DB.fees[ym]||{};
+    Object.keys(paid).forEach(sid=>{
+      const s=DB.students.find(x=>x.id===sid);
+      // 支払済として記録された金額は、現在の要否に関わらず収入履歴として計上
+      feeIncome+=paidAmount(paid[sid],s);
+    });
+  });
+  // その他入出金：項目ごと集計
+  const inByCat={},outByCat={};
+  DB.cash.forEach(c=>{
+    if(!months.includes(c.date.slice(0,7)))return;
+    const tgt=c.io==='in'?inByCat:outByCat;
+    tgt[c.cat]=(tgt[c.cat]||0)+c.amount;
+  });
+  let inSum=feeIncome, outSum=0;
+  Object.values(inByCat).forEach(v=>inSum+=v);
+  Object.values(outByCat).forEach(v=>outSum+=v);
+  // 収入の部
+  let incomeRows=`<div class="acct-row"><span>月謝収入</span><span class="amt">¥${feeIncome.toLocaleString()}</span></div>`;
+  Object.keys(inByCat).forEach(cat=>{incomeRows+=`<div class="acct-row"><span>${esc(cat)}</span><span class="amt">¥${inByCat[cat].toLocaleString()}</span></div>`;});
+  // 支出の部
+  let expenseRows = Object.keys(outByCat).length
+    ? Object.keys(outByCat).map(cat=>`<div class="acct-row"><span>${esc(cat)}</span><span class="amt">¥${outByCat[cat].toLocaleString()}</span></div>`).join('')
+    : '<div class="acct-row" style="color:var(--muted)"><span>記録なし</span><span>—</span></div>';
+  const net=inSum-outSum;
+  document.getElementById('yearAccount').innerHTML=`
+    <div class="acct-section">
+      <div class="acct-head" style="background:var(--green)">収入の部</div>
+      ${incomeRows}
+      <div class="acct-total"><span>収入合計</span><span>¥${inSum.toLocaleString()}</span></div>
+    </div>
+    <div class="acct-section">
+      <div class="acct-head" style="background:var(--red)">支出の部</div>
+      ${expenseRows}
+      <div class="acct-total"><span>支出合計</span><span>¥${outSum.toLocaleString()}</span></div>
+    </div>
+    <div class="acct-net" style="color:${net>=0?'var(--green)':'var(--red)'}"><span>収支差引</span><span>${net>=0?'+':'−'}¥${Math.abs(net).toLocaleString()}</span></div>`;
+  // --- 出欠 年間合計（生徒ごと）---
+  if(DB.students.length===0){document.getElementById('yearAttMatrix').innerHTML='<div class="empty">仲間がいません</div>';return;}
+  const yearRoster=DB.students.filter(s=>months.some(ym=>isEnrolledInMonth(s,ym)));
+  const monthlyHead=months.map(ym=>`<th>${Number(ym.split('-')[1])}月</th>`).join('');
+  let body=yearRoster.map(s=>{
+    let totalP=0;
+    const cells=months.map(ym=>{
+      let p=0;
+      Object.keys(DB.attendance).filter(dt=>dt.startsWith(ym)).forEach(dt=>{if(DB.attendance[dt][s.id]==='present')p++;});
+      totalP+=p;
+      return `<td>${p||'-'}</td>`;
+    }).join('');
+    return `<tr><td class="namecell">${esc(s.name)}</td>${cells}<td class="cell-total">${totalP}</td></tr>`;
+  }).join('');
+  document.getElementById('yearAttMatrix').innerHTML=`<table class="matrix"><thead><tr><th class="namecell">仲間</th>${monthlyHead}<th>年間<br>出席</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+function renderMember(){
+  const wrap=document.getElementById('memberMatrix');
+  if(DB.students.length===0){wrap.innerHTML='<div class="empty">仲間がいません</div>';return;}
+  const head=`<th>在籍</th><th>属性</th><th>性別</th><th class="namecell">氏名</th><th>段位/級</th><th>取得年月日</th><th>柔道メンバーID</th><th>年齢</th><th>生年月日</th><th>月謝額</th><th>備考</th>`;
+  const rows=DB.students.map(s=>{
+    const active=!s.endDate;
+    const feeDisp=(s.feeReq===false||!active)?'-':'¥'+studentFee(s).toLocaleString();
+    const age=calcAge(s.birth);
+    const enrollTag=active
+      ? `<span class="mem-logo" style="background:#e8821e;color:#fff">在籍</span>`
+      : `<span class="mem-logo" style="background:#fff;color:#e8821e;border:1.5px solid #e8821e">退会</span>`;
+    const catTag=s.category?`<span class="mem-logo" style="background:${CAT_COLOR[s.category]||'#888'};color:#fff">${s.category}</span>`:'-';
+    const sexTag=s.sex?`<span class="mem-logo" style="background:${SEX_COLOR[s.sex]||'#888'};color:#fff">${s.sex}</span>`:'-';
+    return `<tr>
+      <td>${enrollTag}</td>
+      <td>${catTag}</td>
+      <td>${sexTag}</td>
+      <td class="namecell">${esc(s.name)}</td>
+      <td>${esc(s.rank||'-')}</td>
+      <td>${s.rankDate?s.rankDate.replace(/-/g,'/'):'-'}</td>
+      <td>${esc(s.judoId||'-')}</td>
+      <td>${age!=null?age+'歳':'-'}</td>
+      <td>${s.birth?s.birth.replace(/-/g,'/'):'-'}</td>
+      <td>${feeDisp}</td>
+      <td class="note-cell">${esc(s.note||'-')}</td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML=`<table class="matrix member-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* 設定 */
+function renderSettings(){
+  document.getElementById('teamNameInput').value=DB.team;
+  renderThemePicker();
+  renderLockSettings();
+}
+let showRetired=false;
+let mateFilter='all';
+function toggleRetired(){
+  showRetired=!showRetired;
+  document.getElementById('retiredToggle').classList.toggle('on',showRetired);
+  renderMates();
+}
+function setMateFilter(f){
+  mateFilter=f;
+  document.getElementById('fAll').classList.toggle('on',f==='all');
+  document.getElementById('fLeader').classList.toggle('on',f==='leader');
+  document.getElementById('fStudent').classList.toggle('on',f==='student');
+  renderMates();
+}
+function renderMates(){
+  const list=document.getElementById('studentList');
+  // 退会フィルタ＋区分フィルタ（並び替えは全体index基準）
+  const visible=DB.students.map((s,idx)=>({s,idx})).filter(o=>{
+    if(!showRetired && o.s.endDate) return false;
+    if(mateFilter==='leader' && o.s.category!=='指導者') return false;
+    if(mateFilter==='student' && o.s.category==='指導者') return false;
+    return true;
+  });
+  if(visible.length===0){
+    list.innerHTML='<div class="empty" style="padding:16px">'+(DB.students.length?'表示する仲間がいません':'まだ仲間がいません')+'</div>';
+    return;
+  }
+  // 並び替えは「全員・退会も含む全件表示」のときのみ有効（部分表示中の誤操作防止）
+  const canReorder=(mateFilter==='all'&&showRetired);
+  list.innerHTML=visible.map(({s,idx})=>{
+    const active=!s.endDate;
+    const enrollBar=active
+      ? `<div class="cat-vbar" style="background:#e8821e;color:#fff">在籍</div>`
+      : `<div class="cat-vbar" style="background:#fff;color:#e8821e;border:1.5px solid #e8821e">退会</div>`;
+    const catBar=s.category?`<div class="cat-vbar" style="background:${CAT_COLOR[s.category]||'#888'};color:#fff">${s.category}</div>`:'';
+    const feeBar=(s.feeReq===false)
+      ? `<div class="cat-vbar" style="background:#fff;color:#2e7d4f;border:1.5px solid #2e7d4f">月謝無</div>`
+      : `<div class="cat-vbar" style="background:#2e7d4f;color:#fff">月謝有</div>`;
+    return `<div class="stu-row mate-card" data-id="${s.id}" data-idx="${idx}" onclick="openStudentModal('${s.id}')">
+      <div class="stu-top">
+        <div class="att-person">
+          <div class="vbar-group">${enrollBar}${catBar}${feeBar}</div>
+          <div class="person-name-only">${esc(s.name)}</div>
+        </div>
+        ${canReorder?'<span class="drag-handle">⠿</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+  if(canReorder)enableMateDrag();
+  // 並び替えの案内（カードの先頭に挿入）
+  const hint=canReorder
+    ? 'タップで編集、長押し＋ドラッグで並び替えできます。'
+    : 'タップで編集できます。並び替えは「全員」かつ「退会も表示」オンのときに行えます。';
+  list.insertAdjacentHTML('afterbegin','<div class="list-mini" style="margin:0 0 10px 4px">'+hint+'</div>');
+  return;
+}
+let editingStudent=null;
+/* 仲間カードの長押しドラッグ並び替え */
+let dragState=null;
+function enableMateDrag(){
+  const list=document.getElementById('studentList');
+  list.querySelectorAll('.mate-card').forEach(card=>{
+    let pressTimer=null;
+    card.addEventListener('touchstart',e=>{
+      pressTimer=setTimeout(()=>{startDrag(card,e.touches[0].clientY);},420);
+    },{passive:true});
+    card.addEventListener('touchmove',e=>{
+      if(pressTimer){clearTimeout(pressTimer);pressTimer=null;} // 動いたら長押し扱いしない（ドラッグ未開始時）
+      if(dragState){e.preventDefault();onDragMove(e.touches[0].clientY);}
+    },{passive:false});
+    card.addEventListener('touchend',e=>{
+      if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}
+      if(dragState){endDrag();}
+    });
+  });
+}
+function startDrag(card,y){
+  if(navigator.vibrate)navigator.vibrate(30);
+  dragState={card,id:card.dataset.id,startY:y};
+  card.classList.add('dragging');
+  card.dataset.suppressClick='1'; // ドラッグ後のクリック抑制
+  document.body.style.userSelect='none';
+  document.body.style.webkitUserSelect='none';
+  // 選択が既に走っていたら解除
+  if(window.getSelection){const sel=window.getSelection();if(sel)sel.removeAllRanges();}
+}
+function onDragMove(y){
+  const list=document.getElementById('studentList');
+  const cards=[...list.querySelectorAll('.mate-card:not(.dragging)')];
+  const drag=dragState.card;
+  let after=null;
+  for(const c of cards){
+    const r=c.getBoundingClientRect();
+    if(y < r.top + r.height/2){after=c;break;}
+  }
+  if(after){list.insertBefore(drag,after);}else{list.appendChild(drag);}
+}
+function endDrag(){
+  const list=document.getElementById('studentList');
+  const drag=dragState.card;
+  drag.classList.remove('dragging');
+  document.body.style.userSelect='';
+  document.body.style.webkitUserSelect='';
+  // 新しい並び順をDB.studentsに反映（表示されているidの順序で全体を再構成）
+  const orderIds=[...list.querySelectorAll('.mate-card')].map(c=>c.dataset.id);
+  const ordered=[];
+  orderIds.forEach(id=>{const s=DB.students.find(x=>x.id===id);if(s)ordered.push(s);});
+  // 非表示の生徒（フィルタ外）はいないはず（全件表示時のみ並び替え可）だが念のため末尾に追加
+  DB.students.forEach(s=>{if(!ordered.includes(s))ordered.push(s);});
+  DB.students=ordered;
+  save();
+  const dc=dragState.card;dragState=null;
+  setTimeout(()=>{if(dc)delete dc.dataset.suppressClick;renderMates();},50);
+}
+let pickedCat='小学生';
+function renderCatPick(){
+  document.getElementById('catPick').innerHTML=CATEGORIES.map(c=>`<button class="${c===pickedCat?'on':''}" onclick="pickCat('${c}')">${c}</button>`).join('');
+}
+function pickCat(c){pickedCat=c;renderCatPick();}
+let pickedRank='';
+function renderRankPick(){
+  const kyu=['三級','二級','一級'];
+  const dan=['初段','弍段','三段','四段'];
+  const mk=r=>`<button class="${r===pickedRank?'on':''}" onclick="pickRank('${r}')">${r}</button>`;
+  document.getElementById('rankPick').innerHTML=
+    `<div class="rank-row">${kyu.map(mk).join('')}</div>`+
+    `<div class="rank-row">${dan.map(mk).join('')}</div>`;
+  const inp=document.getElementById('stRankFree');
+  if(pickedRank && !RANKS.includes(pickedRank)){inp.value=pickedRank;}else if(RANKS.includes(pickedRank)){inp.value='';}
+}
+function pickRank(r){pickedRank=r;renderRankPick();}
+let pickedSex='';
+function pickSex(s){
+  pickedSex=s;
+  document.getElementById('sexM').classList.toggle('on',s==='男性');
+  document.getElementById('sexF').classList.toggle('on',s==='女性');
+  document.getElementById('sexO').classList.toggle('on',s==='その他');
+}
+let pickedStuGrip=''; // 仲間の組手（任意）
+function pickStuGrip(g){
+  pickedStuGrip=(pickedStuGrip===g?'':g); // もう一度押すと解除
+  document.getElementById('stGripR').classList.toggle('on',pickedStuGrip==='右');
+  document.getElementById('stGripL').classList.toggle('on',pickedStuGrip==='左');
+  document.getElementById('stGripO').classList.toggle('on',pickedStuGrip==='他');
+}
+function renderStuGripPick(){
+  document.getElementById('stGripR').classList.toggle('on',pickedStuGrip==='右');
+  document.getElementById('stGripL').classList.toggle('on',pickedStuGrip==='左');
+  document.getElementById('stGripO').classList.toggle('on',pickedStuGrip==='他');
+}
+let pickedFeeReq=true;
+let pickedActive=true;
+let pickedFeeAmt=2000;
+function feePresetList(){return (DB.feePresets||[2000,3000,0,0]).filter(a=>a&&a>0);}
+function pickFeeReq(v){
+  pickedFeeReq=v;
+  document.getElementById('feeYes').classList.toggle('on',v);
+  document.getElementById('feeNo').classList.toggle('on',!v);
+  document.getElementById('feeAmountArea').style.display=v?'block':'none';
+}
+function renderFeeAmtPick(){
+  const presets=feePresetList();
+  document.getElementById('feeAmtPick').innerHTML=presets.map(a=>`<button class="${a===pickedFeeAmt?'on':''}" onclick="pickFeeAmt(${a})">¥${a.toLocaleString()}</button>`).join('');
+  const inp=document.getElementById('stFeeAmount');
+  if(!presets.includes(pickedFeeAmt)){inp.value=pickedFeeAmt;}else{inp.value='';}
+}
+function pickFeeAmt(a){pickedFeeAmt=a;renderFeeAmtPick();}
+function calcAge(birth){
+  if(!birth)return null;
+  const b=new Date(birth+'T00:00');const now=new Date();
+  let age=now.getFullYear()-b.getFullYear();
+  const md=(now.getMonth()-b.getMonth())||(now.getDate()-b.getDate());
+  if(now.getMonth()<b.getMonth()||(now.getMonth()===b.getMonth()&&now.getDate()<b.getDate()))age--;
+  return age;
+}
+function updateAgeDisplay(){
+  const birth=document.getElementById('stBirth').value;
+  const age=calcAge(birth);
+  document.getElementById('ageDisplay').textContent=age!=null?`（現在 ${age}歳）`:'';
+}
+function pickEnroll(active){
+  pickedActive=active;
+  document.getElementById('enrollActive').classList.toggle('on',active);
+  document.getElementById('enrollEnded').classList.toggle('on',!active);
+  document.getElementById('stEnd').style.display=active?'none':'block';
+}
+function openStudentModal(id){
+  if(dragState)return; // ドラッグ中はクリックで開かない
+  if(id){const c=document.querySelector('.mate-card[data-id="'+id+'"]');if(c&&c.dataset.suppressClick)return;}
+  editingStudent=id||null;
+  if(id){
+    const s=DB.students.find(x=>x.id===id);
+    document.getElementById('studentModalTitle').textContent='仲間を編集';
+    document.getElementById('stName').value=s.name;
+    pickedCat=s.category||'小学生';
+    pickedRank=s.rank||'';
+    document.getElementById('stRankDate').value=s.rankDate||'';
+    pickedSex=s.sex||'';
+    pickedStuGrip=s.grip||'';
+    pickedFeeReq=(s.feeReq!==false);
+    pickedFeeAmt=s.feeAmount||DB.feeAmount||2000;
+    document.getElementById('stStart').value=s.startDate||'';
+    pickedActive=!s.endDate;
+    document.getElementById('stEnd').value=s.endDate||'';
+    document.getElementById('stBirth').value=s.birth||'';
+    document.getElementById('stJudoId').value=s.judoId||'';
+    document.getElementById('stNote').value=s.note||'';
+  }else{
+    document.getElementById('studentModalTitle').textContent='仲間を追加';
+    document.getElementById('stName').value='';
+    pickedCat='小学生';
+    pickedRank='';
+    document.getElementById('stRankDate').value='';
+    pickedSex='';
+    pickedStuGrip='';
+    pickedFeeAmt=(feePresetList()[0])||DB.feeAmount||2000;
+    document.getElementById('stStart').value='';
+    pickedActive=true;
+    document.getElementById('stEnd').value='';
+    document.getElementById('stBirth').value='';
+    document.getElementById('stJudoId').value='';
+    document.getElementById('stNote').value='';
+  }
+  renderCatPick();
+  renderRankPick();
+  pickSex(pickedSex);
+  renderStuGripPick();
+  pickFeeReq(pickedFeeReq);
+  renderFeeAmtPick();
+  pickEnroll(pickedActive);
+  updateAgeDisplay();
+  document.getElementById('stDeleteBtn').style.display=editingStudent?'block':'none';
+  openModal('studentModal');
+}
+function saveStudent(){
+  const name=document.getElementById('stName').value.trim();
+  if(!name){toast('名前を入れてください');return;}
+  const startDate=document.getElementById('stStart').value||'';
+  const endDate=pickedActive?'':(document.getElementById('stEnd').value||'');
+  // 月謝金額：手入力があればそれを優先、なければ選択中のプリセット
+  const manual=Number(document.getElementById('stFeeAmount').value)||0;
+  const feeAmount=pickedFeeReq?(manual>0?manual:pickedFeeAmt):0;
+  const birth=document.getElementById('stBirth').value||'';
+  const judoId=document.getElementById('stJudoId').value.trim();
+  const note=document.getElementById('stNote').value.trim();
+  const rankFree=document.getElementById('stRankFree').value.trim();
+  const rank=rankFree||pickedRank||'';
+  const rankDate=document.getElementById('stRankDate').value||'';
+  const sex=pickedSex||'';
+  const grip=pickedStuGrip||'';
+  if(editingStudent){
+    const s=DB.students.find(x=>x.id===editingStudent);
+    s.name=name;s.category=pickedCat;s.rank=rank;s.rankDate=rankDate;s.sex=sex;s.grip=grip;s.feeReq=pickedFeeReq;s.feeAmount=feeAmount;s.startDate=startDate;s.endDate=endDate;s.birth=birth;s.judoId=judoId;s.note=note;
+  }else{
+    DB.students.push({id:uid(),name,category:pickedCat,rank,rankDate,sex,grip,feeReq:pickedFeeReq,feeAmount,startDate,endDate,birth,judoId,note});
+  }
+  save();closeModal('studentModal');renderMates();toast('保存しました');
+}
+function delStudent(id){const s=DB.students.find(x=>x.id===id);if(!confirm(`${s.name} を削除しますか？`))return;DB.students=DB.students.filter(x=>x.id!==id);save();renderSettings();toast('削除しました');}
+let pendingDeleteId=null;
+let pendingDeleteSched=null;
+function deleteStudentFromModal(){
+  if(!editingStudent)return;
+  const s=DB.students.find(x=>x.id===editingStudent);
+  if(!s)return;
+  pendingDeleteId=editingStudent;
+  document.getElementById('confirmModal').dataset.kind='student';
+  document.getElementById('confirmYesBtn').textContent='削除する';
+  document.getElementById('confirmText').innerHTML=`「${esc(s.name)}」を削除します。この操作は取り消せません。<br><br>過去の月謝や出欠の集計金額は保持されますが、集計表からこの方の名前は消えます。<br><br>名簿から見えなくしたいだけなら、削除せず「退会」に設定し、仲間タブの「退会した仲間を表示」をオフにする方法がおすすめです。`;
+  openModal('confirmModal');
+}
+function confirmDeleteYes(){
+  const kind=document.getElementById('confirmModal').dataset.kind;
+  if(kind==='restore'){doRestore();return;}
+  if(kind==='sched'){
+    if(pendingDeleteSched){
+      DB.schedule=DB.schedule.filter(s=>s.id!==pendingDeleteSched);
+      pendingDeleteSched=null;
+      save();closeModal('confirmModal');closeModal('schedModal');renderSched();toast('予定を削除しました');
+    }else{closeModal('confirmModal');}
+    return;
+  }
+  if(!pendingDeleteId){closeModal('confirmModal');return;}
+  DB.students=DB.students.filter(x=>x.id!==pendingDeleteId);
+  pendingDeleteId=null;
+  save();
+  closeModal('confirmModal');
+  closeModal('studentModal');
+  renderMates();
+  toast('削除しました');
+}
+function moveStudent(idx,dir){
+  const ni=idx+dir;
+  if(ni<0||ni>=DB.students.length)return;
+  const arr=DB.students;
+  [arr[idx],arr[ni]]=[arr[ni],arr[idx]];
+  save();renderMates();
+}
+function uploadLogo(ev){
+  const file=ev.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      // 正方形に中央トリミング → 180x180へリサイズ
+      const side=Math.min(img.width,img.height);
+      const sx=(img.width-side)/2, sy=(img.height-side)/2;
+      const canvas=document.createElement('canvas');
+      canvas.width=180;canvas.height=180;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,sx,sy,side,side,0,0,180,180);
+      DB.logo=canvas.toDataURL('image/png');
+      save();applyLogo();toast('ロゴを設定しました');
+    };
+    img.onerror=()=>toast('画像を読めませんでした');
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+  ev.target.value='';
+}
+function resetLogo(){DB.logo=DEFAULT_LOGO;save();applyLogo();toast('標準のロゴに戻しました');}
+/* ===================== 着せ替え（テーマ）===================== */
+const THEME_COLORS=[
+  {id:'indigo',     name:'藍紺',  p:'#1a2b4a', a:'#c8a44d'},
+  {id:'onyx',       name:'漆黒',  p:'#1f1f23', a:'#d4af37'},
+  {id:'forest',     name:'深緑',  p:'#1f4d3a', a:'#c39b46'},
+  {id:'wine',       name:'葡萄',  p:'#5a2746', a:'#c8a44d'},
+  {id:'steel',      name:'鋼青',  p:'#1f4e5f', a:'#e0a93b'},
+  {id:'sumi',       name:'墨',    p:'#2b2b2b', a:'#c8973a'},
+  {id:'ultramarine',name:'群青',  p:'#21409a', a:'#f0a500'},
+  {id:'sakura',     name:'桜',    p:'#b03a6b', a:'#e0a94f'},
+  {id:'wakaba',     name:'若葉',  p:'#0e7268', a:'#ff8a5b'},
+  {id:'fuji',       name:'藤',    p:'#6a4c93', a:'#d9a441'}
+];
+const THEME_SHAPES=[
+  {id:'round', name:'まる',     desc:'やわらか'},
+  {id:'sharp', name:'シャープ', desc:'キリッと'},
+  {id:'pop',   name:'まんまる', desc:'ポップ'}
+];
+function applyTheme(){
+  const c=DB.themeColor||'indigo', s=DB.themeShape||'round';
+  document.documentElement.setAttribute('data-color',c);
+  document.documentElement.setAttribute('data-shape',s);
+  // インストール時のテーマ色（メタ）も合わせる
+  const col=THEME_COLORS.find(x=>x.id===c);
+  if(col){const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',col.p);}
+}
+function pickThemeColor(id){DB.themeColor=id;save();applyTheme();renderThemePicker();}
+function pickThemeShape(id){DB.themeShape=id;save();applyTheme();renderThemePicker();}
+function renderThemePicker(){
+  const grid=document.getElementById('themeColorGrid');
+  if(!grid)return;
+  const cur=DB.themeColor||'indigo', curS=DB.themeShape||'round';
+  grid.innerHTML=THEME_COLORS.map(t=>
+    `<button class="theme-sw ${t.id===cur?'on':''}" onclick="pickThemeColor('${t.id}')" title="${t.name}" aria-label="${t.name}">
+       <span class="sw-main" style="background:${t.p}"></span>
+       <span class="sw-acc" style="background:${t.a}"></span>
+     </button>`).join('');
+  const curName=(THEME_COLORS.find(x=>x.id===cur)||{}).name||'';
+  document.getElementById('themeColorName').textContent=curName;
+  const row=document.getElementById('themeShapeRow');
+  row.innerHTML=THEME_SHAPES.map(s=>
+    `<button class="theme-shape-btn ${s.id===curS?'on':''}" data-s="${s.id}" onclick="pickThemeShape('${s.id}')">
+       <span class="shape-demo"></span>
+       <span class="shape-name">${s.name}</span>
+       <span class="shape-desc">${s.desc}</span>
+     </button>`).join('');
+  const curSName=(THEME_SHAPES.find(x=>x.id===curS)||{}).name||'';
+  document.getElementById('themeShapeName').textContent=curSName;
+}
+/* ===================== パスコードロック（この端末のみ・バックアップ非対象）===================== */
+const LOCK_KEY='judoTeamApp_lock';
+let lockEnabled=false, lockCode='';
+let lockBuf='', lockMode='unlock', lockTemp='';
+function loadLock(){
+  try{const s=localStorage.getItem(LOCK_KEY);if(s){const o=JSON.parse(s);lockEnabled=!!o.enabled;lockCode=o.code||'';}}catch(e){}
+}
+function saveLock(){try{localStorage.setItem(LOCK_KEY,JSON.stringify({enabled:lockEnabled,code:lockCode}));}catch(e){}}
+function buildLockKeypad(){
+  const kp=document.getElementById('lockKeypad');
+  let html='';
+  for(let n=1;n<=9;n++) html+=`<button class="lock-key" onclick="lockPress('${n}')">${n}</button>`;
+  html+=`<button class="lock-key blank" disabled></button>`;
+  html+=`<button class="lock-key" onclick="lockPress('0')">0</button>`;
+  html+=`<button class="lock-key fn" onclick="lockDelete()">⌫</button>`;
+  kp.innerHTML=html;
+}
+function renderLockDots(){
+  const d=document.getElementById('lockDots');
+  d.innerHTML=[0,1,2,3].map(i=>`<div class="lock-dot ${i<lockBuf.length?'filled':''}"></div>`).join('');
+}
+function showLockScreen(mode){
+  lockMode=mode; lockBuf=''; lockTemp='';
+  buildLockKeypad(); renderLockDots();
+  document.getElementById('lockMsg').textContent='';
+  document.getElementById('lockLogo').style.backgroundImage=`url('${DB.logo||DEFAULT_LOGO}')`;
+  document.getElementById('lockCancel').style.display=(mode==='unlock')?'none':'block';
+  setLockTitle();
+  document.getElementById('lockScreen').classList.add('show');
+}
+function setLockTitle(){
+  const t={unlock:'パスコードを入力',set1:'新しいパスコードを設定',set2:'確認のためもう一度入力'}[lockMode]||'パスコードを入力';
+  document.getElementById('lockTitle').textContent=t;
+}
+function hideLockScreen(){document.getElementById('lockScreen').classList.remove('show');}
+function lockShake(msg){
+  const d=document.getElementById('lockDots');
+  document.getElementById('lockMsg').textContent=msg||'';
+  d.classList.add('shake'); setTimeout(()=>d.classList.remove('shake'),420);
+  lockBuf=''; setTimeout(renderLockDots,100);
+}
+function lockPress(n){
+  if(lockBuf.length>=4)return;
+  lockBuf+=n; renderLockDots();
+  if(lockBuf.length===4) setTimeout(lockSubmit,120);
+}
+function lockDelete(){if(lockBuf.length){lockBuf=lockBuf.slice(0,-1);renderLockDots();}}
+function lockSubmit(){
+  if(lockMode==='unlock'){
+    if(lockBuf===lockCode){hideLockScreen();}
+    else lockShake('パスコードが違います');
+  }else if(lockMode==='set1'){
+    lockTemp=lockBuf; lockBuf=''; lockMode='set2'; setLockTitle();
+    document.getElementById('lockMsg').textContent=''; renderLockDots();
+  }else if(lockMode==='set2'){
+    if(lockBuf===lockTemp){
+      lockCode=lockBuf; lockEnabled=true; saveLock();
+      hideLockScreen(); renderLockSettings(); toast('パスコードを設定しました');
+    }else{ lockMode='set1'; lockShake('一致しません。もう一度設定してください'); setLockTitle(); }
+  }
+}
+function startSetPasscode(){ showLockScreen('set1'); }
+function cancelSetPasscode(){
+  hideLockScreen();
+  // 有効化の途中でやめた場合は無効のまま戻す
+  if(!lockCode){lockEnabled=false;saveLock();}
+  renderLockSettings();
+}
+function setLockEnabled(on){
+  if(on){
+    if(lockCode){ lockEnabled=true; saveLock(); renderLockSettings(); }
+    else startSetPasscode();          // 初回は設定フローへ
+  }else{
+    lockEnabled=false; lockCode=''; saveLock(); renderLockSettings(); toast('ロックを解除しました');
+  }
+}
+function renderLockSettings(){
+  const on=document.getElementById('lockOn'), off=document.getElementById('lockOff');
+  if(!on)return;
+  on.classList.toggle('on',lockEnabled);
+  off.classList.toggle('on',!lockEnabled);
+  document.getElementById('lockChangeBtn').style.display=lockEnabled?'block':'none';
+}
+function applyLogo(){
+  const crest=document.getElementById('headerCrest');
+  const prev=document.getElementById('logoPreview');
+  const icon=document.getElementById('appleIcon');
+  const logo=DB.logo||DEFAULT_LOGO;
+  crest.innerHTML='';
+  crest.style.backgroundImage=`url('${logo}')`;
+  prev.innerHTML='';
+  prev.style.backgroundImage=`url('${logo}')`;
+  icon.href=logo;
+  const pre=document.getElementById('appleIconPre'); if(pre)pre.href=logo;
+  const fav=document.getElementById('faviconIcon'); if(fav)fav.href=logo;
+}
+function saveFeeAmount(){const el=document.getElementById('feeAmount');if(!el)return;DB.feeAmount=Number(el.value)||0;save();}
+function saveTeamName(){DB.team=document.getElementById('teamNameInput').value.trim()||'柔道チーム';document.getElementById('teamName').textContent=DB.team;save();}
+function addPlace(){const v=document.getElementById('newPlace').value.trim();if(!v)return;if(!DB.places.includes(v))DB.places.push(v);document.getElementById('newPlace').value='';save();renderSettings();}
+function delPlace(i){DB.places.splice(i,1);save();renderSettings();}
+
+/* バックアップ */
+function exportData(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`judo_backup_${todayStr()}.json`;a.click();URL.revokeObjectURL(url);toast('バックアップを保存しました');
+}
+let pendingRestoreData=null;
+function importData(ev){
+  const f=ev.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!d.students)throw 0;
+      pendingRestoreData=d;
+      document.getElementById('confirmModal').dataset.kind='restore';
+      document.getElementById('confirmYesBtn').textContent='復元する';
+      document.getElementById('confirmText').innerHTML='バックアップから復元します。<br><br>今このアプリに入っているデータ（仲間・出欠・お金・予定など）は、すべてバックアップの内容に上書きされ、元には戻せません。<br><br>復元してよろしいですか？';
+      openModal('confirmModal');
+    }catch(err){toast('ファイルを読めませんでした');}
+  };
+  r.readAsText(f);ev.target.value='';
+}
+function doRestore(){
+  const d=pendingRestoreData;pendingRestoreData=null;
+  if(!d){closeModal('confirmModal');return;}
+  DB=Object.assign({attendance:{},fees:{},schedule:[],students:[],places:[],metaHistory:[],logo:DEFAULT_LOGO,cash:[],cashCats:{in:['寄付','参加費徴収','物販収入','補助金','その他収入'],out:['用具購入','会場費','大会遠征費','審査料','保険料','飲食費','その他支出']},schedPresets:{types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['市民体育館','〇〇道場','','']},feePresets:[2000,3000,0,0]},d);
+  if(!DB.schedPresets)DB.schedPresets={types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['市民体育館','〇〇道場','','']};
+  if(!DB.feePresets)DB.feePresets=[2000,3000,0,0];
+  if(!DB.feeOverrides)DB.feeOverrides={};
+  if(!DB.themeColor)DB.themeColor='indigo';
+  if(!DB.themeShape)DB.themeShape='round';
+  if(!DB.matchResults)DB.matchResults={};
+  save();closeModal('confirmModal');initUI();toast('復元しました');
+}
+
+/* 共通 */
+function openModal(id){
+  const bg=document.getElementById(id);
+  bg.classList.add('show');
+  // 中身を常に最上段から表示（連続入力時の使いやすさ）
+  const inner=bg.querySelector('.modal');
+  if(inner){inner.scrollTop=0;requestAnimationFrame(()=>{inner.scrollTop=0;});}
+}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('show');}));
+let tT=null;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2000);}
+
+function initUI(){
+  applyTheme();
+  document.getElementById('teamName').textContent=DB.team;
+  document.getElementById('attDate').value=todayStr();
+  feeMonth=thisMonthStr();
+  listMonth=feeMonth;
+  cashMonth=feeMonth;
+  moneyView='fee';
+  schedYear=new Date().getFullYear();
+  applyLogo();
+  renderAtt();
+}
+load();seedIfEmpty();save();initUI();
+loadLock();
+if(lockEnabled&&lockCode){showLockScreen('unlock');}
+/* PWA manifest を動的生成（アイコンにチームロゴを使用） */
+(function(){
+  try{
+    const icon=DB.logo||DEFAULT_LOGO;
+    const manifest={
+      name:DB.team||'柔道チーム管理',
+      short_name:DB.team||'柔道管理',
+      start_url:location.pathname,
+      display:'standalone',
+      background_color:'#f5f2ea',
+      theme_color:'#1a2b4a',
+      icons:[
+        {src:icon,sizes:'192x192',type:'image/png',purpose:'any'},
+        {src:icon,sizes:'512x512',type:'image/png',purpose:'any'},
+        {src:icon,sizes:'512x512',type:'image/png',purpose:'maskable'}
+      ]
+    };
+    const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement('link');
+    link.rel='manifest';link.href=url;
+    document.head.appendChild(link);
+  }catch(e){}
+})();
+/* Service Worker 登録（https公開時のみ有効・完全オフライン対応） */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+}
+</script>
+</body>
+</html>
