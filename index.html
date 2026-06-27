@@ -991,12 +991,14 @@
     </div>
     <label class="fld">勝敗</label>
     <div class="cat-pick" id="bResultPick"></div>
+    <div id="bGradeWazaWrap">
     <label class="fld">内容</label>
     <div class="cat-pick" id="bGradePicks"></div>
     <input type="text" id="bGrade" placeholder="例 一本／技あり（その他は自由入力）" oninput="renderBGradePicks()">
     <div style="text-align:right;margin-top:6px"><button type="button" class="btn ghost sm" onclick="openMatchPreset()">よく使う「内容」を編集</button></div>
     <label class="fld">決まり技</label>
     <input type="text" id="bWaza" placeholder="例 大外刈／背負投／不戦">
+    </div>
     <label class="fld">備考（任意）</label>
     <input type="text" id="bNote" placeholder="例 旗判定2-1">
     <div class="row">
@@ -1254,8 +1256,8 @@ function renderAtt(){
   if(dispEl)dispEl.textContent=`${date.replace(/-/g,'/')}(${weekday(dObj)})`;
   const day=DB.attendance[date]||{};
   const list=document.getElementById('attList');
-  const roster=DB.students.filter(s=>isEnrolledOn(s,date));
-  if(roster.length===0){list.innerHTML='<div class="empty">この日に在籍している仲間がいません</div>';['attPresNum','attAbsNum','attNoneNum'].forEach(i=>document.getElementById(i).textContent=0);return;}
+  const roster=DB.students.filter(s=>isEnrolledOn(s,date) && !isOnLeaveMonth(s,date.slice(0,7)));
+  if(roster.length===0){list.innerHTML='<div class="empty">この日に出席対象の仲間がいません</div>';['attPresNum','attAbsNum','attNoneNum'].forEach(i=>document.getElementById(i).textContent=0);return;}
   let p=0,a=0,n=0;
   list.innerHTML=roster.map(s=>{
     const st=day[s.id]; if(st==='present')p++;else if(st==='absent')a++;else n++;
@@ -1780,7 +1782,7 @@ function openBoutModal(boutId){
     pickOppMate(pickedOppMate);
     if(pickedOppMate)document.getElementById('bOppId').value=(pf&&pf.oppId)||'';
   }
-  renderResultPick();renderGripPick();renderBGradePicks();renderBRoundPicks();
+  renderResultPick();renderGripPick();renderBGradePicks();renderBRoundPicks();applyBoutResultUI();
   document.getElementById('boutDeleteBtn').style.display=editingBout?'block':'none';
   openModal('boutModal');
 }
@@ -1790,7 +1792,15 @@ function renderResultPick(){
     return `<button class="${r===pickedResult?'on':''}" onclick="pickResult('${r}')">${lbl}</button>`;
   }).join('');
 }
-function pickResult(r){pickedResult=r;renderResultPick();}
+function pickResult(r){
+  pickedResult=r;renderResultPick();
+  if(r==='×'){document.getElementById('bGrade').value='';document.getElementById('bWaza').value='';renderBGradePicks();}
+  applyBoutResultUI();
+}
+function applyBoutResultUI(){
+  const hide=(pickedResult==='×');
+  const w=document.getElementById('bGradeWazaWrap'); if(w)w.style.display=hide?'none':'block';
+}
 function renderGripPick(){
   document.getElementById('bGripPick').innerHTML=GRIP_OPTS.map(g=>`<button class="${g===pickedGrip?'on':''}" onclick="pickGrip('${g}')">${g}</button>`).join('');
 }
@@ -1833,8 +1843,8 @@ function saveBout(){
     division:document.getElementById('bDivision').value.trim(),
     round:document.getElementById('bRound').value.trim(),
     result:pickedResult,
-    grade:document.getElementById('bGrade').value.trim(),
-    waza:document.getElementById('bWaza').value.trim(),
+    grade:pickedResult==='×'?'':document.getElementById('bGrade').value.trim(),
+    waza:pickedResult==='×'?'':document.getElementById('bWaza').value.trim(),
     oppIsMate:pickedOppMate,
     oppId:pickedOppMate?oppId:'',
     oppName:pickedOppMate?'':document.getElementById('bOppName').value.trim(),
@@ -2005,6 +2015,39 @@ function cardNext(){
 }
 function boutByKey(key){return key==='rep'?curCard.rep:curCard.bouts[Number(key)];}
 function pre(key){return key==='rep'?'rep':'b'+key;}
+// 団体戦：選手プルダウンの属性絞り込み（ブロックごとに状態保持）
+let teamSelfCat={};
+function teamSelfArr(cat){
+  if(cat==='未設定')return DB.students.filter(s=>!s.category||!MATE_GROUP_ORDER.includes(s.category));
+  if(cat&&cat!=='全員')return DB.students.filter(s=>s.category===cat);
+  return DB.students;
+}
+function teamSelfCatChips(b,key){
+  let cat=teamSelfCat[key];
+  if(cat===undefined){
+    const s=DB.students.find(x=>x.id===b.selfId);
+    cat=(s&&s.category&&MATE_GROUP_ORDER.includes(s.category))?s.category:(s?'未設定':'全員');
+    teamSelfCat[key]=cat;
+  }
+  const cats=['全員',...MATE_GROUP_ORDER.filter(c=>DB.students.some(s=>s.category===c))];
+  if(DB.students.some(s=>!s.category||!MATE_GROUP_ORDER.includes(s.category)))cats.push('未設定');
+  if(!cats.includes(cat)){cat='全員';teamSelfCat[key]='全員';}
+  return cats.map(c=>`<button type="button" class="${c===cat?'on':''}" onclick="pickTeamSelfCat('${key}','${esc(c)}')">${esc(c)}</button>`).join('');
+}
+function teamSelfOptions(b,key){
+  const arr=teamSelfArr(teamSelfCat[key]||'全員');
+  return `<option value="">選手を選ぶ</option>`+arr.map(s=>`<option value="${s.id}" ${s.id===b.selfId?'selected':''}>${esc(s.name)}</option>`).join('');
+}
+function pickTeamSelfCat(key,c){
+  const b=boutByKey(key);if(!b)return;
+  teamSelfCat[key]=c;
+  const arr=teamSelfArr(c);
+  if(b.selfId&&!arr.some(s=>s.id===b.selfId))b.selfId=''; // 絞り込みで外れたら解除
+  const p=pre(key);
+  const block=document.getElementById('block_'+p);
+  if(block)block.outerHTML=boutBlockHtml(b,key,key==='rep');
+  save();recalcTally();
+}
 function resBtnsHtml(b,key){
   const opts=key==='rep'?[['○','○ 勝ち'],['▲','▲ 負け']]:[['○','○ 勝ち'],['▲','▲ 負け'],['×','× 引分']];
   return opts.map(([v,l])=>`<button type="button" class="${b.result===v?'on':''}" onclick="pickResult2('${key}','${v}')">${l}</button>`).join('');
@@ -2032,7 +2075,6 @@ function boutBlockHtml(b,key,isRep){
   const p=pre(key);
   const head=isRep?`<div class="bb-head rep"><span class="pos-no">代表戦</span></div>`
                   :`<div class="bb-head"><span class="pos-no">${positionLabel(curCard.count,Number(key))}</span></div>`;
-  const opts=`<option value="">選手を選ぶ</option>`+DB.students.map(s=>`<option value="${s.id}" ${s.id===b.selfId?'selected':''}>${esc(s.name)}</option>`).join('');
   const mate=curCard.oppIsMate;
   const selfChange=mate?`onTeamSelfChange('${key}',this.value)`:`setBoutField('${key}','selfId',this.value)`;
   const oppArea=mate
@@ -2051,7 +2093,8 @@ function boutBlockHtml(b,key,isRep){
   return `<div class="bout-block${isRep?' rep':''}" id="block_${p}">
     ${head}
     <span class="bb-label">選手</span>
-    <select onchange="${selfChange}">${opts}</select>
+    <div class="cat-pick" id="selfcat_${p}">${teamSelfCatChips(b,key)}</div>
+    <select onchange="${selfChange}">${teamSelfOptions(b,key)}</select>
     ${oppArea}
     <span class="bb-label">勝敗</span>
     <div class="cat-pick" id="res_${p}">${resBtnsHtml(b,key)}</div>
@@ -2062,6 +2105,7 @@ function boutBlockHtml(b,key,isRep){
 }
 function buildDetail(){
   const c=curCard;
+  teamSelfCat={};
   const oppLabel=c.oppIsMate?(c.oppTeam?esc(c.oppTeam):'紅白戦（同門）'):esc(c.oppTeam||'(相手チーム未入力)');
   document.getElementById('cardHeadSummary').innerHTML=
     '<b>'+oppLabel+'</b>'+(c.oppIsMate?' <span class="mate-tag">同門</span>':' 戦')+'<br>'+
@@ -2395,7 +2439,7 @@ function renderList(){
   let feeRows=feeRoster.length?feeRoster.map(s=>`<tr><td class="namecell">${esc(s.name)}</td><td class="${paid[s.id]!==undefined?'cell-fee-paid':'cell-fee-unpaid'}">${paid[s.id]!==undefined?'済':'未'}</td></tr>`).join(''):'';
   document.getElementById('listFeeMatrix').innerHTML=feeRoster.length?`<table class="matrix"><thead><tr><th class="namecell">仲間</th><th>月謝</th></tr></thead><tbody>${feeRows}</tbody></table>`:'<div class="empty">この月の月謝対象者がいません</div>';
   const days=Object.keys(DB.attendance).filter(dt=>dt.startsWith(listMonth)).sort();
-  const attRoster=DB.students.filter(s=>isEnrolledInMonth(s,listMonth));
+  const attRoster=DB.students.filter(s=>isEnrolledInMonth(s,listMonth) && !isOnLeaveMonth(s,listMonth));
   let head=`<th class="namecell">仲間</th>`+days.map(dt=>{const d=new Date(dt+'T00:00');return `<th>${d.getDate()}<br>(${weekday(d)})</th>`;}).join('')+`<th>出席</th><th>欠席</th>`;
   let body=attRoster.map(s=>{
     let p=0,a=0;
