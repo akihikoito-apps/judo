@@ -440,6 +440,18 @@
   .font-size-row{display:flex;gap:10px;margin:6px 0 4px;}
   .font-size-row .fs-btn{flex:1;min-height:calc(50px*var(--fs,1));border:2px solid var(--line);background:#fff;color:var(--navy);border-radius:12px;font-family:inherit;font-weight:700;font-size:calc(17px*var(--fs,1));cursor:pointer;-webkit-tap-highlight-color:transparent;}
   .font-size-row .fs-btn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .mate-group-head{display:flex;align-items:center;gap:8px;font-size:calc(15px*var(--fs,1));font-weight:700;color:var(--navy);margin:16px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--line);}
+  .mate-group-head:first-child{margin-top:2px;}
+  .mate-count{font-size:calc(12px*var(--fs,1));font-weight:700;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1px 9px;}
+  .mate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
+  .mate-cell{display:flex;flex-direction:column;gap:5px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:9px 9px 10px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .mate-cell .nm{font-size:calc(15px*var(--fs,1));font-weight:700;color:var(--ink);line-height:1.25;word-break:break-word;}
+  .mate-cell .cell-tag{font-size:calc(10px*var(--fs,1));font-weight:700;border-radius:6px;padding:1px 7px;line-height:1.3;}
+  .mate-cell.leave{background:#fbf6ec;border-color:#e6cf9a;}
+  .mate-cell.leave .cell-tag{background:#fff;color:#8a6a2e;border:1.5px solid #d4ac5a;}
+  .mate-cell.retired{background:#f3edeb;border-color:#dcb3aa;}
+  .mate-cell.retired .nm{color:#9a6b62;}
+  .mate-cell.retired .cell-tag{background:#fff;color:#c0392b;border:1.5px solid #dca9a1;}
   .theme-sw{position:relative;aspect-ratio:1/1;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;background:#fff;}
   .theme-sw .sw-main{flex:1;width:100%;}
   .theme-sw .sw-acc{height:32%;width:100%;}
@@ -618,11 +630,6 @@
       <button class="btn gold sm" onclick="openStudentModal()">＋ 仲間を追加</button>
     </div>
   </div>
-  <div class="filter-row">
-    <button id="fAll" class="filter-btn on" onclick="setMateFilter('all')">全員</button>
-    <button id="fLeader" class="filter-btn" onclick="setMateFilter('leader')">指導者</button>
-    <button id="fStudent" class="filter-btn" onclick="setMateFilter('student')">生徒</button>
-  </div>
   <div class="card">
     <div id="studentList"></div>
   </div>
@@ -798,12 +805,29 @@
     </div>
     <label class="fld">在籍開始日</label>
     <input type="date" id="stStart">
-    <label class="fld">在籍終了日</label>
-    <div class="io-pick" style="margin-bottom:8px">
-      <button id="enrollActive" class="on" onclick="pickEnroll(true)">在籍中</button>
-      <button id="enrollEnded" onclick="pickEnroll(false)">退会（日付指定）</button>
+    <label class="fld">在籍状況</label>
+    <div class="io-pick" style="margin-bottom:8px" id="statusPick">
+      <button id="stActive" class="on" onclick="pickStatus('active')">在籍中</button>
+      <button id="stLeave" onclick="pickStatus('leave')">休会</button>
+      <button id="stEnded" onclick="pickStatus('ended')">退会</button>
     </div>
-    <input type="date" id="stEnd" style="display:none">
+    <div id="endArea" style="display:none">
+      <label class="fld">退会日</label>
+      <input type="date" id="stEnd">
+    </div>
+    <div id="leaveArea" style="display:none">
+      <label class="fld">休会の開始（年月）</label>
+      <input type="month" id="stLeaveStart">
+      <label class="fld">休会の終了</label>
+      <div class="io-pick" style="margin-bottom:8px">
+        <button id="leaveOngoing" class="on" onclick="pickLeaveEnd(false)">休会中（継続）</button>
+        <button id="leaveEndSet" onclick="pickLeaveEnd(true)">終了月を指定</button>
+      </div>
+      <input type="month" id="stLeaveEnd" style="display:none">
+      <label class="fld">休会中の月謝（円）</label>
+      <div class="cat-pick" id="leaveFeeQuick"></div>
+      <input type="number" id="stLeaveFee" inputmode="numeric" placeholder="例：0（休会中は無料）" style="margin-top:8px">
+    </div>
     <label class="fld">生年月日（任意）<span id="ageDisplay" style="color:var(--navy);font-weight:700"></span></label>
     <input type="date" id="stBirth" onchange="updateAgeDisplay()">
     <label class="fld">柔道メンバーID（任意）</label>
@@ -937,6 +961,7 @@
   <div class="modal">
     <h3 id="boutModalTitle">試合を記録</h3>
     <label class="fld">選手</label>
+    <div class="cat-pick" id="bSelfCatPick"></div>
     <select id="bSelfId" onchange="onBoutSelfChange()"></select>
     <label class="fld">試合区分</label>
     <input type="text" id="bDivision" placeholder="例 学年別／無差別">
@@ -1197,6 +1222,18 @@ function isEnrolledInMonth(s,ym){
   if(s.endDate && s.endDate < monthStart) return false;
   return true;
 }
+// 指定月(YYYY-MM)に休会中か
+function isOnLeaveMonth(s,ym){
+  if(!s||!s.leaveStart) return false;
+  if(ym < s.leaveStart) return false;
+  if(s.leaveEnd && ym > s.leaveEnd) return false;
+  return true;
+}
+// その月の基本月謝（休会中なら休会中の月謝）
+function monthlyBaseFee(s,ym){
+  if(isOnLeaveMonth(s,ym)) return (s.leaveFee!=null?s.leaveFee:0);
+  return studentFee(s);
+}
 function weekday(d){return ['日','月','火','水','木','金','土'][d.getDay()];}
 
 function switchTab(tab){
@@ -1263,7 +1300,7 @@ function renderFee(){
   document.getElementById('feeMonthLbl').textContent=`${y}年 ${Number(m)}月`;
   const paid=DB.fees[feeMonth]||{};
   const list=document.getElementById('feeList');
-  const roster=DB.students.filter(s=>s.feeReq!==false && isEnrolledInMonth(s,feeMonth));
+  const roster=DB.students.filter(s=>s.feeReq!==false && isEnrolledInMonth(s,feeMonth) && !(isOnLeaveMonth(s,feeMonth)&&(s.leaveFee||0)<=0));
   if(roster.length===0){list.innerHTML='<div class="empty">この月に月謝対象の仲間がいません</div>';['feePaidNum','feeUnpaidNum'].forEach(i=>document.getElementById(i).textContent=0);document.getElementById('feeSum').textContent='¥0';return;}
   let p=0,u=0,collected=0;
   const ov=DB.feeOverrides[feeMonth]||{};
@@ -1296,13 +1333,13 @@ function toggleFee(sid){
 // その月・その仲間に期待される月謝額（調整があれば調整額、なければ登録額）
 function expectedFee(s){
   const ov=(DB.feeOverrides[feeMonth]||{})[s.id];
-  return (ov!==undefined)?ov:studentFee(s);
+  return (ov!==undefined)?ov:monthlyBaseFee(s,feeMonth);
 }
 let feeAdjustSid=null;
 function openFeeAdjust(sid){
   feeAdjustSid=sid;
   const s=DB.students.find(x=>x.id===sid);
-  const def=studentFee(s);
+  const def=monthlyBaseFee(s,feeMonth);
   const cur=expectedFee(s);
   const[y,m]=feeMonth.split('-');
   document.getElementById('feeAdjustSub').textContent=`${esc(s?s.name:'')}　${y}年${Number(m)}月（この月だけに反映／登録額 ¥${def.toLocaleString()}）`;
@@ -1320,7 +1357,7 @@ function renderFeeAdjustQuick(def){
 function saveFeeAdjust(){
   if(!feeAdjustSid)return;
   const s=DB.students.find(x=>x.id===feeAdjustSid);
-  const def=studentFee(s);
+  const def=monthlyBaseFee(s,feeMonth);
   const amt=Math.max(0,Number(document.getElementById('feeAdjustAmount').value)||0);
   if(!DB.feeOverrides[feeMonth])DB.feeOverrides[feeMonth]={};
   if(amt===def){delete DB.feeOverrides[feeMonth][feeAdjustSid];} // 登録額と同じなら調整解除
@@ -1334,7 +1371,7 @@ function resetFeeAdjust(){
   const s=DB.students.find(x=>x.id===feeAdjustSid);
   if(DB.feeOverrides[feeMonth])delete DB.feeOverrides[feeMonth][feeAdjustSid];
   // 支払済なら登録額で焼き直し
-  if(DB.fees[feeMonth]&&DB.fees[feeMonth][feeAdjustSid]!==undefined)DB.fees[feeMonth][feeAdjustSid]=studentFee(s);
+  if(DB.fees[feeMonth]&&DB.fees[feeMonth][feeAdjustSid]!==undefined)DB.fees[feeMonth][feeAdjustSid]=monthlyBaseFee(s,feeMonth);
   save();closeModal('feeAdjustModal');renderFee();toast('通常額に戻しました');
 }
 // 支払い記録から金額を取り出す（古い true 記録は現在額で補完）
@@ -1669,17 +1706,46 @@ function copyBout(id){
   openBoutModal(null);
   toast('コピーしました。対戦相手と結果を入力してください');
 }
+// 選手プルダウンの属性絞り込み
+let bSelfCat='全員';
+function bSelfCatsPresent(){
+  const present=MATE_GROUP_ORDER.filter(c=>DB.students.some(s=>s.category===c));
+  if(DB.students.some(s=>!s.category||!MATE_GROUP_ORDER.includes(s.category)))present.push('未設定');
+  return present;
+}
+function renderBSelfCatPick(){
+  const cats=['全員',...bSelfCatsPresent()];
+  if(!cats.includes(bSelfCat))bSelfCat='全員';
+  document.getElementById('bSelfCatPick').innerHTML=cats.map(c=>`<button type="button" class="${c===bSelfCat?'on':''}" onclick="pickBSelfCat('${esc(c)}')">${esc(c)}</button>`).join('');
+}
+function fillBSelfOptions(keepId){
+  let arr=DB.students;
+  if(bSelfCat==='未設定')arr=DB.students.filter(s=>!s.category||!MATE_GROUP_ORDER.includes(s.category));
+  else if(bSelfCat!=='全員')arr=DB.students.filter(s=>s.category===bSelfCat);
+  const sel=document.getElementById('bSelfId');
+  sel.innerHTML=arr.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  if(keepId&&arr.some(s=>s.id===keepId))sel.value=keepId;
+}
+function pickBSelfCat(c){
+  const cur=document.getElementById('bSelfId').value;
+  bSelfCat=c; renderBSelfCatPick(); fillBSelfOptions(cur);
+  onBoutSelfChange();
+}
+// 指定の選手が見えるよう属性を合わせてプルダウンを構成
+function setBSelf(selfId){
+  const s=DB.students.find(x=>x.id===selfId);
+  bSelfCat=(s&&s.category&&MATE_GROUP_ORDER.includes(s.category))?s.category:(s?'未設定':'全員');
+  renderBSelfCatPick(); fillBSelfOptions(selfId);
+  document.getElementById('bSelfId').value=selfId||'';
+}
 function openBoutModal(boutId){
   editingBout=boutId||null;
-  // 選手プルダウン（在籍者優先、全員選択可）
-  const opts=DB.students.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
-  document.getElementById('bSelfId').innerHTML=opts;
   const m=ensureMatch(curMatchSched);
   const arr=m.individual;
   if(boutId){
     const b=arr.find(x=>x.id===boutId);
     document.getElementById('boutModalTitle').textContent='試合を編集';
-    document.getElementById('bSelfId').value=b.selfId;
+    setBSelf(b.selfId);
     document.getElementById('bDivision').value=b.division||'';
     document.getElementById('bRound').value=b.round||'';
     pickedResult=b.result||'○';
@@ -1695,7 +1761,12 @@ function openBoutModal(boutId){
   }else{
     const pf=boutPrefill; boutPrefill=null;
     document.getElementById('boutModalTitle').textContent=pf?'試合を記録（コピー）':'試合を記録';
-    document.getElementById('bSelfId').value=(pf&&pf.selfId)||(DB.students[0]?DB.students[0].id:'');
+    if(pf&&pf.selfId){
+      setBSelf(pf.selfId);
+    }else{
+      bSelfCat='全員'; renderBSelfCatPick(); fillBSelfOptions();
+      document.getElementById('bSelfId').value=(DB.students[0]?DB.students[0].id:'');
+    }
     document.getElementById('bDivision').value=(pf&&pf.division)||'';
     document.getElementById('bRound').value=(pf&&pf.round)||'';
     pickedResult=(pf&&pf.result)||'○';
@@ -2320,7 +2391,7 @@ function renderList(){
     document.getElementById('listFeeMatrix').innerHTML='<div class="empty">仲間がいません</div>';
     document.getElementById('listAttMatrix').innerHTML='';return;
   }
-  const feeRoster=DB.students.filter(s=>s.feeReq!==false && isEnrolledInMonth(s,listMonth));
+  const feeRoster=DB.students.filter(s=>s.feeReq!==false && isEnrolledInMonth(s,listMonth) && !(isOnLeaveMonth(s,listMonth)&&(s.leaveFee||0)<=0));
   let feeRows=feeRoster.length?feeRoster.map(s=>`<tr><td class="namecell">${esc(s.name)}</td><td class="${paid[s.id]!==undefined?'cell-fee-paid':'cell-fee-unpaid'}">${paid[s.id]!==undefined?'済':'未'}</td></tr>`).join(''):'';
   document.getElementById('listFeeMatrix').innerHTML=feeRoster.length?`<table class="matrix"><thead><tr><th class="namecell">仲間</th><th>月謝</th></tr></thead><tbody>${feeRows}</tbody></table>`:'<div class="empty">この月の月謝対象者がいません</div>';
   const days=Object.keys(DB.attendance).filter(dt=>dt.startsWith(listMonth)).sort();
@@ -2451,47 +2522,35 @@ function setMateFilter(f){
   document.getElementById('fStudent').classList.toggle('on',f==='student');
   renderMates();
 }
+const MATE_GROUP_ORDER=['指導者','一般','大学生','高校生','中学生','小学生'];
 function renderMates(){
   const list=document.getElementById('studentList');
-  // 退会フィルタ＋区分フィルタ（並び替えは全体index基準）
-  const visible=DB.students.map((s,idx)=>({s,idx})).filter(o=>{
-    if(!showRetired && o.s.endDate) return false;
-    if(mateFilter==='leader' && o.s.category!=='指導者') return false;
-    if(mateFilter==='student' && o.s.category==='指導者') return false;
-    return true;
-  });
+  const visible=DB.students.map((s,idx)=>({s,idx})).filter(o=>showRetired||!o.s.endDate);
   if(visible.length===0){
     list.innerHTML='<div class="empty" style="padding:16px">'+(DB.students.length?'表示する仲間がいません':'まだ仲間がいません')+'</div>';
     return;
   }
-  // 並び替えは「全員・退会も含む全件表示」のときのみ有効（部分表示中の誤操作防止）
-  const canReorder=(mateFilter==='all'&&showRetired);
-  list.innerHTML=visible.map(({s,idx})=>{
-    const active=!s.endDate;
-    const enrollBar=active
-      ? `<div class="cat-vbar" style="background:#e8821e;color:#fff">在籍</div>`
-      : `<div class="cat-vbar" style="background:#fff;color:#e8821e;border:1.5px solid #e8821e">退会</div>`;
-    const catBar=s.category?`<div class="cat-vbar" style="background:${CAT_COLOR[s.category]||'#888'};color:#fff">${s.category}</div>`:'';
-    const feeBar=(s.feeReq===false)
-      ? `<div class="cat-vbar" style="background:#fff;color:#2e7d4f;border:1.5px solid #2e7d4f">月謝無</div>`
-      : `<div class="cat-vbar" style="background:#2e7d4f;color:#fff">月謝有</div>`;
-    return `<div class="stu-row mate-card" data-id="${s.id}" data-idx="${idx}" onclick="openStudentModal('${s.id}')">
-      <div class="stu-top">
-        <div class="att-person">
-          <div class="vbar-group">${enrollBar}${catBar}${feeBar}</div>
-          <div class="person-name-only">${esc(s.name)}</div>
-        </div>
-        ${canReorder?'<span class="drag-handle">⠿</span>':''}
-      </div>
-    </div>`;
-  }).join('');
-  if(canReorder)enableMateDrag();
-  // 並び替えの案内（カードの先頭に挿入）
-  const hint=canReorder
-    ? 'タップで編集、長押し＋ドラッグで並び替えできます。'
-    : 'タップで編集できます。並び替えは「全員」かつ「退会も表示」オンのときに行えます。';
-  list.insertAdjacentHTML('afterbegin','<div class="list-mini" style="margin:0 0 10px 4px">'+hint+'</div>');
-  return;
+  const cur=thisMonthStr();
+  const cellHtml=({s})=>{
+    let cls='mate-cell', tag='';
+    if(s.endDate){ cls+=' retired'; tag='<span class="cell-tag">退会</span>'; }
+    else if(isOnLeaveMonth(s,cur)){ cls+=' leave'; tag='<span class="cell-tag">休会</span>'; }
+    return `<div class="${cls}" onclick="openStudentModal('${s.id}')">${tag}<span class="nm">${esc(s.name)}</span></div>`;
+  };
+  let html='';
+  MATE_GROUP_ORDER.forEach(cat=>{
+    const members=visible.filter(o=>o.s.category===cat);
+    if(!members.length)return;
+    const col=CAT_COLOR[cat]||'var(--navy)';
+    html+=`<div class="mate-group-head" style="color:${col};border-bottom-color:${col}">${esc(cat)}<span class="mate-count">${members.length}</span></div>`;
+    html+=`<div class="mate-grid">`+members.map(cellHtml).join('')+`</div>`;
+  });
+  const noCat=visible.filter(o=>!o.s.category||!MATE_GROUP_ORDER.includes(o.s.category));
+  if(noCat.length){
+    html+=`<div class="mate-group-head">未設定<span class="mate-count">${noCat.length}</span></div>`;
+    html+=`<div class="mate-grid">`+noCat.map(cellHtml).join('')+`</div>`;
+  }
+  list.innerHTML=html;
 }
 let editingStudent=null;
 /* 仲間カードの長押しドラッグ並び替え */
@@ -2617,11 +2676,28 @@ function updateAgeDisplay(){
   const age=calcAge(birth);
   document.getElementById('ageDisplay').textContent=age!=null?`（現在 ${age}歳）`:'';
 }
-function pickEnroll(active){
-  pickedActive=active;
-  document.getElementById('enrollActive').classList.toggle('on',active);
-  document.getElementById('enrollEnded').classList.toggle('on',!active);
-  document.getElementById('stEnd').style.display=active?'none':'block';
+let pickedStatus='active';   // 'active' | 'leave' | 'ended'
+let pickedLeaveEnd=false;     // 終了月を指定するか
+function pickStatus(st){
+  pickedStatus=st;
+  document.getElementById('stActive').classList.toggle('on',st==='active');
+  document.getElementById('stLeave').classList.toggle('on',st==='leave');
+  document.getElementById('stEnded').classList.toggle('on',st==='ended');
+  document.getElementById('endArea').style.display=(st==='ended')?'block':'none';
+  document.getElementById('leaveArea').style.display=(st==='leave')?'block':'none';
+  if(st==='leave')renderLeaveFeeQuick();
+}
+function pickLeaveEnd(setEnd){
+  pickedLeaveEnd=setEnd;
+  document.getElementById('leaveOngoing').classList.toggle('on',!setEnd);
+  document.getElementById('leaveEndSet').classList.toggle('on',setEnd);
+  document.getElementById('stLeaveEnd').style.display=setEnd?'block':'none';
+}
+function renderLeaveFeeQuick(){
+  const manual=Number(document.getElementById('stFeeAmount').value)||0;
+  const normal=manual>0?manual:(pickedFeeAmt||0);
+  const opts=[['¥0',0]]; if(normal>0){opts.push(['半額',Math.round(normal/2)]);opts.push(['通常額',normal]);}
+  document.getElementById('leaveFeeQuick').innerHTML=opts.map(([lbl,v])=>`<button type="button" onclick="document.getElementById('stLeaveFee').value=${v}">${lbl}</button>`).join('');
 }
 function openStudentModal(id){
   if(dragState)return; // ドラッグ中はクリックで開かない
@@ -2639,8 +2715,14 @@ function openStudentModal(id){
     pickedFeeReq=(s.feeReq!==false);
     pickedFeeAmt=s.feeAmount||DB.feeAmount||2000;
     document.getElementById('stStart').value=s.startDate||'';
-    pickedActive=!s.endDate;
     document.getElementById('stEnd').value=s.endDate||'';
+    document.getElementById('stLeaveStart').value=s.leaveStart||'';
+    document.getElementById('stLeaveEnd').value=s.leaveEnd||'';
+    document.getElementById('stLeaveFee').value=(s.leaveFee!=null?s.leaveFee:'');
+    pickedLeaveEnd=!!s.leaveEnd;
+    if(s.endDate) pickedStatus='ended';
+    else if(s.leaveStart && (!s.leaveEnd || s.leaveEnd>=thisMonthStr())) pickedStatus='leave';
+    else pickedStatus='active';
     document.getElementById('stBirth').value=s.birth||'';
     document.getElementById('stJudoId').value=s.judoId||'';
     document.getElementById('stNote').value=s.note||'';
@@ -2654,8 +2736,12 @@ function openStudentModal(id){
     pickedStuGrip='';
     pickedFeeAmt=(feePresetList()[0])||DB.feeAmount||2000;
     document.getElementById('stStart').value='';
-    pickedActive=true;
+    pickedStatus='active';
     document.getElementById('stEnd').value='';
+    document.getElementById('stLeaveStart').value='';
+    document.getElementById('stLeaveEnd').value='';
+    document.getElementById('stLeaveFee').value='';
+    pickedLeaveEnd=false;
     document.getElementById('stBirth').value='';
     document.getElementById('stJudoId').value='';
     document.getElementById('stNote').value='';
@@ -2666,7 +2752,8 @@ function openStudentModal(id){
   renderStuGripPick();
   pickFeeReq(pickedFeeReq);
   renderFeeAmtPick();
-  pickEnroll(pickedActive);
+  pickStatus(pickedStatus);
+  pickLeaveEnd(pickedLeaveEnd);
   updateAgeDisplay();
   document.getElementById('stDeleteBtn').style.display=editingStudent?'block':'none';
   openModal('studentModal');
@@ -2675,10 +2762,22 @@ function saveStudent(){
   const name=document.getElementById('stName').value.trim();
   if(!name){toast('名前を入れてください');return;}
   const startDate=document.getElementById('stStart').value||'';
-  const endDate=pickedActive?'':(document.getElementById('stEnd').value||'');
   // 月謝金額：手入力があればそれを優先、なければ選択中のプリセット
   const manual=Number(document.getElementById('stFeeAmount').value)||0;
   const feeAmount=pickedFeeReq?(manual>0?manual:pickedFeeAmt):0;
+  const cur=(editingStudent)?DB.students.find(x=>x.id===editingStudent):null;
+  // 在籍状況（在籍中／休会／退会）
+  let endDate='', leaveStart=(cur&&cur.leaveStart)||'', leaveEnd=(cur&&cur.leaveEnd)||'', leaveFee=(cur&&cur.leaveFee!=null)?cur.leaveFee:0;
+  if(pickedStatus==='ended'){
+    endDate=document.getElementById('stEnd').value||todayStr();
+  }else if(pickedStatus==='leave'){
+    leaveStart=document.getElementById('stLeaveStart').value||'';
+    if(!leaveStart){toast('休会の開始（年月）を選んでください');return;}
+    leaveEnd=pickedLeaveEnd?(document.getElementById('stLeaveEnd').value||''):'';
+    leaveFee=Math.max(0,Number(document.getElementById('stLeaveFee').value)||0);
+  }else{ // active：進行中の休会があれば前月で締めて履歴は残す
+    if(leaveStart && !leaveEnd) leaveEnd=shiftMonth(thisMonthStr(),-1);
+  }
   const birth=document.getElementById('stBirth').value||'';
   const judoId=document.getElementById('stJudoId').value.trim();
   const note=document.getElementById('stNote').value.trim();
@@ -2688,10 +2787,10 @@ function saveStudent(){
   const sex=pickedSex||'';
   const grip=pickedStuGrip||'';
   if(editingStudent){
-    const s=DB.students.find(x=>x.id===editingStudent);
-    s.name=name;s.category=pickedCat;s.rank=rank;s.rankDate=rankDate;s.sex=sex;s.grip=grip;s.feeReq=pickedFeeReq;s.feeAmount=feeAmount;s.startDate=startDate;s.endDate=endDate;s.birth=birth;s.judoId=judoId;s.note=note;
+    const s=cur;
+    s.name=name;s.category=pickedCat;s.rank=rank;s.rankDate=rankDate;s.sex=sex;s.grip=grip;s.feeReq=pickedFeeReq;s.feeAmount=feeAmount;s.startDate=startDate;s.endDate=endDate;s.leaveStart=leaveStart;s.leaveEnd=leaveEnd;s.leaveFee=leaveFee;s.birth=birth;s.judoId=judoId;s.note=note;
   }else{
-    DB.students.push({id:uid(),name,category:pickedCat,rank,rankDate,sex,grip,feeReq:pickedFeeReq,feeAmount,startDate,endDate,birth,judoId,note});
+    DB.students.push({id:uid(),name,category:pickedCat,rank,rankDate,sex,grip,feeReq:pickedFeeReq,feeAmount,startDate,endDate,leaveStart,leaveEnd,leaveFee,birth,judoId,note});
   }
   save();closeModal('studentModal');renderMates();toast('保存しました');
 }
