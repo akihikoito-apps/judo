@@ -1155,8 +1155,8 @@ let DB={
   matchResults:{}
 };
 const GRADE_COLOR={白帯:'#9aa0a6',黄帯:'#d4ac0d',橙帯:'#d68910',緑帯:'#2e7d4f',紫帯:'#7d3c98',茶帯:'#7b5230',黒帯:'#222'};
-const CATEGORIES=['小学生','中学生','高校生','大学生','一般','指導者'];
-const CAT_COLOR={小学生:'#2e7d4f',中学生:'#2d4373',高校生:'#7d3c98',大学生:'#c0392b',一般:'#6b6b6b',指導者:'#222'};
+const CATEGORIES=['小学生','中学生','高校生','大学生','一般','コーチ','指導者'];
+const CAT_COLOR={小学生:'#2e7d4f',中学生:'#2d4373',高校生:'#7d3c98',大学生:'#c0392b',一般:'#6b6b6b',コーチ:'#e8821e',指導者:'#222'};
 const RANKS=['三級','二級','一級','初段','弍段','三段','四段'];
 const SEX_COLOR={男性:'#2d4373',女性:'#c0392b',その他:'#7d3c98'};
 const BADGE_COLOR={練習:'#2d4373',大会:'#c0392b',イベント:'#1a8c8c',昇級審査:'#d68910',合宿:'#2e7d4f',休み:'#9aa0a6',その他:'#6b6b6b'};
@@ -2522,7 +2522,7 @@ function setMateFilter(f){
   document.getElementById('fStudent').classList.toggle('on',f==='student');
   renderMates();
 }
-const MATE_GROUP_ORDER=['指導者','一般','大学生','高校生','中学生','小学生'];
+const MATE_GROUP_ORDER=['指導者','コーチ','一般','大学生','高校生','中学生','小学生'];
 function renderMates(){
   const list=document.getElementById('studentList');
   const visible=DB.students.map((s,idx)=>({s,idx})).filter(o=>showRetired||!o.s.endDate);
