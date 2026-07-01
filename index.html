@@ -135,14 +135,15 @@
   input:focus,select:focus{outline:none;border-color:var(--navy);}
   input[type="date"]{ -webkit-appearance:none;appearance:none;text-align:center;font-size:calc(20px*var(--fs,1));font-weight:700;color:var(--navy);display:flex;align-items:center;justify-content:center; }
   input[type="date"]::-webkit-date-and-time-value{text-align:center;margin:0;line-height:48px;}
-  .date-pick{display:flex;align-items:stretch;gap:6px;}
+  .date-pick{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+  .date-nav-row{display:flex;align-items:stretch;gap:6px;}
   .date-pick input[type="date"]{flex:1;min-width:0;}
   .date-display-wrap{flex:1;min-width:0;position:relative;border:2px solid var(--line);border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;min-height:52px;overflow:hidden;padding:0 4px;}
-  .date-display-text{font-size:calc(16px*var(--fs,1));font-weight:700;color:var(--navy);pointer-events:none;white-space:nowrap;}
+  .date-display-text{font-size:calc(16px*min(var(--fs,1),1.6));font-weight:700;color:var(--navy);pointer-events:none;white-space:nowrap;}
   .date-hidden-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;background:transparent;cursor:pointer;}
   .date-arrow{flex-shrink:0;width:46px;min-height:52px;font-size:calc(24px*var(--fs,1));font-weight:700;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-family:inherit;cursor:pointer;}
   .date-arrow:active{transform:scale(.96);}
-  .today-btn{flex-shrink:0;min-height:52px;padding:0 12px;font-size:calc(14px*var(--fs,1));font-weight:700;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .today-btn{flex-shrink:0;align-self:flex-end;min-height:44px;padding:0 18px;font-size:calc(14px*var(--fs,1));font-weight:700;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-family:inherit;cursor:pointer;white-space:nowrap;}
   .today-btn:active{transform:scale(.96);}
 
   .att-row,.fee-row{display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid var(--line);gap:10px;}
@@ -204,6 +205,11 @@
   .cash-io-tag{font-size:calc(12px*var(--fs,1));color:#fff;padding:2px 7px;border-radius:7px;margin-right:6px;}
   /* 月/年度トグル */
   .view-toggle{display:flex;gap:8px;margin-bottom:14px;}
+  .mate-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 16px;}
+  .mate-actions button{min-height:48px;font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;padding:6px 4px;border:2px solid var(--line);background:#fff;color:var(--muted);word-break:break-word;}
+  .mate-actions .act-toggle.on{background:#e8821e;color:#fff;border-color:#e8821e;}
+  .mate-actions .act-outline{border-color:var(--navy);color:var(--navy);}
+  .mate-actions .act-gold{border-color:var(--gold);background:var(--gold);color:#3a2e00;}
   .view-toggle button{flex:1;min-height:48px;font-size:calc(14px*var(--fs,1));font-weight:700;font-family:inherit;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2;padding:4px 2px;}
   .view-toggle button small{font-size:calc(11px*var(--fs,1));font-weight:600;opacity:.9;}
   .view-toggle button.on{background:var(--navy);color:#fff;}
@@ -452,6 +458,15 @@
   .mate-cell.retired{background:#f3edeb;border-color:#dcb3aa;}
   .mate-cell.retired .nm{color:#9a6b62;}
   .mate-cell.retired .cell-tag{background:#fff;color:#c0392b;border:1.5px solid #dca9a1;}
+  .reorder-hint{font-size:calc(12px*var(--fs,1));color:#6b7280;margin:2px 2px 12px 4px;line-height:1.5;}
+  .rgroup{display:flex;flex-direction:column;gap:8px;margin-bottom:6px;}
+  .mate-rerow{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:12px 12px;background:#fff;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
+  .mate-rerow .grip{font-size:calc(15px*var(--fs,1));color:#aab0ba;letter-spacing:-2px;line-height:1;}
+  .mate-rerow .nm{font-size:calc(15px*var(--fs,1));font-weight:700;color:var(--ink);flex:1;word-break:break-word;}
+  .mate-rerow.leave{background:#fbf6ec;border-color:#e6cf9a;}
+  .mate-rerow.retired{background:#f3edeb;border-color:#dcb3aa;}
+  .mate-rerow.retired .nm{color:#9a6b62;}
+  .mate-rerow.dragging{box-shadow:0 10px 22px rgba(0,0,0,.20);transform:scale(1.02);border-color:var(--navy);position:relative;z-index:5;opacity:.98;}
   .theme-sw{position:relative;aspect-ratio:1/1;border-radius:12px;border:3px solid transparent;padding:0;cursor:pointer;overflow:hidden;display:flex;flex-direction:column;background:#fff;}
   .theme-sw .sw-main{flex:1;width:100%;}
   .theme-sw .sw-acc{height:32%;width:100%;}
@@ -549,17 +564,17 @@
 
 <!-- 出欠 -->
 <section id="screen-att" class="screen active">
-  <div class="card">
     <div class="date-pick">
-      <button class="date-arrow" onclick="shiftAttDate(-1)">‹</button>
-      <div class="date-display-wrap">
-        <span id="attDateDisplay" class="date-display-text"></span>
-        <input type="date" id="attDate" class="date-hidden-input">
+      <div class="date-nav-row">
+        <button class="date-arrow" onclick="shiftAttDate(-1)">‹</button>
+        <div class="date-display-wrap">
+          <span id="attDateDisplay" class="date-display-text"></span>
+          <input type="date" id="attDate" class="date-hidden-input">
+        </div>
+        <button class="date-arrow" onclick="shiftAttDate(1)">›</button>
       </div>
-      <button class="date-arrow" onclick="shiftAttDate(1)">›</button>
       <button class="today-btn" onclick="attToday()">今日</button>
     </div>
-  </div>
   <div class="summary-bar">
     <div class="summary-box"><div class="num" id="attPresNum">0</div><div class="lbl">出席</div></div>
     <div class="summary-box alert"><div class="num" id="attAbsNum">0</div><div class="lbl">欠席</div></div>
@@ -623,12 +638,11 @@
 
 <!-- 仲間 -->
 <section id="screen-mates" class="screen">
-  <div class="section-head" style="justify-content:flex-end">
-    <div style="display:flex;align-items:center;gap:8px">
-      <button class="chip-toggle" id="retiredToggle" onclick="toggleRetired()">退会も表示</button>
-      <button class="chip-btn" onclick="openFeePresetModal()">よく使う設定</button>
-      <button class="btn gold sm" onclick="openStudentModal()">＋ 仲間を追加</button>
-    </div>
+  <div class="mate-actions">
+    <button class="act-toggle" id="retiredToggle" onclick="toggleRetired()">退会も表示</button>
+    <button class="act-toggle" id="reorderToggle" onclick="toggleReorder()">並び替え</button>
+    <button class="act-outline" onclick="openFeePresetModal()">よく使う設定</button>
+    <button class="act-gold" onclick="openStudentModal()">＋仲間を追加</button>
   </div>
   <div class="card">
     <div id="studentList"></div>
@@ -638,39 +652,35 @@
 <!-- 一覧（月別マトリクス） -->
 <section id="screen-list" class="screen">
   <div class="view-toggle">
-    <button id="viewMonth" class="on" onclick="setListView('month')">月謝/出欠<small>(月)</small></button>
-    <button id="viewYear" onclick="setListView('year')">会計/出欠<small>(年度)</small></button>
+    <button id="viewAtt" class="on" onclick="setListView('att')">出欠状況</button>
+    <button id="viewAccount" onclick="setListView('account')">会計</button>
     <button id="viewMember" onclick="setListView('member')">仲間情報</button>
     <button id="viewMatch" onclick="setListView('match')">試合結果</button>
   </div>
 
-  <!-- 月ビュー -->
-  <div id="listMonthView">
+  <!-- 出欠状況ビュー -->
+  <div id="listAttView">
     <div class="month-nav">
-      <button onclick="changeListMonth(-1)">‹</button>
-      <div class="lbl" id="listMonthLbl"></div>
-      <button onclick="changeListMonth(1)">›</button>
+      <button onclick="changeFiscalYear(-1)">‹</button>
+      <div class="lbl" id="attFyLbl"></div>
+      <button onclick="changeFiscalYear(1)">›</button>
     </div>
     <div class="card">
-      <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">月謝の支払い状況</h3>
-      <div class="matrix-wrap" id="listFeeMatrix"></div>
+      <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">月別の出席数（仲間ごと）</h3>
+      <div class="matrix-wrap" id="attYearMatrix"></div>
+      <p class="list-mini" style="margin-top:8px">数字は各月の出席回数、右端は年度の合計です。横にスクロールできます。</p>
     </div>
     <div class="card">
-      <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">出欠（練習日ごと）</h3>
-      <div class="matrix-wrap" id="listAttMatrix"></div>
-      <div class="legend">
-        <span><i style="background:#e3f2e8"></i>出席（○）</span>
-        <span><i style="background:#fdeaea"></i>欠席（×）</span>
-        <span><i style="background:#fff8e8"></i>合計</span>
-      </div>
+      <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">日別の詳細（練習日ごと）</h3>
+      <div class="matrix-wrap" id="attDailyDetail"></div>
     </div>
   </div>
 
-  <!-- 年度ビュー -->
-  <div id="listYearView" style="display:none">
+  <!-- 会計ビュー -->
+  <div id="listAccountView" style="display:none">
     <div class="month-nav">
       <button onclick="changeFiscalYear(-1)">‹</button>
-      <div class="lbl" id="fiscalYearLbl"></div>
+      <div class="lbl" id="acctFyLbl"></div>
       <button onclick="changeFiscalYear(1)">›</button>
     </div>
     <div class="card">
@@ -678,8 +688,13 @@
       <div id="yearAccount"></div>
     </div>
     <div class="card">
-      <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">出欠の年間合計（仲間ごと）</h3>
-      <div class="matrix-wrap" id="yearAttMatrix"></div>
+      <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">月別の収支</h3>
+      <div class="matrix-wrap" id="acctMonthly"></div>
+      <p class="list-mini" style="margin-top:8px">繰越金を含めた収入・支出と、月末時点の残高です。横にスクロールできます。</p>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">残高の推移</h3>
+      <div id="acctBalanceChart"></div>
     </div>
   </div>
 
@@ -2406,85 +2421,93 @@ function renderSched(){
 
 /* 月別一覧マトリクス */
 let listMonth=thisMonthStr();
-let listView='month';
+let listView='att';
 let fiscalYear=(()=>{const d=new Date();return d.getMonth()+1>=4?d.getFullYear():d.getFullYear()-1;})();
 function setListView(v){
   listView=v;
-  document.getElementById('viewMonth').classList.toggle('on',v==='month');
-  document.getElementById('viewYear').classList.toggle('on',v==='year');
+  document.getElementById('viewAtt').classList.toggle('on',v==='att');
+  document.getElementById('viewAccount').classList.toggle('on',v==='account');
   document.getElementById('viewMember').classList.toggle('on',v==='member');
   document.getElementById('viewMatch').classList.toggle('on',v==='match');
-  document.getElementById('listMonthView').style.display=v==='month'?'block':'none';
-  document.getElementById('listYearView').style.display=v==='year'?'block':'none';
+  document.getElementById('listAttView').style.display=v==='att'?'block':'none';
+  document.getElementById('listAccountView').style.display=v==='account'?'block':'none';
   document.getElementById('listMemberView').style.display=v==='member'?'block':'none';
   document.getElementById('listMatchView').style.display=v==='match'?'block':'none';
   renderList();
 }
-function changeListMonth(d){listMonth=shiftMonth(listMonth,d);renderList();}
 function changeFiscalYear(d){fiscalYear+=d;renderList();}
 // 年度内の YYYY-MM 一覧（4月〜翌3月）
 function fiscalMonths(fy){const arr=[];for(let i=0;i<12;i++){const mo=4+i;const y=mo>12?fy+1:fy;const mm=((mo-1)%12)+1;arr.push(`${y}-${String(mm).padStart(2,'0')}`);}return arr;}
 function renderList(){
-  if(listView==='year'){renderYear();return;}
+  if(listView==='account'){renderAccountView();return;}
   if(listView==='member'){renderMember();return;}
   if(listView==='match'){renderMatchSummary();return;}
-  const[y,m]=listMonth.split('-');
-  document.getElementById('listMonthLbl').textContent=`${y}年 ${Number(m)}月`;
-  const paid=DB.fees[listMonth]||{};
-  if(DB.students.length===0){
-    document.getElementById('listFeeMatrix').innerHTML='<div class="empty">仲間がいません</div>';
-    document.getElementById('listAttMatrix').innerHTML='';return;
-  }
-  const feeRoster=DB.students.filter(s=>s.feeReq!==false && isEnrolledInMonth(s,listMonth) && !(isOnLeaveMonth(s,listMonth)&&(s.leaveFee||0)<=0));
-  let feeRows=feeRoster.length?feeRoster.map(s=>`<tr><td class="namecell">${esc(s.name)}</td><td class="${paid[s.id]!==undefined?'cell-fee-paid':'cell-fee-unpaid'}">${paid[s.id]!==undefined?'済':'未'}</td></tr>`).join(''):'';
-  document.getElementById('listFeeMatrix').innerHTML=feeRoster.length?`<table class="matrix"><thead><tr><th class="namecell">仲間</th><th>月謝</th></tr></thead><tbody>${feeRows}</tbody></table>`:'<div class="empty">この月の月謝対象者がいません</div>';
-  const days=Object.keys(DB.attendance).filter(dt=>dt.startsWith(listMonth)).sort();
-  const attRoster=DB.students.filter(s=>isEnrolledInMonth(s,listMonth) && !isOnLeaveMonth(s,listMonth));
-  let head=`<th class="namecell">仲間</th>`+days.map(dt=>{const d=new Date(dt+'T00:00');return `<th>${d.getDate()}<br>(${weekday(d)})</th>`;}).join('')+`<th>出席</th><th>欠席</th>`;
-  let body=attRoster.map(s=>{
-    let p=0,a=0;
-    const cells=days.map(dt=>{
-      const st=(DB.attendance[dt]||{})[s.id];
-      if(st==='present'){p++;return '<td class="cell-p">○</td>';}
-      if(st==='absent'){a++;return '<td class="cell-a">×</td>';}
-      return '<td>-</td>';
-    }).join('');
-    return `<tr><td class="namecell">${esc(s.name)}</td>${cells}<td class="cell-total">${p}</td><td class="cell-total">${a}</td></tr>`;
-  }).join('');
-  document.getElementById('listAttMatrix').innerHTML = days.length
-    ? `<table class="matrix"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`
-    : '<div class="empty">この月の出欠記録がまだありません</div>';
+  renderAttView();
 }
-function renderYear(){
+// ===== 出欠状況 =====
+function renderAttView(){
   const fy=fiscalYear;
-  document.getElementById('fiscalYearLbl').innerHTML=`<span class="fy-main">${fy}年度</span><span class="fy-sub">${fy}/4〜${fy+1}/3</span>`;
+  const lbl=document.getElementById('attFyLbl');
+  if(lbl)lbl.innerHTML=`<span class="fy-main">${fy}年度</span><span class="fy-sub">${fy}/4〜${fy+1}/3</span>`;
   const months=fiscalMonths(fy);
-  // --- 会計 ---
-  // 月謝収入：各月の支払済人数 × 月謝額
+  // 月別出席マトリクス（仲間ごと）
+  const wrap=document.getElementById('attYearMatrix');
+  if(DB.students.length===0){wrap.innerHTML='<div class="empty">仲間がいません</div>';}
+  else{
+    const yearRoster=DB.students.filter(s=>months.some(ym=>isEnrolledInMonth(s,ym)));
+    const head=months.map(ym=>`<th>${Number(ym.split('-')[1])}月</th>`).join('');
+    const body=yearRoster.map(s=>{
+      let total=0;
+      const cells=months.map(ym=>{
+        let p=0;
+        Object.keys(DB.attendance).filter(dt=>dt.startsWith(ym)).forEach(dt=>{if(DB.attendance[dt][s.id]==='present')p++;});
+        total+=p; return `<td>${p||'-'}</td>`;
+      }).join('');
+      return `<tr><td class="namecell">${esc(s.name)}</td>${cells}<td class="cell-total">${total}</td></tr>`;
+    }).join('');
+    wrap.innerHTML=`<table class="matrix"><thead><tr><th class="namecell">仲間</th>${head}<th>年間<br>合計</th></tr></thead><tbody>${body}</tbody></table>`;
+  }
+  // 日別詳細
+  const dwrap=document.getElementById('attDailyDetail');
+  const days=Object.keys(DB.attendance).filter(dt=>months.includes(dt.slice(0,7))).sort();
+  if(days.length===0){dwrap.innerHTML='<div class="empty">この年度の出欠記録がまだありません</div>';return;}
+  const rows=days.map(dt=>{
+    const rec=DB.attendance[dt]||{};
+    const roster=DB.students.filter(s=>isEnrolledOn(s,dt)&&!isOnLeaveMonth(s,dt.slice(0,7)));
+    let p=0,a=0;
+    roster.forEach(s=>{const st=rec[s.id];if(st==='present')p++;else if(st==='absent')a++;});
+    const n=Math.max(0,roster.length-p-a);
+    const d=new Date(dt+'T00:00');
+    return `<tr><td class="namecell">${d.getMonth()+1}/${d.getDate()}(${weekday(d)})</td><td class="cell-p">${p}</td><td class="cell-a">${a}</td><td>${n}</td></tr>`;
+  }).join('');
+  dwrap.innerHTML=`<table class="matrix"><thead><tr><th class="namecell">練習日</th><th>出席</th><th>欠席</th><th>未回答</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+// ===== 会計 =====
+function renderAccountView(){
+  const fy=fiscalYear;
+  const lbl=document.getElementById('acctFyLbl');
+  if(lbl)lbl.innerHTML=`<span class="fy-main">${fy}年度</span><span class="fy-sub">${fy}/4〜${fy+1}/3</span>`;
+  const months=fiscalMonths(fy);
+  // 月別に集計
+  const feeByMonth={},inByMonth={},outByMonth={},inByCat={},outByCat={};
   let feeIncome=0;
   months.forEach(ym=>{
-    const paid=DB.fees[ym]||{};
-    Object.keys(paid).forEach(sid=>{
-      const s=DB.students.find(x=>x.id===sid);
-      // 支払済として記録された金額は、現在の要否に関わらず収入履歴として計上
-      feeIncome+=paidAmount(paid[sid],s);
-    });
+    let f=0; const paid=DB.fees[ym]||{};
+    Object.keys(paid).forEach(sid=>{const s=DB.students.find(x=>x.id===sid);f+=paidAmount(paid[sid],s);});
+    feeByMonth[ym]=f; feeIncome+=f; inByMonth[ym]=0; outByMonth[ym]=0;
   });
-  // その他入出金：項目ごと集計
-  const inByCat={},outByCat={};
   DB.cash.forEach(c=>{
-    if(!months.includes(c.date.slice(0,7)))return;
-    const tgt=c.io==='in'?inByCat:outByCat;
-    tgt[c.cat]=(tgt[c.cat]||0)+c.amount;
+    const ym=c.date.slice(0,7); if(!months.includes(ym))return;
+    if(c.io==='in'){inByMonth[ym]+=c.amount; inByCat[c.cat]=(inByCat[c.cat]||0)+c.amount;}
+    else{outByMonth[ym]+=c.amount; outByCat[c.cat]=(outByCat[c.cat]||0)+c.amount;}
   });
-  let inSum=feeIncome, outSum=0;
+  let inSum=feeIncome,outSum=0;
   Object.values(inByCat).forEach(v=>inSum+=v);
   Object.values(outByCat).forEach(v=>outSum+=v);
-  // 収入の部
+  // 会計まとめ（従来通り）
   let incomeRows=`<div class="acct-row"><span>月謝収入</span><span class="amt">¥${feeIncome.toLocaleString()}</span></div>`;
   Object.keys(inByCat).forEach(cat=>{incomeRows+=`<div class="acct-row"><span>${esc(cat)}</span><span class="amt">¥${inByCat[cat].toLocaleString()}</span></div>`;});
-  // 支出の部
-  let expenseRows = Object.keys(outByCat).length
+  let expenseRows=Object.keys(outByCat).length
     ? Object.keys(outByCat).map(cat=>`<div class="acct-row"><span>${esc(cat)}</span><span class="amt">¥${outByCat[cat].toLocaleString()}</span></div>`).join('')
     : '<div class="acct-row" style="color:var(--muted)"><span>記録なし</span><span>—</span></div>';
   const net=inSum-outSum;
@@ -2500,21 +2523,41 @@ function renderYear(){
       <div class="acct-total"><span>支出合計</span><span>¥${outSum.toLocaleString()}</span></div>
     </div>
     <div class="acct-net" style="color:${net>=0?'var(--green)':'var(--red)'}"><span>収支差引</span><span>${net>=0?'+':'−'}¥${Math.abs(net).toLocaleString()}</span></div>`;
-  // --- 出欠 年間合計（生徒ごと）---
-  if(DB.students.length===0){document.getElementById('yearAttMatrix').innerHTML='<div class="empty">仲間がいません</div>';return;}
-  const yearRoster=DB.students.filter(s=>months.some(ym=>isEnrolledInMonth(s,ym)));
-  const monthlyHead=months.map(ym=>`<th>${Number(ym.split('-')[1])}月</th>`).join('');
-  let body=yearRoster.map(s=>{
-    let totalP=0;
-    const cells=months.map(ym=>{
-      let p=0;
-      Object.keys(DB.attendance).filter(dt=>dt.startsWith(ym)).forEach(dt=>{if(DB.attendance[dt][s.id]==='present')p++;});
-      totalP+=p;
-      return `<td>${p||'-'}</td>`;
-    }).join('');
-    return `<tr><td class="namecell">${esc(s.name)}</td>${cells}<td class="cell-total">${totalP}</td></tr>`;
+  // 月別の収支＋残高
+  let bal=0; const balances=[];
+  const mrows=months.map(ym=>{
+    const inc=(feeByMonth[ym]||0)+(inByMonth[ym]||0);
+    const exp=(outByMonth[ym]||0);
+    const dnet=inc-exp; bal+=dnet; balances.push(bal);
+    const mm=Number(ym.split('-')[1]);
+    return `<tr><td class="namecell">${mm}月</td><td>¥${inc.toLocaleString()}</td><td>¥${exp.toLocaleString()}</td><td style="color:${dnet>=0?'var(--green)':'var(--red)'}">${dnet>=0?'+':'−'}¥${Math.abs(dnet).toLocaleString()}</td><td class="cell-total">¥${bal.toLocaleString()}</td></tr>`;
   }).join('');
-  document.getElementById('yearAttMatrix').innerHTML=`<table class="matrix"><thead><tr><th class="namecell">仲間</th>${monthlyHead}<th>年間<br>出席</th></tr></thead><tbody>${body}</tbody></table>`;
+  document.getElementById('acctMonthly').innerHTML=`<table class="matrix"><thead><tr><th class="namecell">月</th><th>収入</th><th>支出</th><th>差引</th><th>残高</th></tr></thead><tbody>${mrows}</tbody></table>`;
+  // 残高推移グラフ
+  document.getElementById('acctBalanceChart').innerHTML=balanceChartSVG(months.map(ym=>Number(ym.split('-')[1])),balances);
+}
+// 残高推移の折れ線（SVG）
+function balanceChartSVG(mLabels,vals){
+  const W=340,H=200,padL=8,padR=8,padT=18,padB=24;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const maxV=Math.max(0,...vals), minV=Math.min(0,...vals);
+  const range=(maxV-minV)||1;
+  const x=i=>padL+(vals.length<=1?plotW/2:plotW*i/(vals.length-1));
+  const y=v=>padT+plotH*(1-(v-minV)/range);
+  const y0=y(0);
+  const pts=vals.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`);
+  const line='M'+pts.join(' L');
+  const area=`M${x(0).toFixed(1)},${y0.toFixed(1)} L`+pts.join(' L')+` L${x(vals.length-1).toFixed(1)},${y0.toFixed(1)} Z`;
+  const dots=vals.map((v,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.4" fill="#1a2b4a"/>`).join('');
+  const xlabels=mLabels.map((m,i)=>`<text x="${x(i).toFixed(1)}" y="${H-8}" font-size="9" fill="#6b7280" text-anchor="middle">${m}</text>`).join('');
+  const yMax=`<text x="${padL}" y="${Math.max(9,y(maxV)-3).toFixed(1)}" font-size="9" fill="#6b7280">¥${maxV.toLocaleString()}</text>`;
+  const yZero=(minV<0)?`<text x="${padL}" y="${(y0-3).toFixed(1)}" font-size="9" fill="#9aa0a6">0</text>`:'';
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+    <line x1="${padL}" y1="${y0.toFixed(1)}" x2="${W-padR}" y2="${y0.toFixed(1)}" stroke="#d0d5dd" stroke-width="1" stroke-dasharray="3 3"/>
+    <path d="${area}" fill="rgba(46,125,79,.12)" stroke="none"/>
+    <path d="${line}" fill="none" stroke="#2e7d4f" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}${xlabels}${yMax}${yZero}
+  </svg>`;
 }
 function renderMember(){
   const wrap=document.getElementById('memberMatrix');
@@ -2567,14 +2610,47 @@ function setMateFilter(f){
   renderMates();
 }
 const MATE_GROUP_ORDER=['指導者','コーチ','一般','大学生','高校生','中学生','小学生'];
+let reorderMode=false;
+function toggleReorder(){ reorderMode=!reorderMode; renderMates(); }
 function renderMates(){
   const list=document.getElementById('studentList');
+  const rt=document.getElementById('reorderToggle');
+  if(rt){ rt.textContent=reorderMode?'完了':'並び替え'; rt.classList.toggle('on',reorderMode); }
   const visible=DB.students.map((s,idx)=>({s,idx})).filter(o=>showRetired||!o.s.endDate);
   if(visible.length===0){
     list.innerHTML='<div class="empty" style="padding:16px">'+(DB.students.length?'表示する仲間がいません':'まだ仲間がいません')+'</div>';
     return;
   }
   const cur=thisMonthStr();
+  // 区分見出し（色付き）を返す
+  const headHtml=(cat,n)=>{
+    const col=(cat==='未設定')?'var(--navy)':(CAT_COLOR[cat]||'var(--navy)');
+    return `<div class="mate-group-head" style="color:${col};border-bottom-color:${col}">${esc(cat)}<span class="mate-count">${n}</span></div>`;
+  };
+  const groups=[]; // {cat,label,members}
+  MATE_GROUP_ORDER.forEach(cat=>{
+    const members=visible.filter(o=>o.s.category===cat);
+    if(members.length)groups.push({cat,label:cat,members});
+  });
+  const noCat=visible.filter(o=>!o.s.category||!MATE_GROUP_ORDER.includes(o.s.category));
+  if(noCat.length)groups.push({cat:'__none',label:'未設定',members:noCat});
+
+  if(reorderMode){
+    let html='<div class="reorder-hint">名前を長押しして、上下にドラッグ（同じ区分の中で並び替えできます）</div>';
+    groups.forEach(g=>{
+      html+=headHtml(g.label,g.members.length);
+      html+=`<div class="rgroup" data-cat="${esc(g.cat)}">`+g.members.map(({s})=>{
+        let cls='mate-rerow',tag='';
+        if(s.endDate){cls+=' retired';tag='<span class="cell-tag">退会</span>';}
+        else if(isOnLeaveMonth(s,cur)){cls+=' leave';tag='<span class="cell-tag">休会</span>';}
+        return `<div class="${cls}" data-id="${s.id}" data-cat="${esc(g.cat)}"><span class="grip">⣿</span><span class="nm">${esc(s.name)}</span>${tag}</div>`;
+      }).join('')+`</div>`;
+    });
+    list.innerHTML=html;
+    enableMateReorder();
+    return;
+  }
+
   const cellHtml=({s})=>{
     let cls='mate-cell', tag='';
     if(s.endDate){ cls+=' retired'; tag='<span class="cell-tag">退会</span>'; }
@@ -2582,77 +2658,94 @@ function renderMates(){
     return `<div class="${cls}" onclick="openStudentModal('${s.id}')">${tag}<span class="nm">${esc(s.name)}</span></div>`;
   };
   let html='';
-  MATE_GROUP_ORDER.forEach(cat=>{
-    const members=visible.filter(o=>o.s.category===cat);
-    if(!members.length)return;
-    const col=CAT_COLOR[cat]||'var(--navy)';
-    html+=`<div class="mate-group-head" style="color:${col};border-bottom-color:${col}">${esc(cat)}<span class="mate-count">${members.length}</span></div>`;
-    html+=`<div class="mate-grid">`+members.map(cellHtml).join('')+`</div>`;
+  groups.forEach(g=>{
+    html+=headHtml(g.label,g.members.length);
+    html+=`<div class="mate-grid">`+g.members.map(cellHtml).join('')+`</div>`;
   });
-  const noCat=visible.filter(o=>!o.s.category||!MATE_GROUP_ORDER.includes(o.s.category));
-  if(noCat.length){
-    html+=`<div class="mate-group-head">未設定<span class="mate-count">${noCat.length}</span></div>`;
-    html+=`<div class="mate-grid">`+noCat.map(cellHtml).join('')+`</div>`;
-  }
   list.innerHTML=html;
 }
 let editingStudent=null;
-/* 仲間カードの長押しドラッグ並び替え */
-let dragState=null;
-function enableMateDrag(){
-  const list=document.getElementById('studentList');
-  list.querySelectorAll('.mate-card').forEach(card=>{
-    let pressTimer=null;
-    card.addEventListener('touchstart',e=>{
-      pressTimer=setTimeout(()=>{startDrag(card,e.touches[0].clientY);},420);
-    },{passive:true});
-    card.addEventListener('touchmove',e=>{
-      if(pressTimer){clearTimeout(pressTimer);pressTimer=null;} // 動いたら長押し扱いしない（ドラッグ未開始時）
-      if(dragState){e.preventDefault();onDragMove(e.touches[0].clientY);}
-    },{passive:false});
-    card.addEventListener('touchend',e=>{
-      if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}
-      if(dragState){endDrag();}
-    });
+/* 仲間の並び替え（長押し→ドラッグ、同じ区分の中で入れ替え） */
+let mateDrag=null;
+function enableMateReorder(){
+  document.querySelectorAll('#studentList .mate-rerow').forEach(row=>{
+    row.addEventListener('pointerdown',onMateReDown);
   });
 }
-function startDrag(card,y){
-  if(navigator.vibrate)navigator.vibrate(30);
-  dragState={card,id:card.dataset.id,startY:y};
-  card.classList.add('dragging');
-  card.dataset.suppressClick='1'; // ドラッグ後のクリック抑制
-  document.body.style.userSelect='none';
-  document.body.style.webkitUserSelect='none';
-  // 選択が既に走っていたら解除
-  if(window.getSelection){const sel=window.getSelection();if(sel)sel.removeAllRanges();}
+function onMateReDown(e){
+  if(!reorderMode)return;
+  const row=e.currentTarget;
+  mateDrag={row,startY:e.clientY,startX:e.clientX,pid:e.pointerId,active:false,lastY:e.clientY,scrollTimer:null,
+            timer:setTimeout(activateMateDrag,200)};
+  document.addEventListener('pointermove',onMateReMove,{passive:false});
+  document.addEventListener('pointerup',onMateReUp);
+  document.addEventListener('pointercancel',onMateReUp);
 }
-function onDragMove(y){
-  const list=document.getElementById('studentList');
-  const cards=[...list.querySelectorAll('.mate-card:not(.dragging)')];
-  const drag=dragState.card;
-  let after=null;
-  for(const c of cards){
-    const r=c.getBoundingClientRect();
-    if(y < r.top + r.height/2){after=c;break;}
+function activateMateDrag(){
+  if(!mateDrag)return;
+  mateDrag.active=true;
+  try{mateDrag.row.setPointerCapture(mateDrag.pid);}catch(_){}
+  mateDrag.row.classList.add('dragging');
+  if(navigator.vibrate)navigator.vibrate(25);
+}
+function matePlaceAt(y){
+  const row=mateDrag.row;
+  const group=row.parentNode; // .rgroup（同じ区分のみ）
+  const sibs=[...group.querySelectorAll('.mate-rerow')].filter(x=>x!==row);
+  let before=null;
+  for(const s of sibs){
+    const r=s.getBoundingClientRect();
+    if(y < r.top+r.height/2){before=s;break;}
   }
-  if(after){list.insertBefore(drag,after);}else{list.appendChild(drag);}
+  if(before)group.insertBefore(row,before); else group.appendChild(row);
 }
-function endDrag(){
-  const list=document.getElementById('studentList');
-  const drag=dragState.card;
-  drag.classList.remove('dragging');
-  document.body.style.userSelect='';
-  document.body.style.webkitUserSelect='';
-  // 新しい並び順をDB.studentsに反映（表示されているidの順序で全体を再構成）
-  const orderIds=[...list.querySelectorAll('.mate-card')].map(c=>c.dataset.id);
-  const ordered=[];
-  orderIds.forEach(id=>{const s=DB.students.find(x=>x.id===id);if(s)ordered.push(s);});
-  // 非表示の生徒（フィルタ外）はいないはず（全件表示時のみ並び替え可）だが念のため末尾に追加
-  DB.students.forEach(s=>{if(!ordered.includes(s))ordered.push(s);});
-  DB.students=ordered;
+function onMateReMove(e){
+  if(!mateDrag)return;
+  if(!mateDrag.active){
+    if(Math.abs(e.clientY-mateDrag.startY)>10||Math.abs(e.clientX-mateDrag.startX)>10)cancelMateDrag();
+    return;
+  }
+  e.preventDefault();
+  mateDrag.lastY=e.clientY;
+  matePlaceAt(e.clientY);
+  // 画面端で自動スクロール
+  const top=90,bottom=window.innerHeight-140;
+  let dir=0; if(e.clientY<top)dir=-1; else if(e.clientY>bottom)dir=1;
+  if(dir&&!mateDrag.scrollTimer){
+    mateDrag.scrollTimer=setInterval(()=>{
+      if(!mateDrag){return;}
+      window.scrollBy(0,dir*12); matePlaceAt(mateDrag.lastY);
+    },16);
+  }else if(!dir&&mateDrag.scrollTimer){clearInterval(mateDrag.scrollTimer);mateDrag.scrollTimer=null;}
+}
+function onMateReUp(){
+  if(!mateDrag)return;
+  clearTimeout(mateDrag.timer);
+  if(mateDrag.scrollTimer)clearInterval(mateDrag.scrollTimer);
+  const wasActive=mateDrag.active, row=mateDrag.row;
+  document.removeEventListener('pointermove',onMateReMove);
+  document.removeEventListener('pointerup',onMateReUp);
+  document.removeEventListener('pointercancel',onMateReUp);
+  mateDrag=null;
+  if(wasActive){ row.classList.remove('dragging'); commitMateOrder(); }
+}
+function cancelMateDrag(){
+  if(!mateDrag)return;
+  clearTimeout(mateDrag.timer);
+  if(mateDrag.scrollTimer)clearInterval(mateDrag.scrollTimer);
+  document.removeEventListener('pointermove',onMateReMove);
+  document.removeEventListener('pointerup',onMateReUp);
+  document.removeEventListener('pointercancel',onMateReUp);
+  mateDrag=null;
+}
+function commitMateOrder(){
+  const orderedVisible=[...document.querySelectorAll('#studentList .mate-rerow')].map(r=>r.dataset.id);
+  const seen=new Set(orderedVisible);
+  const map=Object.fromEntries(DB.students.map(s=>[s.id,s]));
+  const rest=DB.students.filter(s=>!seen.has(s.id)).map(s=>s.id); // 非表示（退会など）は末尾へ
+  DB.students=[...orderedVisible,...rest].map(id=>map[id]).filter(Boolean);
   save();
-  const dc=dragState.card;dragState=null;
-  setTimeout(()=>{if(dc)delete dc.dataset.suppressClick;renderMates();},50);
+  renderMates();
 }
 let pickedCat='小学生';
 function renderCatPick(){
@@ -2744,8 +2837,6 @@ function renderLeaveFeeQuick(){
   document.getElementById('leaveFeeQuick').innerHTML=opts.map(([lbl,v])=>`<button type="button" onclick="document.getElementById('stLeaveFee').value=${v}">${lbl}</button>`).join('');
 }
 function openStudentModal(id){
-  if(dragState)return; // ドラッグ中はクリックで開かない
-  if(id){const c=document.querySelector('.mate-card[data-id="'+id+'"]');if(c&&c.dataset.suppressClick)return;}
   editingStudent=id||null;
   if(id){
     const s=DB.students.find(x=>x.id===id);
