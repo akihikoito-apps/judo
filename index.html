@@ -102,6 +102,28 @@
   .bout-top{font-size:calc(16px*var(--fs,1));font-weight:700;color:var(--navy);}
   .bout-sub{font-size:calc(13px*var(--fs,1));color:var(--muted);word-break:break-word;}
   .mate-tag{display:inline-block;font-size:calc(11px*var(--fs,1));font-weight:700;color:#fff;background:#7d3c98;border-radius:8px;padding:1px 7px;margin-left:5px;vertical-align:middle;}
+  /* 組手別 試合結果分析 */
+  .ana-box{border:2px solid var(--navy);border-radius:14px;padding:12px;margin-bottom:16px;background:#fff;}
+  .ana-box>.ana-title{font-weight:800;color:var(--navy);font-size:calc(16px*var(--fs,1));margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .ana-box>.ana-title::before{content:"📊";}
+  .ana-sec{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:#f7f9fb;}
+  .ana-sec:last-child{margin-bottom:0;}
+  .ana-grip{display:inline-block;font-weight:800;color:#fff;background:var(--navy);border-radius:8px;padding:2px 12px;font-size:calc(15px*var(--fs,1));}
+  .ana-count{font-size:calc(12px*var(--fs,1));color:var(--muted);margin-left:8px;}
+  .ana-rate{margin:8px 0 4px;font-size:calc(15px*var(--fs,1));color:var(--ink);font-weight:700;}
+  .ana-rate b{font-size:calc(22px*var(--fs,1));color:var(--navy);margin:0 2px;}
+  .ana-rate .ana-rate-sub{font-size:calc(12px*var(--fs,1));color:var(--muted);font-weight:600;margin-left:6px;}
+  .ana-rank{margin-top:8px;}
+  .ana-rank-title{font-size:calc(13px*var(--fs,1));font-weight:800;margin-bottom:4px;}
+  .ana-rank-title.win{color:var(--green);}
+  .ana-rank-title.lose{color:var(--red);}
+  .ana-list{list-style:none;margin:0;padding:0;}
+  .ana-list li{display:flex;align-items:center;gap:8px;font-size:calc(14px*var(--fs,1));padding:3px 0;border-bottom:1px dashed #e3e8ee;}
+  .ana-list li:last-child{border-bottom:none;}
+  .ana-list li .ana-no{flex-shrink:0;width:calc(20px*var(--fs,1));height:calc(20px*var(--fs,1));border-radius:5px;background:#e7ebf0;color:var(--navy);font-size:calc(12px*var(--fs,1));font-weight:800;display:flex;align-items:center;justify-content:center;}
+  .ana-list li .ana-waza{flex:1;color:var(--ink);font-weight:600;word-break:break-word;}
+  .ana-list li .ana-cnt{flex-shrink:0;color:var(--muted);font-size:calc(12px*var(--fs,1));font-weight:700;}
+  .ana-none{font-size:calc(13px*var(--fs,1));color:var(--muted);padding:2px 0;}
   /* 団体戦カード */
   .tm-score{flex-shrink:0;min-width:calc(70px*var(--fs,1));height:calc(38px*var(--fs,1));padding:0 8px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:calc(21px*var(--fs,1));font-weight:800;color:#fff;letter-spacing:1px;}
   .tm-badge{display:inline-block;font-size:calc(12px*var(--fs,1));font-weight:700;padding:2px 8px;border-radius:10px;color:#fff;margin-top:2px;}
@@ -177,6 +199,12 @@
     border:2px solid var(--line);background:#fff;color:var(--muted);border-radius:12px;cursor:pointer;
   }
   .cat-pick button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  /* 決まり技ピッカー：種類タブ（丸型・紺）と技名チップ（角丸・緑）で見た目を分離 */
+  #wazaGroupTabs button{min-height:40px;padding:0 14px;font-size:calc(14px*var(--fs,1));border-radius:22px;border:2px solid var(--navy);background:#fff;color:var(--navy);font-weight:700;}
+  #wazaGroupTabs button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  #wazaList{gap:8px;padding:10px;background:#f5f7f9;border:1px solid var(--line);border-radius:12px;max-height:44vh;overflow-y:auto;}
+  #wazaList button{min-height:44px;padding:0 12px;font-size:calc(15px*var(--fs,1));border-radius:8px;border:1.5px solid #d8dee6;background:#fff;color:var(--ink);font-weight:600;}
+  #wazaList button.on{background:#2e7d4f;color:#fff;border-color:#2e7d4f;}
   .stu-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
   .stu-row{padding:10px 4px;border-bottom:1px solid var(--line);}
   .stu-row:last-child{border-bottom:none;}
@@ -325,7 +353,9 @@
   .matrix-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid var(--line);}
   table.matrix{border-collapse:collapse;font-size:calc(15px*var(--fs,1));background:#fff;min-width:100%;}
   table.matrix th,table.matrix td{border:1px solid var(--line);padding:8px 6px;text-align:center;white-space:nowrap;}
-  table.matrix.money th:not(.namecell),table.matrix.money td:not(.namecell){text-align:right;padding-right:12px;}
+  table.matrix.money th:not(.namecell){text-align:center;}
+  table.matrix.money td:not(.namecell){text-align:right;padding-right:12px;}
+  table.matrix.money td.namecell,table.matrix.money th.namecell{min-width:44px;width:44px;text-align:center;padding-left:6px;padding-right:6px;}
   table.matrix thead th{background:var(--navy);color:#fff;position:sticky;top:0;font-weight:700;}
   table.matrix td.namecell,table.matrix th.namecell{position:sticky;left:0;background:#fff;text-align:left;font-weight:700;z-index:2;min-width:120px;box-shadow:1px 0 0 var(--line);}
   table.matrix thead th.namecell{background:var(--navy);z-index:3;}
@@ -350,6 +380,7 @@
   .modal-bg.show{display:flex;}
   /* 削除確認は常に最前面・予定編集はアーカイブより前面に */
   #confirmModal{z-index:70;}
+  #wazaModal{z-index:66;}
   #schedModal{z-index:55;}
   .modal{background:#fff;width:100%;max-width:680px;border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;}
   .modal h3{font-size:calc(21px*var(--fs,1));margin:0 0 12px;color:var(--navy);}
@@ -721,6 +752,7 @@
         <h3 id="matchDetailName" style="margin:0;color:var(--navy);font-size:calc(18px*var(--fs,1))"></h3>
         <button class="chip-btn" onclick="closeMatchDetail()">戻る</button>
       </div>
+      <div id="matchDetailAnalysis"></div>
       <div id="matchDetailBody"></div>
     </div>
   </div>
@@ -1010,10 +1042,9 @@
     <div id="bGradeWazaWrap">
     <label class="fld">内容</label>
     <div class="cat-pick" id="bGradePicks"></div>
-    <input type="text" id="bGrade" placeholder="例 一本／技あり（その他は自由入力）" oninput="renderBGradePicks()">
-    <div style="text-align:right;margin-top:6px"><button type="button" class="btn ghost sm" onclick="openMatchPreset()">よく使う「内容」を編集</button></div>
+    <input type="hidden" id="bGrade">
     <label class="fld">決まり技</label>
-    <input type="text" id="bWaza" placeholder="例 大外刈／背負投／不戦">
+    <input type="text" id="bWaza" readonly placeholder="タップして技を選ぶ" onclick="openWazaPicker(function(v){document.getElementById('bWaza').value=v;}, document.getElementById('bWaza').value)">
     </div>
     <label class="fld">備考（任意）</label>
     <input type="text" id="bNote" placeholder="例 旗判定2-1">
@@ -1028,12 +1059,10 @@
 <!-- 試合「回戦・内容」プリセット編集モーダル -->
 <div class="modal-bg" id="gradePresetModal">
   <div class="modal">
-    <h3 style="margin-top:0">よく使う「回戦」「内容」</h3>
+    <h3 style="margin-top:0">よく使う「回戦」</h3>
     <p class="list-mini">試合入力でボタン表示する候補を、それぞれ6つまで登録できます。空欄のままでもOKです。</p>
     <label class="fld">回戦（6つ）</label>
     <div id="roundPresetInputs"></div>
-    <label class="fld">内容（6つ）</label>
-    <div id="gradePresetInputs"></div>
     <div class="row" style="margin-top:14px">
       <button class="btn ghost" onclick="closeModal('gradePresetModal')">やめる</button>
       <button class="btn gold" onclick="saveMatchPresets()">保存する</button>
@@ -1151,6 +1180,26 @@
   </div>
 </div>
 
+<!-- 決まり技ピッカー（個人戦・団体戦 共通） -->
+<div class="modal-bg" id="wazaModal">
+  <div class="modal">
+    <h3 style="margin-top:0">決まり技を選ぶ</h3>
+    <label class="fld" style="margin-top:0">① 種類を選ぶ</label>
+    <div class="cat-pick" id="wazaGroupTabs" style="margin-bottom:10px"></div>
+    <label class="fld">② 技名を選ぶ</label>
+    <div class="cat-pick" id="wazaList"></div>
+    <label class="fld">その他（自由記入）</label>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="text" id="wazaFree" placeholder="リストにない技・決着">
+      <button type="button" class="btn ghost sm" onclick="chooseWazaFree()">決定</button>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost" onclick="clearWaza()">技なしにする</button>
+      <button class="btn ghost" onclick="closeModal('wazaModal')">やめる</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1167,7 +1216,7 @@ let DB={
   schedPresets:{types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['','','','']},
   feePresets:[2000,3000,0,0],
   feeOverrides:{},
-  matchPresets:{rounds:['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'],grades:['一本','技あり','合わせ技一本','優勢勝ち','反則勝ち','指導差']},
+  matchPresets:{rounds:['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'],grades:['一本','技あり','有効','指導差','判定']},
   themeColor:'indigo',
   themeShape:'round',
   matchResults:{}
@@ -1192,7 +1241,8 @@ function load(){try{const s=localStorage.getItem(STORE_KEY);if(s)DB=Object.assig
   if(!DB.cashCats||!Array.isArray(DB.cashCats.in)||!Array.isArray(DB.cashCats.out))DB.cashCats={in:['寄付','参加費徴収','物販収入','補助金','その他収入'],out:['用具購入','会場費','遠征費','審査料','その他支出']};
   if(!DB.matchPresets||typeof DB.matchPresets!=='object')DB.matchPresets={};
   if(!Array.isArray(DB.matchPresets.rounds))DB.matchPresets.rounds=['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
-  if(!Array.isArray(DB.matchPresets.grades))DB.matchPresets.grades=['一本','技あり','合わせ技一本','優勢勝ち','反則勝ち','指導差'];
+  if(!Array.isArray(DB.matchPresets.grades))DB.matchPresets.grades=['一本','技あり','有効','指導差','判定'];
+  if(JSON.stringify(DB.matchPresets.grades)===JSON.stringify(['一本','技あり','合わせ技一本','優勢勝ち','反則勝ち','指導差']))DB.matchPresets.grades=['一本','技あり','有効','指導差','判定'];
   if(!DB.themeShape)DB.themeShape='round';
   // 旧ロゴ（赤丸の旧マーク・180x180）を新ロゴ（赤丸なし・虎拡大）へ自動更新
   if(DB.logo && DB.logo.indexOf('SUhEUgAAALQAAAC0CAIAAACyr5Fl')!==-1) DB.logo=DEFAULT_LOGO;
@@ -1685,7 +1735,8 @@ function renderMatchList(){
     </div>`;
   }).join('');
 }
-function gradeOpts(){return ((DB.matchPresets&&DB.matchPresets.grades)||[]).filter(x=>x&&x.trim());}
+const GRADE_FIXED=['一本','技あり','有効','指導差','判定'];
+function gradeOpts(){return GRADE_FIXED;}
 function roundOpts(){return ((DB.matchPresets&&DB.matchPresets.rounds)||[]).filter(x=>x&&x.trim());}
 function renderBGradePicks(){
   const el=document.getElementById('bGrade'); if(!el)return;
@@ -1702,13 +1753,11 @@ function pickBRound(g){const el=document.getElementById('bRound');el.value=(el.v
 function openMatchPreset(){
   const mk=(arr,cls)=>{let h='';for(let i=0;i<6;i++){h+=`<input type="text" class="preset-inp ${cls}" value="${esc((arr&&arr[i])||'')}" placeholder="${cls==='round-inp'?'回戦':'内容'} ${i+1}">`;}return h;};
   document.getElementById('roundPresetInputs').innerHTML=mk((DB.matchPresets&&DB.matchPresets.rounds),'round-inp');
-  document.getElementById('gradePresetInputs').innerHTML=mk((DB.matchPresets&&DB.matchPresets.grades),'grade-inp');
   openModal('gradePresetModal');
 }
 function saveMatchPresets(){
   const rounds=[...document.getElementById('roundPresetInputs').querySelectorAll('.round-inp')].map(i=>i.value.trim());
-  const grades=[...document.getElementById('gradePresetInputs').querySelectorAll('.grade-inp')].map(i=>i.value.trim());
-  DB.matchPresets={rounds,grades};
+  DB.matchPresets={rounds,grades:GRADE_FIXED};
   save(); closeModal('gradePresetModal');
   renderBRoundPicks(); renderBGradePicks();
   if(curCard&&document.getElementById('cardModal').classList.contains('show'))buildDetail();
@@ -2087,6 +2136,38 @@ function syncTeamGradeChips(key){
   const b=boutByKey(key);if(!b)return;
   const c=document.getElementById('grade_'+pre(key)); if(c)c.innerHTML=teamGradeChips(b,key);
 }
+// 決まり技リスト（講道館 正式名称：投技68＋固技32＝100本＋その他決着）
+const WAZA_GROUPS=[
+  {g:'手技',items:['背負投','一本背負投','背負落','体落','掬投','浮落','隅落','帯落','山嵐','帯取返','内股すかし','小内返','朽木倒','踵返','双手刈']},
+  {g:'腰技',items:['浮腰','大腰','腰車','釣込腰','袖釣込腰','払腰','釣腰','跳腰','移腰','後腰','衣被']},
+  {g:'足技',items:['出足払','膝車','支釣込足','大外刈','大内刈','小外刈','小内刈','送足払','内股','小外掛','足車','払釣込足','大車','大外車','大外落','燕返','大内返','小内返','跳膝','払込足','内股返']},
+  {g:'真捨身技',items:['巴投','裏投','隅返','引込返','俵返']},
+  {g:'横捨身技',items:['横落','谷落','跳巻込','外巻込','内巻込','浮技','横分','横車','横掛','抱分','大外巻込','内股巻込','払巻込','小内巻込','蟹挟','河津掛']},
+  {g:'抑込技',items:['袈裟固','崩袈裟固','後袈裟固','肩固','上四方固','崩上四方固','横四方固','縦四方固','浮固','裏固']},
+  {g:'絞技',items:['並十字絞','逆十字絞','片十字絞','裸絞','送襟絞','片羽絞','片手絞','両手絞','袖車絞','突込絞','三角絞','胴絞']},
+  {g:'関節技',items:['腕緘','腕挫十字固','腕挫腕固','腕挫膝固','腕挫脇固','腕挫腹固','腕挫脚固','腕挫手固','腕挫三角固','足緘']},
+  {g:'その他決着',items:['合わせ技','反則勝ち','不戦勝','棄権勝ち','判定勝ち','指導差']}
+];
+let _wazaCb=null, pickedWazaGroup=WAZA_GROUPS[0].g;
+function wazaGroupOf(w){for(const grp of WAZA_GROUPS){if(grp.items.includes(w))return grp.g;}return WAZA_GROUPS[0].g;}
+function openWazaPicker(cb,current){
+  _wazaCb=cb;
+  pickedWazaGroup=current?wazaGroupOf(current):WAZA_GROUPS[0].g;
+  const f=document.getElementById('wazaFree'); if(f)f.value='';
+  renderWazaGroupTabs(); renderWazaList(current||'');
+  openModal('wazaModal');
+}
+function renderWazaGroupTabs(){
+  document.getElementById('wazaGroupTabs').innerHTML=WAZA_GROUPS.map(grp=>`<button type="button" class="${grp.g===pickedWazaGroup?'on':''}" onclick="pickWazaGroup('${grp.g}')">${grp.g}</button>`).join('');
+}
+function pickWazaGroup(g){pickedWazaGroup=g;renderWazaGroupTabs();renderWazaList('');}
+function renderWazaList(current){
+  const grp=WAZA_GROUPS.find(x=>x.g===pickedWazaGroup)||WAZA_GROUPS[0];
+  document.getElementById('wazaList').innerHTML=grp.items.map(w=>`<button type="button" class="${w===current?'on':''}" onclick="chooseWaza('${w}')">${w}</button>`).join('');
+}
+function chooseWaza(w){const cb=_wazaCb;_wazaCb=null;closeModal('wazaModal');if(cb)cb(w);}
+function chooseWazaFree(){const v=document.getElementById('wazaFree').value.trim();if(v)chooseWaza(v);}
+function clearWaza(){chooseWaza('');}
 function boutBlockHtml(b,key,isRep){
   const p=pre(key);
   const head=isRep?`<div class="bb-head rep"><span class="pos-no">代表戦</span></div>`
@@ -2103,9 +2184,8 @@ function boutBlockHtml(b,key,isRep){
   const gradeWaza=(b.result==='×')?'':`
     <span class="bb-label">内容</span>
     <div class="cat-pick" id="grade_${p}">${teamGradeChips(b,key)}</div>
-    <input type="text" id="gradeinp_${p}" value="${esc(b.grade||'')}" placeholder="例 一本／技あり" oninput="setBoutField('${key}','grade',this.value);syncTeamGradeChips('${key}')">
     <span class="bb-label">決まり技</span>
-    <input type="text" value="${esc(b.waza)}" placeholder="例 大外刈／背負投／不戦" oninput="setBoutField('${key}','waza',this.value)">`;
+    <input type="text" id="wazainp_${p}" readonly value="${esc(b.waza)}" placeholder="タップして技を選ぶ" onclick="openWazaPicker(function(v){setBoutField('${key}','waza',v);document.getElementById('wazainp_${p}').value=v;}, document.getElementById('wazainp_${p}').value)">`;
   return `<div class="bout-block${isRep?' rep':''}" id="block_${p}">
     ${head}
     <span class="bb-label">選手</span>
@@ -2261,11 +2341,48 @@ function renderMatchSummary(){
   }).join('');
   wrap.innerHTML=rows||'<div class="empty" style="padding:14px">まだ試合結果が登録されていません</div>';
 }
+// 組手別（右組み・左組み）の試合結果分析を組み立てる
+function wazaRankHtml(arr,cls){
+  const m={};
+  arr.forEach(b=>{const w=(b.waza||'').trim();if(w)m[w]=(m[w]||0)+1;});
+  const rank=Object.keys(m).map(k=>[k,m[k]]).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,5);
+  if(!rank.length)return '<div class="ana-none">該当なし</div>';
+  return '<ol class="ana-list">'+rank.map((r,i)=>
+    `<li><span class="ana-no">${i+1}</span><span class="ana-waza">${esc(r[0])}</span><span class="ana-cnt">${r[1]}件</span></li>`
+  ).join('')+'</ol>';
+}
+function gripSectionHtml(label,arr){
+  if(!arr.length)return `<div class="ana-sec"><span class="ana-grip">${label}</span><div class="ana-none" style="margin-top:8px">記録なし</div></div>`;
+  const wins=arr.filter(b=>b.result==='○');
+  const loses=arr.filter(b=>b.result==='▲');
+  const draws=arr.filter(b=>b.result==='×');
+  const decided=wins.length+loses.length;
+  // A案：勝率＝勝÷(勝+負)（引分は分母から除外）
+  const rate=decided?((wins.length/decided)*100).toFixed(1)+'%':'—';
+  const drawTxt=draws.length?`・引分${draws.length}`:'';
+  const rateSub=decided?`（${wins.length}勝${loses.length}敗${drawTxt}）`:`（勝敗なし${draws.length?'・引分'+draws.length:''}）`;
+  return `<div class="ana-sec">
+    <div><span class="ana-grip">${label}</span><span class="ana-count">全${arr.length}試合</span></div>
+    <div class="ana-rate">勝率 <b>${rate}</b><span class="ana-rate-sub">${rateSub}</span></div>
+    <div class="ana-rank"><div class="ana-rank-title win">勝ち技ランキング TOP5</div>${wazaRankHtml(wins)}</div>
+    <div class="ana-rank"><div class="ana-rank-title lose">負け技ランキング TOP5</div>${wazaRankHtml(loses)}</div>
+  </div>`;
+}
+function matchAnalysisHtml(bouts){
+  const groups={'右':[],'左':[]};
+  bouts.forEach(b=>{const g=boutOppGrip(b);if(g==='右')groups['右'].push(b);else if(g==='左')groups['左'].push(b);});
+  return `<div class="ana-box">
+    <div class="ana-title">組手別 試合結果分析</div>
+    ${gripSectionHtml('対 右組み',groups['右'])}
+    ${gripSectionHtml('対 左組み',groups['左'])}
+  </div>`;
+}
 function showMatchDetail(selfId){
   const map=allBoutsBySelf();
   const bs=(map[selfId]||[]).slice().sort((a,b)=>(b.schedDate||'').localeCompare(a.schedDate||''));
   const s=DB.students.find(x=>x.id===selfId);
   document.getElementById('matchDetailName').textContent=(s?s.name:'')+' の試合結果';
+  document.getElementById('matchDetailAnalysis').innerHTML=matchAnalysisHtml(bs);
   document.getElementById('matchDetailBody').innerHTML=bs.map(b=>{
     const oppName=boutOppName(b);
     const oppExtra=b.oppIsMate?'<span class="mate-tag">同門</span>':(b.oppAffil?' / '+esc(b.oppAffil):'');
@@ -3227,7 +3344,8 @@ function doRestore(){
   if(!DB.fontScale)DB.fontScale='small';
   if(!DB.matchPresets||typeof DB.matchPresets!=='object')DB.matchPresets={};
   if(!Array.isArray(DB.matchPresets.rounds))DB.matchPresets.rounds=['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
-  if(!Array.isArray(DB.matchPresets.grades))DB.matchPresets.grades=['一本','技あり','合わせ技一本','優勢勝ち','反則勝ち','指導差'];
+  if(!Array.isArray(DB.matchPresets.grades))DB.matchPresets.grades=['一本','技あり','有効','指導差','判定'];
+  if(JSON.stringify(DB.matchPresets.grades)===JSON.stringify(['一本','技あり','合わせ技一本','優勢勝ち','反則勝ち','指導差']))DB.matchPresets.grades=['一本','技あり','有効','指導差','判定'];
   if(!DB.themeShape)DB.themeShape='round';
   if(!DB.matchResults)DB.matchResults={};
   save();closeModal('confirmModal');initUI();toast('復元しました');
