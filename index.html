@@ -102,28 +102,40 @@
   .bout-top{font-size:calc(16px*var(--fs,1));font-weight:700;color:var(--navy);}
   .bout-sub{font-size:calc(13px*var(--fs,1));color:var(--muted);word-break:break-word;}
   .mate-tag{display:inline-block;font-size:calc(11px*var(--fs,1));font-weight:700;color:#fff;background:#7d3c98;border-radius:8px;padding:1px 7px;margin-left:5px;vertical-align:middle;}
-  /* 組手別 試合結果分析 */
-  .ana-box{border:2px solid var(--navy);border-radius:14px;padding:12px;margin-bottom:16px;background:#fff;}
-  .ana-box>.ana-title{font-weight:800;color:var(--navy);font-size:calc(16px*var(--fs,1));margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  /* 組手別 試合結果分析（武道ダッシュボード・案A） */
+  .ana-box{margin-bottom:16px;}
+  .ana-box>.ana-title{font-weight:800;color:var(--navy);font-size:calc(16px*var(--fs,1));margin-bottom:12px;display:flex;align-items:center;gap:8px;}
   .ana-box>.ana-title::before{content:"📊";}
-  .ana-sec{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:#f7f9fb;}
+  .ana-sec{background:linear-gradient(160deg,#1d2d4d,#16233d);border:1px solid #2b3d61;border-radius:16px;padding:15px 14px;margin-bottom:12px;}
   .ana-sec:last-child{margin-bottom:0;}
-  .ana-grip{display:inline-block;font-weight:800;color:#fff;background:var(--navy);border-radius:8px;padding:2px 12px;font-size:calc(15px*var(--fs,1));}
-  .ana-count{font-size:calc(12px*var(--fs,1));color:var(--muted);margin-left:8px;}
-  .ana-rate{margin:8px 0 4px;font-size:calc(15px*var(--fs,1));color:var(--ink);font-weight:700;}
-  .ana-rate b{font-size:calc(22px*var(--fs,1));color:var(--navy);margin:0 2px;}
-  .ana-rate .ana-rate-sub{font-size:calc(12px*var(--fs,1));color:var(--muted);font-weight:600;margin-left:6px;}
-  .ana-rank{margin-top:8px;}
-  .ana-rank-title{font-size:calc(13px*var(--fs,1));font-weight:800;margin-bottom:4px;}
-  .ana-rank-title.win{color:var(--green);}
-  .ana-rank-title.lose{color:var(--red);}
-  .ana-list{list-style:none;margin:0;padding:0;}
-  .ana-list li{display:flex;align-items:center;gap:8px;font-size:calc(14px*var(--fs,1));padding:3px 0;border-bottom:1px dashed #e3e8ee;}
-  .ana-list li:last-child{border-bottom:none;}
-  .ana-list li .ana-no{flex-shrink:0;width:calc(20px*var(--fs,1));height:calc(20px*var(--fs,1));border-radius:5px;background:#e7ebf0;color:var(--navy);font-size:calc(12px*var(--fs,1));font-weight:800;display:flex;align-items:center;justify-content:center;}
-  .ana-list li .ana-waza{flex:1;color:var(--ink);font-weight:600;word-break:break-word;}
-  .ana-list li .ana-cnt{flex-shrink:0;color:var(--muted);font-size:calc(12px*var(--fs,1));font-weight:700;}
-  .ana-none{font-size:calc(13px*var(--fs,1));color:var(--muted);padding:2px 0;}
+  .ana-sec-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+  .ana-grip{display:inline-block;color:#0e1626;background:linear-gradient(135deg,#e3c982,var(--gold));font-weight:800;font-size:calc(14px*var(--fs,1));border-radius:999px;padding:4px 14px;}
+  .ana-count{color:#8ea3c6;font-size:calc(12px*var(--fs,1));font-weight:600;flex-shrink:0;}
+  .ana-mid{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:8px 0 4px;}
+  .ana-gauge{flex-shrink:0;position:relative;width:calc(100px*var(--fs,1));height:calc(100px*var(--fs,1));max-width:172px;max-height:172px;}
+  .ana-gauge svg{width:100%;height:100%;display:block;}
+  .ana-gauge .gv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 6px;}
+  .ana-gauge .gpct{font-size:min(calc(22px*var(--fs,1)),40px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.5px;white-space:nowrap;}
+  .ana-gauge .glb{font-size:min(calc(10px*var(--fs,1)),18px);color:#e3c982;margin-top:3px;letter-spacing:.08em;}
+  .ana-wl{flex:1 1 190px;display:flex;gap:8px;}
+  .ana-chip{flex:1;background:#0f1a2e;border:1px solid #2b3d61;border-radius:12px;padding:8px 2px;text-align:center;}
+  .ana-chip b{display:block;font-size:calc(20px*var(--fs,1));font-weight:800;line-height:1;}
+  .ana-chip span{font-size:calc(10px*var(--fs,1));color:#8ea3c6;}
+  .ana-chip.w b{color:#4aa06c;} .ana-chip.l b{color:#d9694f;} .ana-chip.d b{color:#9aa7bd;}
+  .ana-rank{margin-top:12px;}
+  .ana-rank-title{font-size:calc(12px*var(--fs,1));font-weight:800;letter-spacing:.04em;margin-bottom:7px;}
+  .ana-rank.win .ana-rank-title{color:#6fce9a;}
+  .ana-rank.lose .ana-rank-title{color:#e2795f;}
+  .ana-bar{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+  .ana-bar:last-child{margin-bottom:0;}
+  .ana-bar .abnm{width:calc(70px*var(--fs,1));font-size:calc(12px*var(--fs,1));color:#dbe3f0;flex-shrink:0;word-break:break-all;}
+  .ana-bar .abtr{flex:1;height:9px;border-radius:6px;background:#0e1626;overflow:hidden;}
+  .ana-bar .abfl{height:100%;border-radius:6px;}
+  .ana-rank.win .abfl{background:linear-gradient(90deg,#3f9668,#6fce9a);}
+  .ana-rank.lose .abfl{background:linear-gradient(90deg,#b5402c,#e2795f);}
+  .ana-bar .abct{width:calc(26px*var(--fs,1));text-align:right;font-size:calc(12px*var(--fs,1));font-weight:700;color:#aeb9cc;flex-shrink:0;}
+  .ana-none{color:#7d8aa3;font-size:calc(12px*var(--fs,1));}
+  .ana-empty{color:#8ea3c6;font-size:calc(13px*var(--fs,1));text-align:center;padding:6px 0;}
   /* 団体戦カード */
   .tm-score{flex-shrink:0;min-width:calc(70px*var(--fs,1));height:calc(38px*var(--fs,1));padding:0 8px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:calc(21px*var(--fs,1));font-weight:800;color:#fff;letter-spacing:1px;}
   .tm-badge{display:inline-block;font-size:calc(12px*var(--fs,1));font-weight:700;padding:2px 8px;border-radius:10px;color:#fff;margin-top:2px;}
@@ -805,7 +817,103 @@
     </div>
     <button class="btn ghost full" id="lockChangeBtn" style="margin-top:10px;display:none" onclick="startSetPasscode()">パスコードを変更</button>
   </div>
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--navy)">規約・アプリ情報</h3>
+    <button class="btn ghost full" onclick="openModal('termsModal')">📄 利用規約を読む</button>
+    <button class="btn ghost full" style="margin-top:10px" onclick="openModal('privacyModal')">🔒 プライバシーポリシーを読む</button>
+    <p class="list-mini" style="margin-top:12px;text-align:center;line-height:1.6">制作：AKIHIKO ITO<br>制定日：2026年7月5日</p>
+  </div>
 </section>
+
+<!-- 利用規約モーダル -->
+<div class="modal-bg" id="termsModal">
+  <div class="modal">
+    <h3 style="margin-top:0;color:var(--navy)">利用規約</h3>
+    <div style="max-height:60vh;overflow-y:auto;padding-right:4px;font-size:calc(13px*var(--fs,1));line-height:1.7;color:var(--ink)">
+      <p style="margin-top:0">本利用規約（以下「本規約」といいます）は、AKIHIKO ITO（以下「制作者」といいます）が提供するアプリ（以下「本アプリ」といいます）の利用条件を定めるものです。利用者は、本アプリを利用することで本規約に同意したものとみなされます。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">第1条（適用）</h4>
+      <p style="margin:0">本規約は、本アプリの利用に関して、利用者と制作者との間に適用されます。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">第2条（データの保存と自己責任）</h4>
+      <p style="margin:0">本アプリで入力・記録されたデータは、すべて利用者の端末内にのみ保存され、制作者のサーバー等へ送信・保存されることはありません。そのため、アプリの削除、端末の初期化・故障・紛失、機種変更等によりデータが失われる場合があります。利用者は、本アプリのバックアップ（書き出し）機能を用いて、自己の責任においてデータを保管するものとします。バックアップファイルの送受信・保管は利用者自身の手段で行うものとし、制作者はこれに関与しません。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">第3条（個人情報の取り扱い）</h4>
+      <p style="margin:0">本アプリに氏名等の情報を入力・保存する場合、その情報の管理責任は、入力を行う利用者および利用者が所属する道場・学校・団体に帰属します。制作者は当該データにアクセスできず、これを取得・保有しません。未成年者に関する情報を登録する場合は、あらかじめ本人および保護者の同意を得たうえで行ってください。詳細はプライバシーポリシーに従います。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">第4条（利用料金・サブスクリプション）</h4>
+      <p style="margin:0">本アプリの有料機能は、月額980円または年額9,800円（いずれも税込・価格は変更される場合があります）の自動更新サブスクリプションで提供されます。購入・課金・更新は Apple（App Store）を通じて行われ、料金は購入時に Apple アカウントに請求されます。サブスクリプションは、期間終了の24時間前までに自動更新の停止を行わない限り自動的に更新されます。解約（自動更新の停止）は、ご利用端末の「設定」＞Apple ID＞「サブスクリプション」からいつでも行えます。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">第5条（禁止事項）</h4>
+      <p style="margin:0">利用者は、本アプリの複製・改変・リバースエンジニアリング・再配布・転売、法令または公序良俗に反する行為、制作者や第三者の権利を侵害する行為、その他制作者が不適切と判断する行為を行ってはなりません。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">第6条（免責事項）</h4>
+      <p style="margin:0">本アプリは現状有姿で提供され、制作者は特定目的への適合性・正確性・完全性・継続性等を保証しません。制作者は、本アプリの利用または利用不能、データの消失・破損、その他本アプリに関連して利用者に生じた損害について、制作者に故意または重過失がある場合を除き、一切の責任を負いません。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">第7条（知的財産権）</h4>
+      <p style="margin:0">本アプリおよびその関連物に関する著作権その他の知的財産権は、制作者に帰属します。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">第8条（本規約の変更）</h4>
+      <p style="margin:0">制作者は、必要と判断した場合、利用者に事前の通知なく本規約を変更できるものとします。変更後の規約は、本アプリ内に表示された時点から効力を生じます。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">第9条（準拠法・裁判管轄）</h4>
+      <p style="margin:0">本規約は日本法に準拠します。本アプリに関して紛争が生じた場合、制作者の住所地を管轄する裁判所を第一審の専属的合意管轄裁判所とします。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">お問い合わせ</h4>
+      <p style="margin:0">制作者：AKIHIKO ITO<br>連絡先：akihikoito.apps@gmail.com</p>
+
+      <p style="margin:16px 0 0;color:var(--muted)">制定日：2026年7月5日</p>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost full" onclick="closeModal('termsModal')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- プライバシーポリシーモーダル -->
+<div class="modal-bg" id="privacyModal">
+  <div class="modal">
+    <h3 style="margin-top:0;color:var(--navy)">プライバシーポリシー</h3>
+    <div style="max-height:60vh;overflow-y:auto;padding-right:4px;font-size:calc(13px*var(--fs,1));line-height:1.7;color:var(--ink)">
+      <p style="margin-top:0">本アプリは、利用者のプライバシーを最大限に尊重します。本アプリの最大の特徴は、<b>利用者が入力したデータを一切外部に送信せず、すべて利用者の端末内にのみ保存する</b>点です。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">1. 基本方針：データを収集しません</h4>
+      <p style="margin:0">本アプリで登録・記録される情報（仲間の氏名、出欠、会計、予定、試合結果などの一切）は、利用者ご自身の端末内にのみ保存されます。これらの情報が制作者のサーバーや第三者に送信・収集・保存されることは一切ありません。そのため制作者は、利用者が入力した個人情報の内容を知り得る立場になく、取得・保有していません。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">2. 入力データの管理責任</h4>
+      <p style="margin:0">本アプリに氏名等の個人情報を入力・保存する場合、その管理責任は、入力を行う利用者およびその所属する道場・学校・団体に帰属します。未成年者の情報を登録する場合は、あらかじめ本人および保護者の同意を得たうえでご利用ください。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">3. 制作者が扱いうる情報</h4>
+      <p style="margin:0">課金・サブスクリプションは Apple（App Store）を通じて行われ、決済情報は Apple が管理します。制作者はクレジットカード番号等を取得せず、Apple から受け取るのは売上集計等の統計的情報に限られます。お問い合わせをいただいた場合は、その内容および連絡先を、返信・対応の目的の範囲でのみ利用します。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">4. 第三者提供</h4>
+      <p style="margin:0">制作者は利用者のデータを取得しないため、第三者に提供することもありません。お問い合わせ対応で取得した情報も、法令に基づく場合を除き、本人の同意なく第三者へ提供しません。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">5. 解析・広告について</h4>
+      <p style="margin:0">本アプリは、利用者の行動を追跡する解析ツールや広告配信の仕組みを使用していません。将来導入する場合は、本ポリシーを改定し事前にお知らせします。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">6. データの保存・バックアップ・消去</h4>
+      <p style="margin:0">データは端末内に保存されるため、アプリの削除・端末の初期化・故障・紛失により失われる場合があります。重要なデータはバックアップ機能で利用者ご自身の責任で保管してください。バックアップの送受信は利用者自身の手段で行われ、制作者は関与しません。端末内のデータは、アプリ内で削除するかアプリを削除することで消去できます。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">7. セキュリティ</h4>
+      <p style="margin:0">本アプリは端末内データ保護のため、起動時のパスコードロック機能を提供します。端末そのものの管理（画面ロック・紛失対策等）は利用者ご自身で行ってください。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">8. 本ポリシーの変更</h4>
+      <p style="margin:0">本ポリシーは、法令の変更や機能追加に応じて改定することがあります。重要な変更を行う場合は、本アプリ上でお知らせします。</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">9. お問い合わせ</h4>
+      <p style="margin:0">制作者：AKIHIKO ITO<br>連絡先：akihikoito.apps@gmail.com</p>
+
+      <h4 style="color:var(--navy);margin:16px 0 4px">10. 準拠法</h4>
+      <p style="margin:0">本ポリシーは日本法に準拠し、解釈されます。</p>
+
+      <p style="margin:16px 0 0;color:var(--muted)">制定日：2026年7月5日</p>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost full" onclick="closeModal('privacyModal')">閉じる</button>
+    </div>
+  </div>
+</div>
 
 <nav class="tabbar">
   <button data-tab="mates" onclick="switchTab('mates')"><span class="ico">🤝</span><span class="tlbl">仲間</span></button>
@@ -2342,36 +2450,46 @@ function renderMatchSummary(){
   wrap.innerHTML=rows||'<div class="empty" style="padding:14px">まだ試合結果が登録されていません</div>';
 }
 // 組手別（右組み・左組み）の試合結果分析を組み立てる
-function wazaRankHtml(arr,cls){
+// 決まり技ランキングをバー表示（案A）。件数の多い順TOP5、バー幅は最多を100%として相対表示
+function wazaRankHtml(arr){
   const m={};
   arr.forEach(b=>{const w=(b.waza||'').trim();if(w)m[w]=(m[w]||0)+1;});
   const rank=Object.keys(m).map(k=>[k,m[k]]).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,5);
   if(!rank.length)return '<div class="ana-none">該当なし</div>';
-  return '<ol class="ana-list">'+rank.map((r,i)=>
-    `<li><span class="ana-no">${i+1}</span><span class="ana-waza">${esc(r[0])}</span><span class="ana-cnt">${r[1]}件</span></li>`
-  ).join('')+'</ol>';
+  const max=rank[0][1];
+  return rank.map(r=>{
+    const w=Math.max(8,Math.round(r[1]/max*100));
+    return `<div class="ana-bar"><span class="abnm">${esc(r[0])}</span><div class="abtr"><div class="abfl" style="width:${w}%"></div></div><span class="abct">${r[1]}</span></div>`;
+  }).join('');
 }
 function gripSectionHtml(label,arr){
-  if(!arr.length)return `<div class="ana-sec"><span class="ana-grip">${label}</span><div class="ana-none" style="margin-top:8px">記録なし</div></div>`;
+  if(!arr.length)return `<div class="ana-sec"><div class="ana-sec-top"><span class="ana-grip">${label}</span></div><div class="ana-empty">記録なし</div></div>`;
   const wins=arr.filter(b=>b.result==='○');
   const loses=arr.filter(b=>b.result==='▲');
   const draws=arr.filter(b=>b.result==='×');
   const decided=wins.length+loses.length;
   // A案：勝率＝勝÷(勝+負)（引分は分母から除外）
-  const rate=decided?((wins.length/decided)*100).toFixed(1)+'%':'—';
-  const drawTxt=draws.length?`・引分${draws.length}`:'';
-  const rateSub=decided?`（${wins.length}勝${loses.length}敗${drawTxt}）`:`（勝敗なし${draws.length?'・引分'+draws.length:''}）`;
+  const rate=decided?((wins.length/decided)*100).toFixed(1):null;
+  const C=301.6; // 円周 2π×48
+  const off=(rate!==null?C*(1-rate/100):C).toFixed(1);
+  const pctText=rate!==null?rate+'%':'—';
+  const gauge=`<div class="ana-gauge"><svg width="104" height="104" viewBox="0 0 112 112">`+
+    `<circle cx="56" cy="56" r="48" fill="none" stroke="#0e1626" stroke-width="11"/>`+
+    `<circle cx="56" cy="56" r="48" fill="none" stroke="url(#anaGauge)" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 56 56)"/>`+
+    `</svg><div class="gv"><span class="gpct">${pctText}</span><span class="glb">勝率</span></div></div>`;
+  const chips=`<div class="ana-wl"><div class="ana-chip w"><b>${wins.length}</b><span>勝</span></div><div class="ana-chip l"><b>${loses.length}</b><span>敗</span></div><div class="ana-chip d"><b>${draws.length}</b><span>分</span></div></div>`;
   return `<div class="ana-sec">
-    <div><span class="ana-grip">${label}</span><span class="ana-count">全${arr.length}試合</span></div>
-    <div class="ana-rate">勝率 <b>${rate}</b><span class="ana-rate-sub">${rateSub}</span></div>
-    <div class="ana-rank"><div class="ana-rank-title win">勝ち技ランキング TOP5</div>${wazaRankHtml(wins)}</div>
-    <div class="ana-rank"><div class="ana-rank-title lose">負け技ランキング TOP5</div>${wazaRankHtml(loses)}</div>
+    <div class="ana-sec-top"><span class="ana-grip">${label}</span><span class="ana-count">全${arr.length}試合</span></div>
+    <div class="ana-mid">${gauge}${chips}</div>
+    <div class="ana-rank win"><div class="ana-rank-title">▲ 勝ち技 TOP5</div>${wazaRankHtml(wins)}</div>
+    <div class="ana-rank lose"><div class="ana-rank-title">▼ 負け技 TOP5</div>${wazaRankHtml(loses)}</div>
   </div>`;
 }
 function matchAnalysisHtml(bouts){
   const groups={'右':[],'左':[]};
   bouts.forEach(b=>{const g=boutOppGrip(b);if(g==='右')groups['右'].push(b);else if(g==='左')groups['左'].push(b);});
-  return `<div class="ana-box">
+  const grad=`<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="anaGauge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3c982"/><stop offset="1" stop-color="#c8a44d"/></linearGradient></defs></svg>`;
+  return `<div class="ana-box">${grad}
     <div class="ana-title">組手別 試合結果分析</div>
     ${gripSectionHtml('対 右組み',groups['右'])}
     ${gripSectionHtml('対 左組み',groups['左'])}
