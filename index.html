@@ -373,6 +373,55 @@
   table.matrix thead th.namecell{background:var(--navy);z-index:3;}
   .mem-logo{display:inline-block;padding:3px 9px;border-radius:7px;font-size:calc(13px*var(--fs,1));font-weight:700;white-space:nowrap;}
   .member-table td.note-cell{text-align:left;white-space:normal;min-width:15em;max-width:22em;word-break:break-word;}
+  /* 仲間情報シート（属性別・改良版） */
+  .member-table td.sex-plain{color:var(--muted);font-weight:400;}
+  .mem-status{font-size:calc(10px*var(--fs,1));font-weight:700;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle;white-space:nowrap;}
+  .mem-status.leave{background:#fdf0d5;color:#9a6b00;}
+  .mem-status.ended{background:#f3e3df;color:#b3402c;}
+  .mem-group{margin-bottom:16px;}
+  .mem-group:last-child{margin-bottom:0;}
+  .mem-group .mate-group-head{margin-top:0;}
+  .mem-toggle{min-height:40px;font-size:calc(12px*var(--fs,1));font-weight:700;font-family:inherit;border-radius:10px;cursor:pointer;padding:6px 14px;border:2px solid var(--line);background:#fff;color:var(--muted);white-space:nowrap;}
+  .mem-toggle.on{background:#e8821e;color:#fff;border-color:#e8821e;}
+  .member-table td.kana-plain{color:var(--muted);font-weight:400;white-space:nowrap;}
+  .grade-chip{display:inline-block;font-size:calc(11px*var(--fs,1));font-weight:700;color:var(--navy);background:#eef1f5;border-radius:6px;padding:1px 7px;margin-left:6px;vertical-align:middle;white-space:nowrap;}
+  .role-tag{display:inline-block;font-size:calc(10px*var(--fs,1));font-weight:700;color:#fff;background:var(--navy);border-radius:6px;padding:1px 7px;vertical-align:middle;white-space:nowrap;}
+  .mate-tags{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-bottom:4px;}
+  .mate-tags:empty{display:none;}
+  .mate-tags .grade-chip{margin-left:0;}
+  .member-table.has-grade th.gcol,.member-table.has-grade td.gcol{position:sticky;left:0;z-index:2;background:#fff;min-width:3.4em;width:3.4em;text-align:center;}
+  .member-table.has-grade thead th.gcol{background:var(--navy);color:#fff;z-index:3;}
+  .member-table.has-grade th.namecell,.member-table.has-grade td.namecell{left:3.4em;}
+  .set-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .set-tabs button{flex:1 1 auto;min-height:44px;padding:8px 12px;font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;border-radius:10px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;white-space:nowrap;}
+  .set-tabs button.on{background:var(--navy);color:#fff;}
+  .matrix .mgrp-cell{position:sticky;left:0;background:#eef1f5;font-weight:800;font-size:calc(13px*var(--fs,1));text-align:left;padding:7px 10px;z-index:3;}
+  .matrix .mgrp-n{display:inline-block;margin-left:8px;font-size:calc(11px*var(--fs,1));color:var(--muted);font-weight:700;}
+  .mem-seg{display:inline-flex;border:2px solid var(--line);border-radius:10px;overflow:hidden;}
+  .mem-seg button{min-height:40px;font-size:calc(12px*var(--fs,1));font-weight:700;font-family:inherit;cursor:pointer;padding:6px 16px;border:none;background:#fff;color:var(--muted);}
+  .mem-seg button.on{background:var(--navy);color:#fff;}
+  /* 設定モーダルのセクション */
+  .set-sec{background:#faf9f5;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;}
+  .set-sec-title{font-size:calc(15px*var(--fs,1));font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .set-sec-title::before{content:"";width:4px;height:calc(16px*var(--fs,1));background:var(--gold);border-radius:2px;flex-shrink:0;}
+  .set-sec-sub{font-size:calc(11px*var(--fs,1));font-weight:500;color:var(--muted);margin-left:auto;text-align:right;}
+  .set-note{font-size:calc(12px*var(--fs,1));color:var(--muted);margin:10px 0 0;line-height:1.6;}
+  #feePresetInputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  #feePresetInputs .preset-inp{margin:0;width:100%;}
+  .mem-cards{display:grid;grid-template-columns:1fr;gap:10px;}
+  .mem-card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px 14px;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+  .mem-card.retired{opacity:.7;}
+  .mc-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .mc-name{font-size:calc(17px*var(--fs,1));font-weight:800;color:var(--navy);}
+  .mc-sex{font-size:calc(12px*var(--fs,1));color:var(--muted);}
+  .mc-kana{font-size:calc(12px*var(--fs,1));color:var(--muted);margin-top:2px;}
+  .mc-grid{margin-top:10px;display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:calc(13px*var(--fs,1));}
+  .mc-k{color:var(--muted);white-space:nowrap;}
+  .mc-v{color:var(--ink);text-align:right;word-break:break-word;}
+  .sort-bar{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 14px;}
+  .sort-group{display:flex;align-items:center;gap:8px;}
+  .sort-lbl{font-size:calc(12px*var(--fs,1));font-weight:700;color:var(--muted);}
+  .mem-seg button:disabled{cursor:default;opacity:.4;}
   .cell-p{background:#e3f2e8;color:var(--green);font-weight:800;}
   .cell-a{background:#fdeaea;color:var(--red);font-weight:800;}
   .cell-fee-paid{background:var(--green);color:#fff;font-weight:800;}
@@ -504,6 +553,7 @@
   .mate-cell.retired .cell-tag{background:#fff;color:#c0392b;border:1.5px solid #dca9a1;}
   .reorder-hint{font-size:calc(12px*var(--fs,1));color:#6b7280;margin:2px 2px 12px 4px;line-height:1.5;}
   .rgroup{display:flex;flex-direction:column;gap:8px;margin-bottom:6px;}
+  .reorder-sub{font-size:calc(12px*var(--fs,1));font-weight:800;color:var(--navy);margin:6px 0 2px;}
   .mate-rerow{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:12px;padding:12px 12px;background:#fff;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
   .mate-rerow .grip{font-size:calc(15px*var(--fs,1));color:#aab0ba;letter-spacing:-2px;line-height:1;}
   .mate-rerow .nm{font-size:calc(15px*var(--fs,1));font-weight:700;color:var(--ink);flex:1;word-break:break-word;}
@@ -685,7 +735,7 @@
   <div class="mate-actions">
     <button class="act-toggle" id="retiredToggle" onclick="toggleRetired()">退会も表示</button>
     <button class="act-toggle" id="reorderToggle" onclick="toggleReorder()">並び替え</button>
-    <button class="act-outline" onclick="openFeePresetModal()">よく使う設定</button>
+    <button class="act-outline" onclick="openFeePresetModal()">仲間の設定</button>
     <button class="act-gold" onclick="openStudentModal()">＋仲間を追加</button>
   </div>
   <div class="card">
@@ -745,8 +795,17 @@
   <!-- メンバービュー -->
   <div id="listMemberView" style="display:none">
     <div class="card">
-      <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">仲間一覧</h3>
-      <div class="matrix-wrap" id="memberMatrix"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px;flex-wrap:wrap">
+        <h3 style="margin:0;color:var(--navy);font-size:calc(18px*var(--fs,1))">仲間一覧</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <div class="mem-seg">
+            <button id="memViewTable" class="on" onclick="setMemberView('table')">表</button>
+            <button id="memViewCard" onclick="setMemberView('card')">カード</button>
+          </div>
+          <button class="mem-toggle" id="memberRetiredToggle" onclick="toggleMemberRetired()">休会・退会も表示</button>
+        </div>
+      </div>
+      <div id="memberMatrix"></div>
     </div>
   </div>
 
@@ -770,58 +829,84 @@
   </div>
 </section>
 <section id="screen-set" class="screen">
-  <div class="card">
-    <h3 style="margin-top:0;color:var(--navy)">チーム名</h3>
-    <input type="text" id="teamNameInput" onchange="saveTeamName()" placeholder="例：〇〇柔道クラブ">
+  <div class="set-tabs">
+    <button id="setTabTeam" class="on" onclick="setSetView('team')">チーム設定</button>
+    <button id="setTabDesign" onclick="setSetView('design')">デザイン</button>
+    <button id="setTabData" onclick="setSetView('data')">データ管理</button>
+    <button id="setTabSec" onclick="setSetView('sec')">セキュリティ</button>
+    <button id="setTabTerms" onclick="setSetView('terms')">規約・ポリシー</button>
   </div>
-  <div class="card">
-    <h3 style="margin-top:0;color:var(--navy)">チームロゴ</h3>
-    <p class="list-mini">選んだ画像は自動で正方形に整えられ、左上のマークとホーム画面アイコンになります。</p>
-    <div class="logo-area">
-      <div class="logo-preview" id="logoPreview">柔</div>
-      <div style="flex:1">
-        <label class="btn gold full" style="cursor:pointer">画像を選ぶ
-          <input type="file" accept="image/*" style="display:none" onchange="uploadLogo(event)">
-        </label>
-        <button class="btn ghost full" style="margin-top:8px" onclick="resetLogo()">標準に戻す</button>
+
+  <div id="setViewTeam">
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--navy)">チーム名</h3>
+      <input type="text" id="teamNameInput" onchange="saveTeamName()" placeholder="例：〇〇柔道クラブ">
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--navy)">チームロゴ</h3>
+      <p class="list-mini">選んだ画像は自動で正方形に整えられ、左上のマークとホーム画面アイコンになります。</p>
+      <div class="logo-area">
+        <div class="logo-preview" id="logoPreview">柔</div>
+        <div style="flex:1">
+          <label class="btn gold full" style="cursor:pointer">画像を選ぶ
+            <input type="file" accept="image/*" style="display:none" onchange="uploadLogo(event)">
+          </label>
+          <button class="btn ghost full" style="margin-top:8px" onclick="resetLogo()">標準に戻す</button>
+        </div>
       </div>
     </div>
   </div>
-  <div class="card">
-    <h3 style="margin-top:0;color:var(--navy)">デザイン（着せ替え）</h3>
-    <p class="list-mini">ヘッダーの色を選べます（単色・グラデーション・柄）。タップですぐに反映され、この端末に記憶されます。</p>
-    <label class="fld">カラー：<span id="themeColorName" style="color:var(--navy);font-weight:700"></span></label>
-    <div id="themeColorGrid"></div>
-    <label class="fld" style="margin-top:14px">文字サイズ：<span id="fontScaleName" style="color:var(--navy);font-weight:700"></span></label>
-    <div class="font-size-row" id="fontScaleRow">
-      <button class="fs-btn" data-fs="small" onclick="pickFontScale('small')">小</button>
-      <button class="fs-btn" data-fs="mid" onclick="pickFontScale('mid')">中</button>
-      <button class="fs-btn" data-fs="large" onclick="pickFontScale('large')">大</button>
+
+  <div id="setViewDesign" style="display:none">
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--navy)">カラー（着せ替え）</h3>
+      <p class="list-mini">ヘッダーの色を選べます（単色・グラデーション・柄）。タップですぐに反映され、この端末に記憶されます。</p>
+      <label class="fld">カラー：<span id="themeColorName" style="color:var(--navy);font-weight:700"></span></label>
+      <div id="themeColorGrid"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--navy)">文字サイズ</h3>
+      <p class="list-mini">画面全体の文字の大きさを変えられます。この端末に記憶されます。</p>
+      <label class="fld" style="margin-top:0">文字サイズ：<span id="fontScaleName" style="color:var(--navy);font-weight:700"></span></label>
+      <div class="font-size-row" id="fontScaleRow">
+        <button class="fs-btn" data-fs="small" onclick="pickFontScale('small')">小</button>
+        <button class="fs-btn" data-fs="mid" onclick="pickFontScale('mid')">中</button>
+        <button class="fs-btn" data-fs="large" onclick="pickFontScale('large')">大</button>
+      </div>
     </div>
   </div>
-  <div class="card">
-    <h3 style="margin-top:0;color:var(--navy)">データの保存・共有</h3>
-    <p class="list-mini">月に一度バックアップを保存してください。仲間への共有もこのファイルで行えます。</p>
-    <button class="btn full ghost" style="margin-top:10px" onclick="exportData()">💾 バックアップを保存</button>
-    <label class="btn full ghost" style="margin-top:10px;cursor:pointer">📂 バックアップから復元
-      <input type="file" accept=".json" style="display:none" onchange="importData(event)">
-    </label>
-  </div>
-  <div class="card">
-    <h3 style="margin-top:0;color:var(--navy)">アプリのロック（パスコード）</h3>
-    <p class="list-mini">個人情報保護のため、起動時に4桁のパスコード入力を求められるようにできます（この端末のみ・バックアップには含まれません）。</p>
-    <label class="fld">起動時パスコード</label>
-    <div class="io-pick">
-      <button id="lockOff" class="on" onclick="setLockEnabled(false)">無効</button>
-      <button id="lockOn" onclick="setLockEnabled(true)">有効</button>
+
+  <div id="setViewData" style="display:none">
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--navy)">データの保存・共有</h3>
+      <p class="list-mini">月に一度バックアップを保存してください。仲間への共有もこのファイルで行えます。</p>
+      <button class="btn full ghost" style="margin-top:10px" onclick="exportData()">💾 バックアップを保存</button>
+      <label class="btn full ghost" style="margin-top:10px;cursor:pointer">📂 バックアップから復元
+        <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+      </label>
     </div>
-    <button class="btn ghost full" id="lockChangeBtn" style="margin-top:10px;display:none" onclick="startSetPasscode()">パスコードを変更</button>
   </div>
-  <div class="card">
-    <h3 style="margin-top:0;color:var(--navy)">規約・アプリ情報</h3>
-    <button class="btn ghost full" onclick="openModal('termsModal')">📄 利用規約を読む</button>
-    <button class="btn ghost full" style="margin-top:10px" onclick="openModal('privacyModal')">🔒 プライバシーポリシーを読む</button>
-    <p class="list-mini" style="margin-top:12px;text-align:center;line-height:1.6">制作：AKIHIKO ITO<br>制定日：2026年7月5日</p>
+
+  <div id="setViewSec" style="display:none">
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--navy)">アプリのロック（パスコード）</h3>
+      <p class="list-mini">個人情報保護のため、起動時に4桁のパスコード入力を求められるようにできます（この端末のみ・バックアップには含まれません）。</p>
+      <label class="fld">起動時パスコード</label>
+      <div class="io-pick">
+        <button id="lockOff" class="on" onclick="setLockEnabled(false)">無効</button>
+        <button id="lockOn" onclick="setLockEnabled(true)">有効</button>
+      </div>
+      <button class="btn ghost full" id="lockChangeBtn" style="margin-top:10px;display:none" onclick="startSetPasscode()">パスコードを変更</button>
+    </div>
+  </div>
+
+  <div id="setViewTerms" style="display:none">
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--navy)">規約・アプリ情報</h3>
+      <button class="btn ghost full" onclick="openModal('termsModal')">📄 利用規約を読む</button>
+      <button class="btn ghost full" style="margin-top:10px" onclick="openModal('privacyModal')">🔒 プライバシーポリシーを読む</button>
+      <p class="list-mini" style="margin-top:12px;text-align:center;line-height:1.6">制作：AKIHIKO ITO<br>制定日：2026年7月5日</p>
+    </div>
   </div>
 </section>
 
@@ -928,10 +1013,24 @@
 <div class="modal-bg" id="studentModal">
   <div class="modal">
     <h3 id="studentModalTitle">仲間を追加</h3>
-    <label class="fld">名前</label>
-    <input type="text" id="stName" placeholder="例：山田 太郎">
+    <label class="fld">名前（姓・名）</label>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="stLastName" placeholder="姓（例：山田）" style="flex:1">
+      <input type="text" id="stFirstName" placeholder="名（例：太郎）" style="flex:1">
+    </div>
+    <label class="fld">よみがな（ひらがな）</label>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="stLastKana" placeholder="せい（やまだ）" style="flex:1">
+      <input type="text" id="stFirstKana" placeholder="めい（たろう）" style="flex:1">
+    </div>
     <label class="fld">区分</label>
     <div class="cat-pick" id="catPick"></div>
+    <div id="gradePickWrap" style="display:none">
+      <label class="fld">学年</label>
+      <select id="gradeSelect"></select>
+    </div>
+    <label class="fld">役職（任意）</label>
+    <input type="text" id="stRole" placeholder="例：主将・館長・事務">
     <label class="fld">段位 / 級（任意）</label>
     <div class="cat-pick" id="rankPick"></div>
     <input type="text" id="stRankFree" placeholder="その他（自由記載）" style="margin-top:8px">
@@ -1013,10 +1112,20 @@
 <!-- 月謝のよく使う設定モーダル -->
 <div class="modal-bg" id="feePresetModal">
   <div class="modal">
-    <h3>よく使う月謝金額</h3>
-    <p class="list-mini">仲間の登録画面でボタンで選べる月謝金額を、4つまで登録できます。空欄や0のままでもOKです。</p>
-    <label class="fld">月謝金額（4つ・円）</label>
-    <div id="feePresetInputs"></div>
+    <h3>仲間の設定</h3>
+    <div class="set-sec">
+      <div class="set-sec-title">並び順</div>
+      <div class="mem-seg">
+        <button id="sortGradeBtn" onclick="setMateSort('grade')">学年順</button>
+        <button id="sortKanaBtn" onclick="setMateSort('kana')">あいうえお</button>
+      </div>
+      <p class="set-note">「学年順」は各区分の中を高学年→低学年で並べます（同じ学年の中は仲間タブの「並び替え」で手動入替できます）。「あいうえお順」はよみがなで並びます。</p>
+    </div>
+    <div class="set-sec">
+      <div class="set-sec-title">月謝額<span class="set-sec-sub">登録画面で選べる金額・4つまで</span></div>
+      <div id="feePresetInputs"></div>
+      <p class="set-note">空欄や0のままでもOKです。</p>
+    </div>
     <div class="row">
       <button class="btn ghost" onclick="closeModal('feePresetModal')">やめる</button>
       <button class="btn gold" onclick="saveFeePresets()">保存する</button>
@@ -1330,8 +1439,8 @@ let DB={
   matchResults:{}
 };
 const GRADE_COLOR={白帯:'#9aa0a6',黄帯:'#d4ac0d',橙帯:'#d68910',緑帯:'#2e7d4f',紫帯:'#7d3c98',茶帯:'#7b5230',黒帯:'#222'};
-const CATEGORIES=['小学生','中学生','高校生','大学生','一般','コーチ','指導者'];
-const CAT_COLOR={小学生:'#2e7d4f',中学生:'#2d4373',高校生:'#7d3c98',大学生:'#c0392b',一般:'#6b6b6b',コーチ:'#e8821e',指導者:'#222'};
+const CATEGORIES=['未就学','小学生','中学生','高校生','大学生','一般','コーチ','指導者'];
+const CAT_COLOR={未就学:'#c85a8a',小学生:'#2e7d4f',中学生:'#2d4373',高校生:'#7d3c98',大学生:'#c0392b',一般:'#6b6b6b',コーチ:'#e8821e',指導者:'#222'};
 const RANKS=['三級','二級','一級','初段','弍段','三段','四段'];
 const SEX_COLOR={男性:'#2d4373',女性:'#c0392b',その他:'#7d3c98'};
 const BADGE_COLOR={練習:'#2d4373',大会:'#c0392b',イベント:'#1a8c8c',昇級審査:'#d68910',合宿:'#2e7d4f',休み:'#9aa0a6',その他:'#6b6b6b'};
@@ -1367,6 +1476,7 @@ function load(){try{const s=localStorage.getItem(STORE_KEY);if(s)DB=Object.assig
       mr.team={cards};
     }
   });
+  if(typeof refreshGrades==='function')refreshGrades();
 }
 function seedIfEmpty(){
   // 公開用・空データ版：サンプル選手は追加しません（バックアップから復元してご利用ください）
@@ -1377,11 +1487,7 @@ function shiftMonth(ym,delta){let[y,m]=ym.split('-').map(Number);m=m-1+delta;y+=
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 // その仲間の月謝額（個別設定がなければ全体設定。削除済みでも全体額で補完）
 function nameWithTags(s){
-  const cat=s.category||'';
-  const color=CAT_COLOR[s.category]||'#888';
-  const catBar=cat?`<div class="cat-vbar" style="background:${color}">${cat}</div>`:'';
-  const sexBar=s.sex?`<div class="cat-vbar" style="background:${SEX_COLOR[s.sex]||'#888'}">${s.sex}</div>`:'';
-  return `<div class="vbar-group">${catBar}${sexBar}</div><div class="person-name-only">${esc(s.name)}</div>`;
+  return `<div class="person-name-only">${esc(s.name)}</div>`;
 }
 // 指定日(YYYY-MM-DD)に在籍しているか
 function isEnrolledOn(s,dateStr){
@@ -1433,12 +1539,15 @@ function renderAtt(){
   const roster=DB.students.filter(s=>isEnrolledOn(s,date) && !isOnLeaveMonth(s,date.slice(0,7)));
   if(roster.length===0){list.innerHTML='<div class="empty">この日に出席対象の仲間がいません</div>';['attPresNum','attAbsNum','attNoneNum'].forEach(i=>document.getElementById(i).textContent=0);return;}
   let p=0,a=0,n=0;
-  list.innerHTML=roster.map(s=>{
-    const st=day[s.id]; if(st==='present')p++;else if(st==='absent')a++;else n++;
+  roster.forEach(s=>{const st=day[s.id];if(st==='present')p++;else if(st==='absent')a++;else n++;});
+  const headHtml=(g)=> g.label==null?'':`<div class="mate-group-head" style="color:${g.color};border-bottom-color:${g.color}">${esc(g.label)}<span class="mate-count">${g.members.length}</span></div>`;
+  const rowHtml=(s)=>{
+    const st=day[s.id];
     return `<div class="att-row"><div class="att-person">${nameWithTags(s)}</div>
       <div class="seg"><button class="${st==='present'?'on-pres':''}" onclick="setAtt('${date}','${s.id}','present')">出</button>
       <button class="${st==='absent'?'on-abs':''}" onclick="setAtt('${date}','${s.id}','absent')">欠</button></div></div>`;
-  }).join('');
+  };
+  list.innerHTML=buildMemberGroups(roster).map(g=>headHtml(g)+g.members.map(rowHtml).join('')).join('');
   document.getElementById('attPresNum').textContent=p;
   document.getElementById('attAbsNum').textContent=a;
   document.getElementById('attNoneNum').textContent=n;
@@ -1449,6 +1558,7 @@ function setAtt(date,sid,val){
   save();renderAtt();
 }
 document.getElementById('attDate').addEventListener('change',renderAtt);
+document.getElementById('gradeSelect').addEventListener('change',e=>{pickedGrade=e.target.value;});
 function shiftAttDate(delta){
   const cur=document.getElementById('attDate').value||todayStr();
   const d=new Date(cur+'T00:00');d.setDate(d.getDate()+delta);
@@ -1480,18 +1590,20 @@ function renderFee(){
   if(roster.length===0){list.innerHTML='<div class="empty">この月に月謝対象の仲間がいません</div>';['feePaidNum','feeUnpaidNum'].forEach(i=>document.getElementById(i).textContent=0);document.getElementById('feeSum').textContent='¥0';return;}
   let p=0,u=0,collected=0;
   const ov=DB.feeOverrides[feeMonth]||{};
-  list.innerHTML=roster.map(s=>{
+  const headHtml=(g)=> g.label==null?'':`<div class="mate-group-head" style="color:${g.color};border-bottom-color:${g.color}">${esc(g.label)}<span class="mate-count">${g.members.length}</span></div>`;
+  const rowHtml=(s)=>{
     const rec=paid[s.id];
     const isP=(rec!==undefined);
     const amt=isP?paidAmount(rec,s):expectedFee(s);
     const adjusted=(ov[s.id]!==undefined);
-    if(isP){p++;collected+=amt;}else u++;
     return `<div class="fee-row"><div class="att-person">${nameWithTags(s)}</div>
       <div class="fee-actions">
         <button class="fee-amt-btn${adjusted?' adjusted':''}" onclick="openFeeAdjust('${s.id}')">¥${amt.toLocaleString()}${adjusted?'<span class="adj-dot">調整</span>':''}</button>
         <button class="fee-status ${isP?'fee-paid':'fee-unpaid'}" onclick="toggleFee('${s.id}')">${isP?'支払済':'未納'}</button>
       </div></div>`;
-  }).join('');
+  };
+  roster.forEach(s=>{const rec=paid[s.id];const isP=(rec!==undefined);const amt=isP?paidAmount(rec,s):expectedFee(s);if(isP){p++;collected+=amt;}else u++;});
+  list.innerHTML=buildMemberGroups(roster).map(g=>headHtml(g)+g.members.map(rowHtml).join('')).join('');
   document.getElementById('feePaidNum').textContent=p;
   document.getElementById('feeUnpaidNum').textContent=u;
   document.getElementById('feeSum').textContent='¥'+collected.toLocaleString();
@@ -2433,21 +2545,25 @@ function renderMatchSummary(){
   closeMatchDetail();
   const map=allBoutsBySelf();
   const wrap=document.getElementById('matchMemberList');
-  // 試合のある選手を、DB.studentsの並び順で
-  const rows=DB.students.filter(s=>map[s.id]&&map[s.id].length).map(s=>{
+  const withBouts=DB.students.filter(s=>map[s.id]&&map[s.id].length);
+  if(!withBouts.length){wrap.innerHTML='<div class="empty" style="padding:14px">まだ試合結果が登録されていません</div>';return;}
+  const groups=buildMemberGroups(withBouts);
+  const headHtml=(g)=> g.label==null?'':`<div class="mate-group-head" style="color:${g.color};border-bottom-color:${g.color}">${esc(g.label)}<span class="mate-count">${g.members.length}</span></div>`;
+  const rowHtml=(s)=>{
     const bs=map[s.id];
     const w=bs.filter(b=>b.result==='○').length;
     const l=bs.filter(b=>b.result==='▲').length;
     const d=bs.filter(b=>b.result==='×').length;
+    const g=gradeLabel(s);const gc=g?`<span class="grade-chip">${g}</span>`:'';
     return `<div class="bout-row" onclick="showMatchDetail('${s.id}')">
       <div class="bout-body">
-        <div class="bout-top">${esc(s.name)}</div>
+        <div class="bout-top">${esc(s.name)}${gc}</div>
         <div class="bout-sub">${bs.length}試合　○${w}　▲${l}　×${d}</div>
       </div>
       <div class="bout-sub" style="align-self:center">›</div>
     </div>`;
-  }).join('');
-  wrap.innerHTML=rows||'<div class="empty" style="padding:14px">まだ試合結果が登録されていません</div>';
+  };
+  wrap.innerHTML=groups.map(g=>headHtml(g)+g.members.map(rowHtml).join('')).join('');
 }
 // 組手別（右組み・左組み）の試合結果分析を組み立てる
 // 決まり技ランキングをバー表示（案A）。件数の多い順TOP5、バー幅は最多を100%として相対表示
@@ -2603,6 +2719,7 @@ function openFeePresetModal(){
   let h='';
   for(let i=0;i<4;i++){const v=(arr[i]&&arr[i]>0)?arr[i]:'';h+=`<input type="number" inputmode="numeric" class="preset-inp fee-preset-inp" value="${v}" placeholder="金額 ${i+1}">`;}
   document.getElementById('feePresetInputs').innerHTML=h;
+  updateSortUI();
   openModal('feePresetModal');
 }
 function saveFeePresets(){
@@ -2691,8 +2808,10 @@ function renderAttView(){
   if(DB.students.length===0){wrap.innerHTML='<div class="empty">仲間がいません</div>';}
   else{
     const yearRoster=DB.students.filter(s=>months.some(ym=>isEnrolledInMonth(s,ym)));
+    const groups=buildMemberGroups(yearRoster);
+    const cols=months.length+2;
     const head=months.map(ym=>`<th>${Number(ym.split('-')[1])}月</th>`).join('');
-    const body=yearRoster.map(s=>{
+    const memberRow=(s)=>{
       let total=0;
       const cells=months.map(ym=>{
         let p=0;
@@ -2700,6 +2819,10 @@ function renderAttView(){
         total+=p; return `<td>${p||'-'}</td>`;
       }).join('');
       return `<tr><td class="namecell">${esc(s.name)}</td>${cells}<td class="cell-total">${total}</td></tr>`;
+    };
+    const body=groups.map(g=>{
+      const gh=g.label==null?'':`<tr class="mgrp-row"><td class="mgrp-cell" colspan="${cols}" style="color:${g.color}">${esc(g.label)}<span class="mgrp-n">${g.members.length}</span></td></tr>`;
+      return gh+g.members.map(memberRow).join('');
     }).join('');
     wrap.innerHTML=`<table class="matrix"><thead><tr><th class="namecell">仲間</th>${head}<th>年間<br>合計</th></tr></thead><tbody>${body}</tbody></table>`;
   }
@@ -2833,34 +2956,90 @@ function balanceChartSVG(mLabels,vals){
     <text x="${padL}" y="${H-7}" font-size="8.5" fill="#9aa0a6" text-anchor="start">月</text>
   </svg>`;
 }
+let memberShowRetired=false;
+let memberViewMode='table';
+function toggleMemberRetired(){
+  memberShowRetired=!memberShowRetired;
+  const b=document.getElementById('memberRetiredToggle');
+  if(b)b.classList.toggle('on',memberShowRetired);
+  renderMember();
+}
+function setMemberView(m){
+  memberViewMode=m;
+  const t=document.getElementById('memViewTable'),c=document.getElementById('memViewCard');
+  if(t)t.classList.toggle('on',m==='table');
+  if(c)c.classList.toggle('on',m==='card');
+  renderMember();
+}
+function memberFields(s,cur){
+  const retired=!!s.endDate;
+  const onLeave=!retired&&isOnLeaveMonth(s,cur);
+  const feeDisp=(s.feeReq===false||retired)?'-':'¥'+studentFee(s).toLocaleString();
+  const age=calcAge(s.birth);
+  let tag='';
+  if(retired)tag=' <span class="mem-status ended">退会</span>';
+  else if(onLeave)tag=' <span class="mem-status leave">休会</span>';
+  const roleTag=s.role?` <span class="role-tag">${esc(s.role)}</span>`:'';
+  return {retired,tag,roleTag,
+    grade:gradeLabel(s)||'-',
+    kana:s.kana?esc(s.kana):'-',
+    sex:s.sex?esc(s.sex):'-',
+    rank:esc(s.rank||'-'),
+    rankDate:s.rankDate?s.rankDate.replace(/-/g,'/'):'-',
+    judoId:esc(s.judoId||'-'),
+    age:age!=null?age+'歳':'-',
+    birth:s.birth?s.birth.replace(/-/g,'/'):'-',
+    fee:feeDisp,
+    note:esc(s.note||'-')};
+}
 function renderMember(){
   const wrap=document.getElementById('memberMatrix');
   if(DB.students.length===0){wrap.innerHTML='<div class="empty">仲間がいません</div>';return;}
-  const head=`<th>在籍</th><th>属性</th><th>性別</th><th class="namecell">氏名</th><th>段位/級</th><th>取得年月日</th><th>柔道メンバーID</th><th>年齢</th><th>生年月日</th><th>月謝額</th><th>備考</th>`;
-  const rows=DB.students.map(s=>{
-    const active=!s.endDate;
-    const feeDisp=(s.feeReq===false||!active)?'-':'¥'+studentFee(s).toLocaleString();
-    const age=calcAge(s.birth);
-    const enrollTag=active
-      ? `<span class="mem-logo" style="background:#e8821e;color:#fff">在籍</span>`
-      : `<span class="mem-logo" style="background:#fff;color:#e8821e;border:1.5px solid #e8821e">退会</span>`;
-    const catTag=s.category?`<span class="mem-logo" style="background:${CAT_COLOR[s.category]||'#888'};color:#fff">${s.category}</span>`:'-';
-    const sexTag=s.sex?`<span class="mem-logo" style="background:${SEX_COLOR[s.sex]||'#888'};color:#fff">${s.sex}</span>`:'-';
-    return `<tr>
-      <td>${enrollTag}</td>
-      <td>${catTag}</td>
-      <td>${sexTag}</td>
-      <td class="namecell">${esc(s.name)}</td>
-      <td>${esc(s.rank||'-')}</td>
-      <td>${s.rankDate?s.rankDate.replace(/-/g,'/'):'-'}</td>
-      <td>${esc(s.judoId||'-')}</td>
-      <td>${age!=null?age+'歳':'-'}</td>
-      <td>${s.birth?s.birth.replace(/-/g,'/'):'-'}</td>
-      <td>${feeDisp}</td>
-      <td class="note-cell">${esc(s.note||'-')}</td>
-    </tr>`;
-  }).join('');
-  wrap.innerHTML=`<table class="matrix member-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+  const cur=thisMonthStr();
+  // 既定は在籍者のみ。トグルONで休会・退会も表示
+  const visible=DB.students.filter(s=>{
+    const retired=!!s.endDate;
+    const onLeave=!retired&&isOnLeaveMonth(s,cur);
+    return memberShowRetired?true:(!retired&&!onLeave);
+  });
+  if(visible.length===0){wrap.innerHTML='<div class="empty">表示する仲間がいません</div>';return;}
+  const groups=buildMemberGroups(visible);
+  const headHtml=g=> g.label==null ? '' : `<div class="mate-group-head" style="color:${g.color};border-bottom-color:${g.color}">${esc(g.label)}<span class="mate-count">${g.members.length}</span></div>`;
+  if(memberViewMode==='card'){
+    wrap.innerHTML=groups.map(g=>`<div class="mem-group">${headHtml(g)}<div class="mem-cards">`+g.members.map(s=>{
+      const f=memberFields(s,cur);
+      return `<div class="mem-card${f.retired?' retired':''}">
+        <div class="mc-top"><span class="mc-name">${esc(s.name)}</span>${f.grade!=='-'?`<span class="grade-chip">${f.grade}</span>`:''}${f.roleTag}${f.tag}<span class="mc-sex">${f.sex}</span></div>
+        <div class="mc-kana">${f.kana}</div>
+        <div class="mc-grid">
+          <span class="mc-k">段位/級</span><span class="mc-v">${f.rank}</span>
+          <span class="mc-k">取得年月日</span><span class="mc-v">${f.rankDate}</span>
+          <span class="mc-k">柔道メンバーID</span><span class="mc-v">${f.judoId}</span>
+          <span class="mc-k">年齢</span><span class="mc-v">${f.age}</span>
+          <span class="mc-k">生年月日</span><span class="mc-v">${f.birth}</span>
+          <span class="mc-k">月謝額</span><span class="mc-v">${f.fee}</span>
+          <span class="mc-k">備考</span><span class="mc-v">${f.note}</span>
+        </div>
+      </div>`;
+    }).join('')+`</div></div>`).join('');
+  }else{
+    wrap.innerHTML=groups.map(g=>{
+      const graded=isGradedCat(g.label);
+      const head=(graded?`<th class="gcol">学年</th>`:'')
+        +`<th class="namecell">氏名</th><th>よみがな</th><th>性別</th><th>段位/級</th><th>取得年月日</th><th>柔道メンバーID</th><th>年齢</th><th>生年月日</th><th>月謝額</th><th>備考</th>`;
+      const rows=g.members.map(s=>{
+        const f=memberFields(s,cur);
+        return `<tr>`
+          +(graded?`<td class="gcol">${f.grade}</td>`:'')
+          +`<td class="namecell">${esc(s.name)}${f.roleTag}${f.tag}</td>`
+          +`<td class="kana-plain">${f.kana}</td>`
+          +`<td class="sex-plain">${f.sex}</td>`
+          +`<td>${f.rank}</td><td>${f.rankDate}</td><td>${f.judoId}</td><td>${f.age}</td><td>${f.birth}</td><td>${f.fee}</td>`
+          +`<td class="note-cell">${f.note}</td></tr>`;
+      }).join('');
+      return `<div class="mem-group">${headHtml(g)}<div class="matrix-wrap"><table class="matrix member-table${graded?' has-grade':''}"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    }).join('');
+  }
 }
 
 /* 設定 */
@@ -2868,6 +3047,14 @@ function renderSettings(){
   document.getElementById('teamNameInput').value=DB.team;
   renderThemePicker();renderFontPicker();
   renderLockSettings();
+}
+function setSetView(v){
+  const map={team:'setViewTeam',design:'setViewDesign',data:'setViewData',sec:'setViewSec',terms:'setViewTerms'};
+  const tabs={team:'setTabTeam',design:'setTabDesign',data:'setTabData',sec:'setTabSec',terms:'setTabTerms'};
+  Object.keys(map).forEach(k=>{
+    const vw=document.getElementById(map[k]);if(vw)vw.style.display=(k===v)?'':'none';
+    const tb=document.getElementById(tabs[k]);if(tb)tb.classList.toggle('on',k===v);
+  });
 }
 let showRetired=false;
 let mateFilter='all';
@@ -2883,57 +3070,96 @@ function setMateFilter(f){
   document.getElementById('fStudent').classList.toggle('on',f==='student');
   renderMates();
 }
-const MATE_GROUP_ORDER=['指導者','コーチ','一般','大学生','高校生','中学生','小学生'];
+const MATE_GROUP_ORDER=['指導者','コーチ','一般','大学生','高校生','中学生','小学生','未就学'];
+// 並び順（任意/あいうえお）の設定と共通グルーピング（属性分けは常にあり）
+function effectiveSort(){ return DB.mateSort==='kana'?'kana':'grade'; }
+function setMateSort(m){
+  DB.mateSort=m; save(); updateSortUI(); renderMates(); renderMember();
+}
+function updateSortUI(){
+  const eff=effectiveSort();
+  const set=(id,on)=>{const b=document.getElementById(id);if(b)b.classList.toggle('on',on);};
+  set('sortGradeBtn',eff==='grade');
+  set('sortKanaBtn',eff==='kana');
+}
+function kanaKey(s){ const k=(s.kana||'').trim(); return k?('0'+k):('1'+(s.name||'')); }
+function sortMembersList(list){
+  if(effectiveSort()==='kana')return list.slice().sort((a,b)=>kanaKey(a).localeCompare(kanaKey(b),'ja'));
+  // 学年順：高学年→低学年。学年なし（指導者/一般等）は元の並びを保持
+  const idx=new Map(list.map((s,i)=>[s,i]));
+  return list.slice().sort((a,b)=>{
+    const la=memberLevel(a),lb=memberLevel(b);
+    if(la==null&&lb==null)return idx.get(a)-idx.get(b);
+    if(la==null)return 1;
+    if(lb==null)return -1;
+    if(la!==lb)return lb-la;
+    return idx.get(a)-idx.get(b);
+  });
+}
+function buildMemberGroups(visible){
+  const groups=[];
+  MATE_GROUP_ORDER.forEach(cat=>{
+    const m=sortMembersList(visible.filter(s=>s.category===cat));
+    if(m.length)groups.push({label:cat,color:(CAT_COLOR[cat]||'var(--navy)'),members:m});
+  });
+  const noCat=sortMembersList(visible.filter(s=>!s.category||!MATE_GROUP_ORDER.includes(s.category)));
+  if(noCat.length)groups.push({label:'未設定',color:'var(--navy)',members:noCat});
+  return groups;
+}
 let reorderMode=false;
 function toggleReorder(){ reorderMode=!reorderMode; renderMates(); }
 function renderMates(){
   const list=document.getElementById('studentList');
+  updateSortUI();
+  const canReorder=(effectiveSort()==='grade');
+  if(!canReorder&&reorderMode)reorderMode=false;
   const rt=document.getElementById('reorderToggle');
-  if(rt){ rt.textContent=reorderMode?'完了':'並び替え'; rt.classList.toggle('on',reorderMode); }
-  const visible=DB.students.map((s,idx)=>({s,idx})).filter(o=>showRetired||!o.s.endDate);
+  if(rt){ rt.textContent=reorderMode?'完了':'並び替え'; rt.classList.toggle('on',reorderMode); rt.style.display=canReorder?'':'none'; }
+  const visible=DB.students.filter(s=>showRetired||!s.endDate);
   if(visible.length===0){
     list.innerHTML='<div class="empty" style="padding:16px">'+(DB.students.length?'表示する仲間がいません':'まだ仲間がいません')+'</div>';
     return;
   }
   const cur=thisMonthStr();
-  // 区分見出し（色付き）を返す
-  const headHtml=(cat,n)=>{
-    const col=(cat==='未設定')?'var(--navy)':(CAT_COLOR[cat]||'var(--navy)');
-    return `<div class="mate-group-head" style="color:${col};border-bottom-color:${col}">${esc(cat)}<span class="mate-count">${n}</span></div>`;
-  };
-  const groups=[]; // {cat,label,members}
-  MATE_GROUP_ORDER.forEach(cat=>{
-    const members=visible.filter(o=>o.s.category===cat);
-    if(members.length)groups.push({cat,label:cat,members});
-  });
-  const noCat=visible.filter(o=>!o.s.category||!MATE_GROUP_ORDER.includes(o.s.category));
-  if(noCat.length)groups.push({cat:'__none',label:'未設定',members:noCat});
+  const groups=buildMemberGroups(visible);
+  const headHtml=(g)=> g.label==null ? '' : `<div class="mate-group-head" style="color:${g.color};border-bottom-color:${g.color}">${esc(g.label)}<span class="mate-count">${g.members.length}</span></div>`;
 
   if(reorderMode){
-    let html='<div class="reorder-hint">名前を長押しして、上下にドラッグ（同じ区分の中で並び替えできます）</div>';
+    let html='<div class="reorder-hint">名前を長押しして上下にドラッグ（同じ区分・同じ学年の中で入れ替えできます）</div>';
     groups.forEach(g=>{
-      html+=headHtml(g.label,g.members.length);
-      html+=`<div class="rgroup" data-cat="${esc(g.cat)}">`+g.members.map(({s})=>{
-        let cls='mate-rerow',tag='';
-        if(s.endDate){cls+=' retired';tag='<span class="cell-tag">退会</span>';}
-        else if(isOnLeaveMonth(s,cur)){cls+=' leave';tag='<span class="cell-tag">休会</span>';}
-        return `<div class="${cls}" data-id="${s.id}" data-cat="${esc(g.cat)}"><span class="grip">⣿</span><span class="nm">${esc(s.name)}</span>${tag}</div>`;
-      }).join('')+`</div>`;
+      html+=headHtml(g);
+      // 学年（レベル）ごとにサブグループ化。学年なしは1つのまとまり。ドラッグは各まとまり内のみ
+      const byLevel=new Map();
+      g.members.forEach(s=>{const lv=memberLevel(s);const k=(lv==null?'none':lv);if(!byLevel.has(k))byLevel.set(k,[]);byLevel.get(k).push(s);});
+      byLevel.forEach((arr)=>{
+        const glab=gradeLabel(arr[0]);
+        const sub=glab?`<div class="reorder-sub">${esc(glab)}</div>`:'';
+        html+=sub+`<div class="rgroup" data-cat="${esc(g.label||'all')}">`+arr.map(s=>{
+          let cls='mate-rerow',tag='';
+          if(s.endDate){cls+=' retired';tag='<span class="cell-tag">退会</span>';}
+          else if(isOnLeaveMonth(s,cur)){cls+=' leave';tag='<span class="cell-tag">休会</span>';}
+          const role=s.role?`<span class="role-tag">${esc(s.role)}</span>`:'';
+          return `<div class="${cls}" data-id="${s.id}" data-cat="${esc(g.label||'all')}"><span class="grip">⣿</span><span class="nm">${esc(s.name)}</span>${role}${tag}</div>`;
+        }).join('')+`</div>`;
+      });
     });
     list.innerHTML=html;
     enableMateReorder();
     return;
   }
 
-  const cellHtml=({s})=>{
-    let cls='mate-cell', tag='';
-    if(s.endDate){ cls+=' retired'; tag='<span class="cell-tag">退会</span>'; }
-    else if(isOnLeaveMonth(s,cur)){ cls+=' leave'; tag='<span class="cell-tag">休会</span>'; }
-    return `<div class="${cls}" onclick="openStudentModal('${s.id}')">${tag}<span class="nm">${esc(s.name)}</span></div>`;
+  const cellHtml=(s)=>{
+    let cls='mate-cell', st='';
+    if(s.endDate){ cls+=' retired'; st='<span class="cell-tag">退会</span>'; }
+    else if(isOnLeaveMonth(s,cur)){ cls+=' leave'; st='<span class="cell-tag">休会</span>'; }
+    const role=s.role?`<span class="role-tag">${esc(s.role)}</span>`:'';
+    const g=gradeLabel(s);const gc=g?`<span class="grade-chip">${g}</span>`:'';
+    const tags=(gc||role||st)?`<div class="mate-tags">${gc}${role}${st}</div>`:'';
+    return `<div class="${cls}" onclick="openStudentModal('${s.id}')">${tags}<span class="nm">${esc(s.name)}</span></div>`;
   };
   let html='';
   groups.forEach(g=>{
-    html+=headHtml(g.label,g.members.length);
+    html+=headHtml(g);
     html+=`<div class="mate-grid">`+g.members.map(cellHtml).join('')+`</div>`;
   });
   list.innerHTML=html;
@@ -3025,7 +3251,69 @@ let pickedCat='小学生';
 function renderCatPick(){
   document.getElementById('catPick').innerHTML=CATEGORIES.map(c=>`<button class="${c===pickedCat?'on':''}" onclick="pickCat('${c}')">${c}</button>`).join('');
 }
-function pickCat(c){pickedCat=c;renderCatPick();}
+function pickCat(c){pickedCat=c;renderCatPick();updateGradePicker();}
+// ===== 学年（自動進級：入学基準を保存し、毎回計算） =====
+const GRADE_OPTS={
+  '小学生':[['1','1年'],['2','2年'],['3','3年'],['4','4年'],['5','5年'],['6','6年']],
+  '中学生':[['1','1年'],['2','2年'],['3','3年']],
+  '高校生':[['1','1年'],['2','2年'],['3','3年']],
+  '大学生':[['1','1年'],['2','2年'],['3','3年'],['4','4年'],['院生M','院生（M）'],['院生D','院生（D）']]
+};
+const GRADE_BASE={'小学生':0,'中学生':6,'高校生':9,'大学生':12};
+let pickedGrade='';
+function catHasGrade(cat){return !!GRADE_OPTS[cat];}
+function updateGradePicker(){
+  const wrap=document.getElementById('gradePickWrap');
+  const sel=document.getElementById('gradeSelect');
+  if(!wrap||!sel)return;
+  const opts=GRADE_OPTS[pickedCat];
+  if(!opts){wrap.style.display='none';sel.innerHTML='';pickedGrade='';return;}
+  wrap.style.display='';
+  const vals=opts.map(o=>o[0]);
+  if(!vals.includes(pickedGrade))pickedGrade=vals[0];
+  sel.innerHTML=opts.map(o=>`<option value="${o[0]}"${o[0]===pickedGrade?' selected':''}>${o[1]}</option>`).join('');
+}
+function catGradeToLevel(cat,gnum){return (GRADE_BASE[cat]||0)+gnum;}
+function levelToInfo(level){
+  if(level<=6)return{cat:'小学生',grade:'小'+level};
+  if(level<=9)return{cat:'中学生',grade:'中'+(level-6)};
+  if(level<=12)return{cat:'高校生',grade:'高'+(level-9)};
+  if(level<=16)return{cat:'大学生',grade:'大'+(level-12)};
+  return{cat:'一般',grade:''};
+}
+function currentFY(){const d=new Date();return (d.getMonth()+1>=4)?d.getFullYear():d.getFullYear()-1;}
+const GRADED_CATS=['小学生','中学生','高校生','大学生'];
+function isGradedCat(cat){return GRADED_CATS.includes(cat);}
+// 生年月日から「小1入学年度」を算出（4/2以降生まれ=+6、1/1〜4/1の早生まれ=+5）
+function entryFYFromBirth(birth){
+  if(!birth)return null;
+  const y=+birth.slice(0,4),m=+birth.slice(5,7),d=+birth.slice(8,10);
+  const afterApr2=(m>4)||(m===4&&d>=2);
+  return afterApr2?y+6:y+5;
+}
+function gradeInfo(s,fy){
+  if(s.gradeFixed){const lv=s.gradeFixed==='院生D'?19:18;return{cat:'大学生',grade:s.gradeFixed,level:lv};}
+  if(s.gradeBaseFY==null||s.gradeBaseLevel==null)return null;
+  let lv=s.gradeBaseLevel+((fy!=null?fy:currentFY())-s.gradeBaseFY);
+  if(lv<1)lv=1;
+  return Object.assign(levelToInfo(Math.min(lv,17)),{level:Math.min(lv,17)});
+}
+function gradeLabel(s){const gi=gradeInfo(s);return gi?gi.grade:'';}
+function memberLevel(s){const gi=gradeInfo(s);return (gi&&gi.grade)?gi.level:null;}
+function refreshGrades(){
+  const fy=currentFY();
+  (DB.students||[]).forEach(s=>{
+    // 未就学＋生年月日：入学年度に達したら小1のアンカーを付与（以後は通常進級）
+    // ただし手修正した年度以前の入学には適用しない（手修正を常に優先）
+    if(s.category==='未就学'&&s.birth&&s.gradeBaseFY==null&&!s.gradeFixed){
+      const efy=entryFYFromBirth(s.birth);
+      const touched=(s.gradeTouchedFY==null)?-1:s.gradeTouchedFY;
+      if(efy!=null&&fy>=efy&&efy>touched){s.gradeBaseFY=efy;s.gradeBaseLevel=1;}
+    }
+    const gi=gradeInfo(s,fy);
+    if(gi){s.category=gi.cat;s.grade=gi.grade;}
+  });
+}
 let pickedRank='';
 function renderRankPick(){
   const kyu=['三級','二級','一級'];
@@ -3110,13 +3398,24 @@ function renderLeaveFeeQuick(){
   const opts=[['¥0',0]]; if(normal>0){opts.push(['半額',Math.round(normal/2)]);opts.push(['通常額',normal]);}
   document.getElementById('leaveFeeQuick').innerHTML=opts.map(([lbl,v])=>`<button type="button" onclick="document.getElementById('stLeaveFee').value=${v}">${lbl}</button>`).join('');
 }
+function splitLegacyName(name){
+  const parts=(name||'').trim().split(/[ \u3000]+/).filter(Boolean);
+  if(parts.length>=2)return{last:parts[0],first:parts.slice(1).join(' ')};
+  return{last:parts[0]||'',first:''};
+}
 function openStudentModal(id){
   editingStudent=id||null;
   if(id){
     const s=DB.students.find(x=>x.id===id);
     document.getElementById('studentModalTitle').textContent='仲間を編集';
-    document.getElementById('stName').value=s.name;
-    pickedCat=s.category||'小学生';
+    const nm=(s.lastName!=null||s.firstName!=null)?{last:s.lastName||'',first:s.firstName||''}:splitLegacyName(s.name);
+    document.getElementById('stLastName').value=nm.last;
+    document.getElementById('stFirstName').value=nm.first;
+    document.getElementById('stLastKana').value=s.lastKana||'';
+    document.getElementById('stFirstKana').value=s.firstKana||'';
+    {const gi=gradeInfo(s);
+     if(gi&&catHasGrade(gi.cat)){pickedCat=gi.cat;pickedGrade=s.gradeFixed?s.gradeFixed:String(gi.level-(GRADE_BASE[gi.cat]||0));}
+     else{pickedCat=s.category||'小学生';pickedGrade='';}}
     pickedRank=s.rank||'';
     document.getElementById('stRankDate').value=s.rankDate||'';
     pickedSex=s.sex||'';
@@ -3135,10 +3434,12 @@ function openStudentModal(id){
     document.getElementById('stBirth').value=s.birth||'';
     document.getElementById('stJudoId').value=s.judoId||'';
     document.getElementById('stNote').value=s.note||'';
+    document.getElementById('stRole').value=s.role||'';
   }else{
     document.getElementById('studentModalTitle').textContent='仲間を追加';
-    document.getElementById('stName').value='';
+    ['stLastName','stFirstName','stLastKana','stFirstKana'].forEach(id=>document.getElementById(id).value='');
     pickedCat='小学生';
+    pickedGrade='';
     pickedRank='';
     document.getElementById('stRankDate').value='';
     pickedSex='';
@@ -3154,8 +3455,10 @@ function openStudentModal(id){
     document.getElementById('stBirth').value='';
     document.getElementById('stJudoId').value='';
     document.getElementById('stNote').value='';
+    document.getElementById('stRole').value='';
   }
   renderCatPick();
+  updateGradePicker();
   renderRankPick();
   pickSex(pickedSex);
   renderStuGripPick();
@@ -3168,8 +3471,13 @@ function openStudentModal(id){
   openModal('studentModal');
 }
 function saveStudent(){
-  const name=document.getElementById('stName').value.trim();
-  if(!name){toast('名前を入れてください');return;}
+  const lastName=document.getElementById('stLastName').value.trim();
+  const firstName=document.getElementById('stFirstName').value.trim();
+  const lastKana=document.getElementById('stLastKana').value.trim();
+  const firstKana=document.getElementById('stFirstKana').value.trim();
+  const name=[lastName,firstName].filter(Boolean).join(' ');
+  if(!name){toast('姓または名を入れてください');return;}
+  const kana=[lastKana,firstKana].filter(Boolean).join(' ');
   const startDate=document.getElementById('stStart').value||'';
   // 月謝金額：手入力があればそれを優先、なければ選択中のプリセット
   const manual=Number(document.getElementById('stFeeAmount').value)||0;
@@ -3195,12 +3503,21 @@ function saveStudent(){
   const rankDate=document.getElementById('stRankDate').value||'';
   const sex=pickedSex||'';
   const grip=pickedStuGrip||'';
+  const role=document.getElementById('stRole').value.trim();
+  // 学年アンカー（入学基準を保存。学年は表示時に計算。院生は固定＝自動進級しない）
+  let gradeBaseFY=null,gradeBaseLevel=null,gradeFixed=null;
+  if(catHasGrade(pickedCat)){
+    if(pickedGrade==='院生M'||pickedGrade==='院生D'){gradeFixed=pickedGrade;}
+    else{gradeBaseFY=currentFY();gradeBaseLevel=catGradeToLevel(pickedCat,Number(pickedGrade)||1);}
+  }
+  const gradeTouchedFY=currentFY(); // 手修正した年度。生年月日からの自動算出より優先
   if(editingStudent){
     const s=cur;
-    s.name=name;s.category=pickedCat;s.rank=rank;s.rankDate=rankDate;s.sex=sex;s.grip=grip;s.feeReq=pickedFeeReq;s.feeAmount=feeAmount;s.startDate=startDate;s.endDate=endDate;s.leaveStart=leaveStart;s.leaveEnd=leaveEnd;s.leaveFee=leaveFee;s.birth=birth;s.judoId=judoId;s.note=note;
+    s.name=name;s.lastName=lastName;s.firstName=firstName;s.lastKana=lastKana;s.firstKana=firstKana;s.kana=kana;s.role=role;s.category=pickedCat;s.gradeBaseFY=gradeBaseFY;s.gradeBaseLevel=gradeBaseLevel;s.gradeFixed=gradeFixed;s.gradeTouchedFY=gradeTouchedFY;s.rank=rank;s.rankDate=rankDate;s.sex=sex;s.grip=grip;s.feeReq=pickedFeeReq;s.feeAmount=feeAmount;s.startDate=startDate;s.endDate=endDate;s.leaveStart=leaveStart;s.leaveEnd=leaveEnd;s.leaveFee=leaveFee;s.birth=birth;s.judoId=judoId;s.note=note;
   }else{
-    DB.students.push({id:uid(),name,category:pickedCat,rank,rankDate,sex,grip,feeReq:pickedFeeReq,feeAmount,startDate,endDate,leaveStart,leaveEnd,leaveFee,birth,judoId,note});
+    DB.students.push({id:uid(),name,lastName,firstName,lastKana,firstKana,kana,role,category:pickedCat,gradeBaseFY,gradeBaseLevel,gradeFixed,gradeTouchedFY,rank,rankDate,sex,grip,feeReq:pickedFeeReq,feeAmount,startDate,endDate,leaveStart,leaveEnd,leaveFee,birth,judoId,note});
   }
+  refreshGrades();
   save();closeModal('studentModal');renderMates();toast('保存しました');
 }
 function delStudent(id){const s=DB.students.find(x=>x.id===id);if(!s)return;askConfirm(`「${esc(s.name)}」を削除します。この操作は取り消せません。`,()=>{DB.students=DB.students.filter(x=>x.id!==id);save();renderSettings();renderMates();toast('削除しました');});}
