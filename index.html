@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v99（Service Worker 案3：バージョン管理付きキャッシュ） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v102（分析見出しを「組手別 分析」に変更） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -105,25 +105,33 @@
   .mate-tag{display:inline-block;font-size:calc(11px*var(--fs,1));font-weight:700;color:#fff;background:#7d3c98;border-radius:8px;padding:1px 7px;margin-left:5px;vertical-align:middle;}
   /* 組手別 試合結果分析（武道ダッシュボード・案A） */
   .ana-box{margin-bottom:16px;}
-  .ana-box>.ana-title{font-weight:800;color:var(--navy);font-size:calc(16px*var(--fs,1));margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-  .ana-box>.ana-title::before{content:"📊";}
-  .ana-sec{background:linear-gradient(160deg,#1d2d4d,#16233d);border:1px solid #2b3d61;border-radius:16px;padding:15px 14px;margin-bottom:12px;}
+  /* 見出しと集計範囲トグルを同じ行に（トグルは右端） */
+  .ana-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .ana-title{font-weight:800;color:var(--navy);font-size:calc(16px*var(--fs,1));display:flex;align-items:center;gap:8px;min-width:0;}
+  .ana-title::before{content:"📊";}
+  .ana-sec{background:linear-gradient(160deg,#1d2d4d,#16233d);border:1px solid #2b3d61;border-radius:16px;padding:13px 14px;margin-bottom:12px;}
   .ana-sec:last-child{margin-bottom:0;}
   .ana-sec-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
   .ana-grip{display:inline-block;color:#0e1626;background:linear-gradient(135deg,#e3c982,var(--gold));font-weight:800;font-size:calc(14px*var(--fs,1));border-radius:999px;padding:4px 14px;}
   .ana-count{color:#8ea3c6;font-size:calc(12px*var(--fs,1));font-weight:600;flex-shrink:0;}
-  .ana-mid{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:8px 0 4px;}
-  .ana-gauge{flex-shrink:0;position:relative;width:calc(100px*var(--fs,1));height:calc(100px*var(--fs,1));max-width:172px;max-height:172px;}
+  /* 円グラフ（左）＋勝敗分（右に縦積み）を横並びにして縦を圧縮 */
+  .ana-mid{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:4px 0 2px;}
+  .ana-gauge{flex-shrink:0;position:relative;width:calc(88px*var(--fs,1));height:calc(88px*var(--fs,1));max-width:150px;max-height:150px;}
   .ana-gauge svg{width:100%;height:100%;display:block;}
   .ana-gauge .gv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 6px;}
-  .ana-gauge .gpct{font-size:min(calc(22px*var(--fs,1)),40px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.5px;white-space:nowrap;}
+  .ana-gauge .gpct{font-size:min(calc(21px*var(--fs,1)),38px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.5px;white-space:nowrap;}
   .ana-gauge .glb{font-size:min(calc(10px*var(--fs,1)),18px);color:#e3c982;margin-top:3px;letter-spacing:.08em;}
-  .ana-wl{flex:1 1 190px;display:flex;gap:8px;}
-  .ana-chip{flex:1;background:#0f1a2e;border:1px solid #2b3d61;border-radius:12px;padding:8px 2px;text-align:center;}
-  .ana-chip b{display:block;font-size:calc(20px*var(--fs,1));font-weight:800;line-height:1;}
-  .ana-chip span{font-size:calc(10px*var(--fs,1));color:#8ea3c6;}
+  .ana-wl{flex:1 1 128px;min-width:120px;display:flex;flex-direction:column;gap:6px;}
+  .ana-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0f1a2e;border:1px solid #2b3d61;border-radius:10px;padding:6px 14px;}
+  .ana-chip span{font-size:calc(12px*var(--fs,1));color:#8ea3c6;order:1;}
+  .ana-chip b{font-size:calc(21px*var(--fs,1));font-weight:800;line-height:1;order:2;}
   .ana-chip.w b{color:#4aa06c;} .ana-chip.l b{color:#d9694f;} .ana-chip.d b{color:#9aa7bd;}
-  .ana-rank{margin-top:12px;}
+  /* 集計範囲トグル（累計／直近1年）＝見出し右端に配置 */
+  .ana-range{display:inline-flex;border:2px solid var(--line);border-radius:11px;overflow:hidden;flex-shrink:0;margin-left:auto;}
+  .ana-range button{border:none;background:#fff;color:var(--muted);font-family:inherit;font-weight:700;font-size:min(calc(13px*var(--fs,1)),17px);padding:6px 13px;cursor:pointer;white-space:nowrap;}
+  .ana-range button+button{border-left:2px solid var(--line);}
+  .ana-range button.on{background:var(--navy);color:#fff;}
+  .ana-rank{margin-top:11px;}
   .ana-rank-title{font-size:calc(12px*var(--fs,1));font-weight:800;letter-spacing:.04em;margin-bottom:7px;}
   .ana-rank.win .ana-rank-title{color:#6fce9a;}
   .ana-rank.lose .ana-rank-title{color:#e2795f;}
@@ -1448,7 +1456,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v99'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v102'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 const DEFAULT_LOGO="data:image/png;base64,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";
 let DB={
   team:'柔道チーム', feeAmount:3000,
@@ -2633,19 +2641,45 @@ function matchAnalysisHtml(bouts){
   const groups={'右':[],'左':[]};
   bouts.forEach(b=>{const g=boutOppGrip(b);if(g==='右')groups['右'].push(b);else if(g==='左')groups['左'].push(b);});
   const grad=`<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="anaGauge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3c982"/><stop offset="1" stop-color="#c8a44d"/></linearGradient></defs></svg>`;
+  const toggle=`<div class="ana-range" id="matchRangeToggle">`+
+    `<button id="mrAll" class="${matchRange==='all'?'on':''}" onclick="setMatchRange('all')">累計</button>`+
+    `<button id="mr1y" class="${matchRange==='1y'?'on':''}" onclick="setMatchRange('1y')">直近1年</button></div>`;
   return `<div class="ana-box">${grad}
-    <div class="ana-title">組手別 試合結果分析</div>
+    <div class="ana-head"><div class="ana-title">組手別 分析</div>${toggle}</div>
     ${gripSectionHtml('対 右組み',groups['右'])}
     ${gripSectionHtml('対 左組み',groups['左'])}
   </div>`;
 }
+let matchRange='all';          // 集計範囲：'all'=累計 / '1y'=直近1年
+let matchDetailSelfId=null;
+// 直近1年の開始日（今日の1年前）を 'YYYY-MM-DD' で返す
+function matchRangeCutoff(){
+  const d=new Date();d.setFullYear(d.getFullYear()-1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function setMatchRange(r){
+  matchRange=r;
+  renderMatchDetail();   // トグルは analysis 内で現在の選択状態で再生成される
+}
 function showMatchDetail(selfId){
-  const map=allBoutsBySelf();
-  const bs=(map[selfId]||[]).slice().sort((a,b)=>(b.schedDate||'').localeCompare(a.schedDate||''));
+  matchDetailSelfId=selfId;
+  matchRange='all';                       // 開くたびに「累計」に戻す
   const s=DB.students.find(x=>x.id===selfId);
   document.getElementById('matchDetailName').textContent=(s?s.name:'')+' の試合結果';
+  renderMatchDetail();
+  document.getElementById('matchMemberList').parentElement.style.display='none';
+  document.getElementById('matchDetailCard').style.display='block';
+}
+function renderMatchDetail(){
+  const selfId=matchDetailSelfId;if(!selfId)return;
+  const map=allBoutsBySelf();
+  let bs=(map[selfId]||[]).slice().sort((a,b)=>(b.schedDate||'').localeCompare(a.schedDate||''));
+  if(matchRange==='1y'){
+    const cut=matchRangeCutoff();
+    bs=bs.filter(b=>b.schedDate&&b.schedDate>=cut);   // 試合日が1年以内のみ
+  }
   document.getElementById('matchDetailAnalysis').innerHTML=matchAnalysisHtml(bs);
-  document.getElementById('matchDetailBody').innerHTML=bs.map(b=>{
+  document.getElementById('matchDetailBody').innerHTML= bs.length ? bs.map(b=>{
     const oppName=boutOppName(b);
     const oppExtra=b.oppIsMate?'<span class="mate-tag">同門</span>':(b.oppAffil?' / '+esc(b.oppAffil):'');
     const head=[b.schedDate?b.schedDate.replace(/-/g,'/'):'',b.schedName?esc(b.schedName):'',b.sheet].filter(Boolean).join('　');
@@ -2659,9 +2693,7 @@ function showMatchDetail(selfId){
         ${b.note?'<div class="bout-sub">'+esc(b.note)+'</div>':''}
       </div>
     </div>`;
-  }).join('');
-  document.getElementById('matchMemberList').parentElement.style.display='none';
-  document.getElementById('matchDetailCard').style.display='block';
+  }).join('') : '<div style="color:var(--muted);text-align:center;padding:16px 0;font-size:calc(14px*var(--fs,1))">直近1年の試合結果はありません</div>';
 }
 function closeMatchDetail(){
   const dc=document.getElementById('matchDetailCard');
