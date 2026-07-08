@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v99（Service Worker 案3：バージョン管理付きキャッシュ） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -450,6 +451,11 @@
 
   .toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:14px 22px;border-radius:30px;font-size:calc(16px*var(--fs,1));z-index:100;opacity:0;transition:opacity .25s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.3);}
   .toast.show{opacity:1;}
+  /* 更新あり バナー（下部タブの上に表示） */
+  .update-banner{position:fixed;left:12px;right:12px;bottom:calc(94px + env(safe-area-inset-bottom));z-index:30;background:var(--navy);color:#fff;border:2px solid var(--gold);border-radius:14px;padding:11px 12px;display:none;align-items:center;gap:10px;box-shadow:0 4px 18px rgba(0,0,0,.28);font-size:calc(14px*var(--fs,1));}
+  .update-banner .ub-text{flex:1;font-weight:700;line-height:1.4;}
+  .update-banner .ub-btn{background:var(--gold);color:#3a2b00;border:none;border-radius:10px;padding:8px 16px;font-weight:800;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .update-banner .ub-close{background:none;border:none;color:rgba(255,255,255,.75);font-size:22px;line-height:1;cursor:pointer;padding:0 4px;font-family:inherit;}
   .list-mini{font-size:calc(15px*var(--fs,1));color:var(--muted);margin-top:6px;}
   .del-x{background:none;border:none;color:var(--red);font-size:calc(22px*var(--fs,1));padding:6px;cursor:pointer;}
 
@@ -596,41 +602,56 @@
   .lock-cancel{margin-top:22px;background:none;border:none;color:rgba(255,255,255,.85);font-size:calc(16px*var(--fs,1));font-weight:700;font-family:inherit;cursor:pointer;text-decoration:underline;}
 </style>
 <script>
-/* ===== オフライン対応（PWA / Service Worker）===== */
+/* ===== オフライン対応（PWA / Service Worker・案3：バージョン管理付き）=====
+   外部 sw.js（リポジトリ直下）を唯一の登録先とする。
+   ・updateViaCache:'none' … sw.js 本体は常に最新を取得
+   ・起動ごと＋定期に update() で更新チェック
+   ・新版がインストールされたら「更新あり」バナーを表示。
+     ユーザーが「更新する」を押したときだけ skipWaiting → 有効化 →
+     controllerchange で再読込（勝手にリロードしない）。
+   ※ 反映の本体（HTMLはネットワーク優先／旧キャッシュ全削除）は sw.js 側に実装 */
 (function(){
   if(!('serviceWorker' in navigator))return;
-  // 自分自身(現在のHTML)をキャッシュするService Workerをインライン生成
-  const swCode = `
-    const CACHE='judo-app-cache-v1';
-    const SELF='` + location.pathname + `';
-    self.addEventListener('install', e=>{
-      self.skipWaiting();
-      e.waitUntil(caches.open(CACHE).then(c=>c.addAll([SELF])));
-    });
-    self.addEventListener('activate', e=>{
-      e.waitUntil(
-        caches.keys().then(keys=>Promise.all(
-          keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))
-        )).then(()=>self.clients.claim())
-      );
-    });
-    self.addEventListener('fetch', e=>{
-      if(e.request.method!=='GET')return;
-      e.respondWith(
-        fetch(e.request).then(res=>{
-          const copy=res.clone();
-          caches.open(CACHE).then(c=>c.put(e.request,copy));
-          return res;
-        }).catch(()=>caches.match(e.request).then(r=>r||caches.match(SELF)))
-      );
-    });
-  `;
-  try{
-    const blob=new Blob([swCode],{type:'application/javascript'});
-    const url=URL.createObjectURL(blob);
-    navigator.serviceWorker.register(url).catch(()=>{});
-  }catch(e){}
+  var refreshing=false;
+  var hadController=!!navigator.serviceWorker.controller; // 初回インストール判定
+  navigator.serviceWorker.addEventListener('controllerchange',function(){
+    if(refreshing)return;         // ループ防止
+    if(!hadController)return;     // 初回インストール（claim）では自動リロードしない
+    refreshing=true;
+    location.reload();            // ユーザーが更新を選んだ後にのみ発火
+  });
+  function offerUpdate(sw){
+    // 既存の制御SWがある＝更新（初回インストールではない）ときだけ案内
+    if(sw && sw.state==='installed' && navigator.serviceWorker.controller){
+      window.__swWaiting=sw;
+      showUpdateBanner();
+    }
+  }
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(function(reg){
+      try{reg.update();}catch(e){}
+      if(reg.waiting)offerUpdate(reg.waiting);
+      reg.addEventListener('updatefound',function(){
+        var sw=reg.installing;
+        if(!sw)return;
+        sw.addEventListener('statechange',function(){offerUpdate(sw);});
+      });
+      // 起動後も1時間ごとに更新チェック（軽量）
+      setInterval(function(){try{reg.update();}catch(e){}},60*60*1000);
+    }).catch(function(){});
+  });
 })();
+/* 「更新あり」バナーの操作（グローバル関数：onclickから呼ぶ） */
+function showUpdateBanner(){var b=document.getElementById('updateBanner');if(b)b.style.display='flex';}
+function dismissUpdate(){var b=document.getElementById('updateBanner');if(b)b.style.display='none';}
+function applyUpdate(){
+  var b=document.getElementById('updateBanner');if(b)b.style.display='none';
+  var sw=window.__swWaiting;
+  if(sw){ try{sw.postMessage({type:'SKIP_WAITING'});}catch(e){} }
+  else { location.reload(); return; }
+  // controllerchange が来ない環境向けのフォールバック
+  setTimeout(function(){ location.reload(); },1500);
+}
 </script>
 </head>
 <body>
@@ -905,7 +926,7 @@
       <h3 style="margin-top:0;color:var(--navy)">規約・アプリ情報</h3>
       <button class="btn ghost full" onclick="openModal('termsModal')">📄 利用規約を読む</button>
       <button class="btn ghost full" style="margin-top:10px" onclick="openModal('privacyModal')">🔒 プライバシーポリシーを読む</button>
-      <p class="list-mini" style="margin-top:12px;text-align:center;line-height:1.6">制作：AKIHIKO ITO<br>制定日：2026年7月5日</p>
+      <p class="list-mini" style="margin-top:12px;text-align:center;line-height:1.6">制作：AKIHIKO ITO<br>制定日：2026年7月5日<br><span id="appVerLabel" style="color:var(--muted)"></span></p>
     </div>
   </div>
 </section>
@@ -1419,8 +1440,15 @@
 
 <div class="toast" id="toast"></div>
 
+<div class="update-banner" id="updateBanner">
+  <span class="ub-text">新しいバージョンがあります</span>
+  <button class="ub-btn" onclick="applyUpdate()">更新する</button>
+  <button class="ub-close" onclick="dismissUpdate()" aria-label="閉じる">×</button>
+</div>
+
 <script>
 const STORE_KEY='judoTeamApp_v2';
+const APP_VERSION='v99'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 const DEFAULT_LOGO="data:image/png;base64,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";
 let DB={
   team:'柔道チーム', feeAmount:3000,
@@ -3047,6 +3075,7 @@ function renderSettings(){
   document.getElementById('teamNameInput').value=DB.team;
   renderThemePicker();renderFontPicker();
   renderLockSettings();
+  var vl=document.getElementById('appVerLabel');if(vl)vl.textContent='アプリ版 '+APP_VERSION;
 }
 function setSetView(v){
   const map={team:'setViewTeam',design:'setViewDesign',data:'setViewData',sec:'setViewSec',terms:'setViewTerms'};
@@ -3838,10 +3867,8 @@ if(lockEnabled&&lockCode){showLockScreen('unlock');}
     document.head.appendChild(link);
   }catch(e){}
 })();
-/* Service Worker 登録（https公開時のみ有効・完全オフライン対応） */
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
-}
+/* Service Worker 登録は上部（案3・バージョン管理付き）に一本化済み。
+   ここでの二重登録は競合の原因になるため撤去。 */
 </script>
 </body>
 </html>
