@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v118（仲間タブのアイコンを二人のシルエットに変更） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v119（お金タブ：その他収支へ改称・項目をタブ式で無制限に編集・期首残高の自動繰越） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -414,10 +414,13 @@
   .set-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
   .set-tabs button{flex:1 1 auto;min-height:44px;padding:8px 12px;font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;border-radius:10px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;white-space:nowrap;}
   .set-tabs button.on{background:var(--navy);color:#fff;}
-  /* 仲間の設定・よく使う設定モーダル：タブ切替で高さが変わらないよう固定＋ペイン内スクロール */
-  #feePresetModal .modal,#presetModal .modal{display:flex;flex-direction:column;height:min(88vh,760px);overflow:hidden;}
-  #feePresetModal>.modal>h3,#feePresetModal .set-tabs,#feePresetModal>.modal>.row,#presetModal>.modal>h3,#presetModal .set-tabs,#presetModal>.modal>.row{flex:0 0 auto;}
-  #feePresetModal .ms-scroll,#presetModal .ms-scroll{flex:1 1 auto;overflow-y:auto;min-height:0;margin:0 -2px 12px;padding:0 2px;}
+  /* 見出し行に補助ボタンを右寄せで並べる（記録モーダル等） */
+  .modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+  .modal-head h3{flex:1 1 auto;}
+  /* 仲間の設定・よく使う設定・項目編集モーダル：タブ切替で高さが変わらないよう固定＋ペイン内スクロール */
+  #feePresetModal .modal,#presetModal .modal,#cashCatModal .modal{display:flex;flex-direction:column;height:min(88vh,760px);overflow:hidden;}
+  #feePresetModal>.modal>h3,#feePresetModal .set-tabs,#feePresetModal>.modal>.row,#presetModal>.modal>h3,#presetModal .set-tabs,#presetModal>.modal>.row,#cashCatModal>.modal>h3,#cashCatModal .set-tabs,#cashCatModal>.modal>.row{flex:0 0 auto;}
+  #feePresetModal .ms-scroll,#presetModal .ms-scroll,#cashCatModal .ms-scroll{flex:1 1 auto;overflow-y:auto;min-height:0;margin:0 -2px 12px;padding:0 2px;}
   .matrix .mgrp-cell{position:sticky;left:0;background:#eef1f5;font-weight:800;font-size:calc(13px*var(--fs,1));text-align:left;padding:7px 10px;z-index:3;}
   .matrix .mgrp-n{display:inline-block;margin-left:8px;font-size:calc(11px*var(--fs,1));color:var(--muted);font-weight:700;}
   .mem-seg{display:inline-flex;border:2px solid var(--line);border-radius:10px;overflow:hidden;}
@@ -741,7 +744,7 @@ function applyUpdate(){
 <section id="screen-money" class="screen">
   <div class="view-toggle">
     <button id="moneyFeeTab" class="on" onclick="setMoneyView('fee')">月謝</button>
-    <button id="moneyCashTab" onclick="setMoneyView('cash')">入出金</button>
+    <button id="moneyCashTab" onclick="setMoneyView('cash')">その他収支</button>
   </div>
 
   <!-- 月謝ビュー -->
@@ -1536,7 +1539,10 @@ function applyUpdate(){
 <!-- 入出金モーダル -->
 <div class="modal-bg" id="cashModal">
   <div class="modal">
-    <h3 id="cashModalTitle">入出金を記録</h3>
+    <div class="modal-head">
+      <h3 id="cashModalTitle" style="margin:0">入出金を記録</h3>
+      <button type="button" class="btn ghost sm" onclick="openCashCatEditor()">項目を編集</button>
+    </div>
     <label class="fld">収入 / 支出</label>
     <div class="io-pick">
       <button id="ioIn" class="on" onclick="pickIO('in')">収入</button>
@@ -1544,8 +1550,7 @@ function applyUpdate(){
     </div>
     <label class="fld">項目</label>
     <div class="cat-pick" id="cashCatPick"></div>
-    <input type="text" id="cashCatFree" placeholder="その他（自由記入）" oninput="cashFreeInput()">
-    <div style="text-align:right;margin-top:6px"><button type="button" class="btn ghost sm" onclick="openCashCatEditor()">項目を編集</button></div>
+    <p class="list-mini" id="cashCatEmptyHint" style="display:none;margin:2px 0 0">項目がありません。「項目を編集」から追加してください。</p>
     <label class="fld"><span data-i18n="金額">金額</span>（<span class="cur-unit">¥</span>）</label>
     <input type="number" id="cashAmount" inputmode="numeric" placeholder="例：5000">
     <label class="fld">日付</label>
@@ -1563,12 +1568,29 @@ function applyUpdate(){
 <div class="modal-bg" id="cashCatModal">
   <div class="modal">
     <h3 style="margin-top:0">入出金の項目を編集</h3>
-    <p class="list-mini">収入・支出それぞれ5つまで登録できます。空欄のままでもOK。記録時はここで選ぶか、「その他（自由記入）」で自由に入力できます。</p>
-    <label class="fld">収入の項目（5つ）</label>
-    <div id="cashCatInInputs"></div>
-    <label class="fld">支出の項目（5つ）</label>
-    <div id="cashCatOutInputs"></div>
-    <div class="row" style="margin-top:14px">
+    <div class="set-tabs" id="ccTabs">
+      <button id="ccTabInB" class="on" onclick="setCashCatTab('in')">収入</button>
+      <button id="ccTabOutB" onclick="setCashCatTab('out')">支出</button>
+    </div>
+    <div class="ms-scroll">
+      <div id="ccPaneIn">
+        <div class="set-sec">
+          <div class="set-sec-title">収入の項目</div>
+          <div id="cashCatInInputs"></div>
+          <button class="btn ghost full" style="margin-top:4px" onclick="cashCatAdd('in')">＋ 追加</button>
+          <p class="set-note">入出金を記録するときにボタンで選べる候補です。いくつでも登録できます。</p>
+        </div>
+      </div>
+      <div id="ccPaneOut" style="display:none">
+        <div class="set-sec">
+          <div class="set-sec-title">支出の項目</div>
+          <div id="cashCatOutInputs"></div>
+          <button class="btn ghost full" style="margin-top:4px" onclick="cashCatAdd('out')">＋ 追加</button>
+          <p class="set-note">入出金を記録するときにボタンで選べる候補です。いくつでも登録できます。</p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
       <button class="btn ghost" onclick="closeModal('cashCatModal')">やめる</button>
       <button class="btn gold" onclick="saveCashCats()">保存する</button>
     </div>
@@ -1605,7 +1627,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v118'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v119'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -1691,6 +1713,7 @@ const DICT={
   '月謝':{en:'Monthly fee',fr:'Cotisation',pt:'Mensalidade'},'月謝額':{en:'Fee amount',fr:'Montant cotisation',pt:'Valor da mensalidade'},'月謝収入':{en:'Fee income',fr:'Cotisations perçues',pt:'Receita de mensalidades'},
   '月謝の金額':{en:'Fee amount',fr:'Montant de la cotisation',pt:'Valor da mensalidade'},'今月の月謝を調整':{en:'Adjust this month’s fee',fr:'Ajuster la cotisation du mois',pt:'Ajustar mensalidade do mês'},
   '入出金':{en:'Cash in/out',fr:'Encaissements',pt:'Entradas/Saídas'},'入出金を記録':{en:'Record cash',fr:'Enregistrer',pt:'Registrar'},'入出金の項目を編集':{en:'Edit cash items',fr:'Modifier les postes',pt:'Editar itens'},
+  'その他収支':{en:'Other in/out',fr:'Autres mouvements',pt:'Outros mov.'},'収入の項目':{en:'Income items',fr:'Postes de recettes',pt:'Itens de receita'},'支出の項目':{en:'Expense items',fr:'Postes de dépenses',pt:'Itens de despesa'},'項目名':{en:'Item name',fr:'Nom du poste',pt:'Nome do item'},'期首残高':{en:'Opening balance',fr:'Solde d’ouverture',pt:'Saldo inicial'},'期末残高（前年度繰越を含む累計）':{en:'Ending balance (incl. carryover)',fr:'Solde de clôture (report inclus)',pt:'Saldo final (inclui saldo anterior)'},'入出金を記録するときにボタンで選べる候補です。いくつでも登録できます。':{en:'These appear as buttons when recording. Add as many as you like.',fr:'Proposés comme boutons lors de l’enregistrement. Ajoutez-en autant que vous voulez.',pt:'Aparecem como botões ao registrar. Adicione quantos quiser.'},'項目がありません。「項目を編集」から追加してください。':{en:'No items yet. Add some from “Edit items”.',fr:'Aucun poste. Ajoutez-en via « Modifier les postes ».',pt:'Nenhum item. Adicione em “Editar itens”.'},
   '未納':{en:'Unpaid',fr:'Impayé',pt:'Não pago'},'支払済':{en:'Paid',fr:'Payé',pt:'Pago'},'集金済':{en:'Collected',fr:'Encaissé',pt:'Recebido'},
   '金額（円）':{en:'Amount (¥)',fr:'Montant (¥)',pt:'Valor (¥)'},'休会中の月謝（円）':{en:'Fee while on leave (¥)',fr:'Cotisation en pause (¥)',pt:'Mensalidade em pausa (¥)'},
   '金額':{en:'Amount',fr:'Montant',pt:'Valor'},'休会中の月謝':{en:'Fee while on leave',fr:'Cotisation en pause',pt:'Mensalidade em pausa'},
@@ -2070,6 +2093,14 @@ function load(){try{const s=localStorage.getItem(STORE_KEY);if(s)DB=Object.assig
   if(!DB.themeColor)DB.themeColor='indigo';
   if(!DB.fontScale)DB.fontScale='small';
   if(!DB.cashCats||!Array.isArray(DB.cashCats.in)||!Array.isArray(DB.cashCats.out))DB.cashCats={in:['寄付','参加費徴収','物販収入','補助金','その他収入'],out:['用具購入','会場費','遠征費','審査料','その他支出']};
+  // 既存の入出金記録で使われている項目（繰越金など・自由記入含む）を一覧へ取り込む（重複・空欄は除外）
+  if(Array.isArray(DB.cash)){
+    ['in','out'].forEach(io=>{ if(!Array.isArray(DB.cashCats[io]))DB.cashCats[io]=[]; });
+    DB.cash.forEach(c=>{
+      const io=(c&&c.io==='out')?'out':'in'; const cat=(c&&c.cat||'').trim();
+      if(cat && !DB.cashCats[io].includes(cat)) DB.cashCats[io].push(cat);
+    });
+  }
   if(!DB.matchPresets||typeof DB.matchPresets!=='object')DB.matchPresets={};
   if(!Array.isArray(DB.matchPresets.rounds))DB.matchPresets.rounds=['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
   if(!Array.isArray(DB.matchPresets.grades))DB.matchPresets.grades=['一本','技あり','有効','指導差','判定'];
@@ -2328,56 +2359,63 @@ function pickIO(io){
   pickedIO=io;
   document.getElementById('ioIn').classList.toggle('on',io==='in');
   document.getElementById('ioOut').classList.toggle('on',io==='out');
-  const f=document.getElementById('cashCatFree'); if(f)f.value='';
   pickedCashCat='';
   renderCashCatPick();
 }
 let pickedCashCat='';
 function renderCashCatPick(){
-  const cats=(DB.cashCats[pickedIO]||[]).filter(x=>x&&x.trim());
-  const free=document.getElementById('cashCatFree');
-  const freeVal=free?free.value.trim():'';
-  // 自由記入が空のときは、未選択なら先頭を既定選択
-  if(!freeVal && !cats.includes(pickedCashCat)) pickedCashCat=cats[0]||'';
-  document.getElementById('cashCatPick').innerHTML=cats.map(c=>`<button class="${(c===pickedCashCat&&!freeVal)?'on':''}" onclick="pickCashCat('${esc(c)}')">${esc(c)}</button>`).join('');
+  let cats=(DB.cashCats[pickedIO]||[]).filter(x=>x&&x.trim());
+  // 編集中などで一覧に無い項目が選ばれている場合も選べるように残す
+  if(pickedCashCat && !cats.includes(pickedCashCat)) cats=[pickedCashCat,...cats];
+  if(!cats.includes(pickedCashCat)) pickedCashCat=cats[0]||'';
+  document.getElementById('cashCatPick').innerHTML=cats.map(c=>`<button class="${c===pickedCashCat?'on':''}" onclick="pickCashCat('${esc(c)}')">${esc(c)}</button>`).join('');
+  const hint=document.getElementById('cashCatEmptyHint'); if(hint)hint.style.display=cats.length?'none':'';
 }
 function pickCashCat(c){
   pickedCashCat=c;
-  const f=document.getElementById('cashCatFree'); if(f)f.value='';
   renderCashCatPick();
 }
-function cashFreeInput(){
-  const v=document.getElementById('cashCatFree').value.trim();
-  pickedCashCat=v;        // 自由記入があればそれを項目にする
-  renderCashCatPick();
-}
+// ―― 項目編集（収入/支出タブ・可変リスト） ――
+let cashCatEdit=null;
 function openCashCatEditor(){
-  const mk=(arr,cls)=>{let h='';for(let i=0;i<5;i++){h+=`<input type="text" class="preset-inp ${cls}" value="${esc((arr&&arr[i])||'')}" placeholder="項目 ${i+1}">`;}return h;};
-  document.getElementById('cashCatInInputs').innerHTML=mk(DB.cashCats.in,'cashcat-in');
-  document.getElementById('cashCatOutInputs').innerHTML=mk(DB.cashCats.out,'cashcat-out');
+  const C=DB.cashCats||{in:[],out:[]};
+  cashCatEdit={in:[...(C.in||[])],out:[...(C.out||[])]};
+  renderCashCatEditors();
+  setCashCatTab(pickedIO||'in');
   openModal('cashCatModal');
 }
+function setCashCatTab(t){
+  const map={in:'ccPaneIn',out:'ccPaneOut'}, btns={in:'ccTabInB',out:'ccTabOutB'};
+  Object.keys(map).forEach(k=>{
+    const pane=document.getElementById(map[k]);if(pane)pane.style.display=(k===t)?'':'none';
+    const b=document.getElementById(btns[k]);if(b)b.classList.toggle('on',k===t);
+  });
+}
+function renderCashCatEditors(){
+  [['in','cashCatInInputs'],['out','cashCatOutInputs']].forEach(([k,id])=>{
+    const wrap=document.getElementById(id);if(!wrap)return;
+    wrap.innerHTML=cashCatEdit[k].map((v,i)=>`<div class="rank-erow"><input type="text" value="${esc(v)}" oninput="cashCatSet('${k}',${i},this.value)" placeholder="項目名"><button class="ebtn del" onclick="cashCatRemove('${k}',${i})">×</button></div>`).join('');
+  });
+}
+function cashCatSet(k,i,v){cashCatEdit[k][i]=v;}
+function cashCatAdd(k){cashCatEdit[k].push('');renderCashCatEditors();}
+function cashCatRemove(k,i){cashCatEdit[k].splice(i,1);renderCashCatEditors();}
 function saveCashCats(){
-  const get=cls=>[...document.querySelectorAll('.'+cls)].map(i=>i.value.trim()).filter(x=>x);
-  const ins=get('cashcat-in'), outs=get('cashcat-out');
-  DB.cashCats={in:ins.length?ins:['その他収入'], out:outs.length?outs:['その他支出']};
+  const clean=a=>a.map(x=>(x||'').trim()).filter(Boolean);
+  DB.cashCats={in:clean(cashCatEdit.in), out:clean(cashCatEdit.out)};
   save(); closeModal('cashCatModal');
-  // 現在選択が無くならないよう再描画
-  const f=document.getElementById('cashCatFree'); if(f)f.value='';
-  pickedCashCat='';
+  // 選択中の項目が消えたら先頭に寄せて再描画
+  if(!(DB.cashCats[pickedIO]||[]).includes(pickedCashCat)) pickedCashCat='';
   renderCashCatPick();
   toast('保存しました');
 }
 let editingCash=null;
 function openCashModal(id){
   editingCash=id||null;
-  const free=document.getElementById('cashCatFree'); if(free)free.value='';
   if(id){
     const c=DB.cash.find(x=>x.id===id);
     document.getElementById('cashModalTitle').textContent='記録を編集';
-    pickedIO=c.io;pickedCashCat=c.cat;
-    // 候補に無い項目は自由記入欄に入れる
-    if(free && !(DB.cashCats[c.io]||[]).includes(c.cat)) free.value=c.cat||'';
+    pickedIO=c.io;pickedCashCat=c.cat||'';
     document.getElementById('cashAmount').value=c.amount;
     document.getElementById('cashDate').value=c.date;
     document.getElementById('cashMemo').value=c.memo||'';
@@ -2397,8 +2435,7 @@ function saveCash(){
   const amount=Number(document.getElementById('cashAmount').value)||0;
   const date=document.getElementById('cashDate').value;
   const memo=document.getElementById('cashMemo').value.trim();
-  const free=document.getElementById('cashCatFree');
-  const cat=(free&&free.value.trim())?free.value.trim():pickedCashCat;
+  const cat=pickedCashCat;
   if(amount<=0){toast('金額を入れてください');return;}
   if(!date){toast('日付を選んでください');return;}
   if(editingCash){
@@ -3631,6 +3668,17 @@ function renderAttView(){
   dwrap.innerHTML=`<table class="matrix"><thead><tr><th class="namecell">練習日</th><th>出席</th><th>欠席</th><th>未回答</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 // ===== 会計 =====
+// 期首残高＝当該年度の開始月より前の、全収入（月謝・都度払い・その他収入）−全支出 の累計
+function openingBalanceFor(fy){
+  const first=fiscalMonths(fy)[0];
+  let bal=0;
+  const fees=DB.fees||{};
+  Object.keys(fees).forEach(ym=>{ if(ym<first){ const paid=fees[ym]||{}; Object.keys(paid).forEach(sid=>{const s=DB.students.find(x=>x.id===sid);bal+=paidAmount(paid[sid],s);}); }});
+  const vfs=DB.visitFees||{};
+  Object.keys(vfs).forEach(ym=>{ if(ym<first){ const vf=vfs[ym]||{}; Object.keys(vf).forEach(sid=>{bal+=(vf[sid]||0);}); }});
+  (DB.cash||[]).forEach(c=>{ const ym=(c.date||'').slice(0,7); if(ym && ym<first){ bal+=(c.io==='in'?1:-1)*(c.amount||0); }});
+  return bal;
+}
 function renderAccountView(){
   const fy=fiscalYear;
   const lbl=document.getElementById('acctFyLbl');
@@ -3674,8 +3722,12 @@ function renderAccountView(){
       <div class="acct-total"><span>支出合計</span><span>${money(outSum)}</span></div>
     </div>
     <div class="acct-net" style="color:${net>=0?'var(--green)':'var(--red)'}"><span>収支差引</span><span>${net>=0?'+':'−'}${money(Math.abs(net))}</span></div>`;
-  // 月別の収支＋残高
-  let bal=0; const balances=[];
+  // 月別の収支＋残高（期首残高＝前年度末までの累計から積み上げ）
+  const opening=openingBalanceFor(fy);
+  let bal=opening; const balances=[];
+  const openingRow=(opening!==0)
+    ? `<tr><td class="namecell" style="color:var(--muted)">期首残高</td><td>—</td><td>—</td><td>—</td><td class="cell-total">${money(opening)}</td></tr>`
+    : '';
   const mrows=months.map(ym=>{
     const inc=(feeByMonth[ym]||0)+(inByMonth[ym]||0);
     const exp=(outByMonth[ym]||0);
@@ -3683,11 +3735,11 @@ function renderAccountView(){
     const mm=Number(ym.split('-')[1]);
     return `<tr><td class="namecell">${mm}月</td><td>${money(inc)}</td><td>${money(exp)}</td><td style="color:${dnet>=0?'var(--green)':'var(--red)'}">${dnet>=0?'+':'−'}${money(Math.abs(dnet))}</td><td class="cell-total">${money(bal)}</td></tr>`;
   }).join('');
-  document.getElementById('acctMonthly').innerHTML=`<table class="matrix money"><thead><tr><th class="namecell">月</th><th>収入</th><th>支出</th><th>差引</th><th>残高</th></tr></thead><tbody>${mrows}</tbody></table>`;
+  document.getElementById('acctMonthly').innerHTML=`<table class="matrix money"><thead><tr><th class="namecell">月</th><th>収入</th><th>支出</th><th>差引</th><th>残高</th></tr></thead><tbody>${openingRow}${mrows}</tbody></table>`;
   // 残高推移グラフ（最新残高を大きく表示＋目盛り付き折れ線）
-  const finalBal=balances.length?balances[balances.length-1]:0;
+  const finalBal=balances.length?balances[balances.length-1]:opening;
   document.getElementById('acctBalanceChart').innerHTML=
-    `<div style="font-size:calc(13px*var(--fs,1));color:var(--muted);margin-bottom:2px">最新の残高（年度末までの累計）</div>`+
+    `<div style="font-size:calc(13px*var(--fs,1));color:var(--muted);margin-bottom:2px">${opening!==0?'期末残高（前年度繰越を含む累計）':'最新の残高（年度末までの累計）'}</div>`+
     `<div style="font-size:calc(24px*var(--fs,1));font-weight:800;color:#2e7d4f;margin-bottom:12px">${money(finalBal)}</div>`+
     balanceChartSVG(months.map(ym=>Number(ym.split('-')[1])),balances);
 }
