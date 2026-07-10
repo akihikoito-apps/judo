@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v119（お金タブ：その他収支へ改称・項目をタブ式で無制限に編集・期首残高の自動繰越） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v123（くり返し予定の削除・保存の確認モーダルを最前面に修正） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -167,6 +167,15 @@
   .color-pick{display:flex;flex-wrap:wrap;gap:10px;}
   .color-pick button{width:42px;height:42px;border-radius:50%;border:3px solid transparent;cursor:pointer;padding:0;}
   .color-pick button.on{border-color:var(--navy);box-shadow:0 0 0 2px #fff inset;}
+  .color-pick.sm{gap:8px;margin:2px 0 4px 2px;}
+  .color-pick.sm button{width:28px;height:28px;border-width:2px;}
+  .recur-box{margin-top:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:#faf7fc;}
+  .recur-opt{margin-top:4px;}
+  .wk-pick{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+  .wk-pick button{width:42px;min-height:42px;border-radius:10px;border:2px solid var(--line);background:#fff;color:var(--muted);font-weight:700;font-family:inherit;cursor:pointer;}
+  .wk-pick button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .type-erow{padding:6px 0 10px;border-bottom:1px dashed var(--line);margin-bottom:8px;}
+  .type-erow:last-child{border-bottom:none;}
   .btn.sm{min-height:44px;font-size:calc(15px*var(--fs,1));padding:0 14px;}
   .btn.danger{background:var(--red);}
 
@@ -467,6 +476,7 @@
   .modal-bg.show{display:flex;}
   /* 削除確認は常に最前面・予定編集はアーカイブより前面に */
   #confirmModal{z-index:70;}
+  #recurScopeModal{z-index:72;}
   #wazaModal{z-index:66;}
   #schedModal{z-index:55;}
   .modal{background:#fff;width:100%;max-width:680px;border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;}
@@ -840,18 +850,23 @@ function applyUpdate(){
       <div class="lbl" id="acctFyLbl"></div>
       <button onclick="changeFiscalYear(1)">›</button>
     </div>
-    <div class="card">
-      <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">会計まとめ</h3>
-      <div id="yearAccount"></div>
+    <div class="view-toggle">
+      <button id="acctViewYearB" class="on" onclick="setAccountView('year')">年度会計</button>
+      <button id="acctViewMonthlyB" onclick="setAccountView('monthly')">月別収支・残高</button>
     </div>
-    <div class="card">
-      <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">月別の収支</h3>
-      <div class="matrix-wrap" id="acctMonthly"></div>
-      <p class="list-mini" style="margin-top:8px">繰越金を含めた収入・支出と、月末時点の残高です。横にスクロールできます。</p>
+    <div id="acctPaneYear">
+      <div class="card">
+        <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">年度会計</h3>
+        <div id="yearAccount"></div>
+      </div>
     </div>
-    <div class="card">
-      <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">残高の推移</h3>
-      <div id="acctBalanceChart"></div>
+    <div id="acctPaneMonthly" style="display:none">
+      <div class="card">
+        <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">月別収支・残高</h3>
+        <div class="matrix-wrap" id="acctMonthly"></div>
+        <p class="list-mini" style="margin-top:8px">繰越金を含めた収入・支出と、月末時点の残高です。横にスクロールできます。</p>
+        <div id="acctBalanceChart" style="margin-top:16px"></div>
+      </div>
     </div>
   </div>
 
@@ -1331,13 +1346,52 @@ function applyUpdate(){
     <input type="text" id="schPlaceFree" placeholder="その他（自由記載）" style="margin-top:8px">
     <label class="fld">備考（任意）</label>
     <input type="text" id="schNote" placeholder="例：上履き持参／集合は15分前">
-    <label class="fld">色</label>
-    <div class="color-pick" id="schColorPick"></div>
+    <div id="recurCreateWrap">
+      <label class="fld" style="margin-top:16px">繰り返し登録</label>
+      <label class="toggle-line" style="margin-top:4px"><input type="checkbox" id="recurToggle" onchange="onRecurToggle()"><span>この予定をくり返して登録する</span></label>
+      <div id="recurPanel" style="display:none">
+        <div class="recur-box">
+          <label class="fld" style="margin-top:0">くり返し方</label>
+          <div class="io-pick">
+            <button type="button" id="ruDay" class="on" onclick="pickRecurUnit('day')">日おき</button>
+            <button type="button" id="ruWeek" onclick="pickRecurUnit('week')">曜日</button>
+            <button type="button" id="ruMonth" onclick="pickRecurUnit('month')">毎月</button>
+          </div>
+          <div id="ruDayOpt" class="recur-opt">
+            <label class="fld">間隔</label>
+            <div style="display:flex;align-items:center;gap:8px"><input type="number" id="recurEvery" min="1" value="1" inputmode="numeric" style="max-width:120px" oninput="renderRecurPreview()"><span>日おきに登録</span></div>
+          </div>
+          <div id="ruWeekOpt" class="recur-opt" style="display:none">
+            <label class="fld">くり返す曜日</label>
+            <div class="wk-pick" id="recurWeekdays"></div>
+          </div>
+          <div id="ruMonthOpt" class="recur-opt" style="display:none">
+            <p class="list-mini" id="recurMonthNote" style="margin-top:8px"></p>
+          </div>
+          <label class="fld">終了日（同じ年度内まで）</label>
+          <input type="date" id="recurEnd" onchange="renderRecurPreview()">
+          <p class="list-mini" id="recurFyNote" style="margin-top:6px"></p>
+          <p class="list-mini" id="recurPreview" style="margin-top:6px;font-weight:800;color:var(--navy)"></p>
+        </div>
+      </div>
+    </div>
+    <p class="list-mini" id="recurSeriesInfo" style="display:none;margin-top:14px;background:#f3eef8;border-radius:10px;padding:10px">🔁 この予定はくり返し登録の一部です。保存・削除のときに「この予定だけ」か「この予定以降すべて」を選べます。</p>
     <div class="row">
       <button class="btn ghost" onclick="closeModal('schedModal')">やめる</button>
       <button class="btn gold" onclick="saveSched()">保存する</button>
     </div>
     <button class="btn del-full" id="schDeleteBtn" onclick="deleteSchedFromModal()">この予定を削除する</button>
+  </div>
+</div>
+
+<!-- くり返し予定：範囲選択モーダル（編集・削除共通） -->
+<div class="modal-bg" id="recurScopeModal">
+  <div class="modal">
+    <h3 id="recurScopeTitle">くり返し予定</h3>
+    <p class="list-mini" id="recurScopeDesc" style="margin-bottom:14px"></p>
+    <button class="btn ghost full" style="margin-bottom:10px" onclick="applyRecurScope('one')">この予定だけ</button>
+    <button class="btn full" id="recurScopeFollowBtn" style="margin-bottom:14px" onclick="applyRecurScope('following')">この予定以降すべて</button>
+    <button class="btn ghost full" onclick="closeModal('recurScopeModal')">やめる</button>
   </div>
 </div>
 
@@ -1356,7 +1410,7 @@ function applyUpdate(){
           <div class="set-sec-title">種類</div>
           <div id="presetTypes"></div>
           <button class="btn ghost full" style="margin-top:4px" onclick="presetAdd('types')">＋ 追加</button>
-          <p class="set-note">予定を追加するときにボタンで選べる候補です。いくつでも登録できます。</p>
+          <p class="set-note">予定を追加するときにボタンで選べる候補です。種類ごとに色を設定でき、予定はその色で表示されます。いくつでも登録できます。<br>※「その他（自由記載）」で入力した予定は<b>グレー</b>で表示されます。</p>
         </div>
       </div>
       <div id="psPaneTime" style="display:none">
@@ -1627,7 +1681,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v119'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v123'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -1726,7 +1780,7 @@ const DICT={
   '表示される通貨記号が変わるだけです。金額の数値はそのままで、為替の換算は行いません。':{en:'Only the displayed currency symbol changes. Amounts stay the same — no exchange-rate conversion is applied.',fr:'Seul le symbole monétaire affiché change. Les montants restent identiques — aucune conversion de taux de change.',pt:'Apenas o símbolo de moeda exibido muda. Os valores permanecem iguais — sem conversão de câmbio.'},
   'お金の単位を変更しました':{en:'Currency changed',fr:'Devise modifiée',pt:'Moeda alterada'},
   '月別の収支':{en:'Monthly balance',fr:'Bilan mensuel',pt:'Balanço mensal'},'残高の推移':{en:'Balance trend',fr:'Évolution du solde',pt:'Evolução do saldo'},
-  '会計まとめ':{en:'Accounting summary',fr:'Résumé comptable',pt:'Resumo financeiro'},'収入 / 支出':{en:'Income / Expense',fr:'Recettes / Dépenses',pt:'Receitas / Despesas'},
+  '会計まとめ':{en:'Accounting summary',fr:'Résumé comptable',pt:'Resumo financeiro'},'年度会計':{en:'Yearly accounts',fr:'Comptes annuels',pt:'Contas anuais'},'月別収支・残高':{en:'Monthly & balance',fr:'Mensuel & solde',pt:'Mensal e saldo'},'収入 / 支出':{en:'Income / Expense',fr:'Recettes / Dépenses',pt:'Receitas / Despesas'},
   '最新の残高（年度末までの累計）':{en:'Latest balance (cumulative to year-end)',fr:'Solde actuel (cumul à fin d’exercice)',pt:'Saldo atual (acumulado até o fim do ano)'},
   '収入の項目（5つ）':{en:'Income items (up to 5)',fr:'Postes de recettes (5)',pt:'Itens de receita (5)'},'支出の項目（5つ）':{en:'Expense items (up to 5)',fr:'Postes de dépenses (5)',pt:'Itens de despesa (5)'},
   // 仲間・情報項目
@@ -2081,11 +2135,19 @@ const SEX_COLOR={男性:'#2d4373',女性:'#c0392b',その他:'#7d3c98'};
 const BADGE_COLOR={練習:'#2d4373',大会:'#c0392b',イベント:'#1a8c8c',昇級審査:'#d68910',合宿:'#2e7d4f',休み:'#9aa0a6',その他:'#6b6b6b'};
 const SCHED_COLORS=['#2d4373','#c0392b','#1a8c8c','#d68910','#2e7d4f','#7d3c98','#1a2b4a','#b8860b'];
 const SCHED_GRAY='#6b6b6b';
+// 予定の色は「種類」に紐づく。登録済みの種類はその色、未登録・自由記載はグレー
+function typeColor(name){
+  const tc=(DB.schedPresets&&DB.schedPresets.typeColors)||{};
+  if(name && tc[name]) return tc[name];
+  return SCHED_GRAY;
+}
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}}
 function load(){try{const s=localStorage.getItem(STORE_KEY);if(s)DB=Object.assign(DB,JSON.parse(s));}catch(e){}
   if(!DB.schedPresets)DB.schedPresets={types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['市民体育館','〇〇道場','','']};
+  if(!DB.schedPresets.typeColors||typeof DB.schedPresets.typeColors!=='object')DB.schedPresets.typeColors={};
+  (DB.schedPresets.types||[]).forEach((n,idx)=>{ if(n&&!DB.schedPresets.typeColors[n]) DB.schedPresets.typeColors[n]=BADGE_COLOR[n]||SCHED_COLORS[idx%SCHED_COLORS.length]; });
   if(!DB.feePresets)DB.feePresets=[2000,3000,0,0];
   if(!DB.feeOverrides)DB.feeOverrides={};
   if(typeof DB.perVisitFee!=='number'||DB.perVisitFee<0)DB.perVisitFee=0;
@@ -2487,12 +2549,15 @@ function updateSchedWeek(){
   const v=document.getElementById('schDate').value;
   const el=document.getElementById('schDateWeek');
   if(v){const d=new Date(v+'T00:00');el.textContent=`（${WEEK[d.getDay()]}）`;}else{el.textContent='';}
+  if(typeof refreshRecurForDate==='function') refreshRecurForDate();
 }
 // 種類・時間・場所のプリセットボタン描画（手入力欄と連動）
 function renderSchedPicks(){
   const P=DB.schedPresets;
   const mk=(arr,picked,fn)=>arr.filter(x=>x&&x.trim()).map(x=>`<button class="${x===picked?'on':''}" onclick="${fn}('${esc(x)}')">${esc(x)}</button>`).join('');
-  document.getElementById('schTypePick').innerHTML=mk(P.types,pickedSchType,'pickSchType');
+  // 種類は登録色を左帯で表示（色が種類に紐づくことを可視化）
+  const mkType=arr=>arr.filter(x=>x&&x.trim()).map(x=>`<button class="${x===pickedSchType?'on':''}" style="border-left:7px solid ${typeColor(x)}" onclick="pickSchType('${esc(x)}')">${esc(x)}</button>`).join('');
+  document.getElementById('schTypePick').innerHTML=mkType(P.types);
   document.getElementById('schTimePick').innerHTML=mk(P.times,pickedSchTime,'pickSchTime');
   document.getElementById('schPlacePick').innerHTML=mk(P.places,pickedSchPlace,'pickSchPlace');
   // プリセット外の値は手入力欄に表示
@@ -2506,11 +2571,121 @@ function renderSchedPicks(){
 function pickSchType(v){pickedSchType=v;if(!showMatchTouched){pickedShowMatch=/試合|大会/.test(v);renderShowMatchPick();}renderSchedPicks();}
 function pickSchTime(v){pickedSchTime=v;renderSchedPicks();}
 function pickSchPlace(v){pickedSchPlace=v;renderSchedPicks();}
-let pickedSchColor=SCHED_COLORS[0];
-function renderSchColorPick(){
-  document.getElementById('schColorPick').innerHTML=SCHED_COLORS.map(c=>`<button class="${c===pickedSchColor?'on':''}" style="background:${c}" onclick="pickSchColor('${c}')"></button>`).join('');
+// ===== くり返し登録 =====
+let pendingSchedEdit=null, recurScopeMode='edit', recurUnit='day', recurWeekdaysSel=[];
+function pad2(n){return String(n).padStart(2,'0');}
+function isoOf(d){return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
+function fyEndDateOf(dateStr){
+  const y=+dateStr.slice(0,4), m=+dateStr.slice(5,7), fy=fyOf(y,m), s=fyStart();
+  const end=new Date(fy+1, s-1, 1); end.setDate(end.getDate()-1); return end;
 }
-function pickSchColor(c){pickedSchColor=c;renderSchColorPick();}
+function getRecurCfg(){
+  return {unit:recurUnit, every:document.getElementById('recurEvery').value, weekdays:recurWeekdaysSel.slice(), end:document.getElementById('recurEnd').value};
+}
+// 設定に従い、ベース日〜終了日（同一年度内）の登録日リストを生成
+function genRecurDates(baseISO,cfg){
+  const start=new Date(baseISO+'T00:00'); const fyEnd=fyEndDateOf(baseISO);
+  let end=cfg.end?new Date(cfg.end+'T00:00'):fyEnd;
+  if(end>fyEnd)end=fyEnd; if(end<start)end=new Date(start);
+  const out=[]; let guard=0;
+  if(cfg.unit==='day'){
+    const n=Math.max(1,parseInt(cfg.every,10)||1);
+    for(let d=new Date(start); d<=end && guard<3000; d.setDate(d.getDate()+n),guard++) out.push(isoOf(d));
+  }else if(cfg.unit==='week'){
+    const set=new Set((cfg.weekdays&&cfg.weekdays.length)?cfg.weekdays:[start.getDay()]);
+    for(let d=new Date(start); d<=end && guard<3000; d.setDate(d.getDate()+1),guard++){ if(set.has(d.getDay())) out.push(isoOf(d)); }
+  }else{
+    const dom=start.getDate(); let y=start.getFullYear(), mo=start.getMonth();
+    while(guard<600){ guard++;
+      const cand=new Date(y,mo,dom);
+      if(cand.getMonth()===mo && cand>=start && cand<=end) out.push(isoOf(cand));
+      mo++; if(mo>11){mo=0;y++;}
+      if(new Date(y,mo,1)>end) break;
+    }
+  }
+  if(!out.includes(baseISO)) out.push(baseISO);
+  return [...new Set(out)].sort();
+}
+function initRecurDefaults(){
+  recurUnit='day';
+  const baseISO=document.getElementById('schDate').value||todayStr();
+  document.getElementById('recurEvery').value='1';
+  recurWeekdaysSel=[new Date(baseISO+'T00:00').getDay()];
+  renderRecurWeekdays();
+  pickRecurUnit('day');
+  refreshRecurForDate();
+}
+function refreshRecurForDate(){
+  const rt=document.getElementById('recurToggle');
+  if(!rt||!rt.checked)return;
+  const baseISO=document.getElementById('schDate').value; if(!baseISO)return;
+  const fyEndISO=isoOf(fyEndDateOf(baseISO));
+  const re=document.getElementById('recurEnd');
+  re.min=baseISO; re.max=fyEndISO;
+  if(!re.value || re.value>fyEndISO || re.value<baseISO) re.value=fyEndISO;
+  document.getElementById('recurFyNote').textContent=`※ ${schedFY(baseISO)}年度（〜${fyEndISO.replace(/-/g,'/')}）まで登録できます。`;
+  if(recurUnit==='month') document.getElementById('recurMonthNote').textContent=`毎月 ${(+baseISO.slice(8,10))}日 に登録します。その日が無い月はスキップします。`;
+  renderRecurPreview();
+}
+function onRecurToggle(){
+  const on=document.getElementById('recurToggle').checked;
+  document.getElementById('recurPanel').style.display=on?'block':'none';
+  if(on) initRecurDefaults();
+}
+function pickRecurUnit(u){
+  recurUnit=u;
+  document.getElementById('ruDay').classList.toggle('on',u==='day');
+  document.getElementById('ruWeek').classList.toggle('on',u==='week');
+  document.getElementById('ruMonth').classList.toggle('on',u==='month');
+  document.getElementById('ruDayOpt').style.display=u==='day'?'block':'none';
+  document.getElementById('ruWeekOpt').style.display=u==='week'?'block':'none';
+  document.getElementById('ruMonthOpt').style.display=u==='month'?'block':'none';
+  if(u==='month'){const b=document.getElementById('schDate').value||todayStr();document.getElementById('recurMonthNote').textContent=`毎月 ${(+b.slice(8,10))}日 に登録します。その日が無い月はスキップします。`;}
+  renderRecurPreview();
+}
+function renderRecurWeekdays(){
+  document.getElementById('recurWeekdays').innerHTML=WEEK.map((w,i)=>`<button type="button" class="${recurWeekdaysSel.includes(i)?'on':''}" onclick="toggleRecurWeekday(${i})">${w}</button>`).join('');
+}
+function toggleRecurWeekday(i){
+  const k=recurWeekdaysSel.indexOf(i);
+  if(k>=0)recurWeekdaysSel.splice(k,1); else recurWeekdaysSel.push(i);
+  renderRecurWeekdays(); renderRecurPreview();
+}
+function renderRecurPreview(){
+  const baseISO=document.getElementById('schDate').value; const el=document.getElementById('recurPreview');
+  if(!el)return; if(!baseISO){el.textContent='';return;}
+  const dates=genRecurDates(baseISO,getRecurCfg());
+  el.textContent=`この設定で ${dates.length}件 登録されます（同じ年度内）。`;
+}
+function openRecurScope(mode){
+  recurScopeMode=mode;
+  document.getElementById('recurScopeTitle').textContent=(mode==='delete')?'くり返し予定の削除':'くり返し予定の保存';
+  document.getElementById('recurScopeDesc').textContent=(mode==='delete')
+    ?'この予定はくり返し登録の一部です。どこまで削除しますか？'
+    :'この予定はくり返し登録の一部です。変更をどこまで反映しますか？';
+  openModal('recurScopeModal');
+}
+function applyRecurScope(scope){
+  const s=DB.schedule.find(x=>x.id===editingSched);
+  if(!s){closeModal('recurScopeModal');return;}
+  if(recurScopeMode==='delete'){
+    const sid=s.seriesId, from=s.date, id=s.id;
+    if(scope==='one') DB.schedule=DB.schedule.filter(x=>x.id!==id);
+    else DB.schedule=DB.schedule.filter(x=>!(x.seriesId===sid && x.date>=from));
+    save();closeModal('recurScopeModal');closeModal('schedModal');renderSched();toast('削除しました');
+    return;
+  }
+  const p=pendingSchedEdit; if(!p){closeModal('recurScopeModal');return;}
+  if(scope==='one'){
+    Object.assign(s,{name:p.name,title:p.title,date:p.date,time:p.time,place:p.place,note:p.note,showMatch:p.showMatch});
+  }else{
+    const sid=s.seriesId, from=p.origDate;
+    DB.schedule.forEach(x=>{ if(x.seriesId===sid && x.date>=from){ x.name=p.name;x.title=p.title;x.time=p.time;x.place=p.place;x.note=p.note;x.showMatch=p.showMatch; } });
+    s.date=p.date;
+  }
+  pendingSchedEdit=null; schedYear=schedFY(s.date);
+  save();closeModal('recurScopeModal');closeModal('schedModal');renderSched();toast('保存しました');
+}
 function openSchedModal(id){
   editingSched=id||null;
   if(id){
@@ -2522,7 +2697,6 @@ function openSchedModal(id){
     pickedSchTime=s.time||'';
     pickedSchPlace=(s.place!==undefined)?s.place:'';
     document.getElementById('schNote').value=s.note||'';
-    pickedSchColor=s.color||SCHED_COLORS[0];
     if(s.showMatch===true||s.showMatch===false){pickedShowMatch=s.showMatch;showMatchTouched=true;}
     else{pickedShowMatch=/試合|大会/.test(s.name||'');showMatchTouched=false;}
   }else{
@@ -2533,12 +2707,16 @@ function openSchedModal(id){
     pickedSchTime='';
     pickedSchPlace='';
     document.getElementById('schNote').value='';
-    pickedSchColor=SCHED_COLORS[0];
     pickedShowMatch=/試合|大会/.test(pickedSchType);showMatchTouched=false;
   }
+  // くり返しUIの初期化・系列判定
+  const rt=document.getElementById('recurToggle'); if(rt)rt.checked=false;
+  document.getElementById('recurPanel').style.display='none';
+  const isSeries=!!(id && (DB.schedule.find(x=>x.id===id)||{}).seriesId);
+  document.getElementById('recurCreateWrap').style.display=isSeries?'none':'block';
+  document.getElementById('recurSeriesInfo').style.display=isSeries?'block':'none';
   renderShowMatchPick();
   renderSchedPicks();
-  renderSchColorPick();
   updateSchedWeek();
   document.getElementById('schDeleteBtn').style.display=editingSched?'block':'none';
   openModal('schedModal');
@@ -2554,15 +2732,32 @@ function saveSched(){
   const placeFree=document.getElementById('schPlaceFree').value.trim();
   const place=placeFree||pickedSchPlace;
   const note=document.getElementById('schNote').value.trim();
-  const color=pickedSchColor||SCHED_COLORS[0];
   if(!date){toast('日付を選んでください');return;}
   if(!name){toast('種類を選んでください');return;}
+  const fields={name,title,date,time,place,note,showMatch:pickedShowMatch};
+  // ① 既存のくり返し予定の編集 → 反映範囲を確認
   if(editingSched){
     const s=DB.schedule.find(x=>x.id===editingSched);
-    s.name=name;s.title=title;s.date=date;s.time=time;s.place=place;s.note=note;s.color=color;s.showMatch=pickedShowMatch;
-  }else{
-    DB.schedule.push({id:uid(),name,title,date,time,place,note,color,showMatch:pickedShowMatch});
+    if(s&&s.seriesId){ pendingSchedEdit=Object.assign({origDate:s.date},fields); openRecurScope('edit'); return; }
   }
+  // ② くり返し登録（新規／単発を系列化）
+  const rt=document.getElementById('recurToggle');
+  const creating=document.getElementById('recurCreateWrap').style.display!=='none';
+  if(rt&&rt.checked&&creating){
+    const dates=genRecurDates(date,getRecurCfg());
+    const seriesId=uid(); let made=0;
+    dates.forEach(dt=>{
+      if(editingSched&&dt===date){ const s=DB.schedule.find(x=>x.id===editingSched); Object.assign(s,fields,{date:dt,seriesId}); }
+      else{ DB.schedule.push(Object.assign({id:uid(),seriesId},fields,{date:dt})); }
+      made++;
+    });
+    schedYear=schedFY(date);
+    save();closeModal('schedModal');renderSched();toast(`${made}件の予定を登録しました`);
+    return;
+  }
+  // ③ 通常の単発保存
+  if(editingSched){ const s=DB.schedule.find(x=>x.id===editingSched); Object.assign(s,fields); }
+  else{ DB.schedule.push(Object.assign({id:uid()},fields)); }
   schedYear=schedFY(date);
   save();closeModal('schedModal');renderSched();toast(editingSched?'予定を更新しました':'予定を追加しました');
 }
@@ -2570,6 +2765,7 @@ function deleteSchedFromModal(){
   if(!editingSched)return;
   const s=DB.schedule.find(x=>x.id===editingSched);
   if(!s)return;
+  if(s.seriesId){ openRecurScope('delete'); return; }
   const id=editingSched;
   askConfirm(`「${esc(s.name)}（${s.date.replace(/-/g,'/')}）」を削除します。この操作は取り消せません。`,()=>{
     DB.schedule=DB.schedule.filter(x=>x.id!==id);
@@ -3415,7 +3611,12 @@ function runMatchSearch(){
 let presetEdit=null;
 function openPresetModal(){
   const P=DB.schedPresets||{types:[],times:[],places:[]};
-  presetEdit={types:[...(P.types||[])],times:[...(P.times||[])],places:[...(P.places||[])]};
+  const tc=P.typeColors||{};
+  presetEdit={
+    types:(P.types||[]).map((n,idx)=>({name:n, color:tc[n]||SCHED_COLORS[idx%SCHED_COLORS.length]})),
+    times:[...(P.times||[])],
+    places:[...(P.places||[])]
+  };
   renderPresetEditors();
   setPresetTab('type');
   openModal('presetModal');
@@ -3429,18 +3630,32 @@ function setPresetTab(t){
   });
 }
 function renderPresetEditors(){
-  const conf=[['types','presetTypes','種類'],['times','presetTimes','開始時間'],['places','presetPlaces','場所']];
-  conf.forEach(([k,id,ph])=>{
+  // 種類：名前＋色スウォッチ
+  const tw=document.getElementById('presetTypes');
+  if(tw){
+    tw.innerHTML=presetEdit.types.map((o,i)=>{
+      const sw=SCHED_COLORS.map(c=>`<button type="button" class="${c===o.color?'on':''}" style="background:${c}" onclick="presetSetColor(${i},'${c}')"></button>`).join('');
+      return `<div class="type-erow">
+        <div class="rank-erow"><input type="text" value="${esc(o.name)}" oninput="presetSet('types',${i},this.value)" placeholder="${T('種類')}"><button class="ebtn del" onclick="presetRemove('types',${i})">×</button></div>
+        <div class="color-pick sm">${sw}</div>
+      </div>`;
+    }).join('');
+  }
+  // 開始時間・場所：従来どおり
+  [['times','presetTimes','開始時間'],['places','presetPlaces','場所']].forEach(([k,id,ph])=>{
     const wrap=document.getElementById(id);if(!wrap)return;
     wrap.innerHTML=presetEdit[k].map((v,i)=>`<div class="rank-erow"><input type="text" value="${esc(v)}" oninput="presetSet('${k}',${i},this.value)" placeholder="${T(ph)}"><button class="ebtn del" onclick="presetRemove('${k}',${i})">×</button></div>`).join('');
   });
 }
-function presetSet(k,i,v){presetEdit[k][i]=v;}
-function presetAdd(k){presetEdit[k].push('');renderPresetEditors();}
+function presetSet(k,i,v){ if(k==='types'){presetEdit.types[i].name=v;} else {presetEdit[k][i]=v;} }
+function presetSetColor(i,c){presetEdit.types[i].color=c;renderPresetEditors();}
+function presetAdd(k){ if(k==='types'){presetEdit.types.push({name:'',color:SCHED_COLORS[presetEdit.types.length%SCHED_COLORS.length]});} else {presetEdit[k].push('');} renderPresetEditors(); }
 function presetRemove(k,i){presetEdit[k].splice(i,1);renderPresetEditors();}
 function savePresets(){
   const clean=a=>a.map(x=>(x||'').trim()).filter(Boolean);
-  DB.schedPresets={types:clean(presetEdit.types),times:clean(presetEdit.times),places:clean(presetEdit.places)};
+  const types=[], typeColors={};
+  presetEdit.types.forEach(o=>{const n=(o.name||'').trim(); if(n){types.push(n); typeColors[n]=o.color||SCHED_GRAY;}});
+  DB.schedPresets={types, typeColors, times:clean(presetEdit.times), places:clean(presetEdit.places)};
   save();closeModal('presetModal');toast(T('保存しました'));
 }
 function openFeePresetModal(){
@@ -3560,7 +3775,7 @@ function changeSchedYear(d){schedYear+=d;renderSched();}
 function schedCardHtml(i){
   const d=new Date(i.date+'T00:00');
   const place=(i.place!==undefined)?i.place:(i.meta||'').replace(i.time||'','').trim();
-  const col=i.color||BADGE_COLOR[i.name]||'#2d4373';
+  const col=typeColor(i.name);
   const noteHtml=i.note?`<span class="tl-note">${esc(i.note)}</span>`:'';
   const hasResult=DB.matchResults[i.id]&&((DB.matchResults[i.id].individual||[]).length||(DB.matchResults[i.id].team&&(DB.matchResults[i.id].team.cards||[]).length));
   const showMatch=(i.showMatch===true||i.showMatch===false)?i.showMatch:/試合|大会/.test(i.name||'');
@@ -3615,6 +3830,16 @@ function setListView(v){
   renderList();
 }
 function changeFiscalYear(d){fiscalYear+=d;renderList();}
+let accountView='year';
+function setAccountView(v){
+  accountView=v;
+  const py=document.getElementById('acctPaneYear'), pm=document.getElementById('acctPaneMonthly');
+  if(py)py.style.display=(v==='year')?'':'none';
+  if(pm)pm.style.display=(v==='monthly')?'':'none';
+  const by=document.getElementById('acctViewYearB'), bm=document.getElementById('acctViewMonthlyB');
+  if(by)by.classList.toggle('on',v==='year');
+  if(bm)bm.classList.toggle('on',v==='monthly');
+}
 // 年度内の YYYY-MM 一覧（4月〜翌3月）
 function fiscalMonths(fy){const s=fyStart();const arr=[];for(let i=0;i<12;i++){const mo0=(s-1)+i;const y=fy+Math.floor(mo0/12);const mm=(mo0%12)+1;arr.push(`${y}-${String(mm).padStart(2,'0')}`);}return arr;}
 function renderList(){
@@ -4652,6 +4877,8 @@ function doRestore(){
   if(!d){closeModal('confirmModal');return;}
   DB=Object.assign({attendance:{},fees:{},schedule:[],students:[],places:[],metaHistory:[],logo:DEFAULT_LOGO,cash:[],cashCats:{in:['寄付','参加費徴収','物販収入','補助金','その他収入'],out:['用具購入','会場費','遠征費','審査料','その他支出']},schedPresets:{types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['市民体育館','〇〇道場','','']},feePresets:[2000,3000,0,0]},d);
   if(!DB.schedPresets)DB.schedPresets={types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['市民体育館','〇〇道場','','']};
+  if(!DB.schedPresets.typeColors||typeof DB.schedPresets.typeColors!=='object')DB.schedPresets.typeColors={};
+  (DB.schedPresets.types||[]).forEach((n,idx)=>{ if(n&&!DB.schedPresets.typeColors[n]) DB.schedPresets.typeColors[n]=BADGE_COLOR[n]||SCHED_COLORS[idx%SCHED_COLORS.length]; });
   if(!DB.feePresets)DB.feePresets=[2000,3000,0,0];
   if(!DB.feeOverrides)DB.feeOverrides={};
   if(typeof DB.perVisitFee!=='number'||DB.perVisitFee<0)DB.perVisitFee=0;
