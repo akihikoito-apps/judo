@@ -1,47 +1,53 @@
-/* 柔道チーム管理アプリ — オフライン対応 Service Worker
-   初回オンライン表示時にアプリ本体をキャッシュし、以後はオフラインでも開けます。 */
-const CACHE = 'judo-app-cache-v1';
+/* My道場 Service Worker
+   VERSION は index.html の APP_VERSION と必ず揃える。
+   方針：HTMLはネットワーク優先／更新は「更新する」を押したときだけ（自動リロードしない）／
+        有効化時に旧バージョンのキャッシュを全削除。 */
+const VERSION = 'v127';
+const CACHE = 'mydojo-' + VERSION;
+const CORE = ['./', 'index.html', 'sw.js', 'terms.html', 'privacy.html'];
 
+// インストール：主要ファイルを事前キャッシュ（skipWaitingはしない＝待機して更新バナーを出す）
 self.addEventListener('install', (e) => {
-  // すぐ有効化
-  self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE).then((c) => Promise.allSettled(CORE.map((u) => c.add(u))))
+  );
 });
 
+// ユーザーが「更新する」を押したときだけ有効化
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
+// 有効化：このバージョン以外のキャッシュを全削除
 self.addEventListener('activate', (e) => {
   e.waitUntil((async () => {
-    // 古いキャッシュを掃除
     const keys = await caches.keys();
-    await Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)));
+    await Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)));
     await self.clients.claim();
   })());
 });
 
-// GETリクエストはキャッシュ優先＋裏で更新（stale-while-revalidate）
+// 取得：HTML/ナビゲーションはネットワーク優先、その他はキャッシュ優先
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
-
-  e.respondWith((async () => {
-    const cache = await caches.open(CACHE);
-    const cached = await cache.match(req, { ignoreSearch: true });
-
-    const network = fetch(req).then((resp) => {
-      // 正常応答のみ保存（同一オリジン）
-      if (resp && resp.status === 200 && resp.type === 'basic') {
-        cache.put(req, resp.clone()).catch(() => {});
-      }
-      return resp;
-    }).catch(() => null);
-
-    // キャッシュがあれば即返し、なければネットワーク、両方ダメなら最後にナビゲーションのキャッシュ
-    if (cached) return cached;
-    const net = await network;
-    if (net) return net;
-    // ページ遷移要求のオフライン時フォールバック
-    if (req.mode === 'navigate') {
-      const fallback = await cache.match('./') || await cache.match('index.html');
-      if (fallback) return fallback;
-    }
-    return new Response('オフラインです', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
-  })());
+  const isHTML = req.mode === 'navigate' ||
+    (req.headers.get('accept') || '').includes('text/html');
+  if (isHTML) {
+    e.respondWith(
+      fetch(req).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        return res;
+      }).catch(() => caches.match(req).then((m) => m || caches.match('index.html')))
+    );
+  } else {
+    e.respondWith(
+      caches.match(req).then((m) => m || fetch(req).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        return res;
+      }).catch(() => m))
+    );
+  }
 });
