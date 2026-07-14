@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v132（多言語対応の抜けを補修：試合分析・決まり技レーダー・集計出欠のUIを英/仏/葡へ翻訳。矢印分離で区分名・月名も翻訳） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v133（UX一括改善：試合分析を最上段表示／仲間・出欠・お金・試合一覧を属性で畳込み／予定を月で畳込み＋試合のみ表示／月別収支に当月まで/年度全体トグル／レーダーlabel多言語折返し／決まり技①種類に枠・高さ固定） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -230,9 +230,11 @@
   }
   .cat-pick button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
   /* 決まり技ピッカー：種類タブ（丸型・紺）と技名チップ（角丸・緑）で見た目を分離 */
+  #wazaGroupTabs{padding:10px;background:#f5f7f9;border:1px solid var(--line);border-radius:12px;align-content:flex-start;}
   #wazaGroupTabs button{min-height:40px;padding:0 14px;font-size:calc(14px*var(--fs,1));border-radius:22px;border:2px solid var(--navy);background:#fff;color:var(--navy);font-weight:700;}
   #wazaGroupTabs button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
-  #wazaList{gap:8px;padding:10px;background:#f5f7f9;border:1px solid var(--line);border-radius:12px;max-height:44vh;overflow-y:auto;}
+  /* ②技名リストは高さ固定＝種類を切り替えても画面が上下しない */
+  #wazaList{gap:8px;padding:10px;background:#f5f7f9;border:1px solid var(--line);border-radius:12px;height:40vh;overflow-y:auto;align-content:flex-start;}
   #wazaList button{min-height:44px;padding:0 12px;font-size:calc(15px*var(--fs,1));border-radius:8px;border:1.5px solid #d8dee6;background:#fff;color:var(--ink);font-weight:600;}
   #wazaList button.on{background:#2e7d4f;color:#fff;border-color:#2e7d4f;}
   .stu-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
@@ -322,7 +324,16 @@
   .summary-box.alert .lbl{color:#ffe;}
 
   /* ===== タイムライン型スケジュール ===== */
-  .tl-month{display:flex;align-items:stretch;gap:0;margin-bottom:4px;}
+  .tl-month{display:block;margin-bottom:8px;}
+  /* v133: 月見出しをタップで開閉 */
+  .tl-mhead{display:flex;align-items:center;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;padding:8px 12px;background:#fff;border:1.5px solid var(--line);border-left:5px solid var(--gold);border-radius:12px;box-shadow:0 1px 4px rgba(20,30,55,.05);}
+  .tl-mtri{font-size:calc(12px*var(--fs,1));opacity:.8;width:1em;text-align:center;flex:0 0 auto;color:var(--navy);}
+  .tl-mhead .tl-label{flex-direction:row;width:auto;align-items:baseline;gap:6px;padding-top:0;}
+  .tl-mhead .tl-label::after{display:none;}
+  .tl-mhead .tl-label .mo{font-size:calc(20px*var(--fs,1));}
+  .tl-msub{margin-left:auto;font-size:calc(13px*var(--fs,1));font-weight:700;color:var(--muted);}
+  .tl-month>.tl-events{position:relative;padding:8px 0 12px 22px;}
+  .tl-month>.tl-events::before{content:'';position:absolute;left:9px;top:2px;bottom:10px;width:3px;background:var(--gold);border-radius:2px;}
   .tl-label{
     flex-shrink:0;width:52px;position:relative;
     display:flex;flex-direction:column;align-items:center;padding-top:6px;
@@ -599,6 +610,14 @@
   .font-size-row .fs-btn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
   .mate-group-head{display:flex;align-items:center;gap:8px;font-size:calc(15px*var(--fs,1));font-weight:700;color:var(--navy);margin:16px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--line);}
   .mate-group-head:first-child{margin-top:2px;}
+  /* v133: 属性グループの折りたたみ見出し（畳み込み表示） */
+  .fold-head{display:flex;align-items:center;gap:8px;font-size:calc(15px*var(--fs,1));font-weight:700;margin:12px 0 8px;padding:10px 12px;border:1.5px solid var(--line);border-left:5px solid currentColor;border-radius:12px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;box-shadow:0 1px 4px rgba(20,30,55,.05);}
+  .fold-head:first-child{margin-top:2px;}
+  .fold-head .fold-tri{font-size:.72em;flex:0 0 auto;width:1em;text-align:center;opacity:.85;}
+  .fold-head .fold-lbl{flex:0 0 auto;}
+  .fold-head .fold-sum{margin-left:auto;display:inline-flex;gap:9px;align-items:center;font-size:calc(13px*var(--fs,1));font-weight:800;}
+  .fold-head .fold-sum .fs-dot{display:inline-flex;align-items:center;gap:2px;}
+  .fold-head .fold-sum .fs-dot::before{content:'';width:9px;height:9px;border-radius:50%;background:currentColor;display:inline-block;}
   .mate-count{font-size:calc(12px*var(--fs,1));font-weight:700;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1px 9px;}
   .mate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
   .mate-cell{display:flex;flex-direction:column;gap:5px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:9px 9px 10px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;}
@@ -847,6 +866,10 @@ function applyUpdate(){
     <div class="lbl" id="schedYearLbl"></div>
     <button onclick="changeSchedYear(1)">›</button>
   </div>
+  <div class="view-toggle" style="margin-bottom:12px">
+    <button id="schedFilterAllB" class="on" onclick="setSchedFilter('all')">すべて表示</button>
+    <button id="schedFilterMatchB" onclick="setSchedFilter('match')"><span>🥋</span> 試合のみ</button>
+  </div>
   <div class="card" id="schedList"></div>
 </section>
 
@@ -915,6 +938,10 @@ function applyUpdate(){
     <div id="acctPaneMonthly" style="display:none">
       <div class="card">
         <h3 style="margin:0 0 10px;color:var(--navy);font-size:calc(18px*var(--fs,1))">月別収支・残高</h3>
+        <div class="view-toggle" style="margin-bottom:10px">
+          <button id="acctRangeCurB" class="on" onclick="setAcctMonthRange('current')">当月まで</button>
+          <button id="acctRangeFullB" onclick="setAcctMonthRange('full')">年度全体</button>
+        </div>
         <div class="matrix-wrap" id="acctMonthly"></div>
         <p class="list-mini" style="margin-top:8px">繰越金を含めた収入・支出と、月末時点の残高です。横にスクロールできます。</p>
         <div id="acctBalanceChart" style="margin-top:16px"></div>
@@ -1739,7 +1766,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v132'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v133'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2048,6 +2075,17 @@ Object.assign(DICT,{
   '月をタップすると、その月の練習日ごとの出欠が開きます。':{en:'Tap a month to open attendance for each practice day.',fr:'Touchez un mois pour afficher la présence par jour d’entraînement.',pt:'Toque em um mês para abrir a presença por dia de treino.'},
   '未設定':{en:'Unset',fr:'Non défini',pt:'Não definido'}
 });
+// v133: 折りたたみ・トグル・予定フィルタ等のUI文字列
+Object.assign(DICT,{
+  '当月まで':{en:'Up to this month',fr:'Jusqu’à ce mois',pt:'Até este mês'},
+  '年度全体':{en:'Full year',fr:'Année entière',pt:'Ano todo'},
+  '現在の残高（当月末まで・繰越含む）':{en:'Current balance (to month-end, incl. carryover)',fr:'Solde actuel (fin du mois, report inclus)',pt:'Saldo atual (até o fim do mês, com saldo anterior)'},
+  '現在の残高（当月末までの累計）':{en:'Current balance (cumulative to month-end)',fr:'Solde actuel (cumul à fin du mois)',pt:'Saldo atual (acumulado até o fim do mês)'},
+  '試合のみ':{en:'Matches only',fr:'Compétitions seul.',pt:'Só competições'},
+  'すべて表示':{en:'Show all',fr:'Tout afficher',pt:'Mostrar tudo'},
+  'この月の予定はありません':{en:'No events this month',fr:'Aucun événement ce mois',pt:'Nenhum evento neste mês'},
+  '試合・大会はありません':{en:'No matches/tournaments',fr:'Aucune compétition',pt:'Nenhuma competição'}
+});
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
   [/^([小中高大])([1-6])$/, (m,L)=>STAGE[L][m[1]]+m[2]],                                   // 学年 小3→E3
@@ -2062,6 +2100,8 @@ const PATTERNS=[
   [/^(\d{4})年\s*(\d{1,2})月$/, (m,L)=>MON[L][+m[2]]+' '+m[1]],                              // 2026年 7月→Jul 2026
   [/^(\d+)試合\u3000○(\d+)\u3000▲(\d+)\u3000×(\d+)$/, (m,L)=>{const w={en:'matches',fr:'combats',pt:'lutas'}[L];return m[1]+' '+w+'\u3000○'+m[2]+'\u3000▲'+m[3]+'\u3000×'+m[4];}], // 試合サマリ
   [/^全(\d+)試合$/, (m,L)=>({en:m[1]+' matches',fr:m[1]+' combats',pt:m[1]+' lutas'}[L])],     // 全20試合
+  [/^(\d+)試合$/, (m,L)=>({en:m[1]+' matches',fr:m[1]+' combats',pt:m[1]+' lutas'}[L])],       // N試合（属性サマリ）
+  [/^(\d+)件$/, (m,L)=>({en:m[1]+' items',fr:m[1]+' éléments',pt:m[1]+' itens'}[L])],           // N件
   [/^練習(\d+)回・延べ出席(\d+)$/, (m,L)=>({en:m[1]+' practices · '+m[2]+' attendances',fr:m[1]+' séances · '+m[2]+' présences',pt:m[1]+' treinos · '+m[2]+' presenças'}[L])], // 月ブロックのサブ
   [/^（(.)）$/, (m,L)=>{const w=(DICT[m[1]]&&DICT[m[1]][L])||m[1];return '（'+w+'）';}],           // （水）
   [/^(\d{1,2})\/(\d{1,2})（(.)）$/, (m,L)=>{const w=(DICT[m[3]]&&DICT[m[3]][L])||m[3];return m[1]+'/'+m[2]+'（'+w+'）';}], // 7/4（土）
@@ -2356,7 +2396,14 @@ function renderAtt(){
       <div class="seg"><button class="${st==='present'?'on-pres':''}" onclick="setAtt('${date}','${s.id}','present')">出</button>
       <button class="${st==='absent'?'on-abs':''}" onclick="setAtt('${date}','${s.id}','absent')">欠</button></div></div>`;
   };
-  list.innerHTML=buildMemberGroups(roster).map(g=>headHtml(g)+g.members.map(rowHtml).join('')).join('');
+  list.innerHTML=buildMemberGroups(roster).map((g,gi)=>{
+    let gp=0,ga=0,gn=0;
+    g.members.forEach(s=>{const st=day[s.id];if(st==='present')gp++;else if(st==='absent')ga++;else gn++;});
+    const sum=foldDot('#2e7d4f',gp)+foldDot('#c0392b',ga)+foldDot('#9aa0a6',gn);
+    let h=foldHead('att',gi,g.color,g.label,g.members.length,sum);
+    if(isFoldOpen('att',gi))h+=g.members.map(rowHtml).join('');
+    return h;
+  }).join('');
   document.getElementById('attPresNum').textContent=p;
   document.getElementById('attAbsNum').textContent=a;
   document.getElementById('attNoneNum').textContent=n;
@@ -2432,7 +2479,14 @@ function renderFee(){
   Object.keys(paid).forEach(sid=>{const st=DB.students.find(x=>x.id===sid);collected+=paidAmount(paid[sid],st);});
   const vfAll=DB.visitFees[feeMonth]||{};
   Object.keys(vfAll).forEach(sid=>{collected+=(vfAll[sid]||0);});
-  list.innerHTML=buildMemberGroups(roster).map(g=>headHtml(g)+g.members.map(rowHtml).join('')).join('');
+  list.innerHTML=buildMemberGroups(roster).map((g,gi)=>{
+    let gp=0,gu=0;
+    g.members.forEach(s=>{if(isPerVisit(s))return;const rec=paid[s.id];if(rec!==undefined)gp++;else gu++;});
+    const sum=foldDot('#2e7d4f',gp)+foldDot('#c0392b',gu);
+    let h=foldHead('fee',gi,g.color,g.label,g.members.length,sum);
+    if(isFoldOpen('fee',gi))h+=g.members.map(rowHtml).join('');
+    return h;
+  }).join('');
   document.getElementById('feePaidNum').textContent=p;
   document.getElementById('feeUnpaidNum').textContent=u;
   document.getElementById('feeSum').textContent=money(collected);
@@ -3387,9 +3441,19 @@ function raRadarSVG(ax,series,scaleMax,subCol){
   let polys='';series.forEach(s=>{const p=s.values.map((v,i)=>pt(i,R*Math.min(v/mx,1)).join(',')).join(' ');polys+=`<polygon points="${p}" fill="${s.fill}" stroke="${s.color}" stroke-width="3" ${s.dash?'stroke-dasharray="6 4"':''}/>`;});
   let dots='',vlab='';const main=series[0];
   main.values.forEach((v,i)=>{if(v>0){const rr=R*Math.min(v/mx,1),[x,y]=pt(i,rr);dots+=`<circle cx="${x}" cy="${y}" r="4" fill="${main.color}"/>`;const[lx,ly]=pt(i,rr+valOff);vlab+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="${main.color}" font-size="${fVal}" font-weight="800" text-anchor="middle" dominant-baseline="middle">${Math.round(v)}%</text>`;}});
-  let lab='';ax.names.forEach((t,i)=>{const[lx,ly]=pt(i,labR);const col=i<4?subCol:'#1a2b4a'; // 上位4投技はチャート色、固定3軸は紺
-    lab+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="${col}" font-size="${fLab}" font-weight="700" text-anchor="middle" dominant-baseline="middle">${esc(t)}</text>`;});
-  return `<svg class="ana-radar" viewBox="-46 14 392 276" width="100%" style="max-width:${Math.round(316*Math.min(fs,1.5))}px;overflow:visible;display:block;margin:0 auto">${g}${axl}${polys}${dots}${lab}${vlab}</svg>`;
+  // ラベルは foreignObject＋HTMLで描画。多言語で長くなっても自動折り返し＋左右に振り分けて重なりを防ぐ。
+  // （SVGテキストは日本語で描画→DOM走査で翻訳される方式のため、翻訳後の語長に合わせた自動折返しが必要）
+  const LW=96,LH=40;
+  let lab='';ax.names.forEach((t,i)=>{const[lx,ly]=pt(i,labR);const col=i<4?subCol:'#1a2b4a'; // 上位4投技はチャート色、固定軸は紺
+    const side=Math.abs(lx-cx)<8?'mid':(lx<cx?'left':'right');
+    const bx=(side==='mid')?(lx-LW/2):(side==='right'?lx-4:lx-LW+4);   // 右側は頂点から右へ、左側は左へ伸ばす
+    const just=side==='mid'?'center':(side==='right'?'flex-start':'flex-end');
+    const talign=side==='mid'?'center':(side==='right'?'left':'right');
+    lab+=`<foreignObject x="${bx.toFixed(1)}" y="${(ly-LH/2).toFixed(1)}" width="${LW}" height="${LH}" style="overflow:visible">`+
+      `<div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;height:${LH}px;align-items:center;justify-content:${just}">`+
+      `<span style="font-size:${fLab}px;line-height:1.04;font-weight:700;color:${col};text-align:${talign};word-break:normal;overflow-wrap:break-word">${esc(t)}</span>`+
+      `</div></foreignObject>`;});
+  return `<svg class="ana-radar" viewBox="-64 14 428 276" width="100%" style="max-width:${Math.round(330*Math.min(fs,1.5))}px;overflow:visible;display:block;margin:0 auto">${g}${axl}${polys}${dots}${lab}${vlab}</svg>`;
 }
 function raSectionHtml(bs,teamBs){
   const isWin=(matchRaResult!=='▲');             // v129: 勝ち/負けを1枚で切替
@@ -3600,7 +3664,13 @@ function renderMatchSummary(){
       <div class="bout-sub" style="align-self:center">›</div>
     </div>`;
   };
-  wrap.innerHTML=groups.map(g=>headHtml(g)+g.members.map(rowHtml).join('')).join('');
+  wrap.innerHTML=groups.map((g,gi)=>{
+    const tot=g.members.reduce((n,s)=>n+(map[s.id]?map[s.id].length:0),0);
+    const sum=`<span class="fold-sum-n">${tot}試合</span>`;
+    let h=foldHead('match',gi,g.color,g.label,g.members.length,sum);
+    if(isFoldOpen('match',gi))h+=g.members.map(rowHtml).join('');
+    return h;
+  }).join('');
 }
 // 組手別（右組み・左組み）の試合結果分析を組み立てる
 // 決まり技ランキングをバー表示（案A）。件数の多い順TOP5、バー幅は最多を100%として相対表示
@@ -3695,6 +3765,8 @@ function showMatchDetail(selfId){
   renderMatchDetail();
   document.getElementById('matchMemberList').parentElement.style.display='none';
   document.getElementById('matchDetailCard').style.display='block';
+  window.scrollTo(0,0);                       // 常に最上段（レーダー等）から表示
+  requestAnimationFrame(()=>window.scrollTo(0,0));
 }
 function renderMatchDetail(){
   const selfId=matchDetailSelfId;if(!selfId)return;
@@ -3970,26 +4042,56 @@ function schedCardHtml(i){
     ${resultBtn}</div>
     </div>`;
 }
+// 予定が「試合・大会」かどうか（結果ありも含む）
+function schedIsMatch(i){
+  const showMatch=(i.showMatch===true||i.showMatch===false)?i.showMatch:/試合|大会/.test(i.name||'');
+  const hasResult=DB.matchResults[i.id]&&((DB.matchResults[i.id].individual||[]).length||(DB.matchResults[i.id].team&&(DB.matchResults[i.id].team.cards||[]).length));
+  return showMatch||hasResult;
+}
+let schedFilter='all';                 // v133: 'all' | 'match'（試合のみ）
+let schedMonthOpen=null;               // 展開中の月。初回renderで当月を開いた状態にする
+function setSchedFilter(v){
+  schedFilter=v;
+  const ba=document.getElementById('schedFilterAllB'), bm=document.getElementById('schedFilterMatchB');
+  if(ba)ba.classList.toggle('on',v==='all'); if(bm)bm.classList.toggle('on',v==='match');
+  renderSched();
+}
+function toggleSchedMonth(ym){
+  if(!schedMonthOpen)schedMonthOpen=new Set();
+  if(schedMonthOpen.has(ym))schedMonthOpen.delete(ym); else schedMonthOpen.add(ym);
+  renderSched();
+}
 function schedMonthGroupsHtml(items){
   const groups={};
   items.forEach(i=>{const ym=i.date.slice(0,7);(groups[ym]=groups[ym]||[]).push(i);});
   let html='';
   Object.keys(groups).sort().forEach(ym=>{
     const[y,m]=ym.split('-');
+    const open=schedMonthOpen.has(ym);
+    const arrow=open?'▼':'▶';
+    const mcnt=groups[ym].filter(schedIsMatch).length;
+    const sub=`<span class="tl-msub"><span>${groups[ym].length}件</span>${mcnt?`<span>・🥋${mcnt}</span>`:''}</span>`;
     let cards=''; groups[ym].forEach(i=>{cards+=schedCardHtml(i);});
     html+=`<div class="tl-month">
-      <div class="tl-label"><div class="yr">${y}</div><div class="mo">${Number(m)}<small>月</small></div></div>
-      <div class="tl-events">${cards}</div>
+      <div class="tl-mhead" onclick="toggleSchedMonth('${ym}')">
+        <span class="tl-mtri">${arrow}</span>
+        <div class="tl-label"><div class="yr">${y}</div><div class="mo">${Number(m)}<small>月</small></div></div>
+        ${sub}
+      </div>
+      ${open?`<div class="tl-events">${cards}</div>`:''}
     </div>`;
   });
   return html;
 }
 function renderSched(){
   const fy=schedYear;
+  if(!schedMonthOpen)schedMonthOpen=new Set([thisMonthStr()]);   // 当月を開いた状態でスタート
   document.getElementById('schedYearLbl').innerHTML=`<span class="fy-main">${fy}年度</span><span class="fy-sub">${fyRangeLabel(fy)}</span>`;
   const list=document.getElementById('schedList');
-  const items=[...DB.schedule].filter(i=>schedFY(i.date)===fy).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
-  list.innerHTML=items.length?schedMonthGroupsHtml(items):`<div class="empty">${fy}年度の予定はありません</div>`;
+  let items=[...DB.schedule].filter(i=>schedFY(i.date)===fy).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+  if(schedFilter==='match')items=items.filter(schedIsMatch);
+  const emptyMsg=schedFilter==='match'?'試合・大会はありません':`${fy}年度の予定はありません`;
+  list.innerHTML=items.length?schedMonthGroupsHtml(items):`<div class="empty">${emptyMsg}</div>`;
 }
 
 /* 月別一覧マトリクス */
@@ -4018,6 +4120,14 @@ function setAccountView(v){
   const by=document.getElementById('acctViewYearB'), bm=document.getElementById('acctViewMonthlyB');
   if(by)by.classList.toggle('on',v==='year');
   if(bm)bm.classList.toggle('on',v==='monthly');
+}
+let acctMonthRange='current';   // v133: 月別収支表の範囲 'current'=当月まで / 'full'=年度全体
+function setAcctMonthRange(v){
+  acctMonthRange=v;
+  const bc=document.getElementById('acctRangeCurB'), bf=document.getElementById('acctRangeFullB');
+  if(bc)bc.classList.toggle('on',v==='current');
+  if(bf)bf.classList.toggle('on',v==='full');
+  renderAccountView();
 }
 // 年度内の YYYY-MM 一覧（4月〜翌3月）
 function fiscalMonths(fy){const s=fyStart();const arr=[];for(let i=0;i<12;i++){const mo0=(s-1)+i;const y=fy+Math.floor(mo0/12);const mm=(mo0%12)+1;arr.push(`${y}-${String(mm).padStart(2,'0')}`);}return arr;}
@@ -4154,11 +4264,16 @@ function renderAccountView(){
     <div class="acct-net" style="color:${net>=0?'var(--green)':'var(--red)'}"><span>収支差引</span><span>${net>=0?'+':'−'}${money(Math.abs(net))}</span></div>`;
   // 月別の収支＋残高（期首残高＝前年度末までの累計から積み上げ）
   const opening=openingBalanceFor(fy);
+  // v133: 「当月まで」＝現在の月以下の月だけ表示（過去年度など該当なしなら年度全体にフォールバック）
+  const curYm=thisMonthStr();
+  let dispMonths=(acctMonthRange==='current')?months.filter(ym=>ym<=curYm):months;
+  if(!dispMonths.length)dispMonths=months;
+  const limited=dispMonths.length<months.length;
   let bal=opening; const balances=[];
   const openingRow=(opening!==0)
     ? `<tr><td class="namecell" style="color:var(--muted)">期首残高</td><td>—</td><td>—</td><td>—</td><td class="cell-total">${money(opening)}</td></tr>`
     : '';
-  const mrows=months.map(ym=>{
+  const mrows=dispMonths.map(ym=>{
     const inc=(feeByMonth[ym]||0)+(inByMonth[ym]||0);
     const exp=(outByMonth[ym]||0);
     const dnet=inc-exp; bal+=dnet; balances.push(bal);
@@ -4168,10 +4283,13 @@ function renderAccountView(){
   document.getElementById('acctMonthly').innerHTML=`<table class="matrix money"><thead><tr><th class="namecell">月</th><th>収入</th><th>支出</th><th>差引</th><th>残高</th></tr></thead><tbody>${openingRow}${mrows}</tbody></table>`;
   // 残高推移グラフ（最新残高を大きく表示＋目盛り付き折れ線）
   const finalBal=balances.length?balances[balances.length-1]:opening;
+  const balLbl=limited
+    ? (opening!==0?'現在の残高（当月末まで・繰越含む）':'現在の残高（当月末までの累計）')
+    : (opening!==0?'期末残高（前年度繰越を含む累計）':'最新の残高（年度末までの累計）');
   document.getElementById('acctBalanceChart').innerHTML=
-    `<div style="font-size:calc(13px*var(--fs,1));color:var(--muted);margin-bottom:2px">${opening!==0?'期末残高（前年度繰越を含む累計）':'最新の残高（年度末までの累計）'}</div>`+
+    `<div style="font-size:calc(13px*var(--fs,1));color:var(--muted);margin-bottom:2px">${balLbl}</div>`+
     `<div style="font-size:calc(24px*var(--fs,1));font-weight:800;color:#2e7d4f;margin-bottom:12px">${money(finalBal)}</div>`+
-    balanceChartSVG(months.map(ym=>Number(ym.split('-')[1])),balances);
+    balanceChartSVG(dispMonths.map(ym=>Number(ym.split('-')[1])),balances);
 }
 // 残高推移の折れ線（SVG・目盛り付き）
 function niceStep(v){
@@ -4455,6 +4573,23 @@ function sortMembersList(list){
     return idx.get(a)-idx.get(b);
   });
 }
+/* ===== v133: 属性グループの折りたたみ（仲間/出欠/お金/試合一覧を畳み込み表示から開始） ===== */
+const foldOpen={mates:new Set(),att:new Set(),fee:new Set(),match:new Set()};
+function foldRender(ns){const f={mates:renderMates,att:renderAtt,fee:renderFee,match:renderMatchSummary}[ns];if(f)f();}
+function toggleFold(ns,key){const s=foldOpen[ns];if(!s)return;if(s.has(key))s.delete(key);else s.add(key);foldRender(ns);}
+function isFoldOpen(ns,gi){return foldOpen[ns]&&foldOpen[ns].has('g'+gi);}
+// 折りたたみ見出し（矢印＋区分名＋人数＋任意サマリ）。giはグループindex。
+function foldHead(ns,gi,color,label,count,summary){
+  const open=isFoldOpen(ns,gi);
+  return `<div class="fold-head" style="color:${color};border-left-color:${color}" onclick="toggleFold('${ns}','g${gi}')">`+
+    `<span class="fold-tri">${open?'▼':'▶'}</span>`+
+    `<span class="fold-lbl">${esc(label)}</span>`+
+    `<span class="mate-count">${count}</span>`+
+    (summary?`<span class="fold-sum">${summary}</span>`:'')+
+  `</div>`;
+}
+// サマリ用の色付きドット数値
+function foldDot(color,n){return `<span class="fs-dot" style="color:${color}">${n}</span>`;}
 function buildMemberGroups(visible){
   const groups=[];
   mateGroupOrder().forEach(cat=>{
@@ -4517,9 +4652,9 @@ function renderMates(){
     return `<div class="${cls}" onclick="openStudentModal('${s.id}')">${tags}<span class="nm">${esc(s.name)}</span></div>`;
   };
   let html='';
-  groups.forEach(g=>{
-    html+=headHtml(g);
-    html+=`<div class="mate-grid">`+g.members.map(cellHtml).join('')+`</div>`;
+  groups.forEach((g,gi)=>{
+    html+=foldHead('mates',gi,g.color,g.label,g.members.length);
+    if(isFoldOpen('mates',gi))html+=`<div class="mate-grid">`+g.members.map(cellHtml).join('')+`</div>`;
   });
   list.innerHTML=html;
 }
