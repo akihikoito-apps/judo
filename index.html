@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v127（試合分析：決まり技TOP5棒グラフを「決まり技レーダー」に置換＝勝ち/負けを別チャート・本人×道場全体を重ね・選手ごと動的軸(勝ち/負け投技を多い順4＋その他投技/寝技/その他勝敗)・割合表示。組手別勝率ゲージは残置） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v131（試合分析：決まり技レーダーを9軸化。①〜④投技上位／⑤その他投技／⑥合わせ技／⑦寝技／⑧反則・判定／⑨不戦・棄権） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -109,7 +109,7 @@
   .ana-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
   .ana-title{font-weight:800;color:var(--navy);font-size:calc(16px*var(--fs,1));display:flex;align-items:center;gap:8px;min-width:0;}
   .ana-title::before{content:"📊";}
-  .ana-sec{background:linear-gradient(160deg,#1d2d4d,#16233d);border:1px solid #2b3d61;border-radius:16px;padding:13px 14px;margin-bottom:12px;}
+  .ana-sec{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 1px 5px rgba(20,30,55,.06);}
   .ana-sec:last-child{margin-bottom:0;}
   .ana-sec-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
   .ana-grip{display:inline-block;color:#0e1626;background:linear-gradient(135deg,#e3c982,var(--gold));font-weight:800;font-size:calc(14px*var(--fs,1));border-radius:999px;padding:4px 14px;}
@@ -119,8 +119,8 @@
   .ana-gauge{flex-shrink:0;position:relative;width:calc(88px*var(--fs,1));height:calc(88px*var(--fs,1));max-width:150px;max-height:150px;}
   .ana-gauge svg{width:100%;height:100%;display:block;}
   .ana-gauge .gv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 6px;}
-  .ana-gauge .gpct{font-size:min(calc(21px*var(--fs,1)),38px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.5px;white-space:nowrap;}
-  .ana-gauge .glb{font-size:min(calc(10px*var(--fs,1)),18px);color:#e3c982;margin-top:3px;letter-spacing:.08em;}
+  .ana-gauge .gpct{font-size:min(calc(21px*var(--fs,1)),38px);font-weight:800;color:var(--navy);line-height:1;letter-spacing:-.5px;white-space:nowrap;}
+  .ana-gauge .glb{font-size:min(calc(10px*var(--fs,1)),18px);color:var(--muted);margin-top:3px;letter-spacing:.08em;}
   .ana-wl{flex:1 1 128px;min-width:120px;display:flex;flex-direction:column;gap:6px;}
   .ana-chip{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0f1a2e;border:1px solid #2b3d61;border-radius:10px;padding:6px 14px;}
   .ana-chip span{font-size:calc(12px*var(--fs,1));color:#8ea3c6;order:1;}
@@ -665,18 +665,40 @@
   .att-mhead-sub{font-size:calc(12px*var(--fs,1));font-weight:600;color:var(--muted);margin-left:auto;}
   /* v127: 決まり技レーダー */
   .ra-sec{padding:14px 12px 12px;}
-  .ra-secttl{font-weight:800;color:#fff;font-size:calc(16px*var(--fs,1));margin-bottom:10px;line-height:1.3;}
-  .ra-secttl2{font-weight:800;color:var(--navy);font-size:calc(16px*var(--fs,1));margin:18px 0 8px;}
+  .ra-secttl{font-weight:800;color:var(--navy);font-size:calc(16px*var(--fs,1));margin-bottom:10px;line-height:1.3;}
   .ra-pair{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
   .ra-cell{flex:1 1 300px;min-width:280px;text-align:center;}
   .ra-h{font-size:calc(16px*var(--fs,1));font-weight:800;margin-bottom:2px;}
-  .ra-h.win{color:#4ecb7d;} .ra-h.lose{color:#e0654f;}
-  .ra-cap{font-size:calc(13px*var(--fs,1));color:#8ea3c6;min-height:18px;margin-bottom:2px;}
-  .ra-legend{display:inline-flex;gap:16px;justify-content:center;font-size:calc(13px*var(--fs,1));color:#cfe0ff;margin-top:6px;}
+  .ra-h.win{color:#2e7d4f;} .ra-h.lose{color:#c0392b;}
+  .ra-cap{font-size:calc(13px*var(--fs,1));color:var(--muted);min-height:18px;margin-bottom:2px;}
+  .ra-legend{display:inline-flex;gap:16px;justify-content:center;font-size:calc(13px*var(--fs,1));color:var(--ink);margin-top:6px;}
   .ra-legend span{display:inline-flex;align-items:center;gap:7px;}
   .ra-legend i{width:15px;height:13px;border-radius:3px;display:inline-block;}
-  .ra-legend i.dash{background:none;border:2px dashed #e3c982;border-radius:2px;height:0;width:17px;}
-  .ra-note{font-size:calc(12px*var(--fs,1));color:#8ea3c6;margin-top:12px;line-height:1.6;text-align:center;}
+  .ra-legend i.dash{background:none;border:2px dashed #c8a44d;border-radius:2px;height:0;width:17px;}
+  .ra-note{font-size:calc(12px*var(--fs,1));color:var(--muted);margin-top:12px;line-height:1.6;text-align:center;}
+  /* v128: 上部（全データ/対右/対左 縦ボタン｜勝率ゲージ｜勝敗分数） */
+  .ra-top{display:flex;align-items:center;gap:10px;margin:2px 0 14px;}
+  .ra-fcol{display:flex;flex-direction:column;gap:7px;flex-shrink:0;}
+  .ra-fbtn{font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;border:2px solid var(--line);background:#fff;color:var(--navy);border-radius:11px;padding:9px 10px;cursor:pointer;white-space:nowrap;min-width:calc(82px*var(--fs,1));}
+  .ra-fbtn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .ra-gcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;}
+  .ra-gcnt{font-size:calc(11px*var(--fs,1));color:var(--muted);font-weight:600;}
+  .ra-rcol{flex-shrink:0;}
+  .ra-rec{display:flex;flex-direction:column;gap:7px;}
+  .ra-rc{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-width:calc(72px*var(--fs,1));background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:5px 12px;}
+  .ra-rc b{font-size:calc(20px*var(--fs,1));font-weight:800;line-height:1;order:2;}
+  .ra-rc span{font-size:calc(12px*var(--fs,1));color:var(--muted);order:1;}
+  .ra-rc.w b{color:var(--green);} .ra-rc.l b{color:var(--red);} .ra-rc.d b{color:var(--muted);}
+  /* v129: レーダーの勝ち/負け切替（1枚表示） */
+  .ra-top{margin:2px 0 10px;}
+  .ra-secttl{margin-bottom:8px;}
+  .ra-wl-toggle{display:flex;justify-content:center;width:fit-content;margin:0 auto 2px;border:2px solid var(--line);border-radius:12px;overflow:hidden;}
+  .ra-wlbtn{font-size:calc(14px*var(--fs,1));font-weight:800;font-family:inherit;border:none;background:#fff;color:var(--muted);padding:9px 16px;cursor:pointer;white-space:nowrap;}
+  .ra-wlbtn+.ra-wlbtn{border-left:2px solid var(--line);}
+  .ra-wlbtn.win.on{background:#2e7d4f;color:#fff;}
+  .ra-wlbtn.lose.on{background:#c0392b;color:#fff;}
+  .ra-cap-c{text-align:center;}
+  .ra-single{display:flex;justify-content:center;}
 </style>
 <script>
 /* ===== オフライン対応（PWA / Service Worker・案3：バージョン管理付き）=====
@@ -1717,7 +1739,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v127'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v131'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -3315,50 +3337,51 @@ function wazaGroupOf(w){for(const grp of WAZA_GROUPS){if(grp.items.includes(w))r
 const RA_THROW=new Set(['手技','腰技','足技','真捨身技','横捨身技']);
 const RA_GROUND=new Set(['抑込技','絞技','関節技']);
 const RA_FALLBACK=['背負投','内股','大外刈','払腰'];
+const RA_HANSOKU=new Set(['指導差','反則勝ち','判定勝ち']);   // v131: 8軸目
+const RA_FUSEN=new Set(['不戦勝','棄権勝ち']);               // v131: 9軸目
 function raGroup(w){if(!w)return null;for(const grp of WAZA_GROUPS){if(grp.items.includes(w))return grp.g;}return null;}
 function raIsThrow(w){const g=raGroup(w);return g&&RA_THROW.has(g);}
 function raFsNow(){const f=(DB&&DB.fontScale)||'small';return f==='large'?2:(f==='mid'?1.5:1);}
-// 指定resultの投技を多い順に4つ（不足はRA_FALLBACKで補完）＋固定3軸（その他の投技/寝技/7軸目）
-function raSelectAxes(bouts,result,seventh){
+// v131: 9軸。指定resultの投技を多い順に4つ（不足はRA_FALLBACKで補完）＋その他投技/合わせ技/寝技/反則・判定/不戦・棄権
+function raSelectAxes(bouts,result){
   const cnt={};
   bouts.forEach(b=>{if(b.result!==result)return;if(!raIsThrow(b.waza))return;cnt[b.waza]=(cnt[b.waza]||0)+1;});
   const sorted=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]||a.localeCompare(b));
   const used=new Set(),pick=list=>{for(const w of list){if(!used.has(w)){used.add(w);return w;}}return null;};
   const a=[pick(sorted)||pick(RA_FALLBACK),pick(sorted)||pick(RA_FALLBACK),pick(sorted)||pick(RA_FALLBACK),pick(sorted)||pick(RA_FALLBACK)];
-  return {names:[a[0],a[1],a[2],a[3],'その他の投技','寝技',seventh],subs:['①','②','③','④','','',''],keys:a};
+  return {names:[a[0],a[1],a[2],a[3],'その他投技','合わせ技','寝技','反則・判定','不戦・棄権'],keys:a};
 }
-function raBucket(w,keys){if(w===keys[0])return 0;if(w===keys[1])return 1;if(w===keys[2])return 2;if(w===keys[3])return 3;const g=raGroup(w);if(g&&RA_THROW.has(g))return 4;if(g&&RA_GROUND.has(g))return 5;return 6;}
-function raPct(bouts,result,keys){const c=[0,0,0,0,0,0,0];let tot=0;bouts.forEach(b=>{if(b.result!==result)return;tot++;c[raBucket(b.waza,keys)]++;});return {arr:c.map(v=>tot?v/tot*100:0),tot};}
+// v131: 0-3=上位投技 / 4=その他投技(上位以外の投技・不明) / 5=合わせ技 / 6=寝技 / 7=反則・判定 / 8=不戦・棄権
+function raBucket(w,keys){if(w===keys[0])return 0;if(w===keys[1])return 1;if(w===keys[2])return 2;if(w===keys[3])return 3;if(w==='合わせ技')return 5;const g=raGroup(w);if(g&&RA_GROUND.has(g))return 6;if(RA_HANSOKU.has(w))return 7;if(RA_FUSEN.has(w))return 8;return 4;}
+function raPct(bouts,result,keys){const c=[0,0,0,0,0,0,0,0,0];let tot=0;bouts.forEach(b=>{if(b.result!==result)return;tot++;c[raBucket(b.waza,keys)]++;});return {arr:c.map(v=>tot?v/tot*100:0),tot};}
 function raRadarSVG(ax,series,scaleMax,subCol){
-  const fs=raFsNow(),cx=150,cy=150,R=78,n=7;
+  const fs=raFsNow(),cx=150,cy=150,R=78,n=9;
   const ang=i=>(-Math.PI/2)+(2*Math.PI*i/n),pt=(i,r)=>[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];
   const mx=scaleMax||1;
-  const fLab=(14*fs).toFixed(1),fSub=(11*fs).toFixed(1),fVal=(12.5*fs).toFixed(1),labR=R+18+fs*6,valOff=10+fs*5;
-  let g='';for(let r=1;r<=4;r++){const rr=R*r/4;g+=`<polygon points="${ax.names.map((_,i)=>pt(i,rr).join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.12)"/>`;}
-  let axl='';ax.names.forEach((_,i)=>{const[x,y]=pt(i,R);axl+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,.16)"/>`;});
+  const fLab=(13.5*fs).toFixed(1),fVal=(12.5*fs).toFixed(1),labR=R+16+fs*5,valOff=10+fs*5;
+  let g='';for(let r=1;r<=4;r++){const rr=R*r/4;g+=`<polygon points="${ax.names.map((_,i)=>pt(i,rr).join(',')).join(' ')}" fill="none" stroke="rgba(20,30,55,.10)"/>`;}
+  let axl='';ax.names.forEach((_,i)=>{const[x,y]=pt(i,R);axl+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(20,30,55,.13)"/>`;});
   let polys='';series.forEach(s=>{const p=s.values.map((v,i)=>pt(i,R*Math.min(v/mx,1)).join(',')).join(' ');polys+=`<polygon points="${p}" fill="${s.fill}" stroke="${s.color}" stroke-width="3" ${s.dash?'stroke-dasharray="6 4"':''}/>`;});
   let dots='',vlab='';const main=series[0];
   main.values.forEach((v,i)=>{if(v>0){const rr=R*Math.min(v/mx,1),[x,y]=pt(i,rr);dots+=`<circle cx="${x}" cy="${y}" r="4" fill="${main.color}"/>`;const[lx,ly]=pt(i,rr+valOff);vlab+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="${main.color}" font-size="${fVal}" font-weight="800" text-anchor="middle" dominant-baseline="middle">${Math.round(v)}%</text>`;}});
-  let lab='';ax.names.forEach((t,i)=>{const[lx,ly]=pt(i,labR);const sub=ax.subs[i];const col=sub?subCol:'#dbe6f7';
-    lab+=`<text x="${lx.toFixed(1)}" y="${(ly-(sub?fs*5:0)).toFixed(1)}" fill="${col}" font-size="${fLab}" font-weight="700" text-anchor="middle">${esc(t)}</text>`;
-    if(sub)lab+=`<text x="${lx.toFixed(1)}" y="${(ly+fs*8).toFixed(1)}" fill="${col}" font-size="${fSub}" text-anchor="middle" opacity=".85">${sub}</text>`;});
-  return `<svg class="ana-radar" viewBox="-34 -18 368 336" width="100%" style="max-width:${Math.round(300*Math.min(fs,1.5))}px;overflow:visible">${g}${axl}${polys}${dots}${lab}${vlab}</svg>`;
+  let lab='';ax.names.forEach((t,i)=>{const[lx,ly]=pt(i,labR);const col=i<4?subCol:'#1a2b4a'; // 上位4投技はチャート色、固定3軸は紺
+    lab+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="${col}" font-size="${fLab}" font-weight="700" text-anchor="middle" dominant-baseline="middle">${esc(t)}</text>`;});
+  return `<svg class="ana-radar" viewBox="-46 14 392 276" width="100%" style="max-width:${Math.round(316*Math.min(fs,1.5))}px;overflow:visible;display:block;margin:0 auto">${g}${axl}${polys}${dots}${lab}${vlab}</svg>`;
 }
 function raSectionHtml(bs,teamBs){
-  const wax=raSelectAxes(bs,'○','その他勝利'),lax=raSelectAxes(bs,'▲','その他敗北');
-  const pw=raPct(bs,'○',wax.keys),tw=raPct(teamBs,'○',wax.keys),pl=raPct(bs,'▲',lax.keys),tl=raPct(teamBs,'▲',lax.keys);
-  const wmax=Math.max(1,...pw.arr,...tw.arr),lmax=Math.max(1,...pl.arr,...tl.arr);
-  const winSvg=raRadarSVG(wax,[{values:pw.arr,color:'#4ecb7d',fill:'rgba(78,203,125,.30)'},{values:tw.arr,color:'#e3c982',fill:'rgba(227,201,130,.08)',dash:true}],wmax,'#6fce9a');
-  const loseSvg=raRadarSVG(lax,[{values:pl.arr,color:'#e0654f',fill:'rgba(224,101,79,.28)'},{values:tl.arr,color:'#e3c982',fill:'rgba(227,201,130,.08)',dash:true}],lmax,'#e2795f');
-  const cap=(o,ax)=>{if(!o.tot)return '記録なし';let mi=0;o.arr.forEach((v,i)=>{if(v>o.arr[mi])mi=i;});return `最多 ${esc(ax.names[mi])} ${Math.round(o.arr[mi])}%`;};
-  const lg=c=>`<div class="ra-legend"><span><i style="background:${c}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>`;
+  const isWin=(matchRaResult!=='▲');             // v129: 勝ち/負けを1枚で切替
+  const ax=raSelectAxes(bs,isWin?'○':'▲');
+  const pv=raPct(bs,isWin?'○':'▲',ax.keys),tv=raPct(teamBs,isWin?'○':'▲',ax.keys);
+  const mx=Math.max(1,...pv.arr,...tv.arr);
+  const col=isWin?'#2e9e5b':'#d24a34',fil=isWin?'rgba(46,158,91,.22)':'rgba(210,74,52,.20)',subCol=isWin?'#2e7d4f':'#c0392b';
+  const svg=raRadarSVG(ax,[{values:pv.arr,color:col,fill:fil},{values:tv.arr,color:'#c8a44d',fill:'rgba(200,164,77,.12)',dash:true}],mx,subCol);
+  const wl=`<div class="ra-wl-toggle"><button class="ra-wlbtn win ${isWin?'on':''}" onclick="setMatchRaResult('○')">勝ち技</button><button class="ra-wlbtn lose ${!isWin?'on':''}" onclick="setMatchRaResult('▲')">負け技（取られた技）</button></div>`;
   return `<div class="ana-sec ra-sec">
     <div class="ra-secttl">📊 決まり技レーダー（割合）</div>
-    <div class="ra-pair">
-      <div class="ra-cell"><div class="ra-h win">勝ちの決まり技</div><div class="ra-cap">${cap(pw,wax)}</div>${winSvg}${lg('#4ecb7d')}</div>
-      <div class="ra-cell"><div class="ra-h lose">負け（取られた技）</div><div class="ra-cap">${cap(pl,lax)}</div>${loseSvg}${lg('#e0654f')}</div>
-    </div>
-    <div class="ra-note">軸①〜④＝多い順の投技（不足は 背負投→内股→大外刈→払腰 で補完）＋その他の投技・寝技（抑技+絞技+関節技）・その他勝敗。金の破線＝道場全体。</div>
+    ${wl}
+    <div class="ra-single">${svg}</div>
+    <div class="ra-legend"><span><i style="background:${col}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>
+    <div class="ra-note">軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則勝ち/判定勝ち）・不戦・棄権（不戦勝/棄権勝ち）。金の破線＝道場全体。</div>
   </div>`;
 }
 function openWazaPicker(cb,current){
@@ -3590,24 +3613,45 @@ function gripSectionHtml(label,arr){
     <div class="ana-mid">${gauge}${chips}</div>
   </div>`;
 }
+// v128: 道場全体の生の試合（グリップ判定可能な形で）＝チーム基準線用
+function raTeamBouts(){
+  const out=[],M={};(DB.schedule||[]).forEach(s=>M[s.id]=s);
+  Object.keys(DB.matchResults||{}).forEach(k=>{const mr=DB.matchResults[k]||{},date=(M[k]||{}).date||'';
+    (mr.individual||[]).forEach(b=>out.push(Object.assign({},b,{schedDate:date})));
+    if(mr.team&&mr.team.cards)mr.team.cards.forEach(c=>{(c.bouts||[]).forEach(b=>out.push(Object.assign({},b,{schedDate:date})));if(c.tiebreak==='rep'&&c.rep)out.push(Object.assign({},c.rep,{schedDate:date}));});});
+  return out;
+}
 function matchAnalysisHtml(bouts){
-  const groups={'右':[],'左':[]};
-  bouts.forEach(b=>{const g=boutOppGrip(b);if(g==='右')groups['右'].push(b);else if(g==='左')groups['左'].push(b);});
+  const grip=matchGrip;
+  const pf=(grip==='all')?bouts:bouts.filter(b=>boutOppGrip(b)===grip);
   const grad=`<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="anaGauge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e3c982"/><stop offset="1" stop-color="#c8a44d"/></linearGradient></defs></svg>`;
   const toggle=`<div class="ana-range" id="matchRangeToggle">`+
     `<button id="mrAll" class="${matchRange==='all'?'on':''}" onclick="setMatchRange('all')">累計</button>`+
     `<button id="mr1y" class="${matchRange==='1y'?'on':''}" onclick="setMatchRange('1y')">直近1年</button></div>`;
-  let teamBs=allBoutsFlat();
+  let teamBs=raTeamBouts();
   if(matchRange==='1y'){const cut=matchRangeCutoff();teamBs=teamBs.filter(b=>b.schedDate&&b.schedDate>=cut);}
+  const teamF=(grip==='all')?teamBs:teamBs.filter(b=>boutOppGrip(b)===grip);
+  const w=pf.filter(b=>b.result==='○').length,l=pf.filter(b=>b.result==='▲').length,d=pf.filter(b=>b.result==='×').length;
+  const decided=w+l,rate=decided?((w/decided)*100).toFixed(1):null;
+  const C=301.6,off=(rate!==null?C*(1-rate/100):C).toFixed(1);
+  const gauge=`<div class="ana-gauge"><svg viewBox="0 0 112 112"><circle cx="56" cy="56" r="48" fill="none" stroke="#e9edf3" stroke-width="11"/><circle cx="56" cy="56" r="48" fill="none" stroke="url(#anaGauge)" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 56 56)"/></svg><div class="gv"><span class="gpct">${rate!==null?rate+'%':'—'}</span><span class="glb">勝率</span></div></div>`;
+  const fbtn=[['all','全データ'],['右','対 右組'],['左','対 左組']].map(([v,lb])=>`<button class="ra-fbtn ${grip===v?'on':''}" onclick="setMatchGrip('${v}')">${lb}</button>`).join('');
+  const rec=`<div class="ra-rec"><div class="ra-rc w"><b>${w}</b><span>勝</span></div><div class="ra-rc l"><b>${l}</b><span>敗</span></div><div class="ra-rc d"><b>${d}</b><span>分</span></div></div>`;
   return `<div class="ana-box">${grad}
     <div class="ana-head"><div class="ana-title">試合分析</div>${toggle}</div>
-    ${raSectionHtml(bouts,teamBs)}
-    <div class="ra-secttl2">組手別 勝率</div>
-    ${gripSectionHtml('対 右組み',groups['右'])}
-    ${gripSectionHtml('対 左組み',groups['左'])}
+    <div class="ra-top">
+      <div class="ra-fcol">${fbtn}</div>
+      <div class="ra-gcol">${gauge}<div class="ra-gcnt">全${pf.length}試合</div></div>
+      <div class="ra-rcol">${rec}</div>
+    </div>
+    ${raSectionHtml(pf,teamF)}
   </div>`;
 }
 let matchRange='all';          // 集計範囲：'all'=累計 / '1y'=直近1年
+let matchGrip='all';           // v128: 組手フィルタ 'all'|'右'|'左'
+function setMatchGrip(g){matchGrip=g;renderMatchDetail();}
+let matchRaResult='○';         // v129: レーダーの勝ち/負け表示 '○'|'▲'
+function setMatchRaResult(r){matchRaResult=r;renderMatchDetail();}
 let matchDetailSelfId=null;
 // 直近1年の開始日（今日の1年前）を 'YYYY-MM-DD' で返す
 function matchRangeCutoff(){
@@ -3621,6 +3665,8 @@ function setMatchRange(r){
 function showMatchDetail(selfId){
   matchDetailSelfId=selfId;
   matchRange='all';                       // 開くたびに「累計」に戻す
+  matchGrip='all';                        // v128: 開くたびに「全データ」に戻す
+  matchRaResult='○';                      // v129: 開くたびにレーダーは「勝ち」に戻す
   const s=DB.students.find(x=>x.id===selfId);
   document.getElementById('matchDetailName').textContent=(s?s.name:'')+T('の試合結果');
   renderMatchDetail();
