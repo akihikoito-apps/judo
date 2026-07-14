@@ -11,9 +11,9 @@
   .wrap{max-width:520px;margin:0 auto;padding:14px;}
   .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:0 1px 5px rgba(20,30,55,.06);}
   label.fld{display:block;font-size:13px;font-weight:700;color:var(--navy);margin:2px 0 6px;}
-  input[type=text],input[type=date]{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);}
-  .row2{display:flex;gap:10px;}
-  .row2>div{flex:1;}
+  input[type=text],input[type=date]{width:100%;min-width:0;max-width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);-webkit-appearance:none;appearance:none;}
+  .row2{display:flex;gap:10px;flex-wrap:wrap;}
+  .row2>div{flex:1 1 140px;min-width:0;}
   .seg{display:flex;gap:8px;flex-wrap:wrap;}
   .seg button{flex:1;min-width:64px;min-height:46px;border:2px solid var(--line);background:#fff;color:var(--navy);border-radius:12px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;}
   .seg button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
