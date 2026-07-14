@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v131（試合分析：決まり技レーダーを9軸化。①〜④投技上位／⑤その他投技／⑥合わせ技／⑦寝技／⑧反則・判定／⑨不戦・棄権） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v132（多言語対応の抜けを補修：試合分析・決まり技レーダー・集計出欠のUIを英/仏/葡へ翻訳。矢印分離で区分名・月名も翻訳） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1739,7 +1739,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v131'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v132'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2026,6 +2026,28 @@ Object.assign(DICT,{
   '区分名が重複しています':{en:'Category names must be unique',fr:'Les noms de catégorie doivent être uniques',pt:'Os nomes de categoria devem ser únicos'},
   '区分は1〜10個にしてください':{en:'Use 1 to 10 categories',fr:'Utilisez 1 à 10 catégories',pt:'Use de 1 a 10 categorias'}
 });
+// v132: 試合分析・決まり技レーダー・集計出欠のUI文字列（多言語）
+Object.assign(DICT,{
+  '試合分析':{en:'Match analysis',fr:'Analyse des combats',pt:'Análise de lutas'},
+  '全データ':{en:'All data',fr:'Toutes données',pt:'Todos os dados'},
+  '対 右組':{en:'vs Right grip',fr:'vs Garde droite',pt:'vs Pegada direita'},
+  '対 左組':{en:'vs Left grip',fr:'vs Garde gauche',pt:'vs Pegada esquerda'},
+  '決まり技レーダー（割合）':{en:'Deciding-technique radar (share)',fr:'Radar des techniques décisives (%)',pt:'Radar de técnicas decisivas (%)'},
+  '勝ち技':{en:'Winning techniques',fr:'Techniques gagnantes',pt:'Técnicas de vitória'},
+  '負け技（取られた技）':{en:'Conceded techniques',fr:'Techniques encaissées',pt:'Técnicas sofridas'},
+  'その他投技':{en:'Other throws',fr:'Autres projections',pt:'Outras projeções'},
+  '寝技':{en:'Groundwork',fr:'Ne-waza (sol)',pt:'Ne-waza (solo)'},
+  '反則・判定':{en:'Penalty / Decision',fr:'Pénalité / Décision',pt:'Punição / Decisão'},
+  '不戦・棄権':{en:'Bye / Withdrawal',fr:'Forfait / Abandon',pt:'W.O. / Desistência'},
+  '本人':{en:'This player',fr:'Ce judoka',pt:'Este atleta'},
+  '道場全体':{en:'Whole dojo',fr:'Tout le dojo',pt:'Todo o dojô'},
+  '軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則勝ち/判定勝ち）・不戦・棄権（不戦勝/棄権勝ち）。金の破線＝道場全体。':{en:'Axes = top 4 throws by frequency (filled with Seoi-nage→Uchi-mata→Osoto-gari→Harai-goshi if short) + Other throws, Combination, Groundwork (osae/shime/kansetsu), Penalty/Decision (shido diff / foul win / decision win), Bye/Withdrawal (default win / withdrawal win). Gold dashed line = whole dojo.',fr:'Axes = 4 projections les plus fréquentes (complétées par Seoi-nage→Uchi-mata→Osoto-gari→Harai-goshi au besoin) + Autres projections, Combinaison, Ne-waza (osae/shime/kansetsu), Pénalité/Décision (écart de shido / victoire sur faute / décision), Forfait/Abandon (forfait / abandon). Ligne dorée en pointillés = tout le dojo.',pt:'Eixos = 4 projeções mais frequentes (completadas por Seoi-nage→Uchi-mata→Osoto-gari→Harai-goshi se faltar) + Outras projeções, Combinação, Ne-waza (osae/shime/kansetsu), Punição/Decisão (dif. de shido / vitória por falta / decisão), W.O./Desistência (W.O. / desistência). Linha dourada tracejada = todo o dojô.'},
+  '月別の出席数':{en:'By month',fr:'Par mois',pt:'Por mês'},
+  '日別の詳細':{en:'By day',fr:'Par jour',pt:'Por dia'},
+  '属性の行をタップすると、その中の仲間ごとの数字が開きます。数字は各月の出席回数、右端は年度合計。横にスクロールできます。':{en:'Tap a category row to open each member’s numbers. Figures are monthly attendance counts; the right column is the yearly total. Scroll sideways.',fr:'Touchez une ligne de catégorie pour afficher chaque membre. Les chiffres sont les présences mensuelles ; la colonne de droite est le total annuel. Faites défiler horizontalement.',pt:'Toque na linha de uma categoria para abrir os números de cada membro. Os valores são as presenças mensais; a coluna à direita é o total anual. Role para o lado.'},
+  '月をタップすると、その月の練習日ごとの出欠が開きます。':{en:'Tap a month to open attendance for each practice day.',fr:'Touchez un mois pour afficher la présence par jour d’entraînement.',pt:'Toque em um mês para abrir a presença por dia de treino.'},
+  '未設定':{en:'Unset',fr:'Non défini',pt:'Não definido'}
+});
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
   [/^([小中高大])([1-6])$/, (m,L)=>STAGE[L][m[1]]+m[2]],                                   // 学年 小3→E3
@@ -2040,6 +2062,7 @@ const PATTERNS=[
   [/^(\d{4})年\s*(\d{1,2})月$/, (m,L)=>MON[L][+m[2]]+' '+m[1]],                              // 2026年 7月→Jul 2026
   [/^(\d+)試合\u3000○(\d+)\u3000▲(\d+)\u3000×(\d+)$/, (m,L)=>{const w={en:'matches',fr:'combats',pt:'lutas'}[L];return m[1]+' '+w+'\u3000○'+m[2]+'\u3000▲'+m[3]+'\u3000×'+m[4];}], // 試合サマリ
   [/^全(\d+)試合$/, (m,L)=>({en:m[1]+' matches',fr:m[1]+' combats',pt:m[1]+' lutas'}[L])],     // 全20試合
+  [/^練習(\d+)回・延べ出席(\d+)$/, (m,L)=>({en:m[1]+' practices · '+m[2]+' attendances',fr:m[1]+' séances · '+m[2]+' présences',pt:m[1]+' treinos · '+m[2]+' presenças'}[L])], // 月ブロックのサブ
   [/^（(.)）$/, (m,L)=>{const w=(DICT[m[1]]&&DICT[m[1]][L])||m[1];return '（'+w+'）';}],           // （水）
   [/^(\d{1,2})\/(\d{1,2})（(.)）$/, (m,L)=>{const w=(DICT[m[3]]&&DICT[m[3]][L])||m[3];return m[1]+'/'+m[2]+'（'+w+'）';}], // 7/4（土）
   [/^(\d{4})\/(\d{1,2})\/(\d{1,2})（(.)）$/, (m,L)=>{const w=(DICT[m[4]]&&DICT[m[4]][L])||m[4];return m[1]+'/'+m[2]+'/'+m[3]+'（'+w+'）';}],
@@ -3377,7 +3400,7 @@ function raSectionHtml(bs,teamBs){
   const svg=raRadarSVG(ax,[{values:pv.arr,color:col,fill:fil},{values:tv.arr,color:'#c8a44d',fill:'rgba(200,164,77,.12)',dash:true}],mx,subCol);
   const wl=`<div class="ra-wl-toggle"><button class="ra-wlbtn win ${isWin?'on':''}" onclick="setMatchRaResult('○')">勝ち技</button><button class="ra-wlbtn lose ${!isWin?'on':''}" onclick="setMatchRaResult('▲')">負け技（取られた技）</button></div>`;
   return `<div class="ana-sec ra-sec">
-    <div class="ra-secttl">📊 決まり技レーダー（割合）</div>
+    <div class="ra-secttl"><span class="ra-ico">📊</span> 決まり技レーダー（割合）</div>
     ${wl}
     <div class="ra-single">${svg}</div>
     <div class="ra-legend"><span><i style="background:${col}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>
@@ -4044,7 +4067,7 @@ function renderAttView(){
       let gTotal=0;
       const gcells=months.map(ym=>{let sum=0;g.members.forEach(s=>{sum+=cntOf(s.id,ym);});gTotal+=sum;return `<td>${sum||'-'}</td>`;}).join('');
       const arrow=open?'▼':'▶';
-      const gh=`<tr class="att-ghead" onclick="toggleAttGrp('${gkey}')"><td class="namecell" style="color:${g.color}">${arrow} ${esc(g.label||'未設定')}<span class="mgrp-n">${g.members.length}</span></td>${gcells}<td class="cell-total">${gTotal}</td></tr>`;
+      const gh=`<tr class="att-ghead" onclick="toggleAttGrp('${gkey}')"><td class="namecell" style="color:${g.color}"><span class="att-tri">${arrow}</span> ${esc(g.label||'未設定')}<span class="mgrp-n">${g.members.length}</span></td>${gcells}<td class="cell-total">${gTotal}</td></tr>`;
       const memberRows=open?g.members.map(s=>memberRow(s,gkey)).join(''):'';
       return gh+memberRows;
     }).join('');
@@ -4069,7 +4092,7 @@ function renderAttView(){
     const arrow=open?'▼':'▶';
     const m=Number(ym.split('-')[1]);
     let mp=0;byMonth[ym].forEach(dt=>{const rec=DB.attendance[dt]||{};DB.students.forEach(s=>{if(rec[s.id]==='present'&&isEnrolledOn(s,dt))mp++;});});
-    const head=`<div class="att-mhead" onclick="toggleAttMonth('${ym}')">${arrow} ${m}月<span class="att-mhead-sub">練習${byMonth[ym].length}回・延べ出席${mp}</span></div>`;
+    const head=`<div class="att-mhead" onclick="toggleAttMonth('${ym}')"><span class="att-tri">${arrow}</span> ${m}月<span class="att-mhead-sub">練習${byMonth[ym].length}回・延べ出席${mp}</span></div>`;
     const table=open?`<div class="matrix-wrap"><table class="matrix"><thead><tr><th class="namecell">練習日</th><th>出席</th><th>欠席</th><th>未回答</th></tr></thead><tbody>${byMonth[ym].map(dayRow).join('')}</tbody></table></div>`:'';
     return `<div class="att-mblock">${head}${table}</div>`;
   }).join('');
