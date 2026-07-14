@@ -1,0 +1,208 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>試合きろく（保護者用・試作）</title>
+<style>
+  :root{--navy:#1a2b4a;--gold:#c8a44d;--green:#2e7d4f;--red:#c0392b;--line:#e0dccf;--paper:#f4f2ec;--ink:#222;--muted:#777;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,"Hiragino Sans","Meiryo",sans-serif;font-size:16px;padding-bottom:40px;}
+  .top{background:linear-gradient(120deg,#2a1a4a,#8e3a8e);color:#fff;padding:16px 16px 14px;}
+  .top .app{font-size:13px;opacity:.85;}
+  .top h1{margin:2px 0 0;font-size:20px;font-weight:800;}
+  .wrap{max-width:520px;margin:0 auto;padding:14px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:0 1px 5px rgba(20,30,55,.06);}
+  label.fld{display:block;font-size:13px;font-weight:700;color:var(--navy);margin:2px 0 6px;}
+  input[type=text],input[type=date]{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);}
+  .row2{display:flex;gap:10px;}
+  .row2>div{flex:1;}
+  .seg{display:flex;gap:8px;flex-wrap:wrap;}
+  .seg button{flex:1;min-width:64px;min-height:46px;border:2px solid var(--line);background:#fff;color:var(--navy);border-radius:12px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer;}
+  .seg button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .seg.res button.on.win{background:var(--green);border-color:var(--green);}
+  .seg.res button.on.lose{background:var(--red);border-color:var(--red);}
+  .mt{margin-top:12px;}
+  .match{border:1.5px solid var(--line);border-left:5px solid var(--gold);border-radius:14px;padding:12px;margin-bottom:12px;background:#fff;}
+  .match-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .match-h .no{font-weight:800;color:var(--navy);font-size:16px;}
+  .del{color:var(--red);background:#faf0ee;border:1px solid #e6c9c2;border-radius:9px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer;}
+  .wazabtn{width:100%;text-align:left;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:16px;font-weight:700;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+  .wazabtn .ph{color:var(--muted);font-weight:600;}
+  .wazabtn .arw{color:var(--gold);}
+  .more{margin-top:10px;}
+  .more>summary{cursor:pointer;color:var(--navy);font-weight:700;font-size:14px;list-style:none;padding:6px 0;}
+  .more>summary::-webkit-details-marker{display:none;}
+  .more>summary::before{content:'▸ ';color:var(--gold);}
+  .more[open]>summary::before{content:'▾ ';}
+  .addbtn{width:100%;min-height:52px;border:2px dashed var(--gold);background:#fffdf6;color:#8a6d1e;border-radius:14px;font-weight:800;font-size:16px;cursor:pointer;}
+  .genbox{white-space:pre-wrap;background:#0e1626;color:#e8eef7;border-radius:12px;padding:14px;font-size:13px;line-height:1.6;font-family:ui-monospace,Menlo,Consolas,monospace;overflow-x:auto;}
+  .actions{display:flex;gap:10px;margin-top:12px;}
+  .actions button{flex:1;min-height:54px;border-radius:14px;font-weight:800;font-size:16px;font-family:inherit;cursor:pointer;border:none;}
+  .btn-copy{background:var(--navy);color:#fff;}
+  .btn-line{background:#06C755;color:#fff;}
+  .hint{font-size:12.5px;color:var(--muted);line-height:1.6;margin:6px 2px 0;}
+  .req{color:var(--red);font-size:11px;margin-left:4px;}
+  /* modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(10,15,25,.5);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  .modal-bg.show{display:flex;}
+  .modal{background:#fff;width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto;}
+  .modal h3{margin:2px 0 10px;color:var(--navy);}
+  #grpTabs{display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:#f5f7f9;border:1px solid var(--line);border-radius:12px;align-content:flex-start;}
+  #grpTabs button{min-height:40px;padding:0 13px;border-radius:22px;border:2px solid var(--navy);background:#fff;color:var(--navy);font-weight:700;font-size:14px;cursor:pointer;}
+  #grpTabs button.on{background:var(--navy);color:#fff;}
+  #wazaGrid{display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:#f5f7f9;border:1px solid var(--line);border-radius:12px;height:40vh;overflow-y:auto;align-content:flex-start;margin-top:10px;}
+  #wazaGrid button{min-height:44px;padding:0 12px;border-radius:8px;border:1.5px solid #d8dee6;background:#fff;color:var(--ink);font-weight:600;font-size:15px;cursor:pointer;}
+  .free{display:flex;gap:8px;margin-top:10px;}
+  .free input{flex:1;}
+  .free button,.modal .close{min-height:46px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-weight:700;padding:0 16px;cursor:pointer;font-family:inherit;}
+</style></head>
+<body>
+<div class="top"><div class="app">○○柔道クラブ</div><h1>🥋 試合きろく</h1></div>
+<div class="wrap">
+  <div class="card">
+    <label class="fld">選手のなまえ<span class="req">必須</span></label>
+    <input type="text" id="selfName" placeholder="例：山本 蓮" oninput="gen()">
+    <div class="row2 mt">
+      <div><label class="fld">大会名</label><input type="text" id="taikai" placeholder="例：春季市民大会" oninput="gen()"></div>
+      <div><label class="fld">日づけ</label><input type="date" id="hidzuke" oninput="gen()"></div>
+    </div>
+    <label class="fld mt">種別</label>
+    <div class="seg" id="kindSeg">
+      <button class="on" data-k="個人" onclick="pickKind(this)">個人戦</button>
+      <button data-k="団体" onclick="pickKind(this)">団体戦</button>
+    </div>
+    <p class="hint">大会名・日づけは分かる範囲でOK。ちがっていても事務の先生が直せます。</p>
+  </div>
+
+  <div id="matches"></div>
+  <button class="addbtn" onclick="addMatch()">＋ 試合をふやす</button>
+
+  <div class="card mt">
+    <label class="fld">送る内容（自動でできます）</label>
+    <div class="genbox" id="genOut"></div>
+    <div class="actions">
+      <button class="btn-copy" onclick="doCopy()">📋 コピー</button>
+      <button class="btn-line" onclick="doShare()">LINEで送る</button>
+    </div>
+    <p class="hint">「コピー」または「LINEで送る」で、この内容を道場のLINEに貼って送ってください。</p>
+  </div>
+</div>
+
+<!-- 技ピッカー -->
+<div class="modal-bg" id="wazaModal">
+  <div class="modal">
+    <h3>決まり技をえらぶ</h3>
+    <label class="fld">① 種類をえらぶ</label>
+    <div id="grpTabs"></div>
+    <label class="fld mt">② 技名をえらぶ</label>
+    <div id="wazaGrid"></div>
+    <label class="fld mt">リストにない技（自由記入）</label>
+    <div class="free"><input type="text" id="wazaFree" placeholder="自由に入力"><button onclick="chooseFree()">決定</button></div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="close" style="flex:1" onclick="chooseWaza('')">技なし</button>
+      <button class="close" style="flex:1" onclick="closeWaza()">やめる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const WAZA_GROUPS=[
+  {g:'手技',items:['背負投','一本背負投','背負落','体落','掬投','浮落','隅落','帯落','山嵐','帯取返','内股すかし','小内返','朽木倒','踵返','双手刈']},
+  {g:'腰技',items:['浮腰','大腰','腰車','釣込腰','袖釣込腰','払腰','釣腰','跳腰','移腰','後腰','衣被']},
+  {g:'足技',items:['出足払','膝車','支釣込足','大外刈','大内刈','小外刈','小内刈','送足払','内股','小外掛','足車','払釣込足','大車','大外車','大外落','燕返','大内返','小内返','跳膝','払込足','内股返']},
+  {g:'真捨身技',items:['巴投','裏投','隅返','引込返','俵返']},
+  {g:'横捨身技',items:['横落','谷落','跳巻込','外巻込','内巻込','浮技','横分','横車','横掛','抱分','大外巻込','内股巻込','払巻込','小内巻込','蟹挟','河津掛']},
+  {g:'抑込技',items:['袈裟固','崩袈裟固','後袈裟固','肩固','上四方固','崩上四方固','横四方固','縦四方固','浮固','裏固']},
+  {g:'絞技',items:['並十字絞','逆十字絞','片十字絞','裸絞','送襟絞','片羽絞','片手絞','両手絞','袖車絞','突込絞','三角絞','胴絞']},
+  {g:'関節技',items:['腕緘','腕挫十字固','腕挫腕固','腕挫膝固','腕挫脇固','腕挫腹固','腕挫脚固','腕挫手固','腕挫三角固','足緘']},
+  {g:'その他決着',items:['合わせ技','反則勝ち','不戦勝','棄権勝ち','判定勝ち','指導差']}
+];
+const GRADES=['一本','技あり','有効','指導差','判定'];
+const ROUNDS=['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
+let kind='個人';
+let matches=[];
+let openSet=new Set();          // 「くわしく」を開いている試合id（再描画で保持）
+let pickGrp=WAZA_GROUPS[0].g, pickTarget=null;
+function onToggle(id,open){if(open)openSet.add(id);else openSet.delete(id);}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function uid(){return 'm'+Math.random().toString(36).slice(2,8);}
+function pickKind(b){kind=b.dataset.k;[...document.querySelectorAll('#kindSeg button')].forEach(x=>x.classList.toggle('on',x===b));gen();}
+function addMatch(){matches.push({id:uid(),res:'○',waza:'',grip:'右',grade:'',opp:'',affil:'',round:'',note:''});render();}
+function delMatch(id){matches=matches.filter(m=>m.id!==id);render();}
+function setField(id,k,v){const m=matches.find(x=>x.id===id);if(m){m[k]=v;render();}}
+function render(){
+  document.getElementById('matches').innerHTML=matches.map((m,i)=>{
+    const isDraw=m.res==='×';
+    const wazaLbl=m.waza?esc(m.waza):'<span class="ph">タップして技をえらぶ</span>';
+    return `<div class="match">
+      <div class="match-h"><span class="no">${i+1}試合目</span><button class="del" onclick="delMatch('${m.id}')">削除</button></div>
+      <label class="fld">結果<span class="req">必須</span></label>
+      <div class="seg res">
+        <button class="win ${m.res==='○'?'on':''}" onclick="setField('${m.id}','res','○')">○ 勝ち</button>
+        <button class="lose ${m.res==='▲'?'on':''}" onclick="setField('${m.id}','res','▲')">▲ 負け</button>
+        <button class="${m.res==='×'?'on':''}" onclick="setField('${m.id}','res','×')">× 分け</button>
+      </div>
+      ${isDraw?'':`
+      <label class="fld mt">決まり技${m.res==='○'?'<span class="req">必須</span>':''}</label>
+      <button class="wazabtn" onclick="openWaza('${m.id}')"><span>${wazaLbl}</span><span class="arw">えらぶ ▸</span></button>`}
+      <label class="fld mt">組手</label>
+      <div class="seg">
+        <button class="${m.grip==='右'?'on':''}" onclick="setField('${m.id}','grip','右')">右組み</button>
+        <button class="${m.grip==='左'?'on':''}" onclick="setField('${m.id}','grip','左')">左組み</button>
+      </div>
+      ${isDraw?'':`<label class="fld mt">内容</label>
+      <div class="seg">${GRADES.map(g=>`<button class="${m.grade===g?'on':''}" onclick="setField('${m.id}','grade','${m.grade===g?'':g}')">${g}</button>`).join('')}</div>`}
+      <label class="fld mt">回戦</label>
+      <div class="seg">${ROUNDS.map(r=>`<button class="${m.round===r?'on':''}" onclick="setField('${m.id}','round','${m.round===r?'':r}')">${r}</button>`).join('')}</div>
+      <label class="fld mt">相手のなまえ</label>
+      <input type="text" value="${esc(m.opp)}" oninput="setFieldRaw('${m.id}','opp',this.value)" placeholder="例：青葉 太郎">
+      <label class="fld mt">相手の所属・ゼッケン</label>
+      <input type="text" value="${esc(m.affil)}" oninput="setFieldRaw('${m.id}','affil',this.value)" placeholder="例：東光高／2番">
+      <label class="fld mt">備考（自由メモ）</label>
+      <input type="text" value="${esc(m.note)}" oninput="setFieldRaw('${m.id}','note',this.value)" placeholder="気づいたことなど">
+    </div>`;
+  }).join('');
+  gen();
+}
+function setFieldRaw(id,k,v){const m=matches.find(x=>x.id===id);if(m){m[k]=v;gen();}}
+// ---- 技ピッカー ----
+function openWaza(id){pickTarget=id;const m=matches.find(x=>x.id===id);pickGrp=m&&m.waza?wgOf(m.waza):WAZA_GROUPS[0].g;document.getElementById('wazaFree').value='';renderTabs();renderGrid(m?m.waza:'');document.getElementById('wazaModal').classList.add('show');}
+function closeWaza(){document.getElementById('wazaModal').classList.remove('show');}
+function wgOf(w){for(const g of WAZA_GROUPS)if(g.items.includes(w))return g.g;return WAZA_GROUPS[0].g;}
+function renderTabs(){document.getElementById('grpTabs').innerHTML=WAZA_GROUPS.map(g=>`<button class="${g.g===pickGrp?'on':''}" onclick="setGrp('${g.g}')">${g.g}</button>`).join('');}
+function setGrp(g){pickGrp=g;renderTabs();renderGrid('');}
+function renderGrid(cur){const g=WAZA_GROUPS.find(x=>x.g===pickGrp)||WAZA_GROUPS[0];document.getElementById('wazaGrid').innerHTML=g.items.map(w=>`<button onclick="chooseWaza('${w}')">${w}</button>`).join('');}
+function chooseWaza(w){if(pickTarget){const m=matches.find(x=>x.id===pickTarget);if(m)m.waza=w;}closeWaza();render();}
+function chooseFree(){const v=document.getElementById('wazaFree').value.trim();if(v)chooseWaza(v);}
+// ---- 生成 ----
+function gen(){
+  const name=document.getElementById('selfName').value.trim();
+  const tk=document.getElementById('taikai').value.trim();
+  const hd=document.getElementById('hidzuke').value.trim();
+  let out='【My道場 試合きろく】\n';
+  out+='選手｜'+name+'\n大会｜'+tk+'\n日付｜'+hd+'\n種別｜'+kind+'\n--- 試合 ---\n';
+  if(!matches.length){out+='（まだ試合がありません。「＋試合をふやす」を押してね）';}
+  else{
+    out+=matches.map(m=>{
+      const f=[m.res,(m.res==='×'?'':m.waza),m.grip,(m.res==='×'?'':m.grade),m.opp,m.affil,m.round,m.note];
+      return f.join('｜');
+    }).join('\n');
+  }
+  document.getElementById('genOut').textContent=out;
+  return out;
+}
+function fallbackCopy(t){
+  const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  let ok=false;try{ok=document.execCommand('copy');}catch(e){}
+  ta.remove();
+  alert(ok?'コピーしました。LINEに貼って送ってください。':'自動コピーできませんでした。下の黒い枠を長押しして選択→コピーしてください。');
+}
+function doCopy(){
+  const t=gen();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(()=>alert('コピーしました。LINEに貼って送ってください。')).catch(()=>fallbackCopy(t));
+  }else{fallbackCopy(t);}
+}
+function doShare(){const t=gen();if(navigator.share){navigator.share({text:t}).catch(()=>{});}else{doCopy();}}
+addMatch();
+</script>
+</body></html>
