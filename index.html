@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v133（UX一括改善：試合分析を最上段表示／仲間・出欠・お金・試合一覧を属性で畳込み／予定を月で畳込み＋試合のみ表示／月別収支に当月まで/年度全体トグル／レーダーlabel多言語折返し／決まり技①種類に枠・高さ固定） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v134（試合結果「テキストから取り込み」：保護者の記入ページ(report.html)出力テキストを貼付→解析→選手/大会を確認→一括登録。予定が無ければ新規作成も可） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -618,6 +618,15 @@
   .fold-head .fold-sum{margin-left:auto;display:inline-flex;gap:9px;align-items:center;font-size:calc(13px*var(--fs,1));font-weight:800;}
   .fold-head .fold-sum .fs-dot{display:inline-flex;align-items:center;gap:2px;}
   .fold-head .fold-sum .fs-dot::before{content:'';width:9px;height:9px;border-radius:50%;background:currentColor;display:inline-block;}
+  /* v134: 試合結果 取り込みプレビュー */
+  .imp-hint{font-size:calc(12px*var(--fs,1));color:var(--muted);margin:5px 2px 2px;}
+  .imp-row{display:flex;align-items:center;gap:9px;padding:9px 10px;border:1.5px solid var(--line);border-radius:10px;margin-bottom:7px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .imp-row.off{opacity:.4;background:#f3f2ee;}
+  .imp-row .imp-ck{flex:0 0 auto;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--green);display:inline-flex;align-items:center;justify-content:center;color:var(--green);font-weight:800;font-size:14px;}
+  .imp-row.off .imp-ck{border-color:var(--muted);color:transparent;}
+  .imp-row .imp-body{flex:1;min-width:0;font-size:calc(13.5px*var(--fs,1));color:var(--ink);line-height:1.35;}
+  .imp-row .imp-round{color:var(--muted);font-size:calc(12px*var(--fs,1));}
+  #importSelf,#importSched{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);box-sizing:border-box;}
   .mate-count{font-size:calc(12px*var(--fs,1));font-weight:700;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1px 9px;}
   .mate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
   .mate-cell{display:flex;flex-direction:column;gap:5px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:9px 9px 10px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;}
@@ -970,9 +979,12 @@ function applyUpdate(){
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px">
         <h3 style="margin:0;color:var(--navy);font-size:calc(18px*var(--fs,1))">試合結果</h3>
-        <button class="chip-btn" onclick="openMatchSearch()">🔍 検索</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="chip-btn" onclick="openImportModal()">📋 取り込み</button>
+          <button class="chip-btn" onclick="openMatchSearch()">🔍 検索</button>
+        </div>
       </div>
-      <p class="list-mini" id="matchSummaryHint">仲間をタップすると、その人の試合結果がすべて表示されます。</p>
+      <p class="list-mini" id="matchSummaryHint">仲間をタップすると、その人の試合結果がすべて表示されます。「📋取り込み」で保護者からのLINE記入テキストをまとめて登録できます。</p>
       <div id="matchMemberList" style="margin-top:10px"></div>
     </div>
     <div class="card" id="matchDetailCard" style="display:none">
@@ -1628,6 +1640,40 @@ function applyUpdate(){
   </div>
 </div>
 
+<!-- 試合結果 テキスト取り込みモーダル -->
+<div class="modal-bg" id="importModal">
+  <div class="modal">
+    <h3 style="margin-top:0">📋 テキストから取り込み</h3>
+    <div id="importStep1">
+      <p class="list-mini" style="margin:0 0 8px">保護者からLINEで届いた「試合きろく」のテキストを、まるごと貼り付けて「解析」を押してください。</p>
+      <textarea id="importText" rows="7" placeholder="【My道場 試合きろく】…をここに貼り付け" style="width:100%;font-size:15px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical"></textarea>
+      <div class="row" style="margin-top:12px">
+        <button class="btn ghost" onclick="closeModal('importModal')">やめる</button>
+        <button class="btn gold" onclick="analyzeImport()">解析する</button>
+      </div>
+    </div>
+    <div id="importStep2" style="display:none">
+      <label class="fld" style="margin-top:0">選手（在籍者から選択）</label>
+      <select id="importSelf"></select>
+      <div class="imp-hint" id="importSelfHint"></div>
+      <label class="fld">取り込み先の大会</label>
+      <select id="importSched" onchange="onImportSchedChange()"></select>
+      <div id="importNewSched" style="display:none">
+        <label class="fld">新しい大会名</label>
+        <input type="text" id="importNewName" placeholder="例：春季市民大会">
+        <label class="fld">日付</label>
+        <input type="date" id="importNewDate">
+      </div>
+      <label class="fld">取り込む試合（チェックしたものを登録）</label>
+      <div id="importBouts"></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn ghost" onclick="backImportStep1()">← 貼り直す</button>
+        <button class="btn gold" onclick="doImport()">この内容で取り込む</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- 対戦カード入力モーダル（団体戦）-->
 <div class="modal-bg" id="cardModal">
   <div class="modal">
@@ -1766,7 +1812,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v133'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v134'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2086,6 +2132,25 @@ Object.assign(DICT,{
   'この月の予定はありません':{en:'No events this month',fr:'Aucun événement ce mois',pt:'Nenhum evento neste mês'},
   '試合・大会はありません':{en:'No matches/tournaments',fr:'Aucune compétition',pt:'Nenhuma competição'}
 });
+// v134: 試合結果 テキスト取り込み
+Object.assign(DICT,{
+  '📋 取り込み':{en:'📋 Import',fr:'📋 Importer',pt:'📋 Importar'},
+  '📋 テキストから取り込み':{en:'📋 Import from text',fr:'📋 Importer du texte',pt:'📋 Importar de texto'},
+  '解析する':{en:'Analyze',fr:'Analyser',pt:'Analisar'},
+  'この内容で取り込む':{en:'Import this',fr:'Importer ceci',pt:'Importar isto'},
+  '← 貼り直す':{en:'← Re-paste',fr:'← Recoller',pt:'← Recolar'},
+  '選手（在籍者から選択）':{en:'Player (from roster)',fr:'Joueur (de la liste)',pt:'Atleta (da lista)'},
+  '取り込み先の大会':{en:'Target event',fr:'Événement cible',pt:'Evento destino'},
+  '新しい大会名':{en:'New event name',fr:'Nom du nouvel événement',pt:'Nome do novo evento'},
+  '取り込む試合（チェックしたものを登録）':{en:'Matches to import (checked)',fr:'Combats à importer (cochés)',pt:'Lutas a importar (marcadas)'},
+  '＋ 新しい予定を作成':{en:'＋ Create new event',fr:'＋ Créer un événement',pt:'＋ Criar evento'},
+  '（選手を選ぶ）':{en:'(select player)',fr:'(choisir)',pt:'(escolher)'},
+  '保護者からLINEで届いた「試合きろく」のテキストを、まるごと貼り付けて「解析」を押してください。':{en:'Paste the whole “match record” text a parent sent via LINE, then tap Analyze.',fr:'Collez tout le texte « fiche de combat » envoyé par un parent, puis touchez Analyser.',pt:'Cole todo o texto de “registro de luta” enviado pelo responsável e toque em Analisar.'},
+  '試合が読み取れませんでした。形式を確認してください':{en:'Couldn’t read any match. Check the format.',fr:'Aucun combat lu. Vérifiez le format.',pt:'Nenhuma luta lida. Verifique o formato.'},
+  '選手を選んでください':{en:'Please select a player',fr:'Veuillez choisir un joueur',pt:'Escolha um atleta'},
+  '新しい予定の日付を入れてください':{en:'Enter the new event date',fr:'Saisissez la date du nouvel événement',pt:'Informe a data do novo evento'},
+  '取り込む試合がありません':{en:'No matches to import',fr:'Aucun combat à importer',pt:'Nenhuma luta para importar'}
+});
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
   [/^([小中高大])([1-6])$/, (m,L)=>STAGE[L][m[1]]+m[2]],                                   // 学年 小3→E3
@@ -2102,6 +2167,7 @@ const PATTERNS=[
   [/^全(\d+)試合$/, (m,L)=>({en:m[1]+' matches',fr:m[1]+' combats',pt:m[1]+' lutas'}[L])],     // 全20試合
   [/^(\d+)試合$/, (m,L)=>({en:m[1]+' matches',fr:m[1]+' combats',pt:m[1]+' lutas'}[L])],       // N試合（属性サマリ）
   [/^(\d+)件$/, (m,L)=>({en:m[1]+' items',fr:m[1]+' éléments',pt:m[1]+' itens'}[L])],           // N件
+  [/^(\d+)件を取り込みました$/, (m,L)=>({en:'Imported '+m[1]+' matches',fr:m[1]+' combats importés',pt:m[1]+' lutas importadas'}[L])], // 取り込みトースト
   [/^練習(\d+)回・延べ出席(\d+)$/, (m,L)=>({en:m[1]+' practices · '+m[2]+' attendances',fr:m[1]+' séances · '+m[2]+' présences',pt:m[1]+' treinos · '+m[2]+' presenças'}[L])], // 月ブロックのサブ
   [/^（(.)）$/, (m,L)=>{const w=(DICT[m[1]]&&DICT[m[1]][L])||m[1];return '（'+w+'）';}],           // （水）
   [/^(\d{1,2})\/(\d{1,2})（(.)）$/, (m,L)=>{const w=(DICT[m[3]]&&DICT[m[3]][L])||m[3];return m[1]+'/'+m[2]+'（'+w+'）';}], // 7/4（土）
@@ -3825,6 +3891,120 @@ function allBoutsFlat(){
     }
   });
   return out;
+}
+/* ===== v134: 試合結果 テキスト取り込み（保護者LINE記入→貼付）===== */
+let importParsed=null;
+function openImportModal(){
+  importParsed=null;
+  document.getElementById('importText').value='';
+  document.getElementById('importStep1').style.display='block';
+  document.getElementById('importStep2').style.display='none';
+  openModal('importModal');
+}
+function backImportStep1(){
+  document.getElementById('importStep1').style.display='block';
+  document.getElementById('importStep2').style.display='none';
+}
+function impResult(t){
+  t=(t||'').trim();
+  if(/負/.test(t)||/^(▲|△|lose|l)$/i.test(t))return '▲';
+  if(/分|引分/.test(t)||/^(×|✕|x|draw|d)$/i.test(t))return '×';
+  if(/勝/.test(t)||/^(○|〇|●|win|w)$/i.test(t))return '○';
+  return '';
+}
+function impSplit(line){return line.split(/[｜|]/).map(s=>s.trim());}
+function impNormDate(v){v=(v||'').trim();const m=v.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);return m?`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`:'';}
+function impDayDiff(a,b){if(!a||!b)return 9999;return Math.round((new Date(a+'T00:00')-new Date(b+'T00:00'))/86400000);}
+function parseImportText(raw){
+  const lines=(raw||'').replace(/\r/g,'').split('\n').map(l=>l.trim()).filter(Boolean);
+  const head={self:'',taikai:'',date:'',kind:'個人'};
+  const bouts=[];
+  lines.forEach(line=>{
+    if(/^【.*】$/.test(line))return;                  // タイトル行
+    if(/^[-—―]+\s*試合\s*[-—―]+$/.test(line))return; // 「--- 試合 ---」区切り
+    const parts=impSplit(line);
+    const r=impResult(parts[0]);
+    if(r&&parts.length>=2){
+      bouts.push({res:r,waza:(parts[1]||'').trim(),
+        grip:/左/.test(parts[2]||'')?'左':(/右/.test(parts[2]||'')?'右':''),
+        grade:(parts[3]||'').trim(),opp:(parts[4]||'').trim(),affil:(parts[5]||'').trim(),
+        round:(parts[6]||'').trim(),note:(parts[7]||'').trim(),include:true});
+      return;
+    }
+    if(parts.length>=2){
+      const k=parts[0], v=parts.slice(1).join('｜').trim();
+      if(/選手|名前|なまえ/.test(k))head.self=v;
+      else if(/大会|試合名/.test(k))head.taikai=v;
+      else if(/日付|日づけ|日にち/.test(k))head.date=impNormDate(v);
+      else if(/種別|区分/.test(k))head.kind=/団体/.test(v)?'団体':'個人';
+    }
+  });
+  return {head,bouts};
+}
+function analyzeImport(){
+  const p=parseImportText(document.getElementById('importText').value);
+  if(!p.bouts.length){toast(T('試合が読み取れませんでした。形式を確認してください'));return;}
+  importParsed=p;
+  const matched=DB.students.find(s=>s.name===p.head.self);
+  const selEl=document.getElementById('importSelf');
+  selEl.innerHTML='<option value="">'+T('（選手を選ぶ）')+'</option>'+DB.students.map(s=>`<option value="${s.id}" ${matched&&matched.id===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
+  document.getElementById('importSelfHint').textContent = p.head.self ? ('記入：'+p.head.self+(matched?'（自動一致）':'（一致者なし・選んでください）')) : '（記入に選手名がありません）';
+  const scheds=[...DB.schedule].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  let best=null;
+  // 同日はどの予定でも候補に。近い日付(±3日)は試合系の予定だけを候補に（練習日を誤って拾わない）
+  if(p.head.date){best=scheds.find(s=>s.date===p.head.date)||scheds.find(s=>schedIsMatch(s)&&Math.abs(impDayDiff(s.date,p.head.date))<=3);}
+  document.getElementById('importSched').innerHTML=
+    scheds.map(s=>`<option value="${s.id}" ${best&&best.id===s.id?'selected':''}>${esc(schedLabel(s))}／${(s.date||'').replace(/-/g,'/')}</option>`).join('')+
+    `<option value="__new__" ${best?'':'selected'}>${T('＋ 新しい予定を作成')}</option>`;
+  document.getElementById('importNewName').value=p.head.taikai||'';
+  document.getElementById('importNewDate').value=p.head.date||'';
+  onImportSchedChange();
+  renderImportBouts();
+  document.getElementById('importStep1').style.display='none';
+  document.getElementById('importStep2').style.display='block';
+}
+function onImportSchedChange(){
+  document.getElementById('importNewSched').style.display=(document.getElementById('importSched').value==='__new__')?'block':'none';
+}
+function toggleImportBout(i){if(importParsed&&importParsed.bouts[i])importParsed.bouts[i].include=!importParsed.bouts[i].include;renderImportBouts();}
+function renderImportBouts(){
+  document.getElementById('importBouts').innerHTML=importParsed.bouts.map((b,i)=>{
+    const mark=b.res==='○'?'win':b.res==='▲'?'lose':'draw';
+    const chips=[];
+    if(b.res!=='×'&&b.waza)chips.push('<span>'+esc(b.waza)+'</span>');
+    if(b.res!=='×'&&b.grade)chips.push('<span>'+esc(b.grade)+'</span>');
+    if(b.grip)chips.push('<span class="imp-grip">'+esc(b.grip)+'</span>');
+    const sub=chips.join('<span class="imp-sep">／</span>');
+    const opp=b.opp?('vs '+esc(b.opp)+(b.affil?' / '+esc(b.affil):'')):'';
+    return `<div class="imp-row ${b.include?'':'off'}" onclick="toggleImportBout(${i})">
+      <span class="imp-ck">${b.include?'✓':''}</span>
+      <span class="bout-mark mark-${mark}">${b.res}</span>
+      <span class="imp-body">${sub} ${opp} ${b.round?'<span class="imp-round">'+esc(b.round)+'</span>':''}</span>
+    </div>`;
+  }).join('');
+}
+function doImport(){
+  if(!importParsed)return;
+  const selfId=document.getElementById('importSelf').value;
+  if(!selfId){toast(T('選手を選んでください'));return;}
+  let schedId=document.getElementById('importSched').value;
+  if(schedId==='__new__'){
+    const dt=document.getElementById('importNewDate').value;
+    if(!dt){toast(T('新しい予定の日付を入れてください'));return;}
+    const sc={id:uid(),name:'大会',title:document.getElementById('importNewName').value.trim(),date:dt,time:'',place:'',note:'',showMatch:true};
+    DB.schedule.push(sc); schedId=sc.id;
+  }
+  const mr=ensureMatch(schedId);
+  const picked=importParsed.bouts.filter(b=>b.include);
+  if(!picked.length){toast(T('取り込む試合がありません'));return;}
+  picked.forEach(b=>{
+    mr.individual.push({id:uid(),selfId,division:'',round:b.round||'',result:b.res,
+      grade:b.res==='×'?'':(b.grade||''),waza:b.res==='×'?'':(b.waza||''),
+      oppIsMate:false,oppId:'',oppName:b.opp||'',oppAffil:b.affil||'',grip:b.grip||'',note:b.note||'',sheet:'individual'});
+  });
+  save(); closeModal('importModal');
+  if(typeof renderMatchSummary==='function')renderMatchSummary();
+  toast(picked.length+'件を取り込みました');
 }
 function openMatchSearch(){
   document.getElementById('searchWord').value='';
