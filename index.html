@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v136（試合結果テキスト取り込みの改善：①取り込み先の大会を「試合結果設定あり」の予定に限定（通常稽古を除外）②団体戦に対応＝人数・役割(先鋒〜大将/代表戦)を保護者ページで記入し、取り込み時に対戦カードを生成して該当ポジションに登録） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v137（団体戦の集計バグ修正：teamCalcが選手未割当の空ポジション(既定○)を勝ちとして誤カウントしていた→選手が割り当てられたポジションのみ集計。取り込んだ団体戦のスコア・勝敗が正しく反映されるように） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1812,7 +1812,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v136'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v137'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -3284,7 +3284,9 @@ function circled(n){const c=['','①','②','③','④','⑤','⑥','⑦','⑧',
 function fw(n){return String(n).replace(/[0-9]/g,d=>'０１２３４５６７８９'[d]);}
 // チーム勝敗の自動集計（引分ノーカウント）
 function teamCalc(card){
-  const reg=card.bouts||[];
+  // 選手が割り当てられたポジションのみ集計（未入力=選手未設定のポジションはノーカウント。
+  // 取り込みで本人以外のポジションが空のまま既定○になっても誤カウントしない）
+  const reg=(card.bouts||[]).filter(b=>b.selfId);
   let self=reg.filter(b=>b.result==='○').length;
   let opp =reg.filter(b=>b.result==='▲').length;
   const regTied=(self===opp);
