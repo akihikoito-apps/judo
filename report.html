@@ -11,7 +11,9 @@
   .wrap{max-width:520px;margin:0 auto;padding:14px;}
   .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:0 1px 5px rgba(20,30,55,.06);}
   label.fld{display:block;font-size:13px;font-weight:700;color:var(--navy);margin:2px 0 6px;}
-  input[type=text],input[type=date]{width:100%;min-width:0;max-width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);-webkit-appearance:none;appearance:none;}
+  input[type=text],input[type=date]{width:100%;min-width:0;max-width:100%;min-height:48px;font-size:16px;font-family:inherit;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);-webkit-appearance:none;appearance:none;line-height:1.2;}
+  input[type=date]{display:block;}
+  input[type=date]::-webkit-date-and-time-value{text-align:left;}
   .row2{display:flex;gap:10px;flex-wrap:wrap;}
   .row2>div{flex:1 1 140px;min-width:0;}
   .seg{display:flex;gap:8px;flex-wrap:wrap;}
@@ -105,14 +107,14 @@
 
 <script>
 const WAZA_GROUPS=[
-  {g:'手技',items:['背負投','一本背負投','背負落','体落','掬投','浮落','隅落','帯落','山嵐','帯取返','内股すかし','小内返','朽木倒','踵返','双手刈']},
-  {g:'腰技',items:['浮腰','大腰','腰車','釣込腰','袖釣込腰','払腰','釣腰','跳腰','移腰','後腰','衣被']},
-  {g:'足技',items:['出足払','膝車','支釣込足','大外刈','大内刈','小外刈','小内刈','送足払','内股','小外掛','足車','払釣込足','大車','大外車','大外落','燕返','大内返','小内返','跳膝','払込足','内股返']},
+  {g:'手技',items:['背負投','一本背負投','背負落','体落','肩車','掬投','浮落','隅落','帯落','山嵐','帯取返','内股すかし','小内返','朽木倒','踵返','双手刈']},
+  {g:'腰技',items:['浮腰','大腰','腰車','釣込腰','袖釣込腰','払腰','釣腰','跳腰','移腰','後腰']},
+  {g:'足技',items:['出足払','膝車','支釣込足','大外刈','大内刈','小外刈','小内刈','送足払','内股','小外掛','足車','払釣込足','大車','大外車','大外落','燕返','大外返','大内返','跳腰返','払腰返','内股返']},
   {g:'真捨身技',items:['巴投','裏投','隅返','引込返','俵返']},
   {g:'横捨身技',items:['横落','谷落','跳巻込','外巻込','内巻込','浮技','横分','横車','横掛','抱分','大外巻込','内股巻込','払巻込','小内巻込','蟹挟','河津掛']},
   {g:'抑込技',items:['袈裟固','崩袈裟固','後袈裟固','肩固','上四方固','崩上四方固','横四方固','縦四方固','浮固','裏固']},
   {g:'絞技',items:['並十字絞','逆十字絞','片十字絞','裸絞','送襟絞','片羽絞','片手絞','両手絞','袖車絞','突込絞','三角絞','胴絞']},
-  {g:'関節技',items:['腕緘','腕挫十字固','腕挫腕固','腕挫膝固','腕挫脇固','腕挫腹固','腕挫脚固','腕挫手固','腕挫三角固','足緘']},
+  {g:'関節技',items:['腕緘','腕挫十字固','腕挫腕固','腕挫膝固','腕挫腋固','腕挫腹固','腕挫脚固','腕挫手固','腕挫三角固','足緘']},
   {g:'その他決着',items:['合わせ技','反則勝ち','不戦勝','棄権勝ち','判定勝ち','指導差']}
 ];
 const GRADES=['一本','技あり','有効','指導差','判定'];

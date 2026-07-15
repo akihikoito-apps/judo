@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v134（試合結果「テキストから取り込み」：保護者の記入ページ(report.html)出力テキストを貼付→解析→選手/大会を確認→一括登録。予定が無ければ新規作成も可） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v135（決まり技リストを講道館公式に校正：跳膝/払込足/衣被/小内返[足技]の誤り削除、肩車＋足技の返し技3種を追加、腕挫脇固→腕挫腋固に統一。投技68＋固技32＝100本準拠。report.htmlも同期・日付枠の高さ修正） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1812,7 +1812,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v134'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v135'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2150,6 +2150,14 @@ Object.assign(DICT,{
   '選手を選んでください':{en:'Please select a player',fr:'Veuillez choisir un joueur',pt:'Escolha um atleta'},
   '新しい予定の日付を入れてください':{en:'Enter the new event date',fr:'Saisissez la date du nouvel événement',pt:'Informe a data do novo evento'},
   '取り込む試合がありません':{en:'No matches to import',fr:'Aucun combat à importer',pt:'Nenhuma luta para importar'}
+});
+// v135: 技名リストを講道館公式に校正（追加技の翻訳）
+Object.assign(DICT,{
+  '肩車':{en:'Kata-guruma',fr:'Kata-guruma',pt:'Kata-guruma'},
+  '大外返':{en:'O-soto-gaeshi',fr:'O-soto-gaeshi',pt:'O-soto-gaeshi'},
+  '跳腰返':{en:'Hane-goshi-gaeshi',fr:'Hane-goshi-gaeshi',pt:'Hane-goshi-gaeshi'},
+  '払腰返':{en:'Harai-goshi-gaeshi',fr:'Harai-goshi-gaeshi',pt:'Harai-goshi-gaeshi'},
+  '腕挫腋固':{en:'Ude-hishigi-waki-gatame',fr:'Ude-hishigi-waki-gatame',pt:'Ude-hishigi-waki-gatame'}
 });
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
@@ -3464,14 +3472,14 @@ function syncTeamGradeChips(key){
 }
 // 決まり技リスト（講道館 正式名称：投技68＋固技32＝100本＋その他決着）
 const WAZA_GROUPS=[
-  {g:'手技',items:['背負投','一本背負投','背負落','体落','掬投','浮落','隅落','帯落','山嵐','帯取返','内股すかし','小内返','朽木倒','踵返','双手刈']},
-  {g:'腰技',items:['浮腰','大腰','腰車','釣込腰','袖釣込腰','払腰','釣腰','跳腰','移腰','後腰','衣被']},
-  {g:'足技',items:['出足払','膝車','支釣込足','大外刈','大内刈','小外刈','小内刈','送足払','内股','小外掛','足車','払釣込足','大車','大外車','大外落','燕返','大内返','小内返','跳膝','払込足','内股返']},
+  {g:'手技',items:['背負投','一本背負投','背負落','体落','肩車','掬投','浮落','隅落','帯落','山嵐','帯取返','内股すかし','小内返','朽木倒','踵返','双手刈']},
+  {g:'腰技',items:['浮腰','大腰','腰車','釣込腰','袖釣込腰','払腰','釣腰','跳腰','移腰','後腰']},
+  {g:'足技',items:['出足払','膝車','支釣込足','大外刈','大内刈','小外刈','小内刈','送足払','内股','小外掛','足車','払釣込足','大車','大外車','大外落','燕返','大外返','大内返','跳腰返','払腰返','内股返']},
   {g:'真捨身技',items:['巴投','裏投','隅返','引込返','俵返']},
   {g:'横捨身技',items:['横落','谷落','跳巻込','外巻込','内巻込','浮技','横分','横車','横掛','抱分','大外巻込','内股巻込','払巻込','小内巻込','蟹挟','河津掛']},
   {g:'抑込技',items:['袈裟固','崩袈裟固','後袈裟固','肩固','上四方固','崩上四方固','横四方固','縦四方固','浮固','裏固']},
   {g:'絞技',items:['並十字絞','逆十字絞','片十字絞','裸絞','送襟絞','片羽絞','片手絞','両手絞','袖車絞','突込絞','三角絞','胴絞']},
-  {g:'関節技',items:['腕緘','腕挫十字固','腕挫腕固','腕挫膝固','腕挫脇固','腕挫腹固','腕挫脚固','腕挫手固','腕挫三角固','足緘']},
+  {g:'関節技',items:['腕緘','腕挫十字固','腕挫腕固','腕挫膝固','腕挫腋固','腕挫腹固','腕挫脚固','腕挫手固','腕挫三角固','足緘']},
   {g:'その他決着',items:['合わせ技','反則勝ち','不戦勝','棄権勝ち','判定勝ち','指導差']}
 ];
 let _wazaCb=null, pickedWazaGroup=WAZA_GROUPS[0].g;
