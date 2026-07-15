@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v138（団体戦の補完対応：取り込み時、同じ相手チーム＋回戦の対戦カードが既にあれば新規作成せず役割位置に上書き補完＝他選手や後から来た再送分を1枚のカードに統合。手動での補完入力は従来のカード編集で可能） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v139（団体戦の取り込み先カードを選択式に：相手チーム名が空でも「同じ回戦の既存カード」を既定候補として提示し、事務が確認して同じカードにまとめて上書き補完できる。新規カード作成も選択可） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -627,6 +627,12 @@
   .imp-row .imp-body{flex:1;min-width:0;font-size:calc(13.5px*var(--fs,1));color:var(--ink);line-height:1.35;}
   .imp-row .imp-round{color:var(--muted);font-size:calc(12px*var(--fs,1));}
   #importSelf,#importSched{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);box-sizing:border-box;}
+  .imp-item{margin-bottom:8px;}
+  .imp-item .imp-row{margin-bottom:0;}
+  .imp-tgt{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:5px 6px 2px 32px;font-size:calc(12px*var(--fs,1));color:var(--muted);}
+  .imp-tgt-l{flex:0 0 auto;font-weight:700;}
+  .imp-tgt select{flex:1;min-width:120px;font-size:calc(13px*var(--fs,1));font-family:inherit;padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
+  .imp-tgt-b{flex:0 0 auto;background:#eaf5ee;color:var(--green);border:1px solid #bfe0cb;border-radius:8px;padding:2px 8px;font-weight:800;font-size:calc(11px*var(--fs,1));}
   .mate-count{font-size:calc(12px*var(--fs,1));font-weight:700;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1px 9px;}
   .mate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
   .mate-cell{display:flex;flex-direction:column;gap:5px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:9px 9px 10px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;}
@@ -1812,7 +1818,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v138'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v139'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -3977,12 +3983,41 @@ function analyzeImport(){
 }
 function onImportSchedChange(){
   document.getElementById('importNewSched').style.display=(document.getElementById('importSched').value==='__new__')?'block':'none';
+  if(importParsed&&importParsed.head.kind==='団体'){computeImportTargets();renderImportBouts();}
 }
+// 取り込み先の大会にある既存の対戦カード（対外戦のみ）
+function importTargetCards(){
+  const sid=document.getElementById('importSched').value;
+  if(!sid||sid==='__new__')return [];
+  const mr=DB.matchResults[sid];
+  return (mr&&mr.team&&mr.team.cards||[]).filter(c=>!c.oppIsMate);
+}
+function impCardLabel(c){
+  const filled=(c.bouts||[]).filter(b=>b.selfId).length+((c.tiebreak==='rep'&&c.rep&&c.rep.selfId)?1:0);
+  return (c.round||'回戦未設定')+'／'+(c.oppTeam||'(相手未入力)')+'（'+filled+'名記入済）';
+}
+// 団体戦：各試合の取り込み先カードの初期値＝同じ回戦の既存カード（無ければ新規）
+function computeImportTargets(){
+  if(!importParsed||importParsed.head.kind!=='団体')return;
+  const cards=importTargetCards();
+  importParsed.bouts.forEach(b=>{
+    if(b.targetCardId&&b.targetCardId!=='__new__'&&!cards.some(c=>c.id===b.targetCardId))b.targetCardId=null;
+    if(b.targetCardId==null){
+      const rnd=(b.round||'').trim();
+      const same=rnd?cards.find(c=>(c.round||'').trim()===rnd):null;
+      b.targetCardId=same?same.id:'__new__';
+    }
+  });
+}
+function setImportTarget(i,v){if(importParsed&&importParsed.bouts[i])importParsed.bouts[i].targetCardId=v;}
 function toggleImportBout(i){if(importParsed&&importParsed.bouts[i])importParsed.bouts[i].include=!importParsed.bouts[i].include;renderImportBouts();}
 function renderImportBouts(){
   const h=importParsed.head;
-  const note=(h.kind==='団体')
-    ? `<div class="imp-hint">団体戦として取り込み（${h.teamCount||5}人制・役割：${esc(h.role||(POS[h.teamCount||5]||[])[0]||'先鋒')}）。相手チーム＋回戦ごとに対戦カードを作り、この役割の位置に登録します。<b>同じ相手・回戦のカードが既にあれば上書き補完</b>（他の選手や再送分は同じカードに統合されます）。</div>`
+  const isTeam=(h.kind==='団体');
+  const cards=isTeam?importTargetCards():[];
+  const role=h.role||(POS[h.teamCount||5]||[])[0]||'先鋒';
+  const note=isTeam
+    ? `<div class="imp-hint">団体戦として取り込み（${h.teamCount||5}人制・役割：${esc(role)}）。各試合の<b>「取り込み先カード」</b>を確認してください。同じ回戦の既存カードを選べば、その${esc(role)}の位置に<b>まとめて登録（上書き）</b>されます。</div>`
     : '';
   document.getElementById('importBouts').innerHTML=note+importParsed.bouts.map((b,i)=>{
     const mark=b.res==='○'?'win':b.res==='▲'?'lose':'draw';
@@ -3992,11 +4027,18 @@ function renderImportBouts(){
     if(b.grip)chips.push('<span class="imp-grip">'+esc(b.grip)+'</span>');
     const sub=chips.join('<span class="imp-sep">／</span>');
     const opp=b.opp?('vs '+esc(b.opp)+(b.affil?' / '+esc(b.affil):'')):'';
-    return `<div class="imp-row ${b.include?'':'off'}" onclick="toggleImportBout(${i})">
+    let tgt='';
+    if(isTeam&&b.include){
+      const optNew=`<option value="__new__" ${b.targetCardId==='__new__'?'selected':''}>＋ 新しいカードを作成</option>`;
+      const optCards=cards.map(c=>`<option value="${c.id}" ${b.targetCardId===c.id?'selected':''}>${esc(impCardLabel(c))}</option>`).join('');
+      const merging=(b.targetCardId&&b.targetCardId!=='__new__');
+      tgt=`<div class="imp-tgt"><span class="imp-tgt-l">取り込み先：</span><select onclick="event.stopPropagation()" onchange="setImportTarget(${i},this.value)">${optNew}${optCards}</select>${merging?'<span class="imp-tgt-b">まとめる</span>':''}</div>`;
+    }
+    return `<div class="imp-item"><div class="imp-row ${b.include?'':'off'}" onclick="toggleImportBout(${i})">
       <span class="imp-ck">${b.include?'✓':''}</span>
       <span class="bout-mark mark-${mark}">${b.res}</span>
       <span class="imp-body">${sub} ${opp} ${b.round?'<span class="imp-round">'+esc(b.round)+'</span>':''}</span>
-    </div>`;
+    </div>${tgt}</div>`;
   }).join('');
 }
 function doImport(){
@@ -4022,12 +4064,13 @@ function doImport(){
     picked.forEach(b=>{
       const ab={id:uid(),selfId,result:b.res,grade:b.res==='×'?'':(b.grade||''),
         waza:b.res==='×'?'':(b.waza||''),oppName:b.opp||'',oppId:'',grip:b.grip||'右',note:b.note||''};
-      const oppTeam=(b.affil||'').trim(), rnd=(b.round||'').trim();
-      // 相手チーム名がある場合のみ、同じ相手＋回戦の既存カードを探して補完（対外戦のみ）
-      let card=oppTeam?mr.team.cards.find(c=>!c.oppIsMate&&(c.oppTeam||'').trim()===oppTeam&&(c.round||'').trim()===rnd):null;
+      // プレビューで選んだ「取り込み先カード」に登録（既定＝同じ回戦の既存カード or 新規）
+      let card=(b.targetCardId&&b.targetCardId!=='__new__')?mr.team.cards.find(c=>c.id===b.targetCardId):null;
       if(!card){
         card={id:uid(),count:impCount,division:'',round:b.round||'',oppTeam:b.affil||'',oppIsMate:false,tiebreak:'',rep:null,bouts:[]};
         mr.team.cards.push(card);
+      }else if(!(card.oppTeam||'').trim()&&(b.affil||'').trim()){
+        card.oppTeam=(b.affil||'').trim();   // 既存カードの相手名が空なら補完
       }
       const cnt=card.count||impCount;
       if(!Array.isArray(card.bouts))card.bouts=[];
