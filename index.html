@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v139（団体戦の取り込み先カードを選択式に：相手チーム名が空でも「同じ回戦の既存カード」を既定候補として提示し、事務が確認して同じカードにまとめて上書き補完できる。新規カード作成も選択可） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v140（団体戦の取り込み先セレクタを他項目と同じフルサイズ＋ラベル付きに拡大し見逃さないように。各試合の間に区切り線） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -627,12 +627,13 @@
   .imp-row .imp-body{flex:1;min-width:0;font-size:calc(13.5px*var(--fs,1));color:var(--ink);line-height:1.35;}
   .imp-row .imp-round{color:var(--muted);font-size:calc(12px*var(--fs,1));}
   #importSelf,#importSched{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);box-sizing:border-box;}
-  .imp-item{margin-bottom:8px;}
+  .imp-item{margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed var(--line);}
+  .imp-item:last-child{border-bottom:none;}
   .imp-item .imp-row{margin-bottom:0;}
-  .imp-tgt{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:5px 6px 2px 32px;font-size:calc(12px*var(--fs,1));color:var(--muted);}
-  .imp-tgt-l{flex:0 0 auto;font-weight:700;}
-  .imp-tgt select{flex:1;min-width:120px;font-size:calc(13px*var(--fs,1));font-family:inherit;padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
-  .imp-tgt-b{flex:0 0 auto;background:#eaf5ee;color:var(--green);border:1px solid #bfe0cb;border-radius:8px;padding:2px 8px;font-weight:800;font-size:calc(11px*var(--fs,1));}
+  .imp-tgt{padding:9px 0 2px;}
+  .imp-tgt .imp-tgt-b{font-weight:800;font-size:calc(11px*var(--fs,1));border-radius:8px;padding:2px 8px;margin-left:6px;background:#eaf5ee;color:var(--green);border:1px solid #bfe0cb;}
+  .imp-tgt .imp-tgt-b.new{background:#eef1f8;color:var(--navy);border-color:#cfd8ea;}
+  .imp-tgt-sel{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);box-sizing:border-box;}
   .mate-count{font-size:calc(12px*var(--fs,1));font-weight:700;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1px 9px;}
   .mate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
   .mate-cell{display:flex;flex-direction:column;gap:5px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:9px 9px 10px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;}
@@ -1818,7 +1819,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v139'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v140'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2155,7 +2156,11 @@ Object.assign(DICT,{
   '試合が読み取れませんでした。形式を確認してください':{en:'Couldn’t read any match. Check the format.',fr:'Aucun combat lu. Vérifiez le format.',pt:'Nenhuma luta lida. Verifique o formato.'},
   '選手を選んでください':{en:'Please select a player',fr:'Veuillez choisir un joueur',pt:'Escolha um atleta'},
   '新しい予定の日付を入れてください':{en:'Enter the new event date',fr:'Saisissez la date du nouvel événement',pt:'Informe a data do novo evento'},
-  '取り込む試合がありません':{en:'No matches to import',fr:'Aucun combat à importer',pt:'Nenhuma luta para importar'}
+  '取り込む試合がありません':{en:'No matches to import',fr:'Aucun combat à importer',pt:'Nenhuma luta para importar'},
+  'この試合の取り込み先':{en:'Where to import this match',fr:'Destination de ce combat',pt:'Destino desta luta'},
+  '既存にまとめる':{en:'Merge into existing',fr:'Fusionner',pt:'Mesclar'},
+  '新規カード':{en:'New card',fr:'Nouvelle carte',pt:'Novo cartão'},
+  '＋ 新しいカードを作成':{en:'＋ Create new card',fr:'＋ Nouvelle carte',pt:'＋ Criar novo cartão'}
 });
 // v135: 技名リストを講道館公式に校正（追加技の翻訳）
 Object.assign(DICT,{
@@ -4032,7 +4037,8 @@ function renderImportBouts(){
       const optNew=`<option value="__new__" ${b.targetCardId==='__new__'?'selected':''}>＋ 新しいカードを作成</option>`;
       const optCards=cards.map(c=>`<option value="${c.id}" ${b.targetCardId===c.id?'selected':''}>${esc(impCardLabel(c))}</option>`).join('');
       const merging=(b.targetCardId&&b.targetCardId!=='__new__');
-      tgt=`<div class="imp-tgt"><span class="imp-tgt-l">取り込み先：</span><select onclick="event.stopPropagation()" onchange="setImportTarget(${i},this.value)">${optNew}${optCards}</select>${merging?'<span class="imp-tgt-b">まとめる</span>':''}</div>`;
+      const badge=merging?'<span class="imp-tgt-b">既存にまとめる</span>':'<span class="imp-tgt-b new">新規カード</span>';
+      tgt=`<div class="imp-tgt"><label class="fld">この試合の取り込み先${badge}</label><select class="imp-tgt-sel" onclick="event.stopPropagation()" onchange="setImportTarget(${i},this.value)">${optNew}${optCards}</select></div>`;
     }
     return `<div class="imp-item"><div class="imp-row ${b.include?'':'off'}" onclick="toggleImportBout(${i})">
       <span class="imp-ck">${b.include?'✓':''}</span>
