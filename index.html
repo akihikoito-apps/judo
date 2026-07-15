@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v137（団体戦の集計バグ修正：teamCalcが選手未割当の空ポジション(既定○)を勝ちとして誤カウントしていた→選手が割り当てられたポジションのみ集計。取り込んだ団体戦のスコア・勝敗が正しく反映されるように） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v138（団体戦の補完対応：取り込み時、同じ相手チーム＋回戦の対戦カードが既にあれば新規作成せず役割位置に上書き補完＝他選手や後から来た再送分を1枚のカードに統合。手動での補完入力は従来のカード編集で可能） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1812,7 +1812,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v137'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v138'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -3982,7 +3982,7 @@ function toggleImportBout(i){if(importParsed&&importParsed.bouts[i])importParsed
 function renderImportBouts(){
   const h=importParsed.head;
   const note=(h.kind==='団体')
-    ? `<div class="imp-hint">団体戦として取り込み（${h.teamCount||5}人制・役割：${esc(h.role||(POS[h.teamCount||5]||[])[0]||'先鋒')}）。1試合ごとに対戦カードを作成し、この役割の位置に登録します。</div>`
+    ? `<div class="imp-hint">団体戦として取り込み（${h.teamCount||5}人制・役割：${esc(h.role||(POS[h.teamCount||5]||[])[0]||'先鋒')}）。相手チーム＋回戦ごとに対戦カードを作り、この役割の位置に登録します。<b>同じ相手・回戦のカードが既にあれば上書き補完</b>（他の選手や再送分は同じカードに統合されます）。</div>`
     : '';
   document.getElementById('importBouts').innerHTML=note+importParsed.bouts.map((b,i)=>{
     const mark=b.res==='○'?'win':b.res==='▲'?'lose':'draw';
@@ -4014,17 +4014,26 @@ function doImport(){
   const picked=importParsed.bouts.filter(b=>b.include);
   if(!picked.length){toast(T('取り込む試合がありません'));return;}
   if(importParsed.head.kind==='団体'){
-    // 団体戦：1試合ごとに対戦カードを作り、選手を役割(先鋒〜大将/代表戦)の位置に入れる
-    const count=importParsed.head.teamCount||5;
-    const role=importParsed.head.role||(POS[count]?POS[count][0]:'先鋒');
+    // 団体戦：対戦カード（同じ相手チーム＋回戦）に選手を役割の位置で登録。
+    // 既存カードがあれば新規作成せず、その役割位置に上書き補完（後から他選手/再送分が来ても統合される）。
+    const impCount=importParsed.head.teamCount||5;
+    const role=importParsed.head.role||(POS[impCount]?POS[impCount][0]:'先鋒');
+    const isRep=(role==='代表戦'||role==='代表');
     picked.forEach(b=>{
       const ab={id:uid(),selfId,result:b.res,grade:b.res==='×'?'':(b.grade||''),
         waza:b.res==='×'?'':(b.waza||''),oppName:b.opp||'',oppId:'',grip:b.grip||'右',note:b.note||''};
-      const card={id:uid(),count,division:'',round:b.round||'',oppTeam:b.affil||'',tiebreak:'',rep:null,bouts:[]};
-      for(let k=0;k<count;k++)card.bouts.push(impEmptyBout());
-      if(role==='代表戦'||role==='代表'){card.tiebreak='rep';card.rep=ab;}
-      else{const idx=(POS[count]||[]).indexOf(role);card.bouts[idx>=0?idx:0]=ab;}
-      mr.team.cards.push(card);
+      const oppTeam=(b.affil||'').trim(), rnd=(b.round||'').trim();
+      // 相手チーム名がある場合のみ、同じ相手＋回戦の既存カードを探して補完（対外戦のみ）
+      let card=oppTeam?mr.team.cards.find(c=>!c.oppIsMate&&(c.oppTeam||'').trim()===oppTeam&&(c.round||'').trim()===rnd):null;
+      if(!card){
+        card={id:uid(),count:impCount,division:'',round:b.round||'',oppTeam:b.affil||'',oppIsMate:false,tiebreak:'',rep:null,bouts:[]};
+        mr.team.cards.push(card);
+      }
+      const cnt=card.count||impCount;
+      if(!Array.isArray(card.bouts))card.bouts=[];
+      while(card.bouts.length<cnt)card.bouts.push(impEmptyBout());
+      if(isRep){card.tiebreak='rep';card.rep=ab;}                       // 代表戦は上書き
+      else{const idx=(POS[cnt]||[]).indexOf(role);card.bouts[idx>=0?idx:0]=ab;} // 役割位置に上書き補完
     });
   }else{
     picked.forEach(b=>{
