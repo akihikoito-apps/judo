@@ -71,6 +71,13 @@
       <button class="on" data-k="個人" onclick="pickKind(this)">個人戦</button>
       <button data-k="団体" onclick="pickKind(this)">団体戦</button>
     </div>
+    <div id="teamRow" style="display:none">
+      <label class="fld mt">チームの人数</label>
+      <div class="seg" id="countSeg"></div>
+      <label class="fld mt">あなたの役割（ポジション）</label>
+      <div class="seg" id="roleSeg"></div>
+      <p class="hint">団体戦は、この人数・役割で「対戦カード」に登録されます。分かる範囲でOK（事務の先生が直せます）。</p>
+    </div>
     <p class="hint">大会名・日づけは分かる範囲でOK。ちがっていても事務の先生が直せます。</p>
   </div>
 
@@ -119,14 +126,23 @@ const WAZA_GROUPS=[
 ];
 const GRADES=['一本','技あり','有効','指導差','判定'];
 const ROUNDS=['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
+const POS={3:['先鋒','中堅','大将'],5:['先鋒','次鋒','中堅','副将','大将'],7:['先鋒','二陣','三陣','中堅','五陣','副将','大将']};
 let kind='個人';
+let teamCount=5, teamRole='先鋒';
 let matches=[];
 let openSet=new Set();          // 「くわしく」を開いている試合id（再描画で保持）
 let pickGrp=WAZA_GROUPS[0].g, pickTarget=null;
 function onToggle(id,open){if(open)openSet.add(id);else openSet.delete(id);}
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function uid(){return 'm'+Math.random().toString(36).slice(2,8);}
-function pickKind(b){kind=b.dataset.k;[...document.querySelectorAll('#kindSeg button')].forEach(x=>x.classList.toggle('on',x===b));gen();}
+function pickKind(b){kind=b.dataset.k;[...document.querySelectorAll('#kindSeg button')].forEach(x=>x.classList.toggle('on',x===b));document.getElementById('teamRow').style.display=(kind==='団体')?'block':'none';renderCountRole();gen();}
+function pickCount(n){teamCount=n;if(!POS[n].includes(teamRole))teamRole=POS[n][0];renderCountRole();gen();}
+function pickRole(r){teamRole=r;renderCountRole();gen();}
+function renderCountRole(){
+  document.getElementById('countSeg').innerHTML=[3,5,7].map(n=>`<button class="${teamCount===n?'on':''}" onclick="pickCount(${n})">${n}人制</button>`).join('');
+  const roles=POS[teamCount].concat(['代表戦']);
+  document.getElementById('roleSeg').innerHTML=roles.map(r=>`<button class="${teamRole===r?'on':''}" onclick="pickRole('${r}')">${r}</button>`).join('');
+}
 function addMatch(){matches.push({id:uid(),res:'○',waza:'',grip:'右',grade:'',opp:'',affil:'',round:'',note:''});render();}
 function delMatch(id){matches=matches.filter(m=>m.id!==id);render();}
 function setField(id,k,v){const m=matches.find(x=>x.id===id);if(m){m[k]=v;render();}}
@@ -180,7 +196,9 @@ function gen(){
   const tk=document.getElementById('taikai').value.trim();
   const hd=document.getElementById('hidzuke').value.trim();
   let out='【My道場 試合きろく】\n';
-  out+='選手｜'+name+'\n大会｜'+tk+'\n日付｜'+hd+'\n種別｜'+kind+'\n--- 試合 ---\n';
+  out+='選手｜'+name+'\n大会｜'+tk+'\n日付｜'+hd+'\n種別｜'+kind+'\n';
+  if(kind==='団体')out+='人数｜'+teamCount+'\n役割｜'+teamRole+'\n';
+  out+='--- 試合 ---\n';
   if(!matches.length){out+='（まだ試合がありません。「＋試合をふやす」を押してね）';}
   else{
     out+=matches.map(m=>{
@@ -205,6 +223,7 @@ function doCopy(){
   }else{fallbackCopy(t);}
 }
 function doShare(){const t=gen();if(navigator.share){navigator.share({text:t}).catch(()=>{});}else{doCopy();}}
+renderCountRole();
 addMatch();
 </script>
 </body></html>

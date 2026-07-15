@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v135（決まり技リストを講道館公式に校正：跳膝/払込足/衣被/小内返[足技]の誤り削除、肩車＋足技の返し技3種を追加、腕挫脇固→腕挫腋固に統一。投技68＋固技32＝100本準拠。report.htmlも同期・日付枠の高さ修正） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v136（試合結果テキスト取り込みの改善：①取り込み先の大会を「試合結果設定あり」の予定に限定（通常稽古を除外）②団体戦に対応＝人数・役割(先鋒〜大将/代表戦)を保護者ページで記入し、取り込み時に対戦カードを生成して該当ポジションに登録） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1812,7 +1812,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v135'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v136'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -3925,7 +3925,7 @@ function impNormDate(v){v=(v||'').trim();const m=v.match(/(\d{4})\D+(\d{1,2})\D+
 function impDayDiff(a,b){if(!a||!b)return 9999;return Math.round((new Date(a+'T00:00')-new Date(b+'T00:00'))/86400000);}
 function parseImportText(raw){
   const lines=(raw||'').replace(/\r/g,'').split('\n').map(l=>l.trim()).filter(Boolean);
-  const head={self:'',taikai:'',date:'',kind:'個人'};
+  const head={self:'',taikai:'',date:'',kind:'個人',teamCount:5,role:''};
   const bouts=[];
   lines.forEach(line=>{
     if(/^【.*】$/.test(line))return;                  // タイトル行
@@ -3945,6 +3945,8 @@ function parseImportText(raw){
       else if(/大会|試合名/.test(k))head.taikai=v;
       else if(/日付|日づけ|日にち/.test(k))head.date=impNormDate(v);
       else if(/種別|区分/.test(k))head.kind=/団体/.test(v)?'団体':'個人';
+      else if(/人数/.test(k)){const n=parseInt(v,10);if([3,5,7].includes(n))head.teamCount=n;}
+      else if(/役割|ポジション|position/i.test(k))head.role=v;
     }
   });
   return {head,bouts};
@@ -3957,10 +3959,10 @@ function analyzeImport(){
   const selEl=document.getElementById('importSelf');
   selEl.innerHTML='<option value="">'+T('（選手を選ぶ）')+'</option>'+DB.students.map(s=>`<option value="${s.id}" ${matched&&matched.id===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
   document.getElementById('importSelfHint').textContent = p.head.self ? ('記入：'+p.head.self+(matched?'（自動一致）':'（一致者なし・選んでください）')) : '（記入に選手名がありません）';
-  const scheds=[...DB.schedule].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  // 試合結果設定あり（試合/大会・または結果済み）の予定だけに限定（通常稽古は出さない）
+  const scheds=[...DB.schedule].filter(schedIsMatch).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   let best=null;
-  // 同日はどの予定でも候補に。近い日付(±3日)は試合系の予定だけを候補に（練習日を誤って拾わない）
-  if(p.head.date){best=scheds.find(s=>s.date===p.head.date)||scheds.find(s=>schedIsMatch(s)&&Math.abs(impDayDiff(s.date,p.head.date))<=3);}
+  if(p.head.date){best=scheds.find(s=>s.date===p.head.date)||scheds.find(s=>Math.abs(impDayDiff(s.date,p.head.date))<=3);}
   document.getElementById('importSched').innerHTML=
     scheds.map(s=>`<option value="${s.id}" ${best&&best.id===s.id?'selected':''}>${esc(schedLabel(s))}／${(s.date||'').replace(/-/g,'/')}</option>`).join('')+
     `<option value="__new__" ${best?'':'selected'}>${T('＋ 新しい予定を作成')}</option>`;
@@ -3976,7 +3978,11 @@ function onImportSchedChange(){
 }
 function toggleImportBout(i){if(importParsed&&importParsed.bouts[i])importParsed.bouts[i].include=!importParsed.bouts[i].include;renderImportBouts();}
 function renderImportBouts(){
-  document.getElementById('importBouts').innerHTML=importParsed.bouts.map((b,i)=>{
+  const h=importParsed.head;
+  const note=(h.kind==='団体')
+    ? `<div class="imp-hint">団体戦として取り込み（${h.teamCount||5}人制・役割：${esc(h.role||(POS[h.teamCount||5]||[])[0]||'先鋒')}）。1試合ごとに対戦カードを作成し、この役割の位置に登録します。</div>`
+    : '';
+  document.getElementById('importBouts').innerHTML=note+importParsed.bouts.map((b,i)=>{
     const mark=b.res==='○'?'win':b.res==='▲'?'lose':'draw';
     const chips=[];
     if(b.res!=='×'&&b.waza)chips.push('<span>'+esc(b.waza)+'</span>');
@@ -4005,15 +4011,31 @@ function doImport(){
   const mr=ensureMatch(schedId);
   const picked=importParsed.bouts.filter(b=>b.include);
   if(!picked.length){toast(T('取り込む試合がありません'));return;}
-  picked.forEach(b=>{
-    mr.individual.push({id:uid(),selfId,division:'',round:b.round||'',result:b.res,
-      grade:b.res==='×'?'':(b.grade||''),waza:b.res==='×'?'':(b.waza||''),
-      oppIsMate:false,oppId:'',oppName:b.opp||'',oppAffil:b.affil||'',grip:b.grip||'',note:b.note||'',sheet:'individual'});
-  });
+  if(importParsed.head.kind==='団体'){
+    // 団体戦：1試合ごとに対戦カードを作り、選手を役割(先鋒〜大将/代表戦)の位置に入れる
+    const count=importParsed.head.teamCount||5;
+    const role=importParsed.head.role||(POS[count]?POS[count][0]:'先鋒');
+    picked.forEach(b=>{
+      const ab={id:uid(),selfId,result:b.res,grade:b.res==='×'?'':(b.grade||''),
+        waza:b.res==='×'?'':(b.waza||''),oppName:b.opp||'',oppId:'',grip:b.grip||'右',note:b.note||''};
+      const card={id:uid(),count,division:'',round:b.round||'',oppTeam:b.affil||'',tiebreak:'',rep:null,bouts:[]};
+      for(let k=0;k<count;k++)card.bouts.push(impEmptyBout());
+      if(role==='代表戦'||role==='代表'){card.tiebreak='rep';card.rep=ab;}
+      else{const idx=(POS[count]||[]).indexOf(role);card.bouts[idx>=0?idx:0]=ab;}
+      mr.team.cards.push(card);
+    });
+  }else{
+    picked.forEach(b=>{
+      mr.individual.push({id:uid(),selfId,division:'',round:b.round||'',result:b.res,
+        grade:b.res==='×'?'':(b.grade||''),waza:b.res==='×'?'':(b.waza||''),
+        oppIsMate:false,oppId:'',oppName:b.opp||'',oppAffil:b.affil||'',grip:b.grip||'',note:b.note||'',sheet:'individual'});
+    });
+  }
   save(); closeModal('importModal');
   if(typeof renderMatchSummary==='function')renderMatchSummary();
   toast(picked.length+'件を取り込みました');
 }
+function impEmptyBout(){return {id:uid(),selfId:'',result:'○',grade:'',waza:'',oppName:'',oppId:'',grip:'右',note:''};}
 function openMatchSearch(){
   document.getElementById('searchWord').value='';
   document.getElementById('searchResults').innerHTML='<div class="empty" style="padding:14px">検索ワードを入力してください</div>';
