@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v140（団体戦の取り込み先セレクタを他項目と同じフルサイズ＋ラベル付きに拡大し見逃さないように。各試合の間に区切り線） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v141（取り込みプレビューの試合表示を分かりやすく：回戦をチップ表示、勝ち/負け/分けの文字、組手は「右組/左組」と明記し、要素をスペースで区切って「右2回戦」のような紛らわしさを解消） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -624,8 +624,17 @@
   .imp-row.off{opacity:.4;background:#f3f2ee;}
   .imp-row .imp-ck{flex:0 0 auto;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--green);display:inline-flex;align-items:center;justify-content:center;color:var(--green);font-weight:800;font-size:14px;}
   .imp-row.off .imp-ck{border-color:var(--muted);color:transparent;}
-  .imp-row .imp-body{flex:1;min-width:0;font-size:calc(13.5px*var(--fs,1));color:var(--ink);line-height:1.35;}
-  .imp-row .imp-round{color:var(--muted);font-size:calc(12px*var(--fs,1));}
+  .imp-row .imp-body{flex:1;min-width:0;font-size:calc(13.5px*var(--fs,1));color:var(--ink);line-height:1.5;}
+  .imp-row .imp-round{display:inline-block;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:0 7px;color:var(--muted);font-size:calc(11.5px*var(--fs,1));font-weight:700;}
+  .imp-row .imp-rw{font-weight:800;}
+  .imp-row .imp-rw.win{color:var(--green);}
+  .imp-row .imp-rw.lose{color:var(--red);}
+  .imp-row .imp-rw.draw{color:var(--muted);}
+  .imp-row .imp-waza{font-weight:700;color:var(--ink);}
+  .imp-row .imp-grip{color:var(--navy);font-weight:700;}
+  .imp-row .imp-opp{color:var(--muted);}
+  .imp-row .imp-sep{color:#c9cdd6;margin:0 3px;}
+  .imp-row .imp-gap{display:inline-block;width:8px;}
   #importSelf,#importSched{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);box-sizing:border-box;}
   .imp-item{margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed var(--line);}
   .imp-item:last-child{border-bottom:none;}
@@ -1819,7 +1828,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v140'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v141'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2160,7 +2169,9 @@ Object.assign(DICT,{
   'この試合の取り込み先':{en:'Where to import this match',fr:'Destination de ce combat',pt:'Destino desta luta'},
   '既存にまとめる':{en:'Merge into existing',fr:'Fusionner',pt:'Mesclar'},
   '新規カード':{en:'New card',fr:'Nouvelle carte',pt:'Novo cartão'},
-  '＋ 新しいカードを作成':{en:'＋ Create new card',fr:'＋ Nouvelle carte',pt:'＋ Criar novo cartão'}
+  '＋ 新しいカードを作成':{en:'＋ Create new card',fr:'＋ Nouvelle carte',pt:'＋ Criar novo cartão'},
+  '勝ち':{en:'Win',fr:'Victoire',pt:'Vitória'},'負け':{en:'Loss',fr:'Défaite',pt:'Derrota'},'分け':{en:'Draw',fr:'Nul',pt:'Empate'},
+  '右組':{en:'Right grip',fr:'Garde droite',pt:'Pegada direita'},'左組':{en:'Left grip',fr:'Garde gauche',pt:'Pegada esquerda'}
 });
 // v135: 技名リストを講道館公式に校正（追加技の翻訳）
 Object.assign(DICT,{
@@ -4026,12 +4037,15 @@ function renderImportBouts(){
     : '';
   document.getElementById('importBouts').innerHTML=note+importParsed.bouts.map((b,i)=>{
     const mark=b.res==='○'?'win':b.res==='▲'?'lose':'draw';
+    const rw={'○':'勝ち','▲':'負け','×':'分け'}[b.res]||'';
+    const roundChip=b.round?'<span class="imp-round">'+esc(b.round)+'</span>':'';
+    const rwWord='<span class="imp-rw '+mark+'">'+rw+'</span>';
     const chips=[];
-    if(b.res!=='×'&&b.waza)chips.push('<span>'+esc(b.waza)+'</span>');
-    if(b.res!=='×'&&b.grade)chips.push('<span>'+esc(b.grade)+'</span>');
-    if(b.grip)chips.push('<span class="imp-grip">'+esc(b.grip)+'</span>');
-    const sub=chips.join('<span class="imp-sep">／</span>');
-    const opp=b.opp?('vs '+esc(b.opp)+(b.affil?' / '+esc(b.affil):'')):'';
+    if(b.res!=='×'&&b.waza)chips.push('<span class="imp-waza">'+esc(b.waza)+(b.grade?'（'+esc(b.grade)+'）':'')+'</span>');
+    else if(b.res!=='×'&&b.grade)chips.push('<span>'+esc(b.grade)+'</span>');
+    if(b.grip)chips.push('<span class="imp-grip">'+esc(b.grip)+'組</span>');   // 右→右組／左→左組
+    const sub=chips.join('<span class="imp-sep">・</span>');
+    const opp=b.opp?('<span class="imp-opp">vs '+esc(b.opp)+(b.affil?'（'+esc(b.affil)+'）':'')+'</span>'):'';
     let tgt='';
     if(isTeam&&b.include){
       const optNew=`<option value="__new__" ${b.targetCardId==='__new__'?'selected':''}>＋ 新しいカードを作成</option>`;
@@ -4040,10 +4054,11 @@ function renderImportBouts(){
       const badge=merging?'<span class="imp-tgt-b">既存にまとめる</span>':'<span class="imp-tgt-b new">新規カード</span>';
       tgt=`<div class="imp-tgt"><label class="fld">この試合の取り込み先${badge}</label><select class="imp-tgt-sel" onclick="event.stopPropagation()" onchange="setImportTarget(${i},this.value)">${optNew}${optCards}</select></div>`;
     }
+    const bodyParts=[roundChip,rwWord,sub,opp].filter(Boolean);
     return `<div class="imp-item"><div class="imp-row ${b.include?'':'off'}" onclick="toggleImportBout(${i})">
       <span class="imp-ck">${b.include?'✓':''}</span>
       <span class="bout-mark mark-${mark}">${b.res}</span>
-      <span class="imp-body">${sub} ${opp} ${b.round?'<span class="imp-round">'+esc(b.round)+'</span>':''}</span>
+      <span class="imp-body">${bodyParts.join('<span class="imp-gap"></span>')}</span>
     </div>${tgt}</div>`;
   }).join('');
 }
