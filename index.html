@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v143（表示モード切替の土台：設定＞チーム設定で「道場（事務）／個人」を切替。個人モードは出欠・お金タブを隠す（データは全保持）。※個人モードの履歴・分析・メンバー各タブは順次実装予定。あわせてバックアップ保存ボタンのカッコ内改行を修正） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v144（個人モードに「履歴」タブを新設：主役セレクタ＋大会ごとの戦績カード[勝敗・決まり技]を時系列表示、大会のひとことメモ、そのままシェア画像化(🥋My道場ブランド入り)。実データ(matchResults)から生成。※写真・節目カードは次段） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -523,6 +523,32 @@
   .bk-status.ok{background:#eef4ee;color:#2e6b45;border:1px solid #cfe3d4;}
   .bk-status.warn{background:#fbf0e6;color:#8a5a1e;border:1px solid #ecd3b0;}
   .bk-btn-sub{display:block;font-size:.82em;font-weight:700;opacity:.92;margin-top:2px;}
+  /* v144: 履歴タブ */
+  .rk-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;}
+  .rk-chips button{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:#fff;color:var(--navy);border-radius:22px;padding:7px 14px 7px 9px;font-family:inherit;font-weight:700;font-size:calc(14px*var(--fs,1));cursor:pointer;}
+  .rk-chips button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .rk-chips .rk-av{width:26px;height:26px;border-radius:50%;background:var(--paper);display:inline-flex;align-items:center;justify-content:center;font-size:calc(13px*var(--fs,1));color:var(--navy);font-weight:800;}
+  .rk-chips button.on .rk-av{background:rgba(255,255,255,.22);color:#fff;}
+  .rk-year{font-size:calc(13px*var(--fs,1));font-weight:800;color:var(--muted);margin:8px 2px;}
+  .rk-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 10px rgba(20,30,55,.07);}
+  .rk-photo{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#22355f,#0e1830);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .rk-photo .ph{color:rgba(255,255,255,.7);font-size:calc(13.5px*var(--fs,1));font-weight:700;text-align:center;}
+  .rk-photo .ph .big{font-size:40px;display:block;margin-bottom:4px;}
+  .rk-badge{position:absolute;left:12px;top:12px;background:rgba(14,24,48,.72);color:#fff;border-radius:10px;padding:5px 11px;font-weight:800;font-size:calc(13px*var(--fs,1));}
+  .rk-badge.win{background:rgba(46,125,79,.92);} .rk-badge.lose{background:rgba(192,57,52,.92);}
+  .rk-body{padding:12px 14px 14px;}
+  .rk-date{font-size:calc(12px*var(--fs,1));color:var(--muted);font-weight:700;}
+  .rk-ttl{font-size:calc(17px*var(--fs,1));font-weight:800;color:var(--navy);margin:2px 0 8px;}
+  .rk-rec{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .rk-pill{border-radius:9px;padding:3px 10px;font-weight:800;font-size:calc(13px*var(--fs,1));}
+  .rk-pill.w{background:#eaf5ee;color:var(--green);} .rk-pill.l{background:#faecea;color:var(--red);} .rk-pill.d{background:#eef0f4;color:var(--muted);}
+  .rk-wz{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .rk-wz .c{background:#f2f4f8;border:1px solid #e2e7f0;border-radius:8px;padding:2px 9px;font-size:calc(12.5px*var(--fs,1));font-weight:700;color:var(--navy);}
+  .rk-cmt{width:100%;box-sizing:border-box;font-family:inherit;font-size:calc(13.5px*var(--fs,1));border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#faf9f5;resize:vertical;min-height:44px;color:var(--ink);}
+  .rk-actions{display:flex;gap:8px;margin-top:10px;}
+  .rk-actions button{flex:1;min-height:44px;border-radius:10px;font-family:inherit;font-weight:800;font-size:calc(14px*var(--fs,1));cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--navy);}
+  .rk-actions .share{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .rk-empty{color:var(--muted);text-align:center;padding:30px 10px;}
   .list-mini{font-size:calc(15px*var(--fs,1));color:var(--muted);margin-top:6px;}
   .del-x{background:none;border:none;color:var(--red);font-size:calc(22px*var(--fs,1));padding:6px;cursor:pointer;}
 
@@ -1236,7 +1262,27 @@ function applyUpdate(){
   </div>
 </div>
 
+<!-- 履歴（個人モード） -->
+<section id="screen-rireki" class="screen">
+  <div class="rk-chips" id="rkChips"></div>
+  <p class="list-mini" id="rkHint" style="margin:2px 2px 12px">大会ごとに1枚のカードで成長を振り返れます。写真は「シェア画像」に載せてInstagram/LINEへ。</p>
+  <div id="rkTimeline"></div>
+</section>
+
+<!-- 履歴：シェア画像モーダル -->
+<div class="modal-bg" id="rkShareModal">
+  <div class="modal" style="background:#0e1830;max-width:430px">
+    <canvas id="rkcv" width="1080" height="1350" style="width:100%;height:auto;border-radius:12px;display:block"></canvas>
+    <div class="row" style="margin-top:12px;gap:10px">
+      <button class="btn" style="flex:0 0 auto;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:0 16px" onclick="closeModal('rkShareModal')">閉じる</button>
+      <button class="btn" style="flex:1;background:#fff;color:var(--navy)" onclick="rkSaveShare()">保存</button>
+      <button class="btn" style="flex:1;background:#06C755;color:#fff" onclick="rkDoShare()">シェア</button>
+    </div>
+  </div>
+</div>
+
 <nav class="tabbar">
+  <button data-tab="rireki" onclick="switchTab('rireki')" style="display:none"><span class="ico">📖</span><span class="tlbl" data-i18n="履歴">履歴</span></button>
   <button data-tab="mates" onclick="switchTab('mates')"><span class="ico">👥</span><span class="tlbl" data-i18n="仲間">仲間</span></button>
   <button data-tab="att" class="active" onclick="switchTab('att')"><span class="ico">📋</span><span class="tlbl" data-i18n="出欠">出欠</span></button>
   <button data-tab="money" onclick="switchTab('money')"><span class="ico">💴</span><span class="tlbl" data-i18n="お金">お金</span></button>
@@ -1846,7 +1892,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v143'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v144'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2216,6 +2262,14 @@ Object.assign(DICT,{
   '個人モードに切り替えました':{en:'Switched to Personal mode',fr:'Mode personnel activé',pt:'Modo pessoal ativado'},
   '道場（事務）モードに切り替えました':{en:'Switched to Dojo (admin) mode',fr:'Mode dojo (gestion) activé',pt:'Modo dojô (adm.) ativado'}
 });
+// v144: 履歴タブ
+Object.assign(DICT,{
+  '履歴':{en:'History',fr:'Historique',pt:'Histórico'},
+  '写真は近日対応':{en:'Photos coming soon',fr:'Photos bientôt',pt:'Fotos em breve'},
+  'この大会のひとことメモ（任意）':{en:'A note about this event (optional)',fr:'Une note sur cet événement (facultatif)',pt:'Uma nota sobre este evento (opcional)'},
+  'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
+  'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'}
+});
 // v135: 技名リストを講道館公式に校正（追加技の翻訳）
 Object.assign(DICT,{
   '肩車':{en:'Kata-guruma',fr:'Kata-guruma',pt:'Kata-guruma'},
@@ -2512,15 +2566,16 @@ function switchTab(tab){
   document.getElementById('screen-'+tab).classList.add('active');
   document.querySelectorAll('nav.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   window.scrollTo(0,0);
-  ({att:renderAtt,money:renderMoney,sched:renderSched,mates:renderMates,list:renderList,set:renderSettings}[tab])();
+  ({att:renderAtt,money:renderMoney,sched:renderSched,mates:renderMates,list:renderList,set:renderSettings,rireki:renderRireki}[tab])();
 }
-/* v143: 表示モード（事務/個人）。個人モードは出欠・お金タブを隠す（データは保持） */
-const PERSONAL_HIDDEN=['att','money'];
+/* v143/144: 表示モード（事務/個人）。個人モードは出欠・お金を隠し履歴を出す（データは保持） */
+const PERSONAL_HIDDEN=['att','money'];   // 個人モードで隠すタブ
+const OFFICE_HIDDEN=['rireki'];          // 事務モードで隠すタブ（履歴は個人モード専用）
 function applyMode(){
   const personal=(DB.mode==='personal');
+  const hidden=personal?PERSONAL_HIDDEN:OFFICE_HIDDEN;
   document.querySelectorAll('nav.tabbar button[data-tab]').forEach(b=>{
-    const hide=personal&&PERSONAL_HIDDEN.includes(b.dataset.tab);
-    b.style.display=hide?'none':'';
+    b.style.display=hidden.includes(b.dataset.tab)?'none':'';
   });
   const o=document.getElementById('modeOfficeB'),p=document.getElementById('modePersonalB');
   if(o)o.classList.toggle('on',!personal);
@@ -2529,7 +2584,7 @@ function applyMode(){
 function setAppMode(m){
   DB.mode=(m==='personal')?'personal':'office'; save(); applyMode();
   const active=document.querySelector('nav.tabbar button.active');
-  if(active&&active.style.display==='none')switchTab('list');   // 隠れたタブにいたら安全なタブへ
+  if(active&&active.style.display==='none')switchTab(DB.mode==='personal'?'rireki':'list');   // 隠れたタブにいたら安全なタブへ
   toast(DB.mode==='personal'?T('個人モードに切り替えました'):T('道場（事務）モードに切り替えました'));
 }
 
@@ -3767,7 +3822,7 @@ function allBoutsBySelf(){
     const sched=DB.schedule.find(s=>s.id===schedId);
     const mr=DB.matchResults[schedId];
     const push=(b,sheet)=>{(map[b.selfId]=map[b.selfId]||[]).push(Object.assign({},b,{
-      schedName:sched?schedLabel(sched):T('(削除)'),schedDate:sched?sched.date:'',sheet
+      schedName:sched?schedLabel(sched):T('(削除)'),schedDate:sched?sched.date:'',sheet,schedId
     }));};
     (mr.individual||[]).forEach(b=>{
       push(b,'個人戦');
@@ -3986,6 +4041,75 @@ function allBoutsFlat(){
   });
   return out;
 }
+/* ===== v144: 履歴タブ（個人モード）＝大会ごとのカード＋シェア画像 ===== */
+let rkSelfId=null, rkEvents=[], rkShareEv=null;
+function renderRireki(){
+  const map=allBoutsBySelf();
+  const withB=DB.students.filter(s=>map[s.id]&&map[s.id].length);
+  const chips=document.getElementById('rkChips'), tl=document.getElementById('rkTimeline');
+  if(!withB.length){chips.innerHTML='';tl.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
+  if(!rkSelfId||!withB.some(s=>s.id===rkSelfId))rkSelfId=withB[0].id;
+  chips.innerHTML=withB.map(s=>`<button class="${s.id===rkSelfId?'on':''}" onclick="rkSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join('');
+  const evMap={};
+  (map[rkSelfId]||[]).forEach(b=>{const k=b.schedId||('x'+b.schedName);(evMap[k]=evMap[k]||{schedId:b.schedId||'',name:b.schedName,date:b.schedDate,bouts:[]}).bouts.push(b);});
+  rkEvents=Object.values(evMap).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  let html='',curY='';
+  rkEvents.forEach((ev,i)=>{const y=(ev.date||'').slice(0,4)||'—';if(y!==curY){curY=y;html+=`<div class="rk-year">${y}</div>`;}html+=rkCardHtml(ev,i);});
+  tl.innerHTML=html;
+}
+function rkSelect(id){rkSelfId=id;renderRireki();}
+function rkStats(ev){
+  let w=0,l=0,d=0;const wz={};
+  ev.bouts.forEach(b=>{if(b.result==='○')w++;else if(b.result==='▲')l++;else d++;const k=(b.waza||'').trim();if(b.result==='○'&&k)wz[k]=(wz[k]||0)+1;});
+  const wazas=Object.keys(wz).map(k=>[k,wz[k]]).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,4);
+  return {w,l,d,wazas};
+}
+function rkNoteKey(ev){return rkSelfId+'|'+(ev.schedId||ev.name);}
+function rkCardHtml(ev,i){
+  const st=rkStats(ev), cls=st.w>st.l?'win':(st.l>st.w?'lose':'');
+  const key=rkNoteKey(ev), cmt=(DB.eventNotes&&DB.eventNotes[key])||'';
+  const wz=st.wazas.map(x=>`<span class="c">${esc(T(x[0]))} ${x[1]}</span>`).join('');
+  return `<div class="rk-card">
+    <div class="rk-photo"><div class="ph"><span class="big">📷</span>${T('写真は近日対応')}</div><div class="rk-badge ${cls}">${st.w}${T('勝')}${st.l}${T('敗')}${st.d?st.d+T('分'):''}</div></div>
+    <div class="rk-body">
+      <div class="rk-date">${(ev.date||'').replace(/-/g,'/')}</div>
+      <div class="rk-ttl">${esc(ev.name)}</div>
+      <div class="rk-rec"><span class="rk-pill w">${st.w}${T('勝')}</span><span class="rk-pill l">${st.l}${T('敗')}</span>${st.d?`<span class="rk-pill d">${st.d}${T('分')}</span>`:''}</div>
+      ${wz?`<div class="rk-wz">${wz}</div>`:''}
+      <textarea class="rk-cmt" placeholder="${T('この大会のひとことメモ（任意）')}" onchange="rkSaveNote(this)" data-key="${esc(key)}">${esc(cmt)}</textarea>
+      <div class="rk-actions"><button class="share" onclick="rkOpenShare(${i})">📤 ${T('シェア画像')}</button></div>
+    </div>
+  </div>`;
+}
+function rkSaveNote(el){const key=el.getAttribute('data-key'),v=el.value.trim();if(!DB.eventNotes)DB.eventNotes={};if(v)DB.eventNotes[key]=v;else delete DB.eventNotes[key];save();}
+function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;drawRkShare(ev);openModal('rkShareModal');}
+function rkRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function rkWrap(ctx,t,x,y,maxW,lh){const chars=[...t];let line='',yy=y;for(const ch of chars){if(ctx.measureText(line+ch).width>maxW){ctx.fillText(line,x,yy);line=ch;yy+=lh;}else line+=ch;}ctx.fillText(line,x,yy);}
+function drawRkShare(ev){
+  const cv=document.getElementById('rkcv'),ctx=cv.getContext('2d'),W=1080,H=1350,F='"Hiragino Sans","Yu Gothic","Meiryo",sans-serif';
+  const s=DB.students.find(x=>x.id===rkSelfId)||{name:''}, st=rkStats(ev);
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#16264a');g.addColorStop(1,'#0c1526');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  const pg=ctx.createLinearGradient(0,0,W,620);pg.addColorStop(0,'#22355f');pg.addColorStop(1,'#0e1830');ctx.fillStyle=pg;ctx.fillRect(0,0,W,620);
+  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='150px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🥋',W/2,300);ctx.textBaseline='alphabetic';
+  const sh=ctx.createLinearGradient(0,420,0,620);sh.addColorStop(0,'rgba(12,21,38,0)');sh.addColorStop(1,'#0e1830');ctx.fillStyle=sh;ctx.fillRect(0,420,W,200);
+  ctx.textAlign='left';
+  ctx.fillStyle=st.w>st.l?'#2e9e5b':(st.l>st.w?'#d24a34':'#c8a44d');ctx.font='800 40px '+F;ctx.fillText(st.w+T('勝')+st.l+T('敗')+(st.d?st.d+T('分'):''),64,586);
+  ctx.fillStyle='#fff';ctx.font='800 70px '+F;ctx.fillText(s.name,64,700);
+  ctx.fillStyle='#c8a44d';ctx.font='700 40px '+F;ctx.fillText(ev.name,64,760);
+  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='500 32px '+F;ctx.fillText(((ev.date||'').replace(/-/g,'/'))+'　'+(DB.team||''),64,808);
+  const tiles=[[T('勝'),st.w,'#2e9e5b'],[T('敗'),st.l,'#d24a34'],[T('分'),st.d,'#9aa0a6']];
+  const tw=300,th=120,gap=24,tx=64,ty=850;
+  tiles.forEach((t,i)=>{const x=tx+i*(tw+gap);ctx.fillStyle='rgba(255,255,255,.06)';rkRR(ctx,x,ty,tw,th,18);ctx.fill();
+    ctx.fillStyle=t[2];ctx.textAlign='center';ctx.font='800 62px '+F;ctx.fillText(String(t[1]),x+tw/2,ty+62);
+    ctx.fillStyle='rgba(255,255,255,.7)';ctx.font='700 28px '+F;ctx.fillText(t[0],x+tw/2,ty+102);});
+  ctx.textAlign='left';ctx.fillStyle='#c8a44d';ctx.font='700 30px '+F;ctx.fillText(T('決まり技'),64,1050);
+  let cx=64;(st.wazas||[]).forEach(w=>{const label=T(w[0])+' '+w[1];ctx.font='700 30px '+F;const wpx=ctx.measureText(label).width+40;ctx.fillStyle='rgba(255,255,255,.10)';rkRR(ctx,cx,1085,wpx,56,14);ctx.fill();ctx.fillStyle='#fff';ctx.fillText(label,cx+20,1123);cx+=wpx+14;});
+  const cmt=(DB.eventNotes&&DB.eventNotes[rkNoteKey(ev)])||'';
+  if(cmt){ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='500 32px '+F;rkWrap(ctx,'「'+cmt+'」',64,1210,W-128,44);}
+  ctx.textAlign='center';ctx.fillStyle='#c8a44d';ctx.font='800 32px '+F;ctx.fillText('🥋 My道場（柔道）',W/2,1320);
+}
+function rkSaveShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=((rkShareEv&&rkShareEv.name)||'戦績')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
+function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=>{const file=new File([b],'card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:'#柔道 #My道場'});}catch(e){}}else{rkSaveShare();alert(T('この端末は直接シェア非対応のため画像を保存しました。'));}},'image/png');}
 /* ===== v134: 試合結果 テキスト取り込み（保護者LINE記入→貼付）===== */
 let importParsed=null;
 function openImportModal(){
@@ -5737,7 +5861,7 @@ function initUI(){
   runI18nScan();
   applyMode();                                  // v143: 表示モードでタブを出し分け
   renderAtt();
-  if(DB.mode==='personal')switchTab('list');    // 個人モードは出欠でなく集計から
+  if(DB.mode==='personal')switchTab('rireki');  // 個人モードは履歴から開始
   showBackupReminder();   // 期限超過なら催促バナー
 }
 load();seedIfEmpty();save();initUI();
