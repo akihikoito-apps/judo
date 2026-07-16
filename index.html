@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v146（個人モードに「分析」タブを新設：主役セレクタ＋既存の決まり技レーダー・勝率・組手別分析を独立タブで。個人モードのタブを 履歴/分析/仲間/予定/設定 に整理（集計は分析タブに集約）。事務モードは従来6タブ） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v147（個人モードの仲間タブに「自分（主役）↔仲間」トグルを新設：主役(isSelf)を家族含め登録でき、履歴/分析の主役セレクタは主役を優先表示。仲間登録モーダルに主役フラグを追加。事務モードは従来通り） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1306,6 +1306,13 @@ function applyUpdate(){
 <div class="modal-bg" id="studentModal">
   <div class="modal">
     <h3 id="studentModalTitle">仲間を追加</h3>
+    <div id="stSelfRow" style="display:none">
+      <label class="fld">この人は</label>
+      <div class="io-pick" id="stSelfPick" style="margin-bottom:4px">
+        <button id="stSelfMate" onclick="pickStSelf(false)">仲間</button>
+        <button id="stSelfMe" onclick="pickStSelf(true)">自分・家族（主役）</button>
+      </div>
+    </div>
     <label class="fld">名前（姓・名）</label>
     <div style="display:flex;gap:8px">
       <input type="text" id="stLastName" placeholder="姓（例：山田）" style="flex:1">
@@ -1903,7 +1910,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v146'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v147'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2084,6 +2091,12 @@ Object.assign(DICT,{
   'コピー':{en:'Copy',fr:'Copier',pt:'Copiar'},
   'まだ試合結果がありません':{en:'No match results yet',fr:'Aucun résultat pour le moment',pt:'Ainda não há resultados'},
   'まだ仲間がいません':{en:'No members yet',fr:'Aucun membre pour le moment',pt:'Ainda não há membros'},
+  '自分（主役）':{en:'Me (main)',fr:'Moi (vedette)',pt:'Eu (principal)'},
+  'この人は':{en:'This person is',fr:'Cette personne est',pt:'Esta pessoa é'},
+  '自分・家族（主役）':{en:'Me / family (main)',fr:'Moi / famille (vedette)',pt:'Eu / família (principal)'},
+  '「＋仲間を追加」から自分や家族（主役）を登録できます':{en:'Add yourself or family (main) via "+ Add member"',fr:'Ajoutez-vous ou votre famille (vedette) via « + Ajouter un membre »',pt:'Adicione você ou a família (principal) em "+ Adicionar membro"'},
+  'まだ主役がいません':{en:'No main person yet',fr:'Aucune vedette pour le moment',pt:'Ainda não há principal'},
+  'まだ仲間がいません（主役以外）':{en:'No teammates yet',fr:'Aucun coéquipier pour le moment',pt:'Ainda não há colegas'},
   'まだ予定がありません':{en:'No events yet',fr:'Aucun événement pour le moment',pt:'Ainda não há eventos'},
   '(削除された仲間)':{en:'(deleted member)',fr:'(membre supprimé)',pt:'(membro excluído)'},'(削除)':{en:'(deleted)',fr:'(supprimé)',pt:'(excluído)'},
   '該当する仲間がいません':{en:'No matching members',fr:'Aucun membre correspondant',pt:'Nenhum membro correspondente'},
@@ -4063,7 +4076,9 @@ function allBoutsFlat(){
 let rkSelfId=null, rkYear=null, rkEvents=[], rkShareEv=null;
 function renderRireki(){
   const map=allBoutsBySelf();
-  const withB=DB.students.filter(s=>map[s.id]&&map[s.id].length);
+  const withMatches=DB.students.filter(s=>map[s.id]&&map[s.id].length);
+  const selfW=withMatches.filter(s=>s.isSelf);        // v147: 主役(isSelf)が居ればそれを優先
+  const withB=selfW.length?selfW:withMatches;
   const chips=document.getElementById('rkChips'), yearsEl=document.getElementById('rkYears'), tl=document.getElementById('rkTimeline');
   if(!withB.length){chips.innerHTML='';yearsEl.innerHTML='';tl.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
   if(!rkSelfId||!withB.some(s=>s.id===rkSelfId)){rkSelfId=withB[0].id;rkYear=null;}
@@ -4143,7 +4158,9 @@ function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=
 let anaSelfId=null;
 function renderAnalysisTab(){
   const map=allBoutsBySelf();
-  const withB=DB.students.filter(s=>map[s.id]&&map[s.id].length);
+  const withMatches=DB.students.filter(s=>map[s.id]&&map[s.id].length);
+  const selfW=withMatches.filter(s=>s.isSelf);        // v147: 主役(isSelf)が居ればそれを優先
+  const withB=selfW.length?selfW:withMatches;
   const chips=document.getElementById('anaChips'), box=document.getElementById('anaAnalysis');
   if(!withB.length){chips.innerHTML='';box.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
   if(!anaSelfId||!withB.some(s=>s.id===anaSelfId))anaSelfId=withB[0].id;
@@ -5117,16 +5134,31 @@ function buildMemberGroups(visible){
 }
 let reorderMode=false;
 function toggleReorder(){ reorderMode=!reorderMode; renderMates(); }
+/* v147: 個人モードの「自分（主役）↔仲間」切替 */
+let mateView='self';
+function setMateView(v){ mateView=v; reorderMode=false; renderMates(); }
 function renderMates(){
   const list=document.getElementById('studentList');
   updateSortUI();
-  const canReorder=(effectiveSort()==='grade');
+  const personal=(DB.mode==='personal');
+  const selfView=(personal&&mateView==='self');
+  // 個人モードのトグル（自分＝主役／仲間）。自分ビューは並び替え不要
+  const toggleHtml=personal?`<div class="view-toggle mate-view-toggle" style="margin-bottom:12px">
+      <button class="${mateView==='self'?'on':''}" onclick="setMateView('self')">⭐ ${T('自分（主役）')}</button>
+      <button class="${mateView==='others'?'on':''}" onclick="setMateView('others')">👥 ${T('仲間')}</button>
+    </div>`:'';
+  const canReorder=(effectiveSort()==='grade')&&!selfView;
   if(!canReorder&&reorderMode)reorderMode=false;
   const rt=document.getElementById('reorderToggle');
   if(rt){ rt.textContent=reorderMode?'完了':'並び替え'; rt.classList.toggle('on',reorderMode); rt.style.display=canReorder?'':'none'; }
-  const visible=DB.students.filter(s=>showRetired||!s.endDate);
+  let visible=DB.students.filter(s=>showRetired||!s.endDate);
+  if(personal) visible=visible.filter(s=> selfView ? s.isSelf : !s.isSelf );
   if(visible.length===0){
-    list.innerHTML='<div class="empty" style="padding:16px">'+(DB.students.length?'表示する仲間がいません':'まだ仲間がいません')+'</div>';
+    let msg;
+    if(selfView) msg=DB.students.some(s=>s.isSelf)?'表示する主役がいません':`${T('まだ主役がいません')}<div class="list-mini" style="margin-top:6px">${T('「＋仲間を追加」から自分や家族（主役）を登録できます')}</div>`;
+    else if(personal) msg=DB.students.some(s=>!s.isSelf)?'表示する仲間がいません':T('まだ仲間がいません（主役以外）');
+    else msg=(DB.students.length?'表示する仲間がいません':'まだ仲間がいません');
+    list.innerHTML=toggleHtml+'<div class="empty" style="padding:16px">'+msg+'</div>';
     return;
   }
   const cur=thisMonthStr();
@@ -5134,7 +5166,7 @@ function renderMates(){
   const headHtml=(g)=> g.label==null ? '' : `<div class="mate-group-head" style="color:${g.color};border-bottom-color:${g.color}">${esc(g.label)}<span class="mate-count">${g.members.length}</span></div>`;
 
   if(reorderMode){
-    let html='<div class="reorder-hint">名前を長押しして上下にドラッグ（同じ区分・同じ学年の中で入れ替えできます）</div>';
+    let html=toggleHtml+'<div class="reorder-hint">名前を長押しして上下にドラッグ（同じ区分・同じ学年の中で入れ替えできます）</div>';
     groups.forEach(g=>{
       html+=headHtml(g);
       // 学年（レベル）ごとにサブグループ化。学年なしは1つのまとまり。ドラッグは各まとまり内のみ
@@ -5166,11 +5198,16 @@ function renderMates(){
     const tags=(gc||role||st)?`<div class="mate-tags">${gc}${role}${st}</div>`:'';
     return `<div class="${cls}" onclick="openStudentModal('${s.id}')">${tags}<span class="nm">${esc(s.name)}</span></div>`;
   };
-  let html='';
-  groups.forEach((g,gi)=>{
-    html+=foldHead('mates',gi,g.color,g.label,g.members.length);
-    if(isFoldOpen('mates',gi))html+=`<div class="mate-grid">`+g.members.map(cellHtml).join('')+`</div>`;
-  });
+  let html=toggleHtml;
+  if(selfView){
+    // 自分（主役）＝家族含め少数なので折りたたまずフラット表示
+    html+=`<div class="mate-grid">`+sortMembersList(visible).map(cellHtml).join('')+`</div>`;
+  }else{
+    groups.forEach((g,gi)=>{
+      html+=foldHead('mates',gi,g.color,g.label,g.members.length);
+      if(isFoldOpen('mates',gi))html+=`<div class="mate-grid">`+g.members.map(cellHtml).join('')+`</div>`;
+    });
+  }
   list.innerHTML=html;
 }
 let editingStudent=null;
@@ -5337,6 +5374,12 @@ function renderRankPick(){
   if(pickedRank && !ranksAll().includes(pickedRank)){inp.value=pickedRank;}else if(ranksAll().includes(pickedRank)){inp.value='';}
 }
 function pickRank(r){pickedRank=r;renderRankPick();}
+let pickedStSelf=false; // v147: 個人モード＝この人が「自分・家族（主役）」か
+function pickStSelf(v){
+  pickedStSelf=!!v;
+  document.getElementById('stSelfMate').classList.toggle('on',!pickedStSelf);
+  document.getElementById('stSelfMe').classList.toggle('on',pickedStSelf);
+}
 let pickedSex='';
 function pickSex(s){
   pickedSex=s;
@@ -5457,8 +5500,10 @@ function openStudentModal(id){
     document.getElementById('stJudoId').value=s.judoId||'';
     document.getElementById('stNote').value=s.note||'';
     document.getElementById('stRole').value=s.role||'';
+    pickedStSelf=!!s.isSelf;
   }else{
     document.getElementById('studentModalTitle').textContent='仲間を追加';
+    pickedStSelf=(DB.mode==='personal'&&mateView==='self');
     ['stLastName','stFirstName','stLastKana','stFirstKana'].forEach(id=>document.getElementById(id).value='');
     pickedCat='小学生';
     pickedGrade='';
@@ -5481,6 +5526,8 @@ function openStudentModal(id){
     document.getElementById('stNote').value='';
     document.getElementById('stRole').value='';
   }
+  document.getElementById('stSelfRow').style.display=(DB.mode==='personal')?'':'none';
+  pickStSelf(pickedStSelf);
   renderCatPick();
   updateGradePicker();
   renderRankPick();
@@ -5540,9 +5587,9 @@ function saveStudent(){
   const gradeTouchedFY=currentFY(); // 手修正した年度。生年月日からの自動算出より優先
   if(editingStudent){
     const s=cur;
-    s.name=name;s.lastName=lastName;s.firstName=firstName;s.lastKana=lastKana;s.firstKana=firstKana;s.kana=kana;s.role=role;s.category=pickedCat;s.gradeBaseFY=gradeBaseFY;s.gradeBaseLevel=gradeBaseLevel;s.gradeFixed=gradeFixed;s.gradeTouchedFY=gradeTouchedFY;s.rank=rank;s.rankDate=rankDate;s.sex=sex;s.grip=grip;s.feeReq=pickedFeeReq;s.feeType=feeType;s.visitBase=visitBase;s.feeAmount=feeAmount;s.startDate=startDate;s.endDate=endDate;s.leaveStart=leaveStart;s.leaveEnd=leaveEnd;s.leaveFee=leaveFee;s.birth=birth;s.judoId=judoId;s.note=note;
+    s.name=name;s.lastName=lastName;s.firstName=firstName;s.lastKana=lastKana;s.firstKana=firstKana;s.kana=kana;s.role=role;s.category=pickedCat;s.gradeBaseFY=gradeBaseFY;s.gradeBaseLevel=gradeBaseLevel;s.gradeFixed=gradeFixed;s.gradeTouchedFY=gradeTouchedFY;s.rank=rank;s.rankDate=rankDate;s.sex=sex;s.grip=grip;s.feeReq=pickedFeeReq;s.feeType=feeType;s.visitBase=visitBase;s.feeAmount=feeAmount;s.startDate=startDate;s.endDate=endDate;s.leaveStart=leaveStart;s.leaveEnd=leaveEnd;s.leaveFee=leaveFee;s.birth=birth;s.judoId=judoId;s.note=note;s.isSelf=pickedStSelf;
   }else{
-    DB.students.push({id:uid(),name,lastName,firstName,lastKana,firstKana,kana,role,category:pickedCat,gradeBaseFY,gradeBaseLevel,gradeFixed,gradeTouchedFY,rank,rankDate,sex,grip,feeReq:pickedFeeReq,feeType,visitBase,feeAmount,startDate,endDate,leaveStart,leaveEnd,leaveFee,birth,judoId,note});
+    DB.students.push({id:uid(),name,lastName,firstName,lastKana,firstKana,kana,role,category:pickedCat,gradeBaseFY,gradeBaseLevel,gradeFixed,gradeTouchedFY,rank,rankDate,sex,grip,feeReq:pickedFeeReq,feeType,visitBase,feeAmount,startDate,endDate,leaveStart,leaveEnd,leaveFee,birth,judoId,note,isSelf:pickedStSelf});
   }
   // v125: 都度払いに切替えた仲間の、過去に焼き付いた月額調整(feeOverrides)を掃除（月額へ戻した時に旧調整が復活する不具合を防止）
   if(editingStudent && feeType==='perVisit'){
