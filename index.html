@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v145（履歴タブに年度セレクタを追加：主役ごと＋年度ごとに切替表示（数が増えても見やすく）。「すべて」で年度見出し付き全表示も可） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v146（個人モードに「分析」タブを新設：主役セレクタ＋既存の決まり技レーダー・勝率・組手別分析を独立タブで。個人モードのタブを 履歴/分析/仲間/予定/設定 に整理（集計は分析タブに集約）。事務モードは従来6タブ） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1273,6 +1273,12 @@ function applyUpdate(){
   <div id="rkTimeline"></div>
 </section>
 
+<!-- 分析（個人モード） -->
+<section id="screen-analysis" class="screen">
+  <div class="rk-chips" id="anaChips"></div>
+  <div id="anaAnalysis"></div>
+</section>
+
 <!-- 履歴：シェア画像モーダル -->
 <div class="modal-bg" id="rkShareModal">
   <div class="modal" style="background:#0e1830;max-width:430px">
@@ -1287,6 +1293,7 @@ function applyUpdate(){
 
 <nav class="tabbar">
   <button data-tab="rireki" onclick="switchTab('rireki')" style="display:none"><span class="ico">📖</span><span class="tlbl" data-i18n="履歴">履歴</span></button>
+  <button data-tab="analysis" onclick="switchTab('analysis')" style="display:none"><span class="ico">📈</span><span class="tlbl" data-i18n="分析">分析</span></button>
   <button data-tab="mates" onclick="switchTab('mates')"><span class="ico">👥</span><span class="tlbl" data-i18n="仲間">仲間</span></button>
   <button data-tab="att" class="active" onclick="switchTab('att')"><span class="ico">📋</span><span class="tlbl" data-i18n="出欠">出欠</span></button>
   <button data-tab="money" onclick="switchTab('money')"><span class="ico">💴</span><span class="tlbl" data-i18n="お金">お金</span></button>
@@ -1896,7 +1903,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v145'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v146'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2274,7 +2281,8 @@ Object.assign(DICT,{
   'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
   'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'},
   'すべて':{en:'All',fr:'Tout',pt:'Tudo'},
-  'この年度の記録はありません':{en:'No records for this year',fr:'Aucun résultat pour cette année',pt:'Sem registros neste ano'}
+  'この年度の記録はありません':{en:'No records for this year',fr:'Aucun résultat pour cette année',pt:'Sem registros neste ano'},
+  '分析':{en:'Analysis',fr:'Analyse',pt:'Análise'}
 });
 // v135: 技名リストを講道館公式に校正（追加技の翻訳）
 Object.assign(DICT,{
@@ -2572,11 +2580,11 @@ function switchTab(tab){
   document.getElementById('screen-'+tab).classList.add('active');
   document.querySelectorAll('nav.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   window.scrollTo(0,0);
-  ({att:renderAtt,money:renderMoney,sched:renderSched,mates:renderMates,list:renderList,set:renderSettings,rireki:renderRireki}[tab])();
+  ({att:renderAtt,money:renderMoney,sched:renderSched,mates:renderMates,list:renderList,set:renderSettings,rireki:renderRireki,analysis:renderAnalysisTab}[tab])();
 }
 /* v143/144: 表示モード（事務/個人）。個人モードは出欠・お金を隠し履歴を出す（データは保持） */
-const PERSONAL_HIDDEN=['att','money'];   // 個人モードで隠すタブ
-const OFFICE_HIDDEN=['rireki'];          // 事務モードで隠すタブ（履歴は個人モード専用）
+const PERSONAL_HIDDEN=['att','money','list'];   // 個人モードで隠す（集計は分析タブに集約）
+const OFFICE_HIDDEN=['rireki','analysis'];       // 事務モードで隠す（履歴・分析は個人モード専用）
 function applyMode(){
   const personal=(DB.mode==='personal');
   const hidden=personal?PERSONAL_HIDDEN:OFFICE_HIDDEN;
@@ -3976,11 +3984,14 @@ function setMatchRange(r){
   matchRange=r;
   renderMatchDetail();   // トグルは analysis 内で現在の選択状態で再生成される
 }
+// v146: 分析の描画先（集計の詳細カード／個人モードの分析タブで切替）
+let anaTargetAnalysis='matchDetailAnalysis', anaTargetBody='matchDetailBody';
 function showMatchDetail(selfId){
   matchDetailSelfId=selfId;
   matchRange='all';                       // 開くたびに「累計」に戻す
   matchGrip='all';                        // v128: 開くたびに「全データ」に戻す
   matchRaResult='○';                      // v129: 開くたびにレーダーは「勝ち」に戻す
+  anaTargetAnalysis='matchDetailAnalysis'; anaTargetBody='matchDetailBody';
   const s=DB.students.find(x=>x.id===selfId);
   document.getElementById('matchDetailName').textContent=(s?s.name:'')+T('の試合結果');
   renderMatchDetail();
@@ -3997,8 +4008,9 @@ function renderMatchDetail(){
     const cut=matchRangeCutoff();
     bs=bs.filter(b=>b.schedDate&&b.schedDate>=cut);   // 試合日が1年以内のみ
   }
-  document.getElementById('matchDetailAnalysis').innerHTML=matchAnalysisHtml(bs);
-  document.getElementById('matchDetailBody').innerHTML= bs.length ? bs.map(b=>{
+  document.getElementById(anaTargetAnalysis).innerHTML=matchAnalysisHtml(bs);
+  const _be=anaTargetBody?document.getElementById(anaTargetBody):null;
+  if(_be)_be.innerHTML= bs.length ? bs.map(b=>{
     const oppName=boutOppName(b);
     const oppExtra=b.oppIsMate?'<span class="mate-tag">'+T('同門')+'</span>':(b.oppAffil?' / '+esc(b.oppAffil):'');
     const head=[b.schedDate?b.schedDate.replace(/-/g,'/'):'',b.schedName?esc(b.schedName):'',b.sheet?T(b.sheet):''].filter(Boolean).join('　');
@@ -4127,6 +4139,21 @@ function drawRkShare(ev){
 }
 function rkSaveShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=((rkShareEv&&rkShareEv.name)||'戦績')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
 function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=>{const file=new File([b],'card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:'#柔道 #My道場'});}catch(e){}}else{rkSaveShare();alert(T('この端末は直接シェア非対応のため画像を保存しました。'));}},'image/png');}
+/* ===== v146: 分析タブ（個人モード）＝選手の試合分析（既存の決まり技レーダー等を再利用） ===== */
+let anaSelfId=null;
+function renderAnalysisTab(){
+  const map=allBoutsBySelf();
+  const withB=DB.students.filter(s=>map[s.id]&&map[s.id].length);
+  const chips=document.getElementById('anaChips'), box=document.getElementById('anaAnalysis');
+  if(!withB.length){chips.innerHTML='';box.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
+  if(!anaSelfId||!withB.some(s=>s.id===anaSelfId))anaSelfId=withB[0].id;
+  chips.innerHTML=withB.map(s=>`<button class="${s.id===anaSelfId?'on':''}" onclick="anaSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join('');
+  matchDetailSelfId=anaSelfId;
+  matchRange='all';matchGrip='all';matchRaResult='○';
+  anaTargetAnalysis='anaAnalysis'; anaTargetBody='';   // 分析のみ（対戦一覧は履歴側）
+  renderMatchDetail();
+}
+function anaSelect(id){anaSelfId=id;renderAnalysisTab();}
 /* ===== v134: 試合結果 テキスト取り込み（保護者LINE記入→貼付）===== */
 let importParsed=null;
 function openImportModal(){
