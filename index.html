@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v142（バックアップ強化：ワンタップで本人のiCloud Drive/Googleドライブ/ファイルへ保存[共有シート]、最終バックアップ日を記録、30日超で催促バナー＆データ管理に状況表示。データは我々が一切預からない方針は維持） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v143（表示モード切替の土台：設定＞チーム設定で「道場（事務）／個人」を切替。個人モードは出欠・お金タブを隠す（データは全保持）。※個人モードの履歴・分析・メンバー各タブは順次実装予定。あわせてバックアップ保存ボタンのカッコ内改行を修正） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -522,6 +522,7 @@
   .bk-status{font-size:calc(13px*var(--fs,1));line-height:1.6;border-radius:10px;padding:9px 11px;}
   .bk-status.ok{background:#eef4ee;color:#2e6b45;border:1px solid #cfe3d4;}
   .bk-status.warn{background:#fbf0e6;color:#8a5a1e;border:1px solid #ecd3b0;}
+  .bk-btn-sub{display:block;font-size:.82em;font-weight:700;opacity:.92;margin-top:2px;}
   .list-mini{font-size:calc(15px*var(--fs,1));color:var(--muted);margin-top:6px;}
   .del-x{background:none;border:none;color:var(--red);font-size:calc(22px*var(--fs,1));padding:6px;cursor:pointer;}
 
@@ -1054,6 +1055,14 @@ function applyUpdate(){
 
   <div id="setViewTeam">
     <div class="card">
+      <h3 style="margin-top:0;color:var(--navy)">表示モード</h3>
+      <p class="list-mini">道場の事務管理か、選手・ファン向けの個人モードか。切り替えても中のデータはすべて保持されます（表示するタブが変わるだけ）。</p>
+      <div class="view-toggle" style="margin-top:8px">
+        <button id="modeOfficeB" class="on" onclick="setAppMode('office')">道場（事務）</button>
+        <button id="modePersonalB" onclick="setAppMode('personal')">個人</button>
+      </div>
+    </div>
+    <div class="card">
       <h3 style="margin-top:0;color:var(--navy)">チーム名</h3>
       <input type="text" id="teamNameInput" onchange="saveTeamName()" placeholder="例：〇〇柔道クラブ" data-i18n-ph="例：〇〇柔道クラブ">
     </div>
@@ -1101,7 +1110,7 @@ function applyUpdate(){
       <h3 style="margin-top:0;color:var(--navy)">データの保存・共有</h3>
       <div id="backupStatus" style="margin-bottom:10px"></div>
       <p class="list-mini">バックアップは、お使いのiCloud Drive・Googleドライブ・「ファイル」に保存できます（端末の外に保管＝機種変更や紛失でも安心）。仲間への共有もこのファイルで行えます。</p>
-      <button class="btn gold full" style="margin-top:10px" onclick="exportData()">💾 バックアップを保存（クラウド/ファイルへ）</button>
+      <button class="btn gold full" style="margin-top:10px" onclick="exportData()">💾 バックアップを保存<span class="bk-btn-sub">（クラウド/ファイルへ）</span></button>
       <label class="btn full ghost" style="margin-top:10px;cursor:pointer">📂 バックアップから復元
         <input type="file" accept=".json" style="display:none" onchange="importData(event)">
       </label>
@@ -1837,7 +1846,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v142'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v143'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2185,6 +2194,7 @@ Object.assign(DICT,{
 // v142: バックアップ（本人クラウドへ保存＋催促）
 Object.assign(DICT,{
   '💾 バックアップを保存（クラウド/ファイルへ）':{en:'💾 Save backup (to cloud/files)',fr:'💾 Enregistrer (cloud/fichiers)',pt:'💾 Salvar backup (nuvem/arquivos)'},
+  '（クラウド/ファイルへ）':{en:'(to cloud / files)',fr:'(cloud / fichiers)',pt:'(nuvem / arquivos)'},
   'バックアップは、お使いのiCloud Drive・Googleドライブ・「ファイル」に保存できます（端末の外に保管＝機種変更や紛失でも安心）。仲間への共有もこのファイルで行えます。':{en:'Save your backup to your own iCloud Drive, Google Drive or Files (kept off-device — safe even if you change or lose your phone). You can also share this file with members.',fr:'Enregistrez votre sauvegarde sur votre iCloud Drive, Google Drive ou Fichiers (hors de l’appareil — sûr même en cas de changement ou perte du téléphone). Vous pouvez aussi partager ce fichier.',pt:'Salve o backup no seu iCloud Drive, Google Drive ou Arquivos (fora do aparelho — seguro mesmo se trocar ou perder o celular). Você também pode compartilhar este arquivo.'},
   'バックアップを保存しました':{en:'Backup saved',fr:'Sauvegarde enregistrée',pt:'Backup salvo'},
   'まだ一度も保存されていません':{en:'No backup saved yet',fr:'Aucune sauvegarde',pt:'Nenhum backup ainda'},
@@ -2196,6 +2206,15 @@ Object.assign(DICT,{
   '前回のバックアップから時間が経っています。保存をおすすめします。':{en:'It has been a while since your last backup. We recommend saving one.',fr:'Cela fait longtemps. Pensez à sauvegarder.',pt:'Faz tempo desde o último backup. Recomendamos salvar.'},
   'バックアップをおすすめします':{en:'Backup recommended',fr:'Sauvegarde conseillée',pt:'Backup recomendado'},
   '保存':{en:'Save',fr:'Enreg.',pt:'Salvar'}
+});
+// v143: 表示モード（事務/個人）
+Object.assign(DICT,{
+  '表示モード':{en:'Display mode',fr:'Mode d’affichage',pt:'Modo de exibição'},
+  '道場の事務管理か、選手・ファン向けの個人モードか。切り替えても中のデータはすべて保持されます（表示するタブが変わるだけ）。':{en:'Dojo admin, or personal mode for athletes/fans. Switching keeps all your data — only the tabs shown change.',fr:'Gestion du dojo, ou mode personnel pour athlètes/fans. Le changement conserve toutes les données — seuls les onglets changent.',pt:'Administração do dojô ou modo pessoal para atletas/fãs. Trocar mantém todos os dados — só mudam as abas exibidas.'},
+  '道場（事務）':{en:'Dojo (admin)',fr:'Dojo (gestion)',pt:'Dojô (adm.)'},
+  '個人':{en:'Personal',fr:'Personnel',pt:'Pessoal'},
+  '個人モードに切り替えました':{en:'Switched to Personal mode',fr:'Mode personnel activé',pt:'Modo pessoal ativado'},
+  '道場（事務）モードに切り替えました':{en:'Switched to Dojo (admin) mode',fr:'Mode dojo (gestion) activé',pt:'Modo dojô (adm.) ativado'}
 });
 // v135: 技名リストを講道館公式に校正（追加技の翻訳）
 Object.assign(DICT,{
@@ -2343,7 +2362,8 @@ let DB={
     {name:'コーチ',grade:false},
     {name:'指導者',grade:false}
   ],
-  matchResults:{}
+  matchResults:{},
+  mode:'office'   // 'office'=道場事務モード / 'personal'=個人モード（v143）
 };
 const GRADE_COLOR={白帯:'#9aa0a6',黄帯:'#d4ac0d',橙帯:'#d68910',緑帯:'#2e7d4f',紫帯:'#7d3c98',茶帯:'#7b5230',黒帯:'#222'};
 const DEFAULT_CATEGORIES=[
@@ -2493,6 +2513,24 @@ function switchTab(tab){
   document.querySelectorAll('nav.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   window.scrollTo(0,0);
   ({att:renderAtt,money:renderMoney,sched:renderSched,mates:renderMates,list:renderList,set:renderSettings}[tab])();
+}
+/* v143: 表示モード（事務/個人）。個人モードは出欠・お金タブを隠す（データは保持） */
+const PERSONAL_HIDDEN=['att','money'];
+function applyMode(){
+  const personal=(DB.mode==='personal');
+  document.querySelectorAll('nav.tabbar button[data-tab]').forEach(b=>{
+    const hide=personal&&PERSONAL_HIDDEN.includes(b.dataset.tab);
+    b.style.display=hide?'none':'';
+  });
+  const o=document.getElementById('modeOfficeB'),p=document.getElementById('modePersonalB');
+  if(o)o.classList.toggle('on',!personal);
+  if(p)p.classList.toggle('on',personal);
+}
+function setAppMode(m){
+  DB.mode=(m==='personal')?'personal':'office'; save(); applyMode();
+  const active=document.querySelector('nav.tabbar button.active');
+  if(active&&active.style.display==='none')switchTab('list');   // 隠れたタブにいたら安全なタブへ
+  toast(DB.mode==='personal'?T('個人モードに切り替えました'):T('道場（事務）モードに切り替えました'));
 }
 
 /* 出欠 */
@@ -5697,7 +5735,9 @@ function initUI(){
   applyLogo();
   startI18nObserver();
   runI18nScan();
+  applyMode();                                  // v143: 表示モードでタブを出し分け
   renderAtt();
+  if(DB.mode==='personal')switchTab('list');    // 個人モードは出欠でなく集計から
   showBackupReminder();   // 期限超過なら催促バナー
 }
 load();seedIfEmpty();save();initUI();
