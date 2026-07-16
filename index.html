@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v144（個人モードに「履歴」タブを新設：主役セレクタ＋大会ごとの戦績カード[勝敗・決まり技]を時系列表示、大会のひとことメモ、そのままシェア画像化(🥋My道場ブランド入り)。実データ(matchResults)から生成。※写真・節目カードは次段） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v145（履歴タブに年度セレクタを追加：主役ごと＋年度ごとに切替表示（数が増えても見やすく）。「すべて」で年度見出し付き全表示も可） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -529,6 +529,9 @@
   .rk-chips button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
   .rk-chips .rk-av{width:26px;height:26px;border-radius:50%;background:var(--paper);display:inline-flex;align-items:center;justify-content:center;font-size:calc(13px*var(--fs,1));color:var(--navy);font-weight:800;}
   .rk-chips button.on .rk-av{background:rgba(255,255,255,.22);color:#fff;}
+  .rk-years{display:flex;gap:7px;overflow-x:auto;padding:0 0 10px;}
+  .rk-years button{flex:0 0 auto;border:1.5px solid var(--line);background:#fff;color:var(--navy);border-radius:18px;padding:5px 14px;font-family:inherit;font-weight:700;font-size:calc(13px*var(--fs,1));cursor:pointer;white-space:nowrap;}
+  .rk-years button.on{background:var(--gold);color:#3a2b00;border-color:var(--gold);}
   .rk-year{font-size:calc(13px*var(--fs,1));font-weight:800;color:var(--muted);margin:8px 2px;}
   .rk-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 10px rgba(20,30,55,.07);}
   .rk-photo{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#22355f,#0e1830);display:flex;align-items:center;justify-content:center;overflow:hidden;}
@@ -1265,6 +1268,7 @@ function applyUpdate(){
 <!-- 履歴（個人モード） -->
 <section id="screen-rireki" class="screen">
   <div class="rk-chips" id="rkChips"></div>
+  <div class="rk-years" id="rkYears"></div>
   <p class="list-mini" id="rkHint" style="margin:2px 2px 12px">大会ごとに1枚のカードで成長を振り返れます。写真は「シェア画像」に載せてInstagram/LINEへ。</p>
   <div id="rkTimeline"></div>
 </section>
@@ -1892,7 +1896,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v144'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v145'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2268,7 +2272,9 @@ Object.assign(DICT,{
   '写真は近日対応':{en:'Photos coming soon',fr:'Photos bientôt',pt:'Fotos em breve'},
   'この大会のひとことメモ（任意）':{en:'A note about this event (optional)',fr:'Une note sur cet événement (facultatif)',pt:'Uma nota sobre este evento (opcional)'},
   'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
-  'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'}
+  'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'},
+  'すべて':{en:'All',fr:'Tout',pt:'Tudo'},
+  'この年度の記録はありません':{en:'No records for this year',fr:'Aucun résultat pour cette année',pt:'Sem registros neste ano'}
 });
 // v135: 技名リストを講道館公式に校正（追加技の翻訳）
 Object.assign(DICT,{
@@ -4042,22 +4048,33 @@ function allBoutsFlat(){
   return out;
 }
 /* ===== v144: 履歴タブ（個人モード）＝大会ごとのカード＋シェア画像 ===== */
-let rkSelfId=null, rkEvents=[], rkShareEv=null;
+let rkSelfId=null, rkYear=null, rkEvents=[], rkShareEv=null;
 function renderRireki(){
   const map=allBoutsBySelf();
   const withB=DB.students.filter(s=>map[s.id]&&map[s.id].length);
-  const chips=document.getElementById('rkChips'), tl=document.getElementById('rkTimeline');
-  if(!withB.length){chips.innerHTML='';tl.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
-  if(!rkSelfId||!withB.some(s=>s.id===rkSelfId))rkSelfId=withB[0].id;
+  const chips=document.getElementById('rkChips'), yearsEl=document.getElementById('rkYears'), tl=document.getElementById('rkTimeline');
+  if(!withB.length){chips.innerHTML='';yearsEl.innerHTML='';tl.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
+  if(!rkSelfId||!withB.some(s=>s.id===rkSelfId)){rkSelfId=withB[0].id;rkYear=null;}
   chips.innerHTML=withB.map(s=>`<button class="${s.id===rkSelfId?'on':''}" onclick="rkSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join('');
+  // 大会（schedId）単位にまとめる
   const evMap={};
   (map[rkSelfId]||[]).forEach(b=>{const k=b.schedId||('x'+b.schedName);(evMap[k]=evMap[k]||{schedId:b.schedId||'',name:b.schedName,date:b.schedDate,bouts:[]}).bouts.push(b);});
-  rkEvents=Object.values(evMap).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  let html='',curY='';
-  rkEvents.forEach((ev,i)=>{const y=(ev.date||'').slice(0,4)||'—';if(y!==curY){curY=y;html+=`<div class="rk-year">${y}</div>`;}html+=rkCardHtml(ev,i);});
-  tl.innerHTML=html;
+  const allEvents=Object.values(evMap).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  // 年度セレクタ
+  const years=[...new Set(allEvents.map(ev=>schedFY(ev.date||'')).filter(y=>!isNaN(y)))].sort((a,b)=>b-a);
+  if(rkYear!=='all'&&(rkYear==null||!years.includes(rkYear)))rkYear=years.length?years[0]:'all';
+  yearsEl.innerHTML=years.map(y=>`<button class="${rkYear===y?'on':''}" onclick="rkSetYear(${y})">${y}年度</button>`).join('')+`<button class="${rkYear==='all'?'on':''}" onclick="rkSetYear('all')">${T('すべて')}</button>`;
+  // 絞り込み
+  rkEvents=(rkYear==='all')?allEvents:allEvents.filter(ev=>schedFY(ev.date||'')===rkYear);
+  let html='',curFy='';
+  rkEvents.forEach((ev,i)=>{
+    if(rkYear==='all'){const fy=schedFY(ev.date||'');if(fy!==curFy){curFy=fy;html+=`<div class="rk-year">${isNaN(fy)?'—':fy+'年度'}</div>`;}}
+    html+=rkCardHtml(ev,i);
+  });
+  tl.innerHTML=html||`<div class="rk-empty">${T('この年度の記録はありません')}</div>`;
 }
-function rkSelect(id){rkSelfId=id;renderRireki();}
+function rkSelect(id){rkSelfId=id;rkYear=null;renderRireki();}
+function rkSetYear(y){rkYear=y;renderRireki();}
 function rkStats(ev){
   let w=0,l=0,d=0;const wz={};
   ev.bouts.forEach(b=>{if(b.result==='○')w++;else if(b.result==='▲')l++;else d++;const k=(b.waza||'').trim();if(b.result==='○'&&k)wz[k]=(wz[k]||0)+1;});
