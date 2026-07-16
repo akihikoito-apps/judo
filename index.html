@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v148（設定「チーム設定」→「モード設定」に改称。個人モードでは ストーリー名/ストーリーロゴ/年度の開始月 を設定でき、上部の帯を「My Judo History」＋ストーリー名に切替。事務モードは チーム名→チームロゴ→会計年度の開始月 の順に整理） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v149（履歴カードに写真機能：1大会1枚をタップで撮影/選択→自動圧縮してDBに保存＝バックアップに同梱。戦績シェア画像にも写真をヒーローとして描画。写真の変更/削除に対応） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -539,6 +539,11 @@
   .rk-photo .ph .big{font-size:40px;display:block;margin-bottom:4px;}
   .rk-badge{position:absolute;left:12px;top:12px;background:rgba(14,24,48,.72);color:#fff;border-radius:10px;padding:5px 11px;font-weight:800;font-size:calc(13px*var(--fs,1));}
   .rk-badge.win{background:rgba(46,125,79,.92);} .rk-badge.lose{background:rgba(192,57,52,.92);}
+  .rk-photo .rk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .rk-add{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:rgba(255,255,255,.85);font-size:calc(13.5px*var(--fs,1));font-weight:700;cursor:pointer;text-align:center;}
+  .rk-add .big{font-size:40px;display:block;margin-bottom:4px;}
+  .rk-photo-ops{position:absolute;right:10px;bottom:10px;display:flex;gap:6px;}
+  .rk-op{display:inline-flex;align-items:center;justify-content:center;min-width:38px;min-height:38px;border-radius:9px;border:none;background:rgba(14,24,48,.62);color:#fff;font-size:calc(16px*var(--fs,1));cursor:pointer;margin:0;}
   .rk-body{padding:12px 14px 14px;}
   .rk-date{font-size:calc(12px*var(--fs,1));color:var(--muted);font-weight:700;}
   .rk-ttl{font-size:calc(17px*var(--fs,1));font-weight:800;color:var(--navy);margin:2px 0 8px;}
@@ -1943,7 +1948,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v148'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v149'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2330,6 +2335,12 @@ Object.assign(DICT,{
 Object.assign(DICT,{
   '履歴':{en:'History',fr:'Historique',pt:'Histórico'},
   '写真は近日対応':{en:'Photos coming soon',fr:'Photos bientôt',pt:'Fotos em breve'},
+  '写真を追加':{en:'Add photo',fr:'Ajouter une photo',pt:'Adicionar foto'},
+  '写真を変更':{en:'Change photo',fr:'Changer la photo',pt:'Alterar foto'},
+  '写真を削除':{en:'Delete photo',fr:'Supprimer la photo',pt:'Excluir foto'},
+  '写真を追加しました':{en:'Photo added',fr:'Photo ajoutée',pt:'Foto adicionada'},
+  'この写真を削除しますか？':{en:'Delete this photo?',fr:'Supprimer cette photo ?',pt:'Excluir esta foto?'},
+  '画像を読めませんでした':{en:'Could not read the image',fr:'Impossible de lire l’image',pt:'Não foi possível ler a imagem'},
   'この大会のひとことメモ（任意）':{en:'A note about this event (optional)',fr:'Une note sur cet événement (facultatif)',pt:'Uma nota sobre este evento (opcional)'},
   'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
   'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'},
@@ -4158,8 +4169,16 @@ function rkCardHtml(ev,i){
   const st=rkStats(ev), cls=st.w>st.l?'win':(st.l>st.w?'lose':'');
   const key=rkNoteKey(ev), cmt=(DB.eventNotes&&DB.eventNotes[key])||'';
   const wz=st.wazas.map(x=>`<span class="c">${esc(T(x[0]))} ${x[1]}</span>`).join('');
+  const photo=(DB.eventPhotos&&DB.eventPhotos[key])||'';
+  const photoArea=photo
+    ? `<img class="rk-img" src="${photo}" alt="">
+       <div class="rk-photo-ops">
+         <label class="rk-op" title="${T('写真を変更')}"><input type="file" accept="image/*" style="display:none" onchange="rkPhotoPick(event,${i})">🔄</label>
+         <button class="rk-op" title="${T('写真を削除')}" onclick="rkPhotoDel(${i})">🗑️</button>
+       </div>`
+    : `<label class="rk-add"><input type="file" accept="image/*" style="display:none" onchange="rkPhotoPick(event,${i})"><span class="big">📷</span>${T('写真を追加')}</label>`;
   return `<div class="rk-card">
-    <div class="rk-photo"><div class="ph"><span class="big">📷</span>${T('写真は近日対応')}</div><div class="rk-badge ${cls}">${st.w}${T('勝')}${st.l}${T('敗')}${st.d?st.d+T('分'):''}</div></div>
+    <div class="rk-photo">${photoArea}<div class="rk-badge ${cls}">${st.w}${T('勝')}${st.l}${T('敗')}${st.d?st.d+T('分'):''}</div></div>
     <div class="rk-body">
       <div class="rk-date">${(ev.date||'').replace(/-/g,'/')}</div>
       <div class="rk-ttl">${esc(ev.name)}</div>
@@ -4171,15 +4190,72 @@ function rkCardHtml(ev,i){
   </div>`;
 }
 function rkSaveNote(el){const key=el.getAttribute('data-key'),v=el.value.trim();if(!DB.eventNotes)DB.eventNotes={};if(v)DB.eventNotes[key]=v;else delete DB.eventNotes[key];save();}
+/* v149: 履歴カードの写真（1大会1枚・自動圧縮してDBに保存＝バックアップに同梱） */
+function rkCompressImage(file,maxSide,quality){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        try{
+          let w=img.width,h=img.height;
+          const scale=Math.min(1,maxSide/Math.max(w,h));
+          w=Math.max(1,Math.round(w*scale));h=Math.max(1,Math.round(h*scale));
+          const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+          const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,w,h);
+          resolve(canvas.toDataURL('image/jpeg',quality));
+        }catch(err){reject(err);}
+      };
+      img.onerror=()=>reject(new Error('img'));
+      img.src=e.target.result;
+    };
+    reader.onerror=()=>reject(new Error('read'));
+    reader.readAsDataURL(file);
+  });
+}
+function rkPhotoPick(evt,i){
+  const file=evt.target&&evt.target.files&&evt.target.files[0];
+  if(evt.target)evt.target.value='';
+  if(!file)return;
+  const ev=rkEvents[i]; if(!ev)return;
+  rkCompressImage(file,1000,0.72).then(data=>{
+    if(!DB.eventPhotos)DB.eventPhotos={};
+    DB.eventPhotos[rkNoteKey(ev)]=data;
+    save(); renderRireki(); toast(T('写真を追加しました'));
+  }).catch(()=>toast(T('画像を読めませんでした')));
+}
+function rkPhotoDel(i){
+  const ev=rkEvents[i]; if(!ev)return;
+  askConfirm(T('この写真を削除しますか？'),()=>{
+    if(DB.eventPhotos)delete DB.eventPhotos[rkNoteKey(ev)];
+    save(); renderRireki(); toast(T('削除しました'));
+  });
+}
 function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;drawRkShare(ev);openModal('rkShareModal');}
 function rkRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 function rkWrap(ctx,t,x,y,maxW,lh){const chars=[...t];let line='',yy=y;for(const ch of chars){if(ctx.measureText(line+ch).width>maxW){ctx.fillText(line,x,yy);line=ch;yy+=lh;}else line+=ch;}ctx.fillText(line,x,yy);}
+function rkDrawCover(ctx,img,x,y,w,h){
+  const ir=img.width/img.height, r=w/h; let sw,sh,sx,sy;
+  if(ir>r){sh=img.height;sw=sh*r;sx=(img.width-sw)/2;sy=0;}
+  else{sw=img.width;sh=sw/r;sx=0;sy=(img.height-sh)/2;}
+  ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
+}
 function drawRkShare(ev){
+  // v149: 大会写真があればヒーロー画像として読み込んでから描画（非同期）
+  const photo=(DB.eventPhotos&&DB.eventPhotos[rkNoteKey(ev)])||'';
+  if(photo){const img=new Image();img.onload=()=>_drawRkShare(ev,img);img.onerror=()=>_drawRkShare(ev,null);img.src=photo;}
+  else _drawRkShare(ev,null);
+}
+function _drawRkShare(ev,heroImg){
   const cv=document.getElementById('rkcv'),ctx=cv.getContext('2d'),W=1080,H=1350,F='"Hiragino Sans","Yu Gothic","Meiryo",sans-serif';
   const s=DB.students.find(x=>x.id===rkSelfId)||{name:''}, st=rkStats(ev);
   const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#16264a');g.addColorStop(1,'#0c1526');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  const pg=ctx.createLinearGradient(0,0,W,620);pg.addColorStop(0,'#22355f');pg.addColorStop(1,'#0e1830');ctx.fillStyle=pg;ctx.fillRect(0,0,W,620);
-  ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='150px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🥋',W/2,300);ctx.textBaseline='alphabetic';
+  if(heroImg){
+    rkDrawCover(ctx,heroImg,0,0,W,620);
+  }else{
+    const pg=ctx.createLinearGradient(0,0,W,620);pg.addColorStop(0,'#22355f');pg.addColorStop(1,'#0e1830');ctx.fillStyle=pg;ctx.fillRect(0,0,W,620);
+    ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='150px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🥋',W/2,300);ctx.textBaseline='alphabetic';
+  }
   const sh=ctx.createLinearGradient(0,420,0,620);sh.addColorStop(0,'rgba(12,21,38,0)');sh.addColorStop(1,'#0e1830');ctx.fillStyle=sh;ctx.fillRect(0,420,W,200);
   ctx.textAlign='left';
   ctx.fillStyle=st.w>st.l?'#2e9e5b':(st.l>st.w?'#d24a34':'#c8a44d');ctx.font='800 40px '+F;ctx.fillText(st.w+T('勝')+st.l+T('敗')+(st.d?st.d+T('分'):''),64,586);
