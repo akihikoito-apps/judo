@@ -2,7 +2,7 @@
    VERSION は index.html の APP_VERSION と必ず揃える。
    方針：HTMLはネットワーク優先／更新は「更新する」を押したときだけ（自動リロードしない）／
         有効化時に旧バージョンのキャッシュを全削除。 */
-const VERSION = 'v149';
+const VERSION = 'v150';
 const CACHE = 'mydojo-' + VERSION;
 const CORE = ['./', 'index.html', 'sw.js', 'terms.html', 'privacy.html'];
 

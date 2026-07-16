@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v149（履歴カードに写真機能：1大会1枚をタップで撮影/選択→自動圧縮してDBに保存＝バックアップに同梱。戦績シェア画像にも写真をヒーローとして描画。写真の変更/削除に対応） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v150（履歴に「節目カード」：昇級/昇段/自由記入をタップで追加し、試合カードと日付順に混在表示。写真・ひとことメモ・シェア画像は試合カードと共通。主役セレクタはisSelf最優先＝試合が無くても節目を残せる） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -539,6 +539,9 @@
   .rk-photo .ph .big{font-size:40px;display:block;margin-bottom:4px;}
   .rk-badge{position:absolute;left:12px;top:12px;background:rgba(14,24,48,.72);color:#fff;border-radius:10px;padding:5px 11px;font-weight:800;font-size:calc(13px*var(--fs,1));}
   .rk-badge.win{background:rgba(46,125,79,.92);} .rk-badge.lose{background:rgba(192,57,52,.92);}
+  .rk-badge.mile{background:rgba(200,164,77,.95);color:#3a2b00;}
+  .rk-pill.mile{background:#f6efdc;color:#7a5c00;}
+  .rk-actions .edit{background:#fff;color:var(--navy);}
   .rk-photo .rk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .rk-add{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:rgba(255,255,255,.85);font-size:calc(13.5px*var(--fs,1));font-weight:700;cursor:pointer;text-align:center;}
   .rk-add .big{font-size:40px;display:block;margin-bottom:4px;}
@@ -1307,7 +1310,8 @@ function applyUpdate(){
 <section id="screen-rireki" class="screen">
   <div class="rk-chips" id="rkChips"></div>
   <div class="rk-years" id="rkYears"></div>
-  <p class="list-mini" id="rkHint" style="margin:2px 2px 12px">大会ごとに1枚のカードで成長を振り返れます。写真は「シェア画像」に載せてInstagram/LINEへ。</p>
+  <div class="rk-toolbar" style="display:flex;justify-content:flex-end;margin:2px 2px 10px"><button class="btn gold sm" onclick="mileOpenAdd()">＋ 節目を追加</button></div>
+  <p class="list-mini" id="rkHint" style="margin:2px 2px 12px">大会ごとに1枚のカードで成長を振り返れます。昇級・昇段などの節目も追加でき、写真は「シェア画像」に載せてInstagram/LINEへ。</p>
   <div id="rkTimeline"></div>
 </section>
 
@@ -1326,6 +1330,28 @@ function applyUpdate(){
       <button class="btn" style="flex:1;background:#fff;color:var(--navy)" onclick="rkSaveShare()">保存</button>
       <button class="btn" style="flex:1;background:#06C755;color:#fff" onclick="rkDoShare()">シェア</button>
     </div>
+  </div>
+</div>
+
+<!-- 履歴：節目（昇級/昇段/自由）追加・編集モーダル -->
+<div class="modal-bg" id="milestoneModal">
+  <div class="modal">
+    <h3 id="mileModalTitle">節目を追加</h3>
+    <label class="fld">種類</label>
+    <div class="io-pick" id="mileTypePick">
+      <button id="mileTypeKyu" onclick="milePickType('昇級')">昇級</button>
+      <button id="mileTypeDan" class="on" onclick="milePickType('昇段')">昇段</button>
+      <button id="mileTypeFree" onclick="milePickType('自由')">自由記入</button>
+    </div>
+    <label class="fld">タイトル</label>
+    <input type="text" id="mileTitle" placeholder="例：初段 取得／初勝利／〇〇大会 優勝">
+    <label class="fld">日付</label>
+    <input type="date" id="mileDate">
+    <div class="row">
+      <button class="btn ghost" onclick="closeModal('milestoneModal')">やめる</button>
+      <button class="btn gold" onclick="mileSave()">保存する</button>
+    </div>
+    <button class="btn del-full" id="mileDeleteBtn" style="display:none" onclick="mileDelete()">この節目を削除する</button>
   </div>
 </div>
 
@@ -1948,7 +1974,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v149'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v150'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2341,6 +2367,20 @@ Object.assign(DICT,{
   '写真を追加しました':{en:'Photo added',fr:'Photo ajoutée',pt:'Foto adicionada'},
   'この写真を削除しますか？':{en:'Delete this photo?',fr:'Supprimer cette photo ?',pt:'Excluir esta foto?'},
   '画像を読めませんでした':{en:'Could not read the image',fr:'Impossible de lire l’image',pt:'Não foi possível ler a imagem'},
+  '節目':{en:'Milestone',fr:'Étape',pt:'Marco'},
+  '節目を追加':{en:'Add milestone',fr:'Ajouter une étape',pt:'Adicionar marco'},
+  '節目を編集':{en:'Edit milestone',fr:'Modifier l’étape',pt:'Editar marco'},
+  '昇級':{en:'Promotion (kyu)',fr:'Passage de kyu',pt:'Promoção (kyu)'},
+  '昇段':{en:'Promotion (dan)',fr:'Passage de dan',pt:'Promoção (dan)'},
+  '自由記入':{en:'Custom',fr:'Libre',pt:'Livre'},
+  'タイトル':{en:'Title',fr:'Titre',pt:'Título'},
+  '種類':{en:'Type',fr:'Type',pt:'Tipo'},
+  'この節目のひとことメモ（任意）':{en:'A note about this milestone (optional)',fr:'Une note sur cette étape (facultatif)',pt:'Uma nota sobre este marco (opcional)'},
+  'この節目を削除しますか？':{en:'Delete this milestone?',fr:'Supprimer cette étape ?',pt:'Excluir este marco?'},
+  'この節目を削除する':{en:'Delete this milestone',fr:'Supprimer cette étape',pt:'Excluir este marco'},
+  'タイトルを入れてください':{en:'Please enter a title',fr:'Veuillez saisir un titre',pt:'Digite um título'},
+  '先に主役（自分）を選んでください':{en:'Please select the main person first',fr:'Sélectionnez d’abord la personne principale',pt:'Selecione primeiro a pessoa principal'},
+  'この年度の記録はまだありません':{en:'No records for this year yet',fr:'Aucun enregistrement pour cette année',pt:'Ainda não há registros deste ano'},
   'この大会のひとことメモ（任意）':{en:'A note about this event (optional)',fr:'Une note sur cet événement (facultatif)',pt:'Uma nota sobre este evento (opcional)'},
   'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
   'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'},
@@ -4132,17 +4172,21 @@ function allBoutsFlat(){
 let rkSelfId=null, rkYear=null, rkEvents=[], rkShareEv=null;
 function renderRireki(){
   const map=allBoutsBySelf();
-  const withMatches=DB.students.filter(s=>map[s.id]&&map[s.id].length);
-  const selfW=withMatches.filter(s=>s.isSelf);        // v147: 主役(isSelf)が居ればそれを優先
-  const withB=selfW.length?selfW:withMatches;
+  // v150: 主役(isSelf)が居ればisSelf全員を候補に（試合が無くても節目を追加できる）。居なければ従来＝試合のある人。
+  const hasHist=s=>(map[s.id]&&map[s.id].length)||(DB.milestones&&DB.milestones[s.id]&&DB.milestones[s.id].length);
+  const selfStudents=DB.students.filter(s=>s.isSelf);
+  const withB=selfStudents.length?selfStudents:DB.students.filter(hasHist);
   const chips=document.getElementById('rkChips'), yearsEl=document.getElementById('rkYears'), tl=document.getElementById('rkTimeline');
   if(!withB.length){chips.innerHTML='';yearsEl.innerHTML='';tl.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
   if(!rkSelfId||!withB.some(s=>s.id===rkSelfId)){rkSelfId=withB[0].id;rkYear=null;}
   chips.innerHTML=withB.map(s=>`<button class="${s.id===rkSelfId?'on':''}" onclick="rkSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join('');
   // 大会（schedId）単位にまとめる
   const evMap={};
-  (map[rkSelfId]||[]).forEach(b=>{const k=b.schedId||('x'+b.schedName);(evMap[k]=evMap[k]||{schedId:b.schedId||'',name:b.schedName,date:b.schedDate,bouts:[]}).bouts.push(b);});
-  const allEvents=Object.values(evMap).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  (map[rkSelfId]||[]).forEach(b=>{const k=b.schedId||('x'+b.schedName);(evMap[k]=evMap[k]||{kind:'match',schedId:b.schedId||'',name:b.schedName,date:b.schedDate,bouts:[]}).bouts.push(b);});
+  const matchEvents=Object.values(evMap);
+  // 節目（昇級/昇段/自由）をマージ
+  const miles=((DB.milestones&&DB.milestones[rkSelfId])||[]).map(m=>({kind:'milestone',id:m.id,type:m.type,title:m.title,date:m.date}));
+  const allEvents=matchEvents.concat(miles).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   // 年度セレクタ
   const years=[...new Set(allEvents.map(ev=>schedFY(ev.date||'')).filter(y=>!isNaN(y)))].sort((a,b)=>b-a);
   if(rkYear!=='all'&&(rkYear==null||!years.includes(rkYear)))rkYear=years.length?years[0]:'all';
@@ -4152,9 +4196,9 @@ function renderRireki(){
   let html='',curFy='';
   rkEvents.forEach((ev,i)=>{
     if(rkYear==='all'){const fy=schedFY(ev.date||'');if(fy!==curFy){curFy=fy;html+=`<div class="rk-year">${isNaN(fy)?'—':fy+'年度'}</div>`;}}
-    html+=rkCardHtml(ev,i);
+    html+=(ev.kind==='milestone')?rkMilestoneCardHtml(ev,i):rkCardHtml(ev,i);
   });
-  tl.innerHTML=html||`<div class="rk-empty">${T('この年度の記録はありません')}</div>`;
+  tl.innerHTML=html||`<div class="rk-empty">${T('この年度の記録はまだありません')}</div>`;
 }
 function rkSelect(id){rkSelfId=id;rkYear=null;renderRireki();}
 function rkSetYear(y){rkYear=y;renderRireki();}
@@ -4164,19 +4208,38 @@ function rkStats(ev){
   const wazas=Object.keys(wz).map(k=>[k,wz[k]]).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,4);
   return {w,l,d,wazas};
 }
-function rkNoteKey(ev){return rkSelfId+'|'+(ev.schedId||ev.name);}
-function rkCardHtml(ev,i){
-  const st=rkStats(ev), cls=st.w>st.l?'win':(st.l>st.w?'lose':'');
-  const key=rkNoteKey(ev), cmt=(DB.eventNotes&&DB.eventNotes[key])||'';
-  const wz=st.wazas.map(x=>`<span class="c">${esc(T(x[0]))} ${x[1]}</span>`).join('');
+function rkNoteKey(ev){ if(ev.kind==='milestone')return rkSelfId+'|m:'+ev.id; return rkSelfId+'|'+(ev.schedId||ev.name); }
+// v149→v150: 写真枠の共通HTML（試合カード・節目カードで共用）
+function rkPhotoAreaHtml(key,i){
   const photo=(DB.eventPhotos&&DB.eventPhotos[key])||'';
-  const photoArea=photo
+  return photo
     ? `<img class="rk-img" src="${photo}" alt="">
        <div class="rk-photo-ops">
          <label class="rk-op" title="${T('写真を変更')}"><input type="file" accept="image/*" style="display:none" onchange="rkPhotoPick(event,${i})">🔄</label>
          <button class="rk-op" title="${T('写真を削除')}" onclick="rkPhotoDel(${i})">🗑️</button>
        </div>`
     : `<label class="rk-add"><input type="file" accept="image/*" style="display:none" onchange="rkPhotoPick(event,${i})"><span class="big">📷</span>${T('写真を追加')}</label>`;
+}
+function mileIcon(type){return type==='昇段'?'🥋':(type==='昇級'?'🎽':'⭐');}
+function rkMilestoneCardHtml(ev,i){
+  const key=rkNoteKey(ev), cmt=(DB.eventNotes&&DB.eventNotes[key])||'';
+  const icon=mileIcon(ev.type), typeLabel=(ev.type==='自由')?T('節目'):T(ev.type);
+  return `<div class="rk-card">
+    <div class="rk-photo">${rkPhotoAreaHtml(key,i)}<div class="rk-badge mile">${icon} ${T('節目')}</div></div>
+    <div class="rk-body">
+      <div class="rk-date">${(ev.date||'').replace(/-/g,'/')}</div>
+      <div class="rk-ttl">${esc(ev.title||'')}</div>
+      <div class="rk-rec"><span class="rk-pill mile">${icon} ${esc(typeLabel)}</span></div>
+      <textarea class="rk-cmt" placeholder="${T('この節目のひとことメモ（任意）')}" onchange="rkSaveNote(this)" data-key="${esc(key)}">${esc(cmt)}</textarea>
+      <div class="rk-actions"><button class="edit" onclick="mileOpenEdit('${ev.id}')">✏️ ${T('編集')}</button><button class="share" onclick="rkOpenShare(${i})">📤 ${T('シェア画像')}</button></div>
+    </div>
+  </div>`;
+}
+function rkCardHtml(ev,i){
+  const st=rkStats(ev), cls=st.w>st.l?'win':(st.l>st.w?'lose':'');
+  const key=rkNoteKey(ev), cmt=(DB.eventNotes&&DB.eventNotes[key])||'';
+  const wz=st.wazas.map(x=>`<span class="c">${esc(T(x[0]))} ${x[1]}</span>`).join('');
+  const photoArea=rkPhotoAreaHtml(key,i);
   return `<div class="rk-card">
     <div class="rk-photo">${photoArea}<div class="rk-badge ${cls}">${st.w}${T('勝')}${st.l}${T('敗')}${st.d?st.d+T('分'):''}</div></div>
     <div class="rk-body">
@@ -4232,6 +4295,89 @@ function rkPhotoDel(i){
   });
 }
 function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;drawRkShare(ev);openModal('rkShareModal');}
+/* ===== v150: 節目（昇級/昇段/自由）＝履歴に手動追加し試合カードと同仕様で表示 ===== */
+let mileEditId=null, pickedMileType='昇段';
+function milePickType(t){
+  pickedMileType=t;
+  document.getElementById('mileTypeKyu').classList.toggle('on',t==='昇級');
+  document.getElementById('mileTypeDan').classList.toggle('on',t==='昇段');
+  document.getElementById('mileTypeFree').classList.toggle('on',t==='自由');
+}
+function mileOpenAdd(){
+  if(!rkSelfId){toast(T('先に主役（自分）を選んでください'));return;}
+  mileEditId=null;
+  document.getElementById('mileModalTitle').textContent=T('節目を追加');
+  document.getElementById('mileTitle').value='';
+  document.getElementById('mileDate').value=todayStr();
+  milePickType('昇段');
+  document.getElementById('mileDeleteBtn').style.display='none';
+  openModal('milestoneModal');
+}
+function mileOpenEdit(id){
+  const list=(DB.milestones&&DB.milestones[rkSelfId])||[];
+  const m=list.find(x=>x.id===id); if(!m)return;
+  mileEditId=id;
+  document.getElementById('mileModalTitle').textContent=T('節目を編集');
+  document.getElementById('mileTitle').value=m.title||'';
+  document.getElementById('mileDate').value=m.date||todayStr();
+  milePickType(m.type||'昇段');
+  document.getElementById('mileDeleteBtn').style.display='block';
+  openModal('milestoneModal');
+}
+function mileSave(){
+  const title=document.getElementById('mileTitle').value.trim();
+  const date=document.getElementById('mileDate').value||todayStr();
+  if(!title){toast(T('タイトルを入れてください'));return;}
+  if(!DB.milestones)DB.milestones={};
+  if(!DB.milestones[rkSelfId])DB.milestones[rkSelfId]=[];
+  const list=DB.milestones[rkSelfId];
+  if(mileEditId){
+    const m=list.find(x=>x.id===mileEditId);
+    if(m){m.title=title;m.date=date;m.type=pickedMileType;}
+  }else{
+    list.push({id:uid(),title,date,type:pickedMileType});
+  }
+  save();closeModal('milestoneModal');
+  rkYear='all';   // 追加した節目が年度フィルタで隠れないよう「すべて」に寄せる
+  renderRireki();toast(T('保存しました'));
+}
+function mileDelete(){
+  if(!mileEditId)return;
+  askConfirm(T('この節目を削除しますか？'),()=>{
+    const list=(DB.milestones&&DB.milestones[rkSelfId])||[];
+    const idx=list.findIndex(x=>x.id===mileEditId);
+    if(idx>=0){
+      const key=rkSelfId+'|m:'+mileEditId;
+      if(DB.eventPhotos)delete DB.eventPhotos[key];
+      if(DB.eventNotes)delete DB.eventNotes[key];
+      list.splice(idx,1);
+    }
+    mileEditId=null;
+    save();closeModal('milestoneModal');renderRireki();toast(T('削除しました'));
+  });
+}
+function _drawMileShare(ev,heroImg){
+  const cv=document.getElementById('rkcv'),ctx=cv.getContext('2d'),W=1080,H=1350,F='"Hiragino Sans","Yu Gothic","Meiryo",sans-serif';
+  const s=DB.students.find(x=>x.id===rkSelfId)||{name:''};
+  const icon=mileIcon(ev.type), typeLabel=(ev.type==='自由')?T('節目'):T(ev.type);
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#16264a');g.addColorStop(1,'#0c1526');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  if(heroImg){rkDrawCover(ctx,heroImg,0,0,W,620);}
+  else{const pg=ctx.createLinearGradient(0,0,W,620);pg.addColorStop(0,'#22355f');pg.addColorStop(1,'#0e1830');ctx.fillStyle=pg;ctx.fillRect(0,0,W,620);
+    ctx.fillStyle='rgba(255,255,255,.55)';ctx.font='170px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(icon,W/2,300);ctx.textBaseline='alphabetic';}
+  const sh=ctx.createLinearGradient(0,420,0,620);sh.addColorStop(0,'rgba(12,21,38,0)');sh.addColorStop(1,'#0e1830');ctx.fillStyle=sh;ctx.fillRect(0,420,W,200);
+  ctx.textAlign='left';
+  ctx.fillStyle='#c8a44d';ctx.font='800 40px '+F;ctx.fillText(icon+' '+typeLabel,64,586);
+  ctx.fillStyle='#fff';ctx.font='800 70px '+F;ctx.fillText(s.name,64,700);
+  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='500 32px '+F;ctx.fillText(((ev.date||'').replace(/-/g,'/'))+'　'+(DB.team||''),64,752);
+  // タイトル（大きめ・折り返し）
+  ctx.fillStyle='#fff';ctx.font='800 60px '+F;rkWrap(ctx,ev.title||'',64,860,W-128,74);
+  // 祝いの大アイコン
+  ctx.textAlign='center';ctx.font='220px sans-serif';ctx.textBaseline='middle';ctx.fillStyle='rgba(255,255,255,.10)';ctx.fillText(icon,W/2,1090);ctx.textBaseline='alphabetic';
+  // ひとことメモ
+  const cmt=(DB.eventNotes&&DB.eventNotes[rkNoteKey(ev)])||'';
+  if(cmt){ctx.textAlign='left';ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='500 32px '+F;rkWrap(ctx,'「'+cmt+'」',64,1210,W-128,44);}
+  ctx.textAlign='center';ctx.fillStyle='#c8a44d';ctx.font='800 32px '+F;ctx.fillText('🥋 My道場（柔道）',W/2,1320);
+}
 function rkRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 function rkWrap(ctx,t,x,y,maxW,lh){const chars=[...t];let line='',yy=y;for(const ch of chars){if(ctx.measureText(line+ch).width>maxW){ctx.fillText(line,x,yy);line=ch;yy+=lh;}else line+=ch;}ctx.fillText(line,x,yy);}
 function rkDrawCover(ctx,img,x,y,w,h){
@@ -4241,10 +4387,11 @@ function rkDrawCover(ctx,img,x,y,w,h){
   ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
 }
 function drawRkShare(ev){
-  // v149: 大会写真があればヒーロー画像として読み込んでから描画（非同期）
+  // v149: 写真があればヒーロー画像として読み込んでから描画（非同期）。v150: 節目は別レイアウト。
+  const draw=(ev.kind==='milestone')?_drawMileShare:_drawRkShare;
   const photo=(DB.eventPhotos&&DB.eventPhotos[rkNoteKey(ev)])||'';
-  if(photo){const img=new Image();img.onload=()=>_drawRkShare(ev,img);img.onerror=()=>_drawRkShare(ev,null);img.src=photo;}
-  else _drawRkShare(ev,null);
+  if(photo){const img=new Image();img.onload=()=>draw(ev,img);img.onerror=()=>draw(ev,null);img.src=photo;}
+  else draw(ev,null);
 }
 function _drawRkShare(ev,heroImg){
   const cv=document.getElementById('rkcv'),ctx=cv.getContext('2d'),W=1080,H=1350,F='"Hiragino Sans","Yu Gothic","Meiryo",sans-serif';
