@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v147（個人モードの仲間タブに「自分（主役）↔仲間」トグルを新設：主役(isSelf)を家族含め登録でき、履歴/分析の主役セレクタは主役を優先表示。仲間登録モーダルに主役フラグを追加。事務モードは従来通り） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v148（設定「チーム設定」→「モード設定」に改称。個人モードでは ストーリー名/ストーリーロゴ/年度の開始月 を設定でき、上部の帯を「My Judo History」＋ストーリー名に切替。事務モードは チーム名→チームロゴ→会計年度の開始月 の順に整理） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -848,7 +848,10 @@ function applyUpdate(){
     <div class="crest" id="headerCrest">柔</div>
     <div>
       <h1 id="teamName">柔道チーム管理</h1>
-      <div class="sub" data-i18n="事務管理アプリ">事務管理アプリ</div>
+      <div class="sub">
+        <span id="subOffice" data-i18n="事務管理アプリ">事務管理アプリ</span>
+        <span id="subPersonal" style="display:none">My Judo History</span>
+      </div>
     </div>
   </div>
 </header>
@@ -1049,7 +1052,7 @@ function applyUpdate(){
 <section id="screen-set" class="screen">
   <div class="set-tabs">
     <button id="setTabLang" onclick="setSetView('lang')">🌐 <span data-i18n="言語">言語</span></button>
-    <button id="setTabTeam" class="on" onclick="setSetView('team')" data-i18n="チーム設定">チーム設定</button>
+    <button id="setTabTeam" class="on" onclick="setSetView('team')" data-i18n="モード設定">モード設定</button>
     <button id="setTabDesign" onclick="setSetView('design')" data-i18n="デザイン">デザイン</button>
     <button id="setTabData" onclick="setSetView('data')" data-i18n="データ管理">データ管理</button>
     <button id="setTabSec" onclick="setSetView('sec')" data-i18n="セキュリティ">セキュリティ</button>
@@ -1091,26 +1094,56 @@ function applyUpdate(){
         <button id="modePersonalB" onclick="setAppMode('personal')">個人</button>
       </div>
     </div>
-    <div class="card">
-      <h3 style="margin-top:0;color:var(--navy)">チーム名</h3>
-      <input type="text" id="teamNameInput" onchange="saveTeamName()" placeholder="例：〇〇柔道クラブ" data-i18n-ph="例：〇〇柔道クラブ">
-    </div>
-    <div class="card">
-      <h3 style="margin-top:0;color:var(--navy)">会計年度の開始月</h3>
-      <p class="list-mini">会計・予定の年度区切りに使われます</p>
-      <select id="fyStartSelect" onchange="saveFyStart()" style="width:100%"></select>
-    </div>
-    <div class="card">
-      <h3 style="margin-top:0;color:var(--navy)">チームロゴ</h3>
-      <p class="list-mini">選んだ画像は自動で正方形に整えられ、左上のマークとホーム画面アイコンになります。</p>
-      <div class="logo-area">
-        <div class="logo-preview" id="logoPreview">柔</div>
-        <div style="flex:1">
-          <label class="btn gold full" style="cursor:pointer">画像を選ぶ
-            <input type="file" accept="image/*" style="display:none" onchange="uploadLogo(event)">
-          </label>
-          <button class="btn ghost full" style="margin-top:8px" onclick="resetLogo()">標準に戻す</button>
+    <!-- 道場（事務）モードの設定：チーム名 → チームロゴ → 会計年度の開始月 -->
+    <div id="setOfficeFields">
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">チーム名</h3>
+        <input type="text" id="teamNameInput" onchange="saveTeamName()" placeholder="例：〇〇柔道クラブ" data-i18n-ph="例：〇〇柔道クラブ">
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">チームロゴ</h3>
+        <p class="list-mini">選んだ画像は自動で正方形に整えられ、左上のマークとホーム画面アイコンになります。</p>
+        <div class="logo-area">
+          <div class="logo-preview" id="logoPreview">柔</div>
+          <div style="flex:1">
+            <label class="btn gold full" style="cursor:pointer">画像を選ぶ
+              <input type="file" accept="image/*" style="display:none" onchange="uploadLogo(event)">
+            </label>
+            <button class="btn ghost full" style="margin-top:8px" onclick="resetLogo()">標準に戻す</button>
+          </div>
         </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">会計年度の開始月</h3>
+        <p class="list-mini">会計・予定の年度区切りに使われます</p>
+        <select id="fyStartSelect" onchange="saveFyStart()" style="width:100%"></select>
+      </div>
+    </div>
+
+    <!-- 個人モードの設定：ストーリー名 → ストーリーロゴ → 年度の開始月 -->
+    <div id="setPersonalFields" style="display:none">
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">ストーリー名</h3>
+        <p class="list-mini">上部の帯とシェア画像に表示される、あなた（または家族）の記録の名前です。</p>
+        <input type="text" id="storyNameInput" onchange="saveStoryName()" placeholder="例：〇〇の柔道ヒストリー" data-i18n-ph="例：〇〇の柔道ヒストリー">
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">ストーリーロゴ</h3>
+        <p class="list-mini">選んだ画像は自動で正方形に整えられ、左上のマークとホーム画面アイコンになります。</p>
+        <div class="logo-area">
+          <div class="logo-preview" id="storyLogoPreview">柔</div>
+          <div style="flex:1">
+            <label class="btn gold full" style="cursor:pointer">画像を選ぶ
+              <input type="file" accept="image/*" style="display:none" onchange="uploadStoryLogo(event)">
+            </label>
+            <button class="btn ghost full" style="margin-top:8px" onclick="resetStoryLogo()">標準に戻す</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">年度の開始月</h3>
+        <p class="list-mini">履歴・予定の年度区切りに使われます</p>
+        <select id="fyStartSelectPersonal" onchange="saveFyStartPersonal()" style="width:100%"></select>
       </div>
     </div>
   </div>
@@ -1910,7 +1943,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v147'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v148'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -1938,6 +1971,13 @@ const DICT={
   'デザイン':{en:'Appearance',fr:'Apparence',pt:'Aparência'},'データ管理':{en:'Data',fr:'Données',pt:'Dados'},
   'セキュリティ':{en:'Security',fr:'Sécurité',pt:'Segurança'},'規約・ポリシー':{en:'Terms',fr:'Conditions',pt:'Termos'},
   'チーム名':{en:'Team name',fr:"Nom de l'équipe",pt:'Nome da equipe'},'チームロゴ':{en:'Team logo',fr:"Logo de l'équipe",pt:'Logo da equipe'},
+  'モード設定':{en:'Mode',fr:'Mode',pt:'Modo'},
+  'ストーリー名':{en:'Story name',fr:'Nom de l’histoire',pt:'Nome da história'},
+  'ストーリーロゴ':{en:'Story logo',fr:'Logo de l’histoire',pt:'Logo da história'},
+  '年度の開始月':{en:'Year start month',fr:'Mois de début d’année',pt:'Mês de início do ano'},
+  '履歴・予定の年度区切りに使われます':{en:'Used to split the year in history and schedule.',fr:'Sert à découper l’année (historique et agenda).',pt:'Usado para dividir o ano no histórico e na agenda.'},
+  '上部の帯とシェア画像に表示される、あなた（または家族）の記録の名前です。':{en:'The name of your (or your family’s) record, shown in the header and share images.',fr:'Le nom de votre historique (ou de votre famille), affiché dans l’en-tête et les images de partage.',pt:'O nome do seu registro (ou da sua família), exibido no cabeçalho e nas imagens de compartilhamento.'},
+  '例：〇〇の柔道ヒストリー':{en:'e.g. Ken’s Judo History',fr:'ex. : L’histoire judo de Ken',pt:'ex.: A história de judô do Ken'},
   '日本語':{en:'日本語',fr:'日本語',pt:'日本語'},
   // 曜日（単字）
   '日':{en:'Sun',fr:'Dim',pt:'Dom'},'月':{en:'Mon',fr:'Lun',pt:'Seg'},'火':{en:'Tue',fr:'Mar',pt:'Ter'},
@@ -2418,6 +2458,7 @@ let DB={
   attendance:{},
   fees:{}, schedule:[],
   places:[], metaHistory:[], logo:DEFAULT_LOGO,
+  storyName:'', storyLogo:DEFAULT_LOGO, fyStartMonthPersonal:4,   // v148: 個人モード用の識別情報
   cash:[],
   cashCats:{in:['寄付','参加費徴収','物販収入','補助金','その他収入'],out:['用具購入','会場費','遠征費','審査料','その他支出']},
   schedPresets:{types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['','','','']},
@@ -2610,6 +2651,10 @@ function applyMode(){
 }
 function setAppMode(m){
   DB.mode=(m==='personal')?'personal':'office'; save(); applyMode();
+  (function(){const d=new Date();fiscalYear=fyOf(d.getFullYear(),d.getMonth()+1);})();  // モードで年度開始月が変わるため再計算
+  schedYear=schedFY(todayStr());
+  updateHeaderIdentity(); applyLogo();               // v148: 帯の識別情報・ロゴをモードで切替
+  updateModeSettingsGroups();                        // 設定カードの出し分けも即反映
   const active=document.querySelector('nav.tabbar button.active');
   if(active&&active.style.display==='none')switchTab(DB.mode==='personal'?'rireki':'list');   // 隠れたタブにいたら安全なタブへ
   toast(DB.mode==='personal'?T('個人モードに切り替えました'):T('道場（事務）モードに切り替えました'));
@@ -4549,7 +4594,7 @@ function saveFeePresets(){
   save();closeModal('feePresetModal');toast(T('保存しました'));
   renderMates();renderMember();
 }
-function fyStart(){return (DB&&DB.fyStartMonth)||4;}
+function fyStart(){ if(DB&&DB.mode==='personal')return (DB.fyStartMonthPersonal)||4; return (DB&&DB.fyStartMonth)||4; }
 function fyOf(y,m){return m>=fyStart()?y:y-1;}                       // 会計年度（開始月ベース）
 function fyRangeLabel(fy){const s=fyStart();const eM=s===1?12:s-1;const eY=s===1?fy:fy+1;return `${fy}/${s}〜${eY}/${eM}`;}
 function schedFY(dateStr){const y=+dateStr.slice(0,4),m=+dateStr.slice(5,7);return fyOf(y,m);}
@@ -4969,17 +5014,25 @@ function renderMember(){
 /* 設定 */
 function renderSettings(){
   document.getElementById('teamNameInput').value=DB.team;
+  const sn=document.getElementById('storyNameInput');if(sn)sn.value=DB.storyName||'';
+  updateModeSettingsGroups();
   renderThemePicker();renderFontPicker();
   renderLockSettings();
   renderFyStartSelect();
+  renderLogoPreviews();
   var vl=document.getElementById('appVerLabel');if(vl)vl.textContent='アプリ版 '+APP_VERSION;
 }
+// v148: モードに応じて事務用／個人用の設定カードを出し分け
+function updateModeSettingsGroups(){
+  const personal=(DB.mode==='personal');
+  const off=document.getElementById('setOfficeFields'), per=document.getElementById('setPersonalFields');
+  if(off)off.style.display=personal?'none':'';
+  if(per)per.style.display=personal?'':'none';
+}
 function renderFyStartSelect(){
-  const sel=document.getElementById('fyStartSelect');if(!sel)return;
-  const cur=fyStart();
-  let html='';
-  for(let m=1;m<=12;m++){html+=`<option value="${m}"${m===cur?' selected':''}>${m}月</option>`;}
-  sel.innerHTML=html;
+  const fill=(id,cur)=>{const sel=document.getElementById(id);if(!sel)return;let html='';for(let m=1;m<=12;m++){html+=`<option value="${m}"${m===cur?' selected':''}>${m}月</option>`;}sel.innerHTML=html;};
+  fill('fyStartSelect',(DB.fyStartMonth)||4);
+  fill('fyStartSelectPersonal',(DB.fyStartMonthPersonal)||4);
 }
 function saveFyStart(){
   const v=parseInt(document.getElementById('fyStartSelect').value,10);
@@ -4988,6 +5041,15 @@ function saveFyStart(){
   schedYear=schedFY(todayStr());
   save();
   renderList();if(typeof renderSched==='function')renderSched();
+}
+// v148: 個人モードの「年度の開始月」（履歴・予定の年度区切り）
+function saveFyStartPersonal(){
+  const v=parseInt(document.getElementById('fyStartSelectPersonal').value,10);
+  DB.fyStartMonthPersonal=(v>=1&&v<=12)?v:4;
+  schedYear=schedFY(todayStr());
+  save();
+  if(typeof renderRireki==='function')renderRireki();
+  if(typeof renderSched==='function')renderSched();
 }
 function setSetView(v){
   const map={lang:'setViewLang',team:'setViewTeam',design:'setViewDesign',data:'setViewData',sec:'setViewSec',terms:'setViewTerms'};
@@ -5631,7 +5693,7 @@ function moveStudent(idx,dir){
   [arr[idx],arr[ni]]=[arr[ni],arr[idx]];
   save();renderMates();
 }
-function uploadLogo(ev){
+function _applyUploadedLogo(ev,which){
   const file=ev.target.files[0]; if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
@@ -5644,7 +5706,8 @@ function uploadLogo(ev){
       canvas.width=180;canvas.height=180;
       const ctx=canvas.getContext('2d');
       ctx.drawImage(img,sx,sy,side,side,0,0,180,180);
-      DB.logo=canvas.toDataURL('image/png');
+      const data=canvas.toDataURL('image/png');
+      if(which==='story')DB.storyLogo=data; else DB.logo=data;
       save();applyLogo();toast('ロゴを設定しました');
     };
     img.onerror=()=>toast('画像を読めませんでした');
@@ -5653,7 +5716,10 @@ function uploadLogo(ev){
   reader.readAsDataURL(file);
   ev.target.value='';
 }
+function uploadLogo(ev){_applyUploadedLogo(ev,'team');}
+function uploadStoryLogo(ev){_applyUploadedLogo(ev,'story');}
 function resetLogo(){DB.logo=DEFAULT_LOGO;save();applyLogo();toast('標準のロゴに戻しました');}
+function resetStoryLogo(){DB.storyLogo=DEFAULT_LOGO;save();applyLogo();toast('標準のロゴに戻しました');}
 /* ===================== 着せ替え（テーマ）===================== */
 const THEME_COLORS=[
   {id:'indigo',name:'藍紺',p:'#1a2b4a',a:'#c8a44d',cat:'solid'},
@@ -5826,20 +5892,34 @@ function renderLockSettings(){
   document.getElementById('lockChangeBtn').style.display=lockEnabled?'block':'none';
 }
 function applyLogo(){
+  // v148: 個人モードはストーリーロゴ、事務モードはチームロゴをヘッダー／アイコンに使用
   const crest=document.getElementById('headerCrest');
-  const prev=document.getElementById('logoPreview');
   const icon=document.getElementById('appleIcon');
-  const logo=DB.logo||DEFAULT_LOGO;
-  crest.innerHTML='';
-  crest.style.backgroundImage=`url('${logo}')`;
-  prev.innerHTML='';
-  prev.style.backgroundImage=`url('${logo}')`;
-  icon.href=logo;
+  const logo=((DB.mode==='personal')?DB.storyLogo:DB.logo)||DEFAULT_LOGO;
+  if(crest){crest.innerHTML='';crest.style.backgroundImage=`url('${logo}')`;}
+  if(icon)icon.href=logo;
   const pre=document.getElementById('appleIconPre'); if(pre)pre.href=logo;
   const fav=document.getElementById('faviconIcon'); if(fav)fav.href=logo;
+  renderLogoPreviews();
+}
+function renderLogoPreviews(){
+  const lp=document.getElementById('logoPreview');
+  if(lp){lp.innerHTML='';lp.style.backgroundImage=`url('${DB.logo||DEFAULT_LOGO}')`;}
+  const sp=document.getElementById('storyLogoPreview');
+  if(sp){sp.innerHTML='';sp.style.backgroundImage=`url('${DB.storyLogo||DEFAULT_LOGO}')`;}
+}
+// v148: 上部の帯（大見出し＝チーム名/ストーリー名、サブ＝事務管理アプリ/My Judo History）をモードで切替
+function updateHeaderIdentity(){
+  const personal=(DB.mode==='personal');
+  const h1=document.getElementById('teamName');
+  if(h1)h1.textContent=personal?(DB.storyName||'マイ柔道ヒストリー'):(DB.team||'柔道チーム管理');
+  const so=document.getElementById('subOffice'), sp=document.getElementById('subPersonal');
+  if(so)so.style.display=personal?'none':'';
+  if(sp)sp.style.display=personal?'':'none';
 }
 function saveFeeAmount(){const el=document.getElementById('feeAmount');if(!el)return;DB.feeAmount=Number(el.value)||0;save();}
-function saveTeamName(){DB.team=document.getElementById('teamNameInput').value.trim()||'柔道チーム';document.getElementById('teamName').textContent=DB.team;save();}
+function saveTeamName(){DB.team=document.getElementById('teamNameInput').value.trim()||'柔道チーム';save();updateHeaderIdentity();}
+function saveStoryName(){DB.storyName=document.getElementById('storyNameInput').value.trim();save();updateHeaderIdentity();}
 function addPlace(){const v=document.getElementById('newPlace').value.trim();if(!v)return;if(!DB.places.includes(v))DB.places.push(v);document.getElementById('newPlace').value='';save();renderSettings();}
 function delPlace(i){const nm=DB.places[i]||'この場所';askConfirm(`「${esc(nm)}」を場所の一覧から削除します。`,()=>{DB.places.splice(i,1);save();renderSettings();toast('削除しました');});}
 
@@ -5939,7 +6019,7 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 function initUI(){
   LANG=DB.lang||'ja';
   applyTheme();applyFont();
-  document.getElementById('teamName').textContent=DB.team;
+  updateHeaderIdentity();
   document.getElementById('attDate').value=todayStr();
   feeMonth=thisMonthStr();
   listMonth=feeMonth;
