@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v141（取り込みプレビューの試合表示を分かりやすく：回戦をチップ表示、勝ち/負け/分けの文字、組手は「右組/左組」と明記し、要素をスペースで区切って「右2回戦」のような紛らわしさを解消） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v142（バックアップ強化：ワンタップで本人のiCloud Drive/Googleドライブ/ファイルへ保存[共有シート]、最終バックアップ日を記録、30日超で催促バナー＆データ管理に状況表示。データは我々が一切預からない方針は維持） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -519,6 +519,9 @@
   .update-banner .ub-text{flex:1;font-weight:700;line-height:1.4;}
   .update-banner .ub-btn{background:var(--gold);color:#3a2b00;border:none;border-radius:10px;padding:8px 16px;font-weight:800;font-family:inherit;cursor:pointer;white-space:nowrap;}
   .update-banner .ub-close{background:none;border:none;color:rgba(255,255,255,.75);font-size:22px;line-height:1;cursor:pointer;padding:0 4px;font-family:inherit;}
+  .bk-status{font-size:calc(13px*var(--fs,1));line-height:1.6;border-radius:10px;padding:9px 11px;}
+  .bk-status.ok{background:#eef4ee;color:#2e6b45;border:1px solid #cfe3d4;}
+  .bk-status.warn{background:#fbf0e6;color:#8a5a1e;border:1px solid #ecd3b0;}
   .list-mini{font-size:calc(15px*var(--fs,1));color:var(--muted);margin-top:6px;}
   .del-x{background:none;border:none;color:var(--red);font-size:calc(22px*var(--fs,1));padding:6px;cursor:pointer;}
 
@@ -1096,8 +1099,9 @@ function applyUpdate(){
   <div id="setViewData" style="display:none">
     <div class="card">
       <h3 style="margin-top:0;color:var(--navy)">データの保存・共有</h3>
-      <p class="list-mini">月に一度バックアップを保存してください。仲間への共有もこのファイルで行えます。</p>
-      <button class="btn full ghost" style="margin-top:10px" onclick="exportData()">💾 バックアップを保存</button>
+      <div id="backupStatus" style="margin-bottom:10px"></div>
+      <p class="list-mini">バックアップは、お使いのiCloud Drive・Googleドライブ・「ファイル」に保存できます（端末の外に保管＝機種変更や紛失でも安心）。仲間への共有もこのファイルで行えます。</p>
+      <button class="btn gold full" style="margin-top:10px" onclick="exportData()">💾 バックアップを保存（クラウド/ファイルへ）</button>
       <label class="btn full ghost" style="margin-top:10px;cursor:pointer">📂 バックアップから復元
         <input type="file" accept=".json" style="display:none" onchange="importData(event)">
       </label>
@@ -1825,10 +1829,15 @@ function applyUpdate(){
   <button class="ub-btn" onclick="applyUpdate()">更新する</button>
   <button class="ub-close" onclick="dismissUpdate()" aria-label="閉じる">×</button>
 </div>
+<div class="update-banner" id="backupBanner">
+  <span class="ub-text" id="backupBannerText">バックアップをおすすめします</span>
+  <button class="ub-btn" onclick="exportData()">保存</button>
+  <button class="ub-close" onclick="dismissBackupBanner()" aria-label="閉じる">×</button>
+</div>
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v141'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v142'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2172,6 +2181,21 @@ Object.assign(DICT,{
   '＋ 新しいカードを作成':{en:'＋ Create new card',fr:'＋ Nouvelle carte',pt:'＋ Criar novo cartão'},
   '勝ち':{en:'Win',fr:'Victoire',pt:'Vitória'},'負け':{en:'Loss',fr:'Défaite',pt:'Derrota'},'分け':{en:'Draw',fr:'Nul',pt:'Empate'},
   '右組':{en:'Right grip',fr:'Garde droite',pt:'Pegada direita'},'左組':{en:'Left grip',fr:'Garde gauche',pt:'Pegada esquerda'}
+});
+// v142: バックアップ（本人クラウドへ保存＋催促）
+Object.assign(DICT,{
+  '💾 バックアップを保存（クラウド/ファイルへ）':{en:'💾 Save backup (to cloud/files)',fr:'💾 Enregistrer (cloud/fichiers)',pt:'💾 Salvar backup (nuvem/arquivos)'},
+  'バックアップは、お使いのiCloud Drive・Googleドライブ・「ファイル」に保存できます（端末の外に保管＝機種変更や紛失でも安心）。仲間への共有もこのファイルで行えます。':{en:'Save your backup to your own iCloud Drive, Google Drive or Files (kept off-device — safe even if you change or lose your phone). You can also share this file with members.',fr:'Enregistrez votre sauvegarde sur votre iCloud Drive, Google Drive ou Fichiers (hors de l’appareil — sûr même en cas de changement ou perte du téléphone). Vous pouvez aussi partager ce fichier.',pt:'Salve o backup no seu iCloud Drive, Google Drive ou Arquivos (fora do aparelho — seguro mesmo se trocar ou perder o celular). Você também pode compartilhar este arquivo.'},
+  'バックアップを保存しました':{en:'Backup saved',fr:'Sauvegarde enregistrée',pt:'Backup salvo'},
+  'まだ一度も保存されていません':{en:'No backup saved yet',fr:'Aucune sauvegarde',pt:'Nenhum backup ainda'},
+  '大切なデータを守るため、今すぐ保存をおすすめします。':{en:'We recommend saving one now to protect your data.',fr:'Nous recommandons d’en enregistrer une maintenant.',pt:'Recomendamos salvar agora para proteger seus dados.'},
+  '最終バックアップ':{en:'Last backup',fr:'Dernière sauvegarde',pt:'Último backup'},
+  '日前':{en:' days ago',fr:' j',pt:' dias atrás'},
+  '保存をおすすめします。':{en:'We recommend saving a backup.',fr:'Pensez à sauvegarder.',pt:'Recomendamos fazer backup.'},
+  'まだバックアップがありません。保存をおすすめします。':{en:'No backup yet. We recommend saving one.',fr:'Aucune sauvegarde. Pensez à en faire une.',pt:'Sem backup. Recomendamos salvar.'},
+  '前回のバックアップから時間が経っています。保存をおすすめします。':{en:'It has been a while since your last backup. We recommend saving one.',fr:'Cela fait longtemps. Pensez à sauvegarder.',pt:'Faz tempo desde o último backup. Recomendamos salvar.'},
+  'バックアップをおすすめします':{en:'Backup recommended',fr:'Sauvegarde conseillée',pt:'Backup recomendado'},
+  '保存':{en:'Save',fr:'Enreg.',pt:'Salvar'}
 });
 // v135: 技名リストを講道館公式に校正（追加技の翻訳）
 Object.assign(DICT,{
@@ -4749,7 +4773,7 @@ function setSetView(v){
     const vw=document.getElementById(map[k]);if(vw)vw.style.display=(k===v)?'':'none';
     const tb=document.getElementById(tabs[k]);if(tb)tb.classList.toggle('on',k===v);
   });
-  if(v==='data'){ renderDataUsage(); renderArchiveOptions(); }
+  if(v==='data'){ renderBackupStatus(); renderDataUsage(); renderArchiveOptions(); }
 }
 // ―― データ使用量の表示（localStorage 目安 5MB に対する割合）――
 const STORAGE_BUDGET=5*1024*1024;
@@ -5567,11 +5591,64 @@ function addPlace(){const v=document.getElementById('newPlace').value.trim();if(
 function delPlace(i){const nm=DB.places[i]||'この場所';askConfirm(`「${esc(nm)}」を場所の一覧から削除します。`,()=>{DB.places.splice(i,1);save();renderSettings();toast('削除しました');});}
 
 /* バックアップ */
-function exportData(){
-  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+function backupFilename(){return `judo_backup_${todayStr()}.json`;}
+function markBackedUp(){DB.lastBackup=todayStr();save();renderBackupStatus();showBackupReminder();}
+function downloadBackup(json,fname){
+  const blob=new Blob([json],{type:'application/json'});
   const url=URL.createObjectURL(blob);const a=document.createElement('a');
-  a.href=url;a.download=`judo_backup_${todayStr()}.json`;a.click();URL.revokeObjectURL(url);toast('バックアップを保存しました');
+  a.href=url;a.download=fname;a.click();URL.revokeObjectURL(url);
+  markBackedUp();toast(T('バックアップを保存しました'));
 }
+// クラウド/ファイルへ保存：対応端末は共有シート（iCloud Drive/ドライブ/ファイル）、非対応はダウンロード
+async function exportData(){
+  const json=JSON.stringify(DB,null,2);
+  const fname=backupFilename();
+  try{
+    const file=new File([json],fname,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({files:[file],title:'My道場 バックアップ'});
+        markBackedUp();toast(T('バックアップを保存しました'));
+      }catch(e){
+        if(e&&e.name==='AbortError')return;   // ユーザーがキャンセル＝保存扱いにしない
+        downloadBackup(json,fname);            // 共有失敗時はダウンロードで保存
+      }
+      return;
+    }
+  }catch(e){}
+  downloadBackup(json,fname);
+}
+// 最終バックアップからの経過日数（未実施は Infinity）
+function backupDaysSince(){
+  if(!DB.lastBackup)return Infinity;
+  const a=new Date(DB.lastBackup+'T00:00'),b=new Date(todayStr()+'T00:00');
+  return Math.round((b-a)/86400000);
+}
+const BACKUP_REMIND_DAYS=30;
+function renderBackupStatus(){
+  const box=document.getElementById('backupStatus'); if(!box)return;
+  const days=backupDaysSince();
+  if(days===Infinity){
+    box.innerHTML=`<div class="bk-status warn"><b>${T('まだ一度も保存されていません')}</b><br>${T('大切なデータを守るため、今すぐ保存をおすすめします。')}</div>`;
+  }else{
+    const overdue=days>=BACKUP_REMIND_DAYS;
+    const dstr=DB.lastBackup.replace(/-/g,'/');
+    box.innerHTML=`<div class="bk-status ${overdue?'warn':'ok'}">${T('最終バックアップ')}：<b>${dstr}</b>（${days}${T('日前')}）${overdue?'<br>'+T('保存をおすすめします。'):''}</div>`;
+  }
+}
+function showBackupReminder(){
+  const b=document.getElementById('backupBanner'); if(!b)return;
+  const overdue=(backupDaysSince()>=BACKUP_REMIND_DAYS);
+  const hasData=(DB.students&&DB.students.length>0);
+  const up=document.getElementById('updateBanner');
+  const updateShown=up&&up.style.display!=='none'&&up.style.display!=='';
+  if(overdue&&hasData&&!window.__bkDismissed&&!updateShown){
+    document.getElementById('backupBannerText').textContent=
+      (!DB.lastBackup)?T('まだバックアップがありません。保存をおすすめします。'):T('前回のバックアップから時間が経っています。保存をおすすめします。');
+    b.style.display='flex';
+  }else{ b.style.display='none'; }
+}
+function dismissBackupBanner(){window.__bkDismissed=true;const b=document.getElementById('backupBanner');if(b)b.style.display='none';}
 let pendingRestoreData=null;
 function importData(ev){
   const f=ev.target.files[0];if(!f)return;const r=new FileReader();
@@ -5621,6 +5698,7 @@ function initUI(){
   startI18nObserver();
   runI18nScan();
   renderAtt();
+  showBackupReminder();   // 期限超過なら催促バナー
 }
 load();seedIfEmpty();save();initUI();
 loadLock();
