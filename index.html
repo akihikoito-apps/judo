@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v154（シェア画像を刷新：8スタイル[クラシック/クール/かっこいい/モノクロ/ポップ/サンセット/かわいい/エレガント]をプレビューで選択。タイトルを主役に大きく、柔道着絵文字を廃止、個人モードはストーリー名を反映、文字溢れ対策。節目モーダルのチップは削除） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v155（シェア画像：配色8種に加え書式8種[ゴシック/極太/まる/まる細/明朝/明朝細/ワイド/太明朝]を選択可＝色×書式で表情。主役名とストーリー名を右下に署名として配置。タイトル〜コメントの縦間隔を内容に応じて自動バランス） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1333,8 +1333,10 @@ function applyUpdate(){
 <div class="modal-bg" id="rkShareModal">
   <div class="modal" style="background:#0e1830;max-width:430px">
     <canvas id="rkcv" width="1080" height="1350" style="width:100%;height:auto;border-radius:12px;display:block"></canvas>
-    <div class="share-style-label">スタイルを選ぶ（プレビュー）</div>
+    <div class="share-style-label">配色を選ぶ（プレビュー）</div>
     <div class="share-styles" id="shareStyles"></div>
+    <div class="share-style-label">書式を選ぶ</div>
+    <div class="share-styles" id="shareFonts"></div>
     <div class="row" style="margin-top:12px;gap:10px">
       <button class="btn" style="flex:0 0 auto;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:0 16px" onclick="closeModal('rkShareModal')">閉じる</button>
       <button class="btn" style="flex:1;background:#fff;color:var(--navy)" onclick="rkSaveShare()">保存</button>
@@ -1998,7 +2000,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v154'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v155'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2432,6 +2434,16 @@ Object.assign(DICT,{
   '記念':{en:'Milestone',fr:'Moment',pt:'Marco'},
   'マイ柔道ヒストリー':{en:'My Judo History',fr:'Mon histoire judo',pt:'Minha história de judô'},
   'スタイルを選ぶ（プレビュー）':{en:'Choose a style (preview)',fr:'Choisir un style (aperçu)',pt:'Escolha um estilo (prévia)'},
+  '配色を選ぶ（プレビュー）':{en:'Choose colors (preview)',fr:'Choisir les couleurs (aperçu)',pt:'Escolha as cores (prévia)'},
+  '書式を選ぶ':{en:'Choose a font',fr:'Choisir une police',pt:'Escolha uma fonte'},
+  'ゴシック':{en:'Gothic',fr:'Gothique',pt:'Gótica'},
+  '極太':{en:'Heavy',fr:'Extra gras',pt:'Extra negrito'},
+  'まる':{en:'Round',fr:'Arrondi',pt:'Arredondada'},
+  'まる細':{en:'Round Light',fr:'Arrondi fin',pt:'Arredondada fina'},
+  '明朝':{en:'Serif',fr:'Serif',pt:'Serifada'},
+  '明朝 細':{en:'Serif Light',fr:'Serif fin',pt:'Serifada fina'},
+  'ワイド':{en:'Wide',fr:'Large',pt:'Larga'},
+  '太明朝':{en:'Serif Bold',fr:'Serif gras',pt:'Serifada negrito'},
   'クラシック':{en:'Classic',fr:'Classique',pt:'Clássico'},
   'クール':{en:'Cool',fr:'Cool',pt:'Cool'},
   'かっこいい':{en:'Bold',fr:'Audacieux',pt:'Marcante'},
@@ -4438,7 +4450,7 @@ function rkPhotoDel(i){
     save(); renderRireki(); toast(T('削除しました'));
   });
 }
-function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareStyle=DB.shareStyle||shareStyle;renderShareStyles();drawRkShare(ev);openModal('rkShareModal');}
+function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareStyle=DB.shareStyle||shareStyle;shareFont=DB.shareFont||shareFont;renderShareStyles();renderShareFonts();drawRkShare(ev);openModal('rkShareModal');}
 /* ===== v150→v153: 節目＝履歴に手動追加し試合カードと同仕様で表示。
    種類欄は廃止し「よく使う」ワード(きもち/できごと)のタップで連続追記。
    昇級/昇段のチップだけアイコン種別も設定（既定は自由=⭐） ===== */
@@ -4494,8 +4506,8 @@ function mileDelete(){
     save();closeModal('milestoneModal');renderRireki();toast(T('削除しました'));
   });
 }
-/* ===== v154: シェア画像（8スタイル・タイトル主役・絵文字なし・写真ヒーロー・文字溢れ対策） ===== */
-const SW=1080, SH=1350, SFONT='"Hiragino Sans","Yu Gothic Medium","Yu Gothic","Meiryo",sans-serif';
+/* ===== v154→v155: シェア画像（配色8×書式8・タイトル主役・署名は右下・縦バランス自動） ===== */
+const SW=1080, SH=1350;
 const SHARE_STYLES=[
   {key:'classic', name:'クラシック', bg1:'#16264a', bg2:'#0b1424', accent:'#d8b25a', ink:'#ffffff', sub:'rgba(255,255,255,.66)', light:false},
   {key:'cool',    name:'クール',    bg1:'#10233b', bg2:'#050b16', accent:'#48c6ff', ink:'#eaf5ff', sub:'rgba(220,235,250,.6)', light:false},
@@ -4506,15 +4518,29 @@ const SHARE_STYLES=[
   {key:'cute',    name:'かわいい',  bg1:'#ffe3ef', bg2:'#ffc2dd', accent:'#ff4f9a', ink:'#6b2145', sub:'rgba(107,33,69,.62)', light:true},
   {key:'elegant', name:'エレガント', bg1:'#f6f1e8', bg2:'#e7dcc8', accent:'#b18a2e', ink:'#2c2419', sub:'rgba(44,36,25,.6)', light:true},
 ];
-let shareStyle='classic';
+// 書式（フォント）8種：色との組合せで表情をつくる
+const SHARE_FONTS=[
+  {key:'gothic',    name:'ゴシック', fam:'"Hiragino Sans","Yu Gothic",sans-serif', tw:'800', bw:'500', ls:0},
+  {key:'impact',    name:'極太',    fam:'"Hiragino Sans","Yu Gothic",sans-serif', tw:'900', bw:'700', ls:0},
+  {key:'maru',      name:'まる',    fam:'"Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif', tw:'800', bw:'600', ls:0},
+  {key:'maruSoft',  name:'まる細',  fam:'"Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif', tw:'600', bw:'400', ls:1},
+  {key:'mincho',    name:'明朝',    fam:'"Hiragino Mincho ProN","YuMincho","Yu Mincho",serif', tw:'600', bw:'400', ls:0},
+  {key:'minchoThin',name:'明朝 細', fam:'"Hiragino Mincho ProN","YuMincho","Yu Mincho",serif', tw:'300', bw:'300', ls:4},
+  {key:'wide',      name:'ワイド',  fam:'"Hiragino Sans","Yu Gothic",sans-serif', tw:'600', bw:'400', ls:14},
+  {key:'serifBold', name:'太明朝',  fam:'"Hiragino Mincho ProN","YuMincho","Yu Mincho",serif', tw:'900', bw:'600', ls:0},
+];
+let shareStyle='classic', shareFont='gothic';
 function shareStyleObj(){ return SHARE_STYLES.find(s=>s.key===shareStyle)||SHARE_STYLES[0]; }
+function shareFontObj(){ return SHARE_FONTS.find(f=>f.key===shareFont)||SHARE_FONTS[0]; }
+function shareFam(){ return shareFontObj().fam; }
 function shareSetStyle(k){ shareStyle=k; DB.shareStyle=k; save(); renderShareStyles(); if(rkShareEv)drawRkShare(rkShareEv); }
-function renderShareStyles(){
-  const el=document.getElementById('shareStyles'); if(!el)return;
-  el.innerHTML=SHARE_STYLES.map(s=>`<button class="${s.key===shareStyle?'on':''}" onclick="shareSetStyle('${s.key}')">${T(s.name)}</button>`).join('');
-}
+function shareSetFont(k){ shareFont=k; DB.shareFont=k; save(); renderShareFonts(); if(rkShareEv)drawRkShare(rkShareEv); }
+function renderShareStyles(){ const el=document.getElementById('shareStyles'); if(el)el.innerHTML=SHARE_STYLES.map(s=>`<button class="${s.key===shareStyle?'on':''}" onclick="shareSetStyle('${s.key}')">${T(s.name)}</button>`).join(''); }
+function renderShareFonts(){ const el=document.getElementById('shareFonts'); if(el)el.innerHTML=SHARE_FONTS.map(f=>`<button class="${f.key===shareFont?'on':''}" onclick="shareSetFont('${f.key}')">${T(f.name)}</button>`).join(''); }
 // 個人モードはストーリー名、事務モードはチーム名を使う（シェア画像の識別名）
 function shareIdentity(){ return (DB.mode==='personal') ? (DB.storyName||T('マイ柔道ヒストリー')) : (DB.team||''); }
+function shareLS(ctx,px){ try{ ctx.letterSpacing=(px||0)+'px'; }catch(e){} }
+function sfont(ctx,weight,size){ ctx.font=weight+' '+size+'px '+shareFam(); }
 function rkRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 function rkDrawCover(ctx,img,x,y,w,h){
   const ir=img.width/img.height, r=w/h; let sw,sh,sx,sy;
@@ -4530,8 +4556,8 @@ function shareWrapLines(ctx,text,maxW){
 // タイトルを maxLines 行に収めるフォントサイズを求める（溢れは末尾…）
 function shareFit(ctx,text,maxW,maxLines,maxSize,minSize,weight){
   let size=minSize, lines;
-  for(let s=maxSize;s>=minSize;s-=4){ ctx.font=weight+' '+s+'px '+SFONT; lines=shareWrapLines(ctx,text,maxW); if(lines.length<=maxLines){size=s;break;} }
-  ctx.font=weight+' '+size+'px '+SFONT; lines=shareWrapLines(ctx,text,maxW);
+  for(let s=maxSize;s>=minSize;s-=4){ sfont(ctx,weight,s); lines=shareWrapLines(ctx,text,maxW); if(lines.length<=maxLines){size=s;break;} }
+  sfont(ctx,weight,size); lines=shareWrapLines(ctx,text,maxW);
   if(lines.length>maxLines){ lines=lines.slice(0,maxLines); lines[maxLines-1]=lines[maxLines-1].replace(/.$/,'…'); }
   return {size,lines};
 }
@@ -4540,7 +4566,15 @@ function shareBase(ctx,st,heroImg,heroH){
   if(heroImg){ rkDrawCover(ctx,heroImg,0,0,SW,heroH); ctx.fillStyle=st.accent; ctx.fillRect(0,heroH-6,SW,6); return heroH; }
   return 0;
 }
-function shareBrand(ctx,st){ ctx.textAlign='center'; ctx.fillStyle=st.accent; ctx.font='800 30px '+SFONT; ctx.fillText('My道場  ·  柔道',SW/2,1302); ctx.textAlign='left'; }
+// 署名：右下に 主役名／ストーリー名／My道場（柔道）を積む
+function shareSignature(ctx,st,name){
+  const fp=shareFontObj(), rx=SW-80;
+  shareLS(ctx,0); ctx.textAlign='right'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle=st.ink;   ctx.font=fp.tw+' 40px '+fp.fam; ctx.fillText(name||'', rx, 1206);
+  ctx.fillStyle=st.sub;   ctx.font=fp.bw+' 27px '+fp.fam; ctx.fillText(shareIdentity(), rx, 1250);
+  ctx.fillStyle=st.accent;ctx.font=fp.tw+' 28px '+fp.fam; ctx.fillText('My道場  ·  柔道', rx, 1298);
+  ctx.textAlign='left'; ctx.textBaseline='top';
+}
 function drawRkShare(ev){
   const draw=(ev.kind==='milestone')?_drawMileShare:_drawRkShare;
   const photo=(DB.eventPhotos&&DB.eventPhotos[rkNoteKey(ev)])||'';
@@ -4548,55 +4582,63 @@ function drawRkShare(ev){
   else draw(ev,null);
 }
 function _drawMileShare(ev,heroImg){
-  const ctx=document.getElementById('rkcv').getContext('2d'), st=shareStyleObj();
+  const ctx=document.getElementById('rkcv').getContext('2d'), st=shareStyleObj(), fp=shareFontObj();
   const s=DB.students.find(x=>x.id===rkSelfId)||{name:''};
   const label=(ev.type==='昇段')?T('昇段'):(ev.type==='昇級')?T('昇級'):T('記念');
-  const heroH=620, panelTop=shareBase(ctx,st,heroImg,heroH);
+  const heroH=640, panelTop=shareBase(ctx,st,heroImg,heroH);
   const x=80, maxW=SW-160;
-  let y=(heroImg?panelTop:120)+66;
-  ctx.textAlign='left';
-  ctx.fillStyle=st.accent; ctx.font='800 34px '+SFONT; ctx.fillText(label,x,y); y+=22;
-  const tt=shareFit(ctx,ev.title||'',maxW, heroImg?2:3, heroImg?88:118, 52, '800');
-  ctx.fillStyle=st.ink;
-  tt.lines.forEach((ln,i)=>{ ctx.font='800 '+tt.size+'px '+SFONT; ctx.fillText(ln,x,y+tt.size+i*tt.size*1.14); });
-  y+=tt.size+(tt.lines.length-1)*tt.size*1.14+48;
-  ctx.fillStyle=st.ink; ctx.font='700 44px '+SFONT; ctx.fillText(s.name,x,y); y+=42;
-  ctx.fillStyle=st.sub; ctx.font='500 30px '+SFONT; ctx.fillText(((ev.date||'').replace(/-/g,'/'))+'　'+shareIdentity(),x,y); y+=54;
-  ctx.fillStyle=st.accent; ctx.fillRect(x,y,120,5); y+=46;
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  // タイトル計測（字間つき）
+  shareLS(ctx,fp.ls);
+  const tt=shareFit(ctx,ev.title||'',maxW, heroImg?2:3, heroImg?96:120, 56, fp.tw);
+  shareLS(ctx,0);
   const cmt=(DB.eventNotes&&DB.eventNotes[rkNoteKey(ev)])||'';
-  if(cmt){ ctx.fillStyle=st.ink; ctx.font='500 36px '+SFONT; shareWrapLines(ctx,'「'+cmt+'」',maxW).slice(0,3).forEach((ln,i)=>ctx.fillText(ln,x,y+i*50)); }
-  shareBrand(ctx,st);
+  sfont(ctx,fp.bw,36); const noteLines=cmt?shareWrapLines(ctx,'「'+cmt+'」',maxW).slice(0,3):[];
+  const dateStr=(ev.date||'').replace(/-/g,'/');
+  const lhT=tt.size*1.28;
+  const hLabel=36,g1=20, hTitle=tt.lines.length*lhT,g2=18, hDate=30,g3=26, hDiv=6,g4=30, hNote=noteLines.length*50;
+  const total=hLabel+g1+hTitle+g2+hDate+g3+hDiv+(hNote?g4+hNote:0);
+  const areaTop=(heroImg?panelTop:0)+(heroImg?52:150), areaBot=1150;
+  let y=areaTop+Math.max(0,((areaBot-areaTop)-total)/2);
+  ctx.fillStyle=st.accent; sfont(ctx,fp.tw,36); ctx.fillText(label,x,y); y+=hLabel+g1;
+  shareLS(ctx,fp.ls); ctx.fillStyle=st.ink; tt.lines.forEach((ln,i)=>{ sfont(ctx,fp.tw,tt.size); ctx.fillText(ln,x,y+i*lhT); }); shareLS(ctx,0); y+=hTitle+g2;
+  ctx.fillStyle=st.sub; sfont(ctx,fp.bw,30); ctx.fillText(dateStr,x,y); y+=hDate+g3;
+  ctx.fillStyle=st.accent; ctx.fillRect(x,y,120,6); y+=hDiv;
+  if(noteLines.length){ y+=g4; ctx.fillStyle=st.ink; sfont(ctx,fp.bw,36); noteLines.forEach((ln,i)=>ctx.fillText(ln,x,y+i*50)); }
+  shareSignature(ctx,st,s.name);
 }
 function _drawRkShare(ev,heroImg){
-  const ctx=document.getElementById('rkcv').getContext('2d'), st=shareStyleObj();
+  const ctx=document.getElementById('rkcv').getContext('2d'), st=shareStyleObj(), fp=shareFontObj();
   const s=DB.students.find(x=>x.id===rkSelfId)||{name:''}, stt=rkStats(ev);
-  const heroH=520, panelTop=shareBase(ctx,st,heroImg,heroH);
+  const heroH=560, panelTop=shareBase(ctx,st,heroImg,heroH);
   const x=80, maxW=SW-160;
-  let y=(heroImg?panelTop:110)+62;
-  ctx.textAlign='left';
+  ctx.textAlign='left'; ctx.textBaseline='top';
   const rec=stt.w+T('勝')+stt.l+T('敗')+(stt.d?stt.d+T('分'):'');
   const recColor=stt.w>stt.l?'#37c26e':(stt.l>stt.w?'#ff5a4d':st.accent);
-  ctx.fillStyle=recColor; ctx.font='800 34px '+SFONT; ctx.fillText(rec,x,y); y+=20;
-  const tt=shareFit(ctx,ev.name||'',maxW,2, heroImg?70:86, 42, '800');
-  ctx.fillStyle=st.ink;
-  tt.lines.forEach((ln,i)=>{ ctx.font='800 '+tt.size+'px '+SFONT; ctx.fillText(ln,x,y+tt.size+i*tt.size*1.14); });
-  y+=tt.size+(tt.lines.length-1)*tt.size*1.14+40;
-  ctx.fillStyle=st.ink; ctx.font='700 42px '+SFONT; ctx.fillText(s.name,x,y); y+=38;
-  ctx.fillStyle=st.sub; ctx.font='500 28px '+SFONT; ctx.fillText(((ev.date||'').replace(/-/g,'/'))+'　'+shareIdentity(),x,y); y+=54;
-  const tiles=[[T('勝'),stt.w,'#37c26e'],[T('敗'),stt.l,'#ff5a4d'],[T('分'),stt.d,st.sub]];
-  const gap=24, tw=(maxW-2*gap)/3, th=116, ty=y;
-  tiles.forEach((t,i)=>{const tx=x+i*(tw+gap);ctx.fillStyle=st.light?'rgba(0,0,0,.05)':'rgba(255,255,255,.07)';rkRR(ctx,tx,ty,tw,th,18);ctx.fill();
-    ctx.fillStyle=t[2];ctx.textAlign='center';ctx.font='800 58px '+SFONT;ctx.fillText(String(t[1]),tx+tw/2,ty+60);
-    ctx.fillStyle=st.sub;ctx.font='700 26px '+SFONT;ctx.fillText(t[0],tx+tw/2,ty+98);});
-  ctx.textAlign='left'; y=ty+th+42;
-  if((stt.wazas||[]).length){
-    ctx.fillStyle=st.accent;ctx.font='700 28px '+SFONT;ctx.fillText(T('決まり技'),x,y); y+=46;
-    let cx=x; (stt.wazas||[]).forEach(w=>{const lb=T(w[0])+' '+w[1];ctx.font='700 28px '+SFONT;const wpx=ctx.measureText(lb).width+36; if(cx+wpx>x+maxW){cx=x;y+=56;} ctx.fillStyle=st.light?'rgba(0,0,0,.06)':'rgba(255,255,255,.10)';rkRR(ctx,cx,y-36,wpx,52,14);ctx.fill();ctx.fillStyle=st.ink;ctx.fillText(lb,cx+18,y);cx+=wpx+14;});
-    y+=34;
-  }
+  shareLS(ctx,fp.ls);
+  const tt=shareFit(ctx,ev.name||'',maxW,2, heroImg?66:82, 40, fp.tw);
+  shareLS(ctx,0);
   const cmt=(DB.eventNotes&&DB.eventNotes[rkNoteKey(ev)])||'';
-  if(cmt){ ctx.fillStyle=st.ink; ctx.font='500 32px '+SFONT; shareWrapLines(ctx,'「'+cmt+'」',maxW).slice(0,2).forEach((ln,i)=>ctx.fillText(ln,x,y+i*44)); }
-  shareBrand(ctx,st);
+  sfont(ctx,fp.bw,30); const noteLines=cmt?shareWrapLines(ctx,'「'+cmt+'」',maxW).slice(0,2):[];
+  const wz=stt.wazas||[];
+  const lhT=tt.size*1.26;
+  const hRec=34,g1=16, hTitle=tt.lines.length*lhT,g2=26, th=112,gT=30, hWaza=wz.length?(40+58):0, hNote=noteLines.length*46;
+  const total=hRec+g1+hTitle+g2+th+(hWaza?gT+hWaza:0)+(hNote?26+hNote:0);
+  const areaTop=(heroImg?panelTop:0)+(heroImg?44:130), areaBot=1150;
+  let y=areaTop+Math.max(0,((areaBot-areaTop)-total)/2);
+  ctx.fillStyle=recColor; sfont(ctx,fp.tw,34); ctx.fillText(rec,x,y); y+=hRec+g1;
+  shareLS(ctx,fp.ls); ctx.fillStyle=st.ink; tt.lines.forEach((ln,i)=>{ sfont(ctx,fp.tw,tt.size); ctx.fillText(ln,x,y+i*lhT); }); shareLS(ctx,0); y+=hTitle+g2;
+  const gap=24, tw=(maxW-2*gap)/3, ty=y;
+  const tiles=[[T('勝'),stt.w,'#37c26e'],[T('敗'),stt.l,'#ff5a4d'],[T('分'),stt.d,st.sub]];
+  tiles.forEach((t,i)=>{const tx=x+i*(tw+gap);ctx.fillStyle=st.light?'rgba(0,0,0,.05)':'rgba(255,255,255,.07)';rkRR(ctx,tx,ty,tw,th,18);ctx.fill();
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle=t[2];sfont(ctx,fp.tw,54);ctx.fillText(String(t[1]),tx+tw/2,ty+46);
+    ctx.fillStyle=st.sub;sfont(ctx,fp.bw,25);ctx.fillText(t[0],tx+tw/2,ty+90);});
+  ctx.textAlign='left'; ctx.textBaseline='top'; y=ty+th;
+  if(wz.length){ y+=gT; ctx.fillStyle=st.accent; sfont(ctx,fp.tw,28); ctx.fillText(T('決まり技'),x,y); y+=40;
+    let cx=x; wz.forEach(w=>{const lb=T(w[0])+' '+w[1]; sfont(ctx,fp.bw,28); const wpx=ctx.measureText(lb).width+36; if(cx+wpx>x+maxW){cx=x;y+=58;} ctx.fillStyle=st.light?'rgba(0,0,0,.06)':'rgba(255,255,255,.10)'; rkRR(ctx,cx,y,wpx,50,14);ctx.fill(); ctx.fillStyle=st.ink; ctx.fillText(lb,cx+18,y+11); cx+=wpx+14;}); y+=50; }
+  if(noteLines.length){ y+=26; ctx.fillStyle=st.ink; sfont(ctx,fp.bw,30); noteLines.forEach((ln,i)=>ctx.fillText(ln,x,y+i*46)); }
+  shareSignature(ctx,st,s.name);
 }
 function shareFileName(){ const ev=rkShareEv||{}; return (ev.title||ev.name||'memory')+'.png'; }
 function rkSaveShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=shareFileName();a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
