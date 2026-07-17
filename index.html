@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v155（シェア画像：配色8種に加え書式8種[ゴシック/極太/まる/まる細/明朝/明朝細/ワイド/太明朝]を選択可＝色×書式で表情。主役名とストーリー名を右下に署名として配置。タイトル〜コメントの縦間隔を内容に応じて自動バランス） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v156（シェア画像：柄・模様を追加＝なし＋8種[市松/縦じま/ドット/菱格子/青海波/炎(両脇)/光線/紙吹雪]。テーマの色・低透明度で控えめに描画し可読性を維持。配色8×書式8×柄9の組合せで表情づくり） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1337,6 +1337,8 @@ function applyUpdate(){
     <div class="share-styles" id="shareStyles"></div>
     <div class="share-style-label">書式を選ぶ</div>
     <div class="share-styles" id="shareFonts"></div>
+    <div class="share-style-label">柄・模様を選ぶ</div>
+    <div class="share-styles" id="sharePatterns"></div>
     <div class="row" style="margin-top:12px;gap:10px">
       <button class="btn" style="flex:0 0 auto;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:0 16px" onclick="closeModal('rkShareModal')">閉じる</button>
       <button class="btn" style="flex:1;background:#fff;color:var(--navy)" onclick="rkSaveShare()">保存</button>
@@ -2000,7 +2002,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v155'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v156'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2444,6 +2446,16 @@ Object.assign(DICT,{
   '明朝 細':{en:'Serif Light',fr:'Serif fin',pt:'Serifada fina'},
   'ワイド':{en:'Wide',fr:'Large',pt:'Larga'},
   '太明朝':{en:'Serif Bold',fr:'Serif gras',pt:'Serifada negrito'},
+  '柄・模様を選ぶ':{en:'Choose a pattern',fr:'Choisir un motif',pt:'Escolha um padrão'},
+  'なし':{en:'None',fr:'Aucun',pt:'Nenhum'},
+  '市松':{en:'Checkered',fr:'Damier',pt:'Xadrez'},
+  '縦じま':{en:'Stripes',fr:'Rayures',pt:'Listras'},
+  'ドット':{en:'Dots',fr:'Pois',pt:'Bolinhas'},
+  '菱格子':{en:'Lattice',fr:'Losanges',pt:'Treliça'},
+  '青海波':{en:'Waves',fr:'Vagues',pt:'Ondas'},
+  '炎（両脇）':{en:'Flames (sides)',fr:'Flammes (côtés)',pt:'Chamas (laterais)'},
+  '光線':{en:'Rays',fr:'Rayons',pt:'Raios'},
+  '紙吹雪':{en:'Confetti',fr:'Confettis',pt:'Confete'},
   'クラシック':{en:'Classic',fr:'Classique',pt:'Clássico'},
   'クール':{en:'Cool',fr:'Cool',pt:'Cool'},
   'かっこいい':{en:'Bold',fr:'Audacieux',pt:'Marcante'},
@@ -4450,7 +4462,7 @@ function rkPhotoDel(i){
     save(); renderRireki(); toast(T('削除しました'));
   });
 }
-function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareStyle=DB.shareStyle||shareStyle;shareFont=DB.shareFont||shareFont;renderShareStyles();renderShareFonts();drawRkShare(ev);openModal('rkShareModal');}
+function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareStyle=DB.shareStyle||shareStyle;shareFont=DB.shareFont||shareFont;sharePattern=DB.sharePattern||sharePattern;renderShareStyles();renderShareFonts();renderSharePatterns();drawRkShare(ev);openModal('rkShareModal');}
 /* ===== v150→v153: 節目＝履歴に手動追加し試合カードと同仕様で表示。
    種類欄は廃止し「よく使う」ワード(きもち/できごと)のタップで連続追記。
    昇級/昇段のチップだけアイコン種別も設定（既定は自由=⭐） ===== */
@@ -4537,6 +4549,55 @@ function shareSetStyle(k){ shareStyle=k; DB.shareStyle=k; save(); renderShareSty
 function shareSetFont(k){ shareFont=k; DB.shareFont=k; save(); renderShareFonts(); if(rkShareEv)drawRkShare(rkShareEv); }
 function renderShareStyles(){ const el=document.getElementById('shareStyles'); if(el)el.innerHTML=SHARE_STYLES.map(s=>`<button class="${s.key===shareStyle?'on':''}" onclick="shareSetStyle('${s.key}')">${T(s.name)}</button>`).join(''); }
 function renderShareFonts(){ const el=document.getElementById('shareFonts'); if(el)el.innerHTML=SHARE_FONTS.map(f=>`<button class="${f.key===shareFont?'on':''}" onclick="shareSetFont('${f.key}')">${T(f.name)}</button>`).join(''); }
+// 柄・模様（なし＋8種）。色・透明度はテーマに合わせ、控えめに（文字の可読性を損なわない）
+const SHARE_PATTERNS=[
+  {key:'none',      name:'なし'},
+  {key:'ichimatsu', name:'市松'},
+  {key:'stripe',    name:'縦じま'},
+  {key:'dots',      name:'ドット'},
+  {key:'lattice',   name:'菱格子'},
+  {key:'seigaiha',  name:'青海波'},
+  {key:'flame',     name:'炎（両脇）'},
+  {key:'rays',      name:'光線'},
+  {key:'confetti',  name:'紙吹雪'},
+];
+let sharePattern='none';
+function shareSetPattern(k){ sharePattern=k; DB.sharePattern=k; save(); renderSharePatterns(); if(rkShareEv)drawRkShare(rkShareEv); }
+function renderSharePatterns(){ const el=document.getElementById('sharePatterns'); if(el)el.innerHTML=SHARE_PATTERNS.map(p=>`<button class="${p.key===sharePattern?'on':''}" onclick="shareSetPattern('${p.key}')">${T(p.name)}</button>`).join(''); }
+function hexA(h,a){ h=(h||'#000').replace('#',''); if(h.length===3)h=h.split('').map(c=>c+c).join(''); const n=parseInt(h,16)||0; return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
+// パネル領域（写真の下・写真なしは全面）に控えめな柄を描く
+function drawSharePattern(ctx,st,key,top){
+  if(!key||key==='none')return;
+  const H=SH-top;
+  ctx.save(); ctx.beginPath(); ctx.rect(0,top,SW,H); ctx.clip();
+  const line=(x1,y1,x2,y2)=>{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();};
+  if(key==='ichimatsu'){
+    ctx.fillStyle=hexA(st.ink,0.055); const s=76;
+    for(let yy=Math.floor(top/s)*s; yy<SH; yy+=s) for(let xx=0;xx<SW;xx+=s) if(((Math.floor(xx/s)+Math.floor(yy/s))&1)===0) ctx.fillRect(xx,yy,s,s);
+  } else if(key==='stripe'){
+    ctx.fillStyle=hexA(st.ink,0.05); const gap=46,w=10; for(let xx=0;xx<SW;xx+=gap) ctx.fillRect(xx,top,w,H);
+  } else if(key==='dots'){
+    ctx.fillStyle=hexA(st.ink,0.06); const gap=58,r=6; for(let yy=top+20;yy<SH;yy+=gap) for(let xx=24;xx<SW;xx+=gap){ctx.beginPath();ctx.arc(xx,yy,r,0,6.2832);ctx.fill();}
+  } else if(key==='lattice'){
+    ctx.strokeStyle=hexA(st.ink,0.06); ctx.lineWidth=2; const s=84;
+    for(let xx=-H;xx<SW;xx+=s){ line(xx,top,xx+H,SH); line(xx+H,top,xx,SH); }
+  } else if(key==='seigaiha'){
+    ctx.strokeStyle=hexA(st.ink,0.07); ctx.lineWidth=3; const R=64;
+    for(let row=0,yy=top; yy<SH+R; yy+=R*0.55,row++){ const off=(row&1)?R:0; for(let xx=-R+off; xx<SW+R; xx+=R*2){ for(let k=1;k<=3;k++){ctx.beginPath();ctx.arc(xx,yy,R*k/3,Math.PI,2*Math.PI);ctx.stroke();} } }
+  } else if(key==='flame'){
+    [[-1,0],[1,SW]].forEach(pr=>{ const dir=pr[0], bx=pr[1], W=160;
+      const g=ctx.createLinearGradient(bx,0,bx+dir*W,0); g.addColorStop(0,hexA(st.accent,0.24)); g.addColorStop(1,hexA(st.accent,0));
+      ctx.fillStyle=g; ctx.fillRect(dir<0?0:SW-W, top, W, H);
+      ctx.fillStyle=hexA(st.accent,0.15);
+      for(let yy=top-20; yy<SH; yy+=64){ ctx.beginPath(); ctx.moveTo(bx,yy); ctx.quadraticCurveTo(bx+dir*120,yy-36,bx+dir*34,yy-88); ctx.quadraticCurveTo(bx+dir*64,yy-30,bx,yy-6); ctx.closePath(); ctx.fill(); }
+    });
+  } else if(key==='rays'){
+    ctx.save(); ctx.translate(SW/2, top); const n=24; for(let i=0;i<n;i++){ if(i&1)continue; ctx.fillStyle=hexA(st.accent,0.05); const a=(i/n)*6.2832; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,1700,a,a+6.2832/n); ctx.closePath(); ctx.fill(); } ctx.restore();
+  } else if(key==='confetti'){
+    for(let i=0;i<90;i++){ const xx=(i*137)%SW; const yy=top+((i*89)%H); const s=8+(i%3)*5; ctx.save(); ctx.translate(xx,yy); ctx.rotate((i%9)*0.7); ctx.fillStyle=(i&1)?hexA(st.accent,0.20):hexA(st.ink,0.12); ctx.fillRect(-s/2,-s/2,s,s*0.5); ctx.restore(); }
+  }
+  ctx.restore();
+}
 // 個人モードはストーリー名、事務モードはチーム名を使う（シェア画像の識別名）
 function shareIdentity(){ return (DB.mode==='personal') ? (DB.storyName||T('マイ柔道ヒストリー')) : (DB.team||''); }
 function shareLS(ctx,px){ try{ ctx.letterSpacing=(px||0)+'px'; }catch(e){} }
@@ -4586,6 +4647,7 @@ function _drawMileShare(ev,heroImg){
   const s=DB.students.find(x=>x.id===rkSelfId)||{name:''};
   const label=(ev.type==='昇段')?T('昇段'):(ev.type==='昇級')?T('昇級'):T('記念');
   const heroH=640, panelTop=shareBase(ctx,st,heroImg,heroH);
+  drawSharePattern(ctx,st,sharePattern,panelTop);
   const x=80, maxW=SW-160;
   ctx.textAlign='left'; ctx.textBaseline='top';
   // タイトル計測（字間つき）
@@ -4611,6 +4673,7 @@ function _drawRkShare(ev,heroImg){
   const ctx=document.getElementById('rkcv').getContext('2d'), st=shareStyleObj(), fp=shareFontObj();
   const s=DB.students.find(x=>x.id===rkSelfId)||{name:''}, stt=rkStats(ev);
   const heroH=560, panelTop=shareBase(ctx,st,heroImg,heroH);
+  drawSharePattern(ctx,st,sharePattern,panelTop);
   const x=80, maxW=SW-160;
   ctx.textAlign='left'; ctx.textBaseline='top';
   const rec=stt.w+T('勝')+stt.l+T('敗')+(stt.d?stt.d+T('分'):'');
