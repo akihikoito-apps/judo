@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v153（節目モーダルを整理：種類欄を廃止し「よく使う」を きもち/できごと に再編。昇級・昇段も含め、タップで連続追記（嬉しい！＋初勝利！ 等）。感情ワードを追加、引退などネガティブ語を削除。クリアボタン追加） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v154（シェア画像を刷新：8スタイル[クラシック/クール/かっこいい/モノクロ/ポップ/サンセット/かわいい/エレガント]をプレビューで選択。タイトルを主役に大きく、柔道着絵文字を廃止、個人モードはストーリー名を反映、文字溢れ対策。節目モーダルのチップは削除） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -542,8 +542,10 @@
   .rk-badge.mile{background:rgba(200,164,77,.95);color:#3a2b00;}
   .rk-pill.mile{background:#f6efdc;color:#7a5c00;}
   .rk-actions .edit{background:#fff;color:var(--navy);}
-  .mile-ttl-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
-  .mile-clear{background:none;border:none;color:var(--muted);font-family:inherit;font-size:calc(13px*var(--fs,1));font-weight:700;cursor:pointer;padding:4px 6px;text-decoration:underline;}
+  .share-style-label{color:rgba(255,255,255,.7);font-size:calc(12.5px*var(--fs,1));font-weight:700;margin:12px 2px 8px;}
+  .share-styles{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+  .share-styles button{flex:0 0 auto;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:16px;padding:7px 15px;font-family:inherit;font-weight:700;font-size:calc(13px*var(--fs,1));cursor:pointer;white-space:nowrap;}
+  .share-styles button.on{background:var(--gold);border-color:var(--gold);color:#2a2100;}
   .rk-photo .rk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .rk-add{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:rgba(255,255,255,.85);font-size:calc(13.5px*var(--fs,1));font-weight:700;cursor:pointer;text-align:center;}
   .rk-add .big{font-size:40px;display:block;margin-bottom:4px;}
@@ -1331,6 +1333,8 @@ function applyUpdate(){
 <div class="modal-bg" id="rkShareModal">
   <div class="modal" style="background:#0e1830;max-width:430px">
     <canvas id="rkcv" width="1080" height="1350" style="width:100%;height:auto;border-radius:12px;display:block"></canvas>
+    <div class="share-style-label">スタイルを選ぶ（プレビュー）</div>
+    <div class="share-styles" id="shareStyles"></div>
     <div class="row" style="margin-top:12px;gap:10px">
       <button class="btn" style="flex:0 0 auto;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:0 16px" onclick="closeModal('rkShareModal')">閉じる</button>
       <button class="btn" style="flex:1;background:#fff;color:var(--navy)" onclick="rkSaveShare()">保存</button>
@@ -1343,34 +1347,8 @@ function applyUpdate(){
 <div class="modal-bg" id="milestoneModal">
   <div class="modal">
     <h3 id="mileModalTitle">節目を追加</h3>
-    <div class="mile-ttl-row">
-      <label class="fld" style="margin:0">タイトル</label>
-      <button type="button" class="mile-clear" onclick="mileClear()">クリア</button>
-    </div>
-    <input type="text" id="mileTitle" placeholder="例：昇段／嬉しい！初勝利！">
-    <label class="fld">きもち（タップで追加）</label>
-    <div class="cat-pick" id="mileFeel">
-      <button type="button" onclick="milePreset('嬉しい！')">嬉しい！</button>
-      <button type="button" onclick="milePreset('やった！')">やった！</button>
-      <button type="button" onclick="milePreset('感動！')">感動！</button>
-      <button type="button" onclick="milePreset('がんばった！')">がんばった！</button>
-      <button type="button" onclick="milePreset('悔しい！')">悔しい！</button>
-    </div>
-    <label class="fld">できごと（タップで追加）</label>
-    <div class="cat-pick" id="mileEvent">
-      <button type="button" onclick="milePreset('昇級','昇級')">昇級</button>
-      <button type="button" onclick="milePreset('昇段','昇段')">昇段</button>
-      <button type="button" onclick="milePreset('初勝利！')">初勝利！</button>
-      <button type="button" onclick="milePreset('初大会')">初大会</button>
-      <button type="button" onclick="milePreset('初出場')">初出場</button>
-      <button type="button" onclick="milePreset('初一本')">初一本</button>
-      <button type="button" onclick="milePreset('優勝')">優勝</button>
-      <button type="button" onclick="milePreset('準優勝')">準優勝</button>
-      <button type="button" onclick="milePreset('第3位')">第3位</button>
-      <button type="button" onclick="milePreset('入賞')">入賞</button>
-      <button type="button" onclick="milePreset('自己ベスト')">自己ベスト</button>
-      <button type="button" onclick="milePreset('入門')">入門</button>
-    </div>
+    <label class="fld">タイトル</label>
+    <input type="text" id="mileTitle" placeholder="例：初段 取得／初勝利！／〇〇大会 優勝">
     <label class="fld">日付</label>
     <input type="date" id="mileDate">
     <div class="row">
@@ -2020,7 +1998,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v153'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v154'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2450,6 +2428,18 @@ Object.assign(DICT,{
   '初勝利！':{en:'First win! ',fr:'Première victoire ! ',pt:'Primeira vitória! '},
   '初一本':{en:'First ippon',fr:'Premier ippon',pt:'Primeiro ippon'},
   '例：昇段／嬉しい！初勝利！':{en:'e.g. Promotion / So happy! First win!',fr:'ex. : Passage de dan / Trop content ! Première victoire !',pt:'ex.: Promoção / Muito feliz! Primeira vitória!'},
+  '例：初段 取得／初勝利！／〇〇大会 優勝':{en:'e.g. Earned 1st dan / First win! / Champion at ...',fr:'ex. : 1er dan obtenu / Première victoire ! / Champion à ...',pt:'ex.: 1º dan / Primeira vitória! / Campeão em ...'},
+  '記念':{en:'Milestone',fr:'Moment',pt:'Marco'},
+  'マイ柔道ヒストリー':{en:'My Judo History',fr:'Mon histoire judo',pt:'Minha história de judô'},
+  'スタイルを選ぶ（プレビュー）':{en:'Choose a style (preview)',fr:'Choisir un style (aperçu)',pt:'Escolha um estilo (prévia)'},
+  'クラシック':{en:'Classic',fr:'Classique',pt:'Clássico'},
+  'クール':{en:'Cool',fr:'Cool',pt:'Cool'},
+  'かっこいい':{en:'Bold',fr:'Audacieux',pt:'Marcante'},
+  'モノクロ':{en:'Mono',fr:'Mono',pt:'Mono'},
+  'ポップ':{en:'Pop',fr:'Pop',pt:'Pop'},
+  'サンセット':{en:'Sunset',fr:'Coucher de soleil',pt:'Pôr do sol'},
+  'かわいい':{en:'Cute',fr:'Mignon',pt:'Fofo'},
+  'エレガント':{en:'Elegant',fr:'Élégant',pt:'Elegante'},
   '写真の位置・ズーム':{en:'Position & zoom',fr:'Position et zoom',pt:'Posição e zoom'},
   'ズーム':{en:'Zoom',fr:'Zoom',pt:'Zoom'},
   'この範囲で保存':{en:'Save this crop',fr:'Enregistrer ce cadrage',pt:'Salvar este recorte'},
@@ -4293,16 +4283,15 @@ function rkPhotoAreaHtml(key,i){
        </div>`
     : `<label class="rk-add"><input type="file" accept="image/*" style="display:none" onchange="rkPhotoPick(event,${i})"><span class="big">📷</span>${T('写真を追加')}</label>`;
 }
-function mileIcon(type){return type==='昇段'?'🥋':(type==='昇級'?'🎽':'⭐');}
 function rkMilestoneCardHtml(ev,i){
   const key=rkNoteKey(ev), cmt=(DB.eventNotes&&DB.eventNotes[key])||'';
-  const icon=mileIcon(ev.type), typeLabel=(ev.type==='自由')?T('節目'):T(ev.type);
+  const typePill=(ev.type==='昇段'||ev.type==='昇級')?`<div class="rk-rec"><span class="rk-pill mile">${esc(T(ev.type))}</span></div>`:'';
   return `<div class="rk-card">
-    <div class="rk-photo">${rkPhotoAreaHtml(key,i)}<div class="rk-badge mile">${icon} ${T('節目')}</div></div>
+    <div class="rk-photo">${rkPhotoAreaHtml(key,i)}<div class="rk-badge mile">${T('節目')}</div></div>
     <div class="rk-body">
       <div class="rk-date">${(ev.date||'').replace(/-/g,'/')}</div>
       <div class="rk-ttl">${esc(ev.title||'')}</div>
-      <div class="rk-rec"><span class="rk-pill mile">${icon} ${esc(typeLabel)}</span></div>
+      ${typePill}
       <textarea class="rk-cmt" placeholder="${T('この節目のひとことメモ（任意）')}" onchange="rkSaveNote(this)" data-key="${esc(key)}">${esc(cmt)}</textarea>
       <div class="rk-actions"><button class="edit" onclick="mileOpenEdit('${ev.id}')">✏️ ${T('編集')}</button><button class="share" onclick="rkOpenShare(${i})">📤 ${T('シェア画像')}</button></div>
     </div>
@@ -4449,18 +4438,11 @@ function rkPhotoDel(i){
     save(); renderRireki(); toast(T('削除しました'));
   });
 }
-function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;drawRkShare(ev);openModal('rkShareModal');}
+function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareStyle=DB.shareStyle||shareStyle;renderShareStyles();drawRkShare(ev);openModal('rkShareModal');}
 /* ===== v150→v153: 節目＝履歴に手動追加し試合カードと同仕様で表示。
    種類欄は廃止し「よく使う」ワード(きもち/できごと)のタップで連続追記。
    昇級/昇段のチップだけアイコン種別も設定（既定は自由=⭐） ===== */
 let mileEditId=null, pickedMileType='自由';
-// v153: ワードをタイトルへ連続追記。第2引数があればアイコン種別（昇級/昇段）も設定
-function milePreset(word,type){
-  const el=document.getElementById('mileTitle');
-  el.value=(el.value||'')+T(word);
-  if(type)pickedMileType=type;
-}
-function mileClear(){ const el=document.getElementById('mileTitle'); if(el)el.value=''; pickedMileType='自由'; }
 function mileOpenAdd(){
   if(!rkSelfId){toast(T('先に主役（自分）を選んでください'));return;}
   mileEditId=null; pickedMileType='自由';
@@ -4512,71 +4494,112 @@ function mileDelete(){
     save();closeModal('milestoneModal');renderRireki();toast(T('削除しました'));
   });
 }
-function _drawMileShare(ev,heroImg){
-  const cv=document.getElementById('rkcv'),ctx=cv.getContext('2d'),W=1080,H=1350,F='"Hiragino Sans","Yu Gothic","Meiryo",sans-serif';
-  const s=DB.students.find(x=>x.id===rkSelfId)||{name:''};
-  const icon=mileIcon(ev.type), typeLabel=(ev.type==='自由')?T('節目'):T(ev.type);
-  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#16264a');g.addColorStop(1,'#0c1526');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  if(heroImg){rkDrawCover(ctx,heroImg,0,0,W,620);}
-  else{const pg=ctx.createLinearGradient(0,0,W,620);pg.addColorStop(0,'#22355f');pg.addColorStop(1,'#0e1830');ctx.fillStyle=pg;ctx.fillRect(0,0,W,620);
-    ctx.fillStyle='rgba(255,255,255,.55)';ctx.font='170px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(icon,W/2,300);ctx.textBaseline='alphabetic';}
-  const sh=ctx.createLinearGradient(0,420,0,620);sh.addColorStop(0,'rgba(12,21,38,0)');sh.addColorStop(1,'#0e1830');ctx.fillStyle=sh;ctx.fillRect(0,420,W,200);
-  ctx.textAlign='left';
-  ctx.fillStyle='#c8a44d';ctx.font='800 40px '+F;ctx.fillText(icon+' '+typeLabel,64,586);
-  ctx.fillStyle='#fff';ctx.font='800 70px '+F;ctx.fillText(s.name,64,700);
-  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='500 32px '+F;ctx.fillText(((ev.date||'').replace(/-/g,'/'))+'　'+(DB.team||''),64,752);
-  // タイトル（大きめ・折り返し）
-  ctx.fillStyle='#fff';ctx.font='800 60px '+F;rkWrap(ctx,ev.title||'',64,860,W-128,74);
-  // 祝いの大アイコン
-  ctx.textAlign='center';ctx.font='220px sans-serif';ctx.textBaseline='middle';ctx.fillStyle='rgba(255,255,255,.10)';ctx.fillText(icon,W/2,1090);ctx.textBaseline='alphabetic';
-  // ひとことメモ
-  const cmt=(DB.eventNotes&&DB.eventNotes[rkNoteKey(ev)])||'';
-  if(cmt){ctx.textAlign='left';ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='500 32px '+F;rkWrap(ctx,'「'+cmt+'」',64,1210,W-128,44);}
-  ctx.textAlign='center';ctx.fillStyle='#c8a44d';ctx.font='800 32px '+F;ctx.fillText('🥋 My道場（柔道）',W/2,1320);
+/* ===== v154: シェア画像（8スタイル・タイトル主役・絵文字なし・写真ヒーロー・文字溢れ対策） ===== */
+const SW=1080, SH=1350, SFONT='"Hiragino Sans","Yu Gothic Medium","Yu Gothic","Meiryo",sans-serif';
+const SHARE_STYLES=[
+  {key:'classic', name:'クラシック', bg1:'#16264a', bg2:'#0b1424', accent:'#d8b25a', ink:'#ffffff', sub:'rgba(255,255,255,.66)', light:false},
+  {key:'cool',    name:'クール',    bg1:'#10233b', bg2:'#050b16', accent:'#48c6ff', ink:'#eaf5ff', sub:'rgba(220,235,250,.6)', light:false},
+  {key:'bold',    name:'かっこいい', bg1:'#211f22', bg2:'#000000', accent:'#ff4438', ink:'#ffffff', sub:'rgba(255,255,255,.6)', light:false},
+  {key:'mono',    name:'モノクロ',  bg1:'#333333', bg2:'#0b0b0b', accent:'#fafafa', ink:'#ffffff', sub:'rgba(255,255,255,.55)', light:false},
+  {key:'pop',     name:'ポップ',    bg1:'#6d28d9', bg2:'#2563eb', accent:'#ffe234', ink:'#ffffff', sub:'rgba(255,255,255,.78)', light:false},
+  {key:'sunset',  name:'サンセット', bg1:'#ff6a3d', bg2:'#a01a7d', accent:'#ffe6a3', ink:'#ffffff', sub:'rgba(255,255,255,.82)', light:false},
+  {key:'cute',    name:'かわいい',  bg1:'#ffe3ef', bg2:'#ffc2dd', accent:'#ff4f9a', ink:'#6b2145', sub:'rgba(107,33,69,.62)', light:true},
+  {key:'elegant', name:'エレガント', bg1:'#f6f1e8', bg2:'#e7dcc8', accent:'#b18a2e', ink:'#2c2419', sub:'rgba(44,36,25,.6)', light:true},
+];
+let shareStyle='classic';
+function shareStyleObj(){ return SHARE_STYLES.find(s=>s.key===shareStyle)||SHARE_STYLES[0]; }
+function shareSetStyle(k){ shareStyle=k; DB.shareStyle=k; save(); renderShareStyles(); if(rkShareEv)drawRkShare(rkShareEv); }
+function renderShareStyles(){
+  const el=document.getElementById('shareStyles'); if(!el)return;
+  el.innerHTML=SHARE_STYLES.map(s=>`<button class="${s.key===shareStyle?'on':''}" onclick="shareSetStyle('${s.key}')">${T(s.name)}</button>`).join('');
 }
+// 個人モードはストーリー名、事務モードはチーム名を使う（シェア画像の識別名）
+function shareIdentity(){ return (DB.mode==='personal') ? (DB.storyName||T('マイ柔道ヒストリー')) : (DB.team||''); }
 function rkRR(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
-function rkWrap(ctx,t,x,y,maxW,lh){const chars=[...t];let line='',yy=y;for(const ch of chars){if(ctx.measureText(line+ch).width>maxW){ctx.fillText(line,x,yy);line=ch;yy+=lh;}else line+=ch;}ctx.fillText(line,x,yy);}
 function rkDrawCover(ctx,img,x,y,w,h){
   const ir=img.width/img.height, r=w/h; let sw,sh,sx,sy;
   if(ir>r){sh=img.height;sw=sh*r;sx=(img.width-sw)/2;sy=0;}
   else{sw=img.width;sh=sw/r;sx=0;sy=(img.height-sh)/2;}
   ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
 }
+function shareWrapLines(ctx,text,maxW){
+  const chars=[...(text||'')]; const lines=[]; let line='';
+  for(const ch of chars){ if(ch==='\n'){lines.push(line);line='';continue;} if(line&&ctx.measureText(line+ch).width>maxW){lines.push(line);line=ch;} else line+=ch; }
+  lines.push(line); return lines;
+}
+// タイトルを maxLines 行に収めるフォントサイズを求める（溢れは末尾…）
+function shareFit(ctx,text,maxW,maxLines,maxSize,minSize,weight){
+  let size=minSize, lines;
+  for(let s=maxSize;s>=minSize;s-=4){ ctx.font=weight+' '+s+'px '+SFONT; lines=shareWrapLines(ctx,text,maxW); if(lines.length<=maxLines){size=s;break;} }
+  ctx.font=weight+' '+size+'px '+SFONT; lines=shareWrapLines(ctx,text,maxW);
+  if(lines.length>maxLines){ lines=lines.slice(0,maxLines); lines[maxLines-1]=lines[maxLines-1].replace(/.$/,'…'); }
+  return {size,lines};
+}
+function shareBase(ctx,st,heroImg,heroH){
+  const g=ctx.createLinearGradient(0,0,SW,SH); g.addColorStop(0,st.bg1); g.addColorStop(1,st.bg2); ctx.fillStyle=g; ctx.fillRect(0,0,SW,SH);
+  if(heroImg){ rkDrawCover(ctx,heroImg,0,0,SW,heroH); ctx.fillStyle=st.accent; ctx.fillRect(0,heroH-6,SW,6); return heroH; }
+  return 0;
+}
+function shareBrand(ctx,st){ ctx.textAlign='center'; ctx.fillStyle=st.accent; ctx.font='800 30px '+SFONT; ctx.fillText('My道場  ·  柔道',SW/2,1302); ctx.textAlign='left'; }
 function drawRkShare(ev){
-  // v149: 写真があればヒーロー画像として読み込んでから描画（非同期）。v150: 節目は別レイアウト。
   const draw=(ev.kind==='milestone')?_drawMileShare:_drawRkShare;
   const photo=(DB.eventPhotos&&DB.eventPhotos[rkNoteKey(ev)])||'';
   if(photo){const img=new Image();img.onload=()=>draw(ev,img);img.onerror=()=>draw(ev,null);img.src=photo;}
   else draw(ev,null);
 }
-function _drawRkShare(ev,heroImg){
-  const cv=document.getElementById('rkcv'),ctx=cv.getContext('2d'),W=1080,H=1350,F='"Hiragino Sans","Yu Gothic","Meiryo",sans-serif';
-  const s=DB.students.find(x=>x.id===rkSelfId)||{name:''}, st=rkStats(ev);
-  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#16264a');g.addColorStop(1,'#0c1526');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  if(heroImg){
-    rkDrawCover(ctx,heroImg,0,0,W,620);
-  }else{
-    const pg=ctx.createLinearGradient(0,0,W,620);pg.addColorStop(0,'#22355f');pg.addColorStop(1,'#0e1830');ctx.fillStyle=pg;ctx.fillRect(0,0,W,620);
-    ctx.fillStyle='rgba(255,255,255,.5)';ctx.font='150px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🥋',W/2,300);ctx.textBaseline='alphabetic';
-  }
-  const sh=ctx.createLinearGradient(0,420,0,620);sh.addColorStop(0,'rgba(12,21,38,0)');sh.addColorStop(1,'#0e1830');ctx.fillStyle=sh;ctx.fillRect(0,420,W,200);
+function _drawMileShare(ev,heroImg){
+  const ctx=document.getElementById('rkcv').getContext('2d'), st=shareStyleObj();
+  const s=DB.students.find(x=>x.id===rkSelfId)||{name:''};
+  const label=(ev.type==='昇段')?T('昇段'):(ev.type==='昇級')?T('昇級'):T('記念');
+  const heroH=620, panelTop=shareBase(ctx,st,heroImg,heroH);
+  const x=80, maxW=SW-160;
+  let y=(heroImg?panelTop:120)+66;
   ctx.textAlign='left';
-  ctx.fillStyle=st.w>st.l?'#2e9e5b':(st.l>st.w?'#d24a34':'#c8a44d');ctx.font='800 40px '+F;ctx.fillText(st.w+T('勝')+st.l+T('敗')+(st.d?st.d+T('分'):''),64,586);
-  ctx.fillStyle='#fff';ctx.font='800 70px '+F;ctx.fillText(s.name,64,700);
-  ctx.fillStyle='#c8a44d';ctx.font='700 40px '+F;ctx.fillText(ev.name,64,760);
-  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='500 32px '+F;ctx.fillText(((ev.date||'').replace(/-/g,'/'))+'　'+(DB.team||''),64,808);
-  const tiles=[[T('勝'),st.w,'#2e9e5b'],[T('敗'),st.l,'#d24a34'],[T('分'),st.d,'#9aa0a6']];
-  const tw=300,th=120,gap=24,tx=64,ty=850;
-  tiles.forEach((t,i)=>{const x=tx+i*(tw+gap);ctx.fillStyle='rgba(255,255,255,.06)';rkRR(ctx,x,ty,tw,th,18);ctx.fill();
-    ctx.fillStyle=t[2];ctx.textAlign='center';ctx.font='800 62px '+F;ctx.fillText(String(t[1]),x+tw/2,ty+62);
-    ctx.fillStyle='rgba(255,255,255,.7)';ctx.font='700 28px '+F;ctx.fillText(t[0],x+tw/2,ty+102);});
-  ctx.textAlign='left';ctx.fillStyle='#c8a44d';ctx.font='700 30px '+F;ctx.fillText(T('決まり技'),64,1050);
-  let cx=64;(st.wazas||[]).forEach(w=>{const label=T(w[0])+' '+w[1];ctx.font='700 30px '+F;const wpx=ctx.measureText(label).width+40;ctx.fillStyle='rgba(255,255,255,.10)';rkRR(ctx,cx,1085,wpx,56,14);ctx.fill();ctx.fillStyle='#fff';ctx.fillText(label,cx+20,1123);cx+=wpx+14;});
+  ctx.fillStyle=st.accent; ctx.font='800 34px '+SFONT; ctx.fillText(label,x,y); y+=22;
+  const tt=shareFit(ctx,ev.title||'',maxW, heroImg?2:3, heroImg?88:118, 52, '800');
+  ctx.fillStyle=st.ink;
+  tt.lines.forEach((ln,i)=>{ ctx.font='800 '+tt.size+'px '+SFONT; ctx.fillText(ln,x,y+tt.size+i*tt.size*1.14); });
+  y+=tt.size+(tt.lines.length-1)*tt.size*1.14+48;
+  ctx.fillStyle=st.ink; ctx.font='700 44px '+SFONT; ctx.fillText(s.name,x,y); y+=42;
+  ctx.fillStyle=st.sub; ctx.font='500 30px '+SFONT; ctx.fillText(((ev.date||'').replace(/-/g,'/'))+'　'+shareIdentity(),x,y); y+=54;
+  ctx.fillStyle=st.accent; ctx.fillRect(x,y,120,5); y+=46;
   const cmt=(DB.eventNotes&&DB.eventNotes[rkNoteKey(ev)])||'';
-  if(cmt){ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='500 32px '+F;rkWrap(ctx,'「'+cmt+'」',64,1210,W-128,44);}
-  ctx.textAlign='center';ctx.fillStyle='#c8a44d';ctx.font='800 32px '+F;ctx.fillText('🥋 My道場（柔道）',W/2,1320);
+  if(cmt){ ctx.fillStyle=st.ink; ctx.font='500 36px '+SFONT; shareWrapLines(ctx,'「'+cmt+'」',maxW).slice(0,3).forEach((ln,i)=>ctx.fillText(ln,x,y+i*50)); }
+  shareBrand(ctx,st);
 }
-function rkSaveShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=((rkShareEv&&rkShareEv.name)||'戦績')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
+function _drawRkShare(ev,heroImg){
+  const ctx=document.getElementById('rkcv').getContext('2d'), st=shareStyleObj();
+  const s=DB.students.find(x=>x.id===rkSelfId)||{name:''}, stt=rkStats(ev);
+  const heroH=520, panelTop=shareBase(ctx,st,heroImg,heroH);
+  const x=80, maxW=SW-160;
+  let y=(heroImg?panelTop:110)+62;
+  ctx.textAlign='left';
+  const rec=stt.w+T('勝')+stt.l+T('敗')+(stt.d?stt.d+T('分'):'');
+  const recColor=stt.w>stt.l?'#37c26e':(stt.l>stt.w?'#ff5a4d':st.accent);
+  ctx.fillStyle=recColor; ctx.font='800 34px '+SFONT; ctx.fillText(rec,x,y); y+=20;
+  const tt=shareFit(ctx,ev.name||'',maxW,2, heroImg?70:86, 42, '800');
+  ctx.fillStyle=st.ink;
+  tt.lines.forEach((ln,i)=>{ ctx.font='800 '+tt.size+'px '+SFONT; ctx.fillText(ln,x,y+tt.size+i*tt.size*1.14); });
+  y+=tt.size+(tt.lines.length-1)*tt.size*1.14+40;
+  ctx.fillStyle=st.ink; ctx.font='700 42px '+SFONT; ctx.fillText(s.name,x,y); y+=38;
+  ctx.fillStyle=st.sub; ctx.font='500 28px '+SFONT; ctx.fillText(((ev.date||'').replace(/-/g,'/'))+'　'+shareIdentity(),x,y); y+=54;
+  const tiles=[[T('勝'),stt.w,'#37c26e'],[T('敗'),stt.l,'#ff5a4d'],[T('分'),stt.d,st.sub]];
+  const gap=24, tw=(maxW-2*gap)/3, th=116, ty=y;
+  tiles.forEach((t,i)=>{const tx=x+i*(tw+gap);ctx.fillStyle=st.light?'rgba(0,0,0,.05)':'rgba(255,255,255,.07)';rkRR(ctx,tx,ty,tw,th,18);ctx.fill();
+    ctx.fillStyle=t[2];ctx.textAlign='center';ctx.font='800 58px '+SFONT;ctx.fillText(String(t[1]),tx+tw/2,ty+60);
+    ctx.fillStyle=st.sub;ctx.font='700 26px '+SFONT;ctx.fillText(t[0],tx+tw/2,ty+98);});
+  ctx.textAlign='left'; y=ty+th+42;
+  if((stt.wazas||[]).length){
+    ctx.fillStyle=st.accent;ctx.font='700 28px '+SFONT;ctx.fillText(T('決まり技'),x,y); y+=46;
+    let cx=x; (stt.wazas||[]).forEach(w=>{const lb=T(w[0])+' '+w[1];ctx.font='700 28px '+SFONT;const wpx=ctx.measureText(lb).width+36; if(cx+wpx>x+maxW){cx=x;y+=56;} ctx.fillStyle=st.light?'rgba(0,0,0,.06)':'rgba(255,255,255,.10)';rkRR(ctx,cx,y-36,wpx,52,14);ctx.fill();ctx.fillStyle=st.ink;ctx.fillText(lb,cx+18,y);cx+=wpx+14;});
+    y+=34;
+  }
+  const cmt=(DB.eventNotes&&DB.eventNotes[rkNoteKey(ev)])||'';
+  if(cmt){ ctx.fillStyle=st.ink; ctx.font='500 32px '+SFONT; shareWrapLines(ctx,'「'+cmt+'」',maxW).slice(0,2).forEach((ln,i)=>ctx.fillText(ln,x,y+i*44)); }
+  shareBrand(ctx,st);
+}
+function shareFileName(){ const ev=rkShareEv||{}; return (ev.title||ev.name||'memory')+'.png'; }
+function rkSaveShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=shareFileName();a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
 function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=>{const file=new File([b],'card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:'#柔道 #My道場'});}catch(e){}}else{rkSaveShare();alert(T('この端末は直接シェア非対応のため画像を保存しました。'));}},'image/png');}
 /* ===== v146: 分析タブ（個人モード）＝選手の試合分析（既存の決まり技レーダー等を再利用） ===== */
 let anaSelfId=null;
