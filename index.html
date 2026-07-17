@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v150（履歴に「節目カード」：昇級/昇段/自由記入をタップで追加し、試合カードと日付順に混在表示。写真・ひとことメモ・シェア画像は試合カードと共通。主役セレクタはisSelf最優先＝試合が無くても節目を残せる） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v151（履歴タブ→「メモリー」に改称。個人モードの仲間登録は事務項目[月謝・在籍状況・在籍開始日]を非表示。節目に定型プリセット[初勝利/初大会/優勝/準優勝/第3位/入賞/初出場/自己ベスト/入門/引退]をタップ入力で追加） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1345,6 +1345,19 @@ function applyUpdate(){
     </div>
     <label class="fld">タイトル</label>
     <input type="text" id="mileTitle" placeholder="例：初段 取得／初勝利／〇〇大会 優勝">
+    <label class="fld">よく使う（タップで入力）</label>
+    <div class="cat-pick" id="milePresets">
+      <button type="button" onclick="milePreset('初勝利')">初勝利</button>
+      <button type="button" onclick="milePreset('初大会')">初大会</button>
+      <button type="button" onclick="milePreset('優勝')">優勝</button>
+      <button type="button" onclick="milePreset('準優勝')">準優勝</button>
+      <button type="button" onclick="milePreset('第3位')">第3位</button>
+      <button type="button" onclick="milePreset('入賞')">入賞</button>
+      <button type="button" onclick="milePreset('初出場')">初出場</button>
+      <button type="button" onclick="milePreset('自己ベスト')">自己ベスト</button>
+      <button type="button" onclick="milePreset('入門')">入門</button>
+      <button type="button" onclick="milePreset('引退')">引退</button>
+    </div>
     <label class="fld">日付</label>
     <input type="date" id="mileDate">
     <div class="row">
@@ -1356,7 +1369,7 @@ function applyUpdate(){
 </div>
 
 <nav class="tabbar">
-  <button data-tab="rireki" onclick="switchTab('rireki')" style="display:none"><span class="ico">📖</span><span class="tlbl" data-i18n="履歴">履歴</span></button>
+  <button data-tab="rireki" onclick="switchTab('rireki')" style="display:none"><span class="ico">📖</span><span class="tlbl" data-i18n="メモリー">メモリー</span></button>
   <button data-tab="analysis" onclick="switchTab('analysis')" style="display:none"><span class="ico">📈</span><span class="tlbl" data-i18n="分析">分析</span></button>
   <button data-tab="mates" onclick="switchTab('mates')"><span class="ico">👥</span><span class="tlbl" data-i18n="仲間">仲間</span></button>
   <button data-tab="att" class="active" onclick="switchTab('att')"><span class="ico">📋</span><span class="tlbl" data-i18n="出欠">出欠</span></button>
@@ -1412,6 +1425,7 @@ function applyUpdate(){
       <button id="stGripL" onclick="pickStuGrip('左')">左</button>
       <button id="stGripO" onclick="pickStuGrip('他')">他</button>
     </div>
+    <div id="stOfficeOnly"><!-- 個人モードでは非表示＝事務担当が扱う項目（月謝・在籍） -->
     <label class="fld">月謝</label>
     <div class="io-pick">
       <button id="feeYes" class="on" onclick="pickFeeReq(true)">必要</button>
@@ -1459,6 +1473,7 @@ function applyUpdate(){
       <div class="cat-pick" id="leaveFeeQuick"></div>
       <input type="number" id="stLeaveFee" inputmode="numeric" placeholder="例：0（休会中は無料）" style="margin-top:8px">
     </div>
+    </div><!-- /stOfficeOnly -->
     <label class="fld">生年月日（任意）<span id="ageDisplay" style="color:var(--navy);font-weight:700"></span></label>
     <input type="date" id="stBirth" onchange="updateAgeDisplay()">
     <label class="fld">柔道メンバーID（任意）</label>
@@ -1974,7 +1989,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v150'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v151'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2360,6 +2375,7 @@ Object.assign(DICT,{
 // v144: 履歴タブ
 Object.assign(DICT,{
   '履歴':{en:'History',fr:'Historique',pt:'Histórico'},
+  'メモリー':{en:'Memories',fr:'Souvenirs',pt:'Memórias'},
   '写真は近日対応':{en:'Photos coming soon',fr:'Photos bientôt',pt:'Fotos em breve'},
   '写真を追加':{en:'Add photo',fr:'Ajouter une photo',pt:'Adicionar foto'},
   '写真を変更':{en:'Change photo',fr:'Changer la photo',pt:'Alterar foto'},
@@ -2381,6 +2397,17 @@ Object.assign(DICT,{
   'タイトルを入れてください':{en:'Please enter a title',fr:'Veuillez saisir un titre',pt:'Digite um título'},
   '先に主役（自分）を選んでください':{en:'Please select the main person first',fr:'Sélectionnez d’abord la personne principale',pt:'Selecione primeiro a pessoa principal'},
   'この年度の記録はまだありません':{en:'No records for this year yet',fr:'Aucun enregistrement pour cette année',pt:'Ainda não há registros deste ano'},
+  'よく使う（タップで入力）':{en:'Quick pick (tap to fill)',fr:'Choix rapide (toucher pour remplir)',pt:'Atalho (toque para preencher)'},
+  '初勝利':{en:'First win',fr:'Première victoire',pt:'Primeira vitória'},
+  '初大会':{en:'First tournament',fr:'Premier tournoi',pt:'Primeiro torneio'},
+  '優勝':{en:'Champion',fr:'Champion',pt:'Campeão'},
+  '準優勝':{en:'Runner-up',fr:'Finaliste',pt:'Vice-campeão'},
+  '第3位':{en:'3rd place',fr:'3e place',pt:'3º lugar'},
+  '入賞':{en:'Placed',fr:'Podium',pt:'Premiado'},
+  '初出場':{en:'First appearance',fr:'Première participation',pt:'Primeira participação'},
+  '自己ベスト':{en:'Personal best',fr:'Record personnel',pt:'Recorde pessoal'},
+  '入門':{en:'Started judo',fr:'Début du judo',pt:'Início no judô'},
+  '引退':{en:'Retirement',fr:'Retraite',pt:'Aposentadoria'},
   'この大会のひとことメモ（任意）':{en:'A note about this event (optional)',fr:'Une note sur cet événement (facultatif)',pt:'Uma nota sobre este evento (opcional)'},
   'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
   'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'},
@@ -4303,6 +4330,12 @@ function milePickType(t){
   document.getElementById('mileTypeDan').classList.toggle('on',t==='昇段');
   document.getElementById('mileTypeFree').classList.toggle('on',t==='自由');
 }
+// v151: 定型プリセット＝タイトルへ流し込み、種類は「自由記入」に（昇級/昇段以外の記念）
+function milePreset(t){
+  const el=document.getElementById('mileTitle');
+  el.value=T(t);
+  milePickType('自由');
+}
 function mileOpenAdd(){
   if(!rkSelfId){toast(T('先に主役（自分）を選んでください'));return;}
   mileEditId=null;
@@ -5812,6 +5845,7 @@ function openStudentModal(id){
     document.getElementById('stRole').value='';
   }
   document.getElementById('stSelfRow').style.display=(DB.mode==='personal')?'':'none';
+  document.getElementById('stOfficeOnly').style.display=(DB.mode==='personal')?'none':'';   // 個人モードは事務項目（月謝・在籍）を隠す
   pickStSelf(pickedStSelf);
   renderCatPick();
   updateGradePicker();
