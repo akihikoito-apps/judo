@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v156（シェア画像：柄・模様を追加＝なし＋8種[市松/縦じま/ドット/菱格子/青海波/炎(両脇)/光線/紙吹雪]。テーマの色・低透明度で控えめに描画し可読性を維持。配色8×書式8×柄9の組合せで表情づくり） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v157（柄の「炎」「紙吹雪」を作り直し：炎は下から立ち上る火の舌＋火の粉、紙吹雪は多色・くっきり・上から降る華やかな見た目に。両脇固定を廃止） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -2002,7 +2002,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v156'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v157'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2453,7 +2453,7 @@ Object.assign(DICT,{
   'ドット':{en:'Dots',fr:'Pois',pt:'Bolinhas'},
   '菱格子':{en:'Lattice',fr:'Losanges',pt:'Treliça'},
   '青海波':{en:'Waves',fr:'Vagues',pt:'Ondas'},
-  '炎（両脇）':{en:'Flames (sides)',fr:'Flammes (côtés)',pt:'Chamas (laterais)'},
+  '炎':{en:'Flames',fr:'Flammes',pt:'Chamas'},
   '光線':{en:'Rays',fr:'Rayons',pt:'Raios'},
   '紙吹雪':{en:'Confetti',fr:'Confettis',pt:'Confete'},
   'クラシック':{en:'Classic',fr:'Classique',pt:'Clássico'},
@@ -4557,7 +4557,7 @@ const SHARE_PATTERNS=[
   {key:'dots',      name:'ドット'},
   {key:'lattice',   name:'菱格子'},
   {key:'seigaiha',  name:'青海波'},
-  {key:'flame',     name:'炎（両脇）'},
+  {key:'flame',     name:'炎'},
   {key:'rays',      name:'光線'},
   {key:'confetti',  name:'紙吹雪'},
 ];
@@ -4585,16 +4585,37 @@ function drawSharePattern(ctx,st,key,top){
     ctx.strokeStyle=hexA(st.ink,0.07); ctx.lineWidth=3; const R=64;
     for(let row=0,yy=top; yy<SH+R; yy+=R*0.55,row++){ const off=(row&1)?R:0; for(let xx=-R+off; xx<SW+R; xx+=R*2){ for(let k=1;k<=3;k++){ctx.beginPath();ctx.arc(xx,yy,R*k/3,Math.PI,2*Math.PI);ctx.stroke();} } }
   } else if(key==='flame'){
-    [[-1,0],[1,SW]].forEach(pr=>{ const dir=pr[0], bx=pr[1], W=160;
-      const g=ctx.createLinearGradient(bx,0,bx+dir*W,0); g.addColorStop(0,hexA(st.accent,0.24)); g.addColorStop(1,hexA(st.accent,0));
-      ctx.fillStyle=g; ctx.fillRect(dir<0?0:SW-W, top, W, H);
-      ctx.fillStyle=hexA(st.accent,0.15);
-      for(let yy=top-20; yy<SH; yy+=64){ ctx.beginPath(); ctx.moveTo(bx,yy); ctx.quadraticCurveTo(bx+dir*120,yy-36,bx+dir*34,yy-88); ctx.quadraticCurveTo(bx+dir*64,yy-30,bx,yy-6); ctx.closePath(); ctx.fill(); }
-    });
+    // 下から立ち上る炎（火の舌）＋火の粉。色はテーマのアクセントで統一
+    const tongue=(cx,base,w,h)=>{ ctx.beginPath(); ctx.moveTo(cx-w/2,base);
+      ctx.quadraticCurveTo(cx-w*0.55,base-h*0.45, cx-w*0.16,base-h*0.72);
+      ctx.quadraticCurveTo(cx-w*0.05,base-h*0.92, cx,base-h);
+      ctx.quadraticCurveTo(cx+w*0.05,base-h*0.92, cx+w*0.16,base-h*0.72);
+      ctx.quadraticCurveTo(cx+w*0.55,base-h*0.45, cx+w/2,base);
+      ctx.closePath(); };
+    const baseY=SH;
+    const gg=ctx.createLinearGradient(0,SH-320,0,SH); gg.addColorStop(0,hexA(st.accent,0)); gg.addColorStop(1,hexA(st.accent,0.22)); ctx.fillStyle=gg; ctx.fillRect(0,SH-320,SW,320);
+    const row=(alpha,hb,step,phase)=>{ ctx.fillStyle=hexA(st.accent,alpha); for(let cx=phase; cx<SW+step; cx+=step){ const h=hb+(Math.floor(cx*13)%80); tongue(cx,baseY,step*0.95,h); ctx.fill(); } };
+    row(0.13, 240, 172, -34);   // 背面：高く薄く
+    row(0.24, 155, 122, 26);    // 前面：低く濃く
+    ctx.fillStyle=hexA(st.accent,0.55);  // 火の粉
+    for(let i=0;i<28;i++){ const xx=(i*127)%SW, yy=SH-30-((i*89)%330), rr=2+(i%3); ctx.beginPath();ctx.arc(xx,yy,rr,0,6.2832);ctx.fill(); }
   } else if(key==='rays'){
     ctx.save(); ctx.translate(SW/2, top); const n=24; for(let i=0;i<n;i++){ if(i&1)continue; ctx.fillStyle=hexA(st.accent,0.05); const a=(i/n)*6.2832; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,1700,a,a+6.2832/n); ctx.closePath(); ctx.fill(); } ctx.restore();
   } else if(key==='confetti'){
-    for(let i=0;i<90;i++){ const xx=(i*137)%SW; const yy=top+((i*89)%H); const s=8+(i%3)*5; ctx.save(); ctx.translate(xx,yy); ctx.rotate((i%9)*0.7); ctx.fillStyle=(i&1)?hexA(st.accent,0.20):hexA(st.ink,0.12); ctx.fillRect(-s/2,-s/2,s,s*0.5); ctx.restore(); }
+    // お祝い＝多色・くっきり。上ほど密に降らせる（本文の可読性を確保）
+    const cols=['#ffd93b','#ff5d8f','#4dc4ff','#7ed957','#ff8a3d','#b47bff'];
+    const fract=t=>t-Math.floor(t), N=70;
+    for(let i=0;i<N;i++){
+      const rx=fract(i*0.61803399), ry=fract(i*0.7548776+0.11), rr=fract(i*0.3819+0.27);
+      const xx=rx*SW, yy=top+Math.pow(ry,1.5)*H*0.92;
+      ctx.save(); ctx.translate(xx,yy); ctx.rotate((rr-0.5)*3.2); ctx.globalAlpha=0.9; ctx.fillStyle=cols[i%cols.length];
+      const sh=i%3;
+      if(sh===0) ctx.fillRect(-8,-5,16,10);
+      else if(sh===1) ctx.fillRect(-3,-13,6,26);
+      else { ctx.beginPath(); ctx.arc(0,0,7,0,6.2832); ctx.fill(); }
+      ctx.restore();
+    }
+    ctx.globalAlpha=1;
   }
   ctx.restore();
 }
