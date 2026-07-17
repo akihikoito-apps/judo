@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v151（履歴タブ→「メモリー」に改称。個人モードの仲間登録は事務項目[月謝・在籍状況・在籍開始日]を非表示。節目に定型プリセット[初勝利/初大会/優勝/準優勝/第3位/入賞/初出場/自己ベスト/入門/引退]をタップ入力で追加） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v152（写真登録時にクロップ画面を追加：ドラッグで位置調整、スライダー/ピンチでズームして「この範囲で保存」。出力1200x750のJPEG。メモリーカードとシェア画像に反映） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -547,6 +547,10 @@
   .rk-add .big{font-size:40px;display:block;margin-bottom:4px;}
   .rk-photo-ops{position:absolute;right:10px;bottom:10px;display:flex;gap:6px;}
   .rk-op{display:inline-flex;align-items:center;justify-content:center;min-width:38px;min-height:38px;border-radius:9px;border:none;background:rgba(14,24,48,.62);color:#fff;font-size:calc(16px*var(--fs,1));cursor:pointer;margin:0;}
+  .crop-stage{position:relative;width:100%;aspect-ratio:16/10;background:#0b1526;border-radius:12px;overflow:hidden;touch-action:none;user-select:none;}
+  .crop-stage canvas{width:100%;height:100%;display:block;cursor:move;touch-action:none;}
+  .crop-stage::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25);border-radius:12px;}
+  #cropZoom{width:100%;accent-color:var(--gold);}
   .rk-body{padding:12px 14px 14px;}
   .rk-date{font-size:calc(12px*var(--fs,1));color:var(--muted);font-weight:700;}
   .rk-ttl{font-size:calc(17px*var(--fs,1));font-weight:800;color:var(--navy);margin:2px 0 8px;}
@@ -1368,6 +1372,24 @@ function applyUpdate(){
   </div>
 </div>
 
+<!-- 写真クロップ（位置調整・ズーム）モーダル -->
+<div class="modal-bg" id="photoCropModal">
+  <div class="modal" style="max-width:430px">
+    <h3 style="margin-top:0">写真の位置・ズーム</h3>
+    <div class="crop-stage">
+      <canvas id="cropCanvas" width="640" height="400"
+        onpointerdown="cropDown(event)" onpointermove="cropMove(event)" onpointerup="cropUp(event)" onpointercancel="cropUp(event)"></canvas>
+    </div>
+    <label class="fld">ズーム</label>
+    <input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1" oninput="cropOnZoom()">
+    <p class="list-mini">画像をドラッグして位置を調整、スライダー（またはピンチ）でズームできます。</p>
+    <div class="row">
+      <button class="btn ghost" onclick="closeModal('photoCropModal')">やめる</button>
+      <button class="btn gold" onclick="cropConfirm()">この範囲で保存</button>
+    </div>
+  </div>
+</div>
+
 <nav class="tabbar">
   <button data-tab="rireki" onclick="switchTab('rireki')" style="display:none"><span class="ico">📖</span><span class="tlbl" data-i18n="メモリー">メモリー</span></button>
   <button data-tab="analysis" onclick="switchTab('analysis')" style="display:none"><span class="ico">📈</span><span class="tlbl" data-i18n="分析">分析</span></button>
@@ -1989,7 +2011,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v151'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v152'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2408,6 +2430,10 @@ Object.assign(DICT,{
   '自己ベスト':{en:'Personal best',fr:'Record personnel',pt:'Recorde pessoal'},
   '入門':{en:'Started judo',fr:'Début du judo',pt:'Início no judô'},
   '引退':{en:'Retirement',fr:'Retraite',pt:'Aposentadoria'},
+  '写真の位置・ズーム':{en:'Position & zoom',fr:'Position et zoom',pt:'Posição e zoom'},
+  'ズーム':{en:'Zoom',fr:'Zoom',pt:'Zoom'},
+  'この範囲で保存':{en:'Save this crop',fr:'Enregistrer ce cadrage',pt:'Salvar este recorte'},
+  '画像をドラッグして位置を調整、スライダー（またはピンチ）でズームできます。':{en:'Drag the image to reposition; use the slider (or pinch) to zoom.',fr:'Faites glisser l’image pour la repositionner ; utilisez le curseur (ou le pincement) pour zoomer.',pt:'Arraste a imagem para reposicionar; use o controle (ou pinça) para dar zoom.'},
   'この大会のひとことメモ（任意）':{en:'A note about this event (optional)',fr:'Une note sur cet événement (facultatif)',pt:'Uma nota sobre este evento (opcional)'},
   'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
   'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'},
@@ -4308,11 +4334,93 @@ function rkPhotoPick(evt,i){
   if(evt.target)evt.target.value='';
   if(!file)return;
   const ev=rkEvents[i]; if(!ev)return;
-  rkCompressImage(file,1000,0.72).then(data=>{
-    if(!DB.eventPhotos)DB.eventPhotos={};
-    DB.eventPhotos[rkNoteKey(ev)]=data;
-    save(); renderRireki(); toast(T('写真を追加しました'));
-  }).catch(()=>toast(T('画像を読めませんでした')));
+  // v152: 選択後にクロップ（位置・ズーム）モーダルを開いてから保存
+  const reader=new FileReader();
+  reader.onload=e=>cropOpen(e.target.result, rkNoteKey(ev));
+  reader.onerror=()=>toast(T('画像を読めませんでした'));
+  reader.readAsDataURL(file);
+}
+/* v152: 写真クロップ（位置調整・ズーム）。フレーム=16:10、出力1200x750のJPEG */
+const CROP_W=640, CROP_H=400;
+let cropImg=null, cropTargetKey=null, cropBase=1, cropScale=1, cropZoom=1, cropOffX=0, cropOffY=0;
+let cropDrag=null; const cropPointers=new Map(); let cropPinch=null;
+function cropOpen(dataUrl,key){
+  cropTargetKey=key;
+  const img=new Image();
+  img.onload=()=>{
+    cropImg=img;
+    cropBase=Math.max(CROP_W/img.width, CROP_H/img.height);   // フレームを覆う最小倍率
+    cropZoom=1; cropScale=cropBase*cropZoom;
+    cropOffX=(CROP_W-img.width*cropScale)/2;
+    cropOffY=(CROP_H-img.height*cropScale)/2;
+    const z=document.getElementById('cropZoom'); if(z)z.value='1';
+    cropDraw();
+    openModal('photoCropModal');
+  };
+  img.onerror=()=>toast(T('画像を読めませんでした'));
+  img.src=dataUrl;
+}
+function cropClamp(){
+  const iw=cropImg.width*cropScale, ih=cropImg.height*cropScale;
+  cropOffX=Math.min(0,Math.max(CROP_W-iw,cropOffX));
+  cropOffY=Math.min(0,Math.max(CROP_H-ih,cropOffY));
+}
+function cropDraw(){
+  const cv=document.getElementById('cropCanvas'); if(!cv||!cropImg)return;
+  const ctx=cv.getContext('2d'); ctx.clearRect(0,0,CROP_W,CROP_H);
+  ctx.drawImage(cropImg,cropOffX,cropOffY,cropImg.width*cropScale,cropImg.height*cropScale);
+}
+function cropSetZoom(z,cx,cy){
+  z=Math.min(4,Math.max(1,z));
+  const newScale=cropBase*z, k=newScale/cropScale;
+  cropOffX=cx-(cx-cropOffX)*k;
+  cropOffY=cy-(cy-cropOffY)*k;
+  cropScale=newScale; cropZoom=z;
+  cropClamp(); cropDraw();
+}
+function cropOnZoom(){ const z=parseFloat(document.getElementById('cropZoom').value)||1; cropSetZoom(z,CROP_W/2,CROP_H/2); }
+function cropCanvasPt(e){ const cv=document.getElementById('cropCanvas'); const r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*(CROP_W/r.width), y:(e.clientY-r.top)*(CROP_H/r.height)}; }
+function cropDown(e){
+  if(!cropImg)return;
+  cropPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  const cv=document.getElementById('cropCanvas'); try{cv.setPointerCapture(e.pointerId);}catch(_){}
+  if(cropPointers.size===1){const p=cropCanvasPt(e);cropDrag={x:p.x,y:p.y};}
+  else if(cropPointers.size===2){const pts=[...cropPointers.values()];cropPinch={d:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y)||1,z:cropZoom};cropDrag=null;}
+}
+function cropMove(e){
+  if(!cropPointers.has(e.pointerId)||!cropImg)return;
+  cropPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(cropPinch&&cropPointers.size>=2){
+    const pts=[...cropPointers.values()];
+    const d=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y)||1;
+    let z=Math.min(4,Math.max(1,cropPinch.z*(d/cropPinch.d)));
+    const zi=document.getElementById('cropZoom'); if(zi)zi.value=String(z);
+    cropSetZoom(z,CROP_W/2,CROP_H/2);
+  }else if(cropDrag){
+    const p=cropCanvasPt(e);
+    cropOffX+=p.x-cropDrag.x; cropOffY+=p.y-cropDrag.y;
+    cropDrag={x:p.x,y:p.y};
+    cropClamp(); cropDraw();
+  }
+}
+function cropUp(e){
+  cropPointers.delete(e.pointerId);
+  if(cropPointers.size<2)cropPinch=null;
+  if(cropPointers.size===0)cropDrag=null;
+  else if(cropPointers.size===1){const p=cropCanvasPt(e);cropDrag={x:p.x,y:p.y};}
+}
+function cropConfirm(){
+  if(!cropImg||!cropTargetKey){closeModal('photoCropModal');return;}
+  const outW=1200,outH=750,r=outW/CROP_W;
+  const oc=document.createElement('canvas');oc.width=outW;oc.height=outH;
+  const octx=oc.getContext('2d');
+  octx.drawImage(cropImg,cropOffX*r,cropOffY*r,cropImg.width*cropScale*r,cropImg.height*cropScale*r);
+  const data=oc.toDataURL('image/jpeg',0.72);
+  if(!DB.eventPhotos)DB.eventPhotos={};
+  DB.eventPhotos[cropTargetKey]=data;
+  save();closeModal('photoCropModal');
+  cropImg=null;cropTargetKey=null;
+  renderRireki();toast(T('写真を追加しました'));
 }
 function rkPhotoDel(i){
   const ev=rkEvents[i]; if(!ev)return;
