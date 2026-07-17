@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v157（柄の「炎」「紙吹雪」を作り直し：炎は下から立ち上る火の舌＋火の粉、紙吹雪は多色・くっきり・上から降る華やかな見た目に。両脇固定を廃止） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v158（個人モードの事務機能を整理：仲間タブの「退会も表示」を非表示(3列化)、仲間の設定の「月謝額」タブを非表示、試合記録の選手選択は主役(⭐)を先頭＆既定に・属性フィルタを非表示） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -266,6 +266,7 @@
   /* 月/年度トグル */
   .view-toggle{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
   .mate-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 16px;}
+  .mate-actions.personal{grid-template-columns:repeat(3,1fr);}
   .mate-actions button{min-height:48px;font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;padding:6px 4px;border:2px solid var(--line);background:#fff;color:var(--muted);word-break:break-word;}
   .mate-actions .act-toggle.on{background:#e8821e;color:#fff;border-color:#e8821e;}
   .mate-actions .act-outline{border-color:var(--navy);color:var(--navy);}
@@ -2002,7 +2003,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v157'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v158'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -3472,8 +3473,11 @@ function fillBSelfOptions(keepId){
   let arr=DB.students;
   if(bSelfCat==='未設定')arr=DB.students.filter(s=>!s.category||!mateGroupOrder().includes(s.category));
   else if(bSelfCat!=='全員')arr=DB.students.filter(s=>s.category===bSelfCat);
+  // v158: 個人モードは主役(isSelf)を先頭に並べ、⭐を付けて選びやすく
+  const personal=(DB.mode==='personal');
+  if(personal)arr=arr.slice().sort((a,b)=>(b.isSelf?1:0)-(a.isSelf?1:0));
   const sel=document.getElementById('bSelfId');
-  sel.innerHTML=arr.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  sel.innerHTML=arr.map(s=>`<option value="${s.id}">${(personal&&s.isSelf)?'⭐ ':''}${esc(s.name)}</option>`).join('');
   if(keepId&&arr.some(s=>s.id===keepId))sel.value=keepId;
 }
 function pickBSelfCat(c){
@@ -3515,7 +3519,9 @@ function openBoutModal(boutId){
       setBSelf(pf.selfId);
     }else{
       bSelfCat='全員'; renderBSelfCatPick(); fillBSelfOptions();
-      document.getElementById('bSelfId').value=(DB.students[0]?DB.students[0].id:'');
+      // v158: 個人モードは主役を既定選択に
+      const defId=(DB.mode==='personal')?((DB.students.find(s=>s.isSelf)||DB.students[0]||{}).id):(DB.students[0]?DB.students[0].id:'');
+      document.getElementById('bSelfId').value=defId||'';
     }
     document.getElementById('bDivision').value=(pf&&pf.division)||'';
     document.getElementById('bRound').value=(pf&&pf.round)||'';
@@ -3531,6 +3537,8 @@ function openBoutModal(boutId){
     if(pickedOppMate)document.getElementById('bOppId').value=(pf&&pf.oppId)||'';
   }
   renderResultPick();renderGripPick();renderBGradePicks();renderBRoundPicks();applyBoutResultUI();
+  // v158: 個人モードは属性フィルタ（事務向け）を隠す＝主役が選びやすい
+  const catPick=document.getElementById('bSelfCatPick'); if(catPick)catPick.style.display=(DB.mode==='personal')?'none':'';
   document.getElementById('boutDeleteBtn').style.display=editingBout?'block':'none';
   openModal('boutModal');
 }
@@ -5023,6 +5031,8 @@ function openFeePresetModal(){
   renderGradeSettings();
   openMemberSettingsEditors();
   updateSortUI();
+  // v158: 個人モードでは月謝額タブは不要
+  const feeTab=document.getElementById('msTabFeeB'); if(feeTab)feeTab.style.display=(DB.mode==='personal')?'none':'';
   setMemberSettingsTab('sort');
   openModal('feePresetModal');
 }
@@ -5737,6 +5747,10 @@ function renderMates(){
       <button class="${mateView==='self'?'on':''}" onclick="setMateView('self')">⭐ ${T('自分（主役）')}</button>
       <button class="${mateView==='others'?'on':''}" onclick="setMateView('others')">👥 ${T('仲間')}</button>
     </div>`:'';
+  // v158: 個人モードでは事務向けの「退会も表示」を隠し、ボタン列を詰める
+  const ma=document.querySelector('#screen-mates .mate-actions'); if(ma)ma.classList.toggle('personal',personal);
+  const rtog=document.getElementById('retiredToggle'); if(rtog)rtog.style.display=personal?'none':'';
+  if(personal&&showRetired){ showRetired=false; }
   const canReorder=(effectiveSort()==='grade')&&!selfView;
   if(!canReorder&&reorderMode)reorderMode=false;
   const rt=document.getElementById('reorderToggle');
