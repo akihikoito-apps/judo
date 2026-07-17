@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v158（個人モードの事務機能を整理：仲間タブの「退会も表示」を非表示(3列化)、仲間の設定の「月謝額」タブを非表示、試合記録の選手選択は主役(⭐)を先頭＆既定に・属性フィルタを非表示） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v159（選手登録：役職例を簡略化、柔道メンバーIDは主役のみ登録可。メモリーカード：大会の「種類」を色付き・白抜きマーク(スケジュール設定の色に連動)にし、タイトルは大会名のみ表示。シェア画像も同様） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -559,6 +559,7 @@
   .rk-body{padding:12px 14px 14px;}
   .rk-date{font-size:calc(12px*var(--fs,1));color:var(--muted);font-weight:700;}
   .rk-ttl{font-size:calc(17px*var(--fs,1));font-weight:800;color:var(--navy);margin:2px 0 8px;}
+  .rk-type{display:inline-block;color:#fff;font-size:calc(11.5px*var(--fs,1));font-weight:800;padding:2px 9px;border-radius:7px;margin-right:8px;vertical-align:middle;letter-spacing:.02em;}
   .rk-rec{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
   .rk-pill{border-radius:9px;padding:3px 10px;font-weight:800;font-size:calc(13px*var(--fs,1));}
   .rk-pill.w{background:#eaf5ee;color:var(--green);} .rk-pill.l{background:#faecea;color:var(--red);} .rk-pill.d{background:#eef0f4;color:var(--muted);}
@@ -1421,7 +1422,7 @@ function applyUpdate(){
       <select id="gradeSelect"></select>
     </div>
     <label class="fld">役職（任意）</label>
-    <input type="text" id="stRole" placeholder="例：主将・館長・事務">
+    <input type="text" id="stRole" placeholder="例：主将・キャプテン">
     <label class="fld">段位 / 級（任意）</label>
     <div class="cat-pick" id="rankPick"></div>
     <input type="text" id="stRankFree" placeholder="その他（自由記載）" style="margin-top:8px">
@@ -1490,8 +1491,10 @@ function applyUpdate(){
     </div><!-- /stOfficeOnly -->
     <label class="fld">生年月日（任意）<span id="ageDisplay" style="color:var(--navy);font-weight:700"></span></label>
     <input type="date" id="stBirth" onchange="updateAgeDisplay()">
-    <label class="fld">柔道メンバーID（任意）</label>
-    <input type="text" id="stJudoId" placeholder="例：1234567">
+    <div id="stJudoIdRow">
+      <label class="fld">柔道メンバーID（任意）</label>
+      <input type="text" id="stJudoId" placeholder="例：1234567">
+    </div>
     <label class="fld">備考（任意）</label>
     <input type="text" id="stNote" placeholder="例：アレルギーあり／〇〇大会出場予定">
     <div class="row">
@@ -2003,7 +2006,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v158'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v159'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -4040,7 +4043,8 @@ function allBoutsBySelf(){
     const sched=DB.schedule.find(s=>s.id===schedId);
     const mr=DB.matchResults[schedId];
     const push=(b,sheet)=>{(map[b.selfId]=map[b.selfId]||[]).push(Object.assign({},b,{
-      schedName:sched?schedLabel(sched):T('(削除)'),schedDate:sched?sched.date:'',sheet,schedId
+      schedName:sched?schedLabel(sched):T('(削除)'),schedDate:sched?sched.date:'',sheet,schedId,
+      schedType:sched?(sched.name||''):'', schedTitle:sched?(sched.title||''):''   // v159: 種類バッジ用
     }));};
     (mr.individual||[]).forEach(b=>{
       push(b,'個人戦');
@@ -4277,7 +4281,7 @@ function renderRireki(){
   chips.innerHTML=withB.map(s=>`<button class="${s.id===rkSelfId?'on':''}" onclick="rkSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join('');
   // 大会（schedId）単位にまとめる
   const evMap={};
-  (map[rkSelfId]||[]).forEach(b=>{const k=b.schedId||('x'+b.schedName);(evMap[k]=evMap[k]||{kind:'match',schedId:b.schedId||'',name:b.schedName,date:b.schedDate,bouts:[]}).bouts.push(b);});
+  (map[rkSelfId]||[]).forEach(b=>{const k=b.schedId||('x'+b.schedName);(evMap[k]=evMap[k]||{kind:'match',schedId:b.schedId||'',name:b.schedName,schedType:b.schedType||'',schedTitle:b.schedTitle||'',date:b.schedDate,bouts:[]}).bouts.push(b);});
   const matchEvents=Object.values(evMap);
   // 節目（昇級/昇段/自由）をマージ
   const miles=((DB.milestones&&DB.milestones[rkSelfId])||[]).map(m=>({kind:'milestone',id:m.id,type:m.type,title:m.title,date:m.date}));
@@ -4329,16 +4333,25 @@ function rkMilestoneCardHtml(ev,i){
     </div>
   </div>`;
 }
+// v159: 大会の「種類」を色付きマーク（白抜き文字）に。タイトルは大会名のみ
+function rkTypeInfo(ev){
+  const hasTitle=!!(ev.schedTitle&&ev.schedTitle.trim());
+  const type=(hasTitle&&ev.schedType)?ev.schedType:'';
+  const title=hasTitle?ev.schedTitle:(ev.name||'');
+  return {type,title};
+}
 function rkCardHtml(ev,i){
   const st=rkStats(ev), cls=st.w>st.l?'win':(st.l>st.w?'lose':'');
   const key=rkNoteKey(ev), cmt=(DB.eventNotes&&DB.eventNotes[key])||'';
   const wz=st.wazas.map(x=>`<span class="c">${esc(T(x[0]))} ${x[1]}</span>`).join('');
   const photoArea=rkPhotoAreaHtml(key,i);
+  const ti=rkTypeInfo(ev);
+  const typeBadge=ti.type?`<span class="rk-type" style="background:${typeColor(ti.type)}">${esc(T(ti.type))}</span>`:'';
   return `<div class="rk-card">
     <div class="rk-photo">${photoArea}<div class="rk-badge ${cls}">${st.w}${T('勝')}${st.l}${T('敗')}${st.d?st.d+T('分'):''}</div></div>
     <div class="rk-body">
       <div class="rk-date">${(ev.date||'').replace(/-/g,'/')}</div>
-      <div class="rk-ttl">${esc(ev.name)}</div>
+      <div class="rk-ttl">${typeBadge}${esc(ti.title)}</div>
       <div class="rk-rec"><span class="rk-pill w">${st.w}${T('勝')}</span><span class="rk-pill l">${st.l}${T('敗')}</span>${st.d?`<span class="rk-pill d">${st.d}${T('分')}</span>`:''}</div>
       ${wz?`<div class="rk-wz">${wz}</div>`:''}
       <textarea class="rk-cmt" placeholder="${T('この大会のひとことメモ（任意）')}" onchange="rkSaveNote(this)" data-key="${esc(key)}">${esc(cmt)}</textarea>
@@ -4705,20 +4718,24 @@ function _drawRkShare(ev,heroImg){
   drawSharePattern(ctx,st,sharePattern,panelTop);
   const x=80, maxW=SW-160;
   ctx.textAlign='left'; ctx.textBaseline='top';
+  const ti=rkTypeInfo(ev);
   const rec=stt.w+T('勝')+stt.l+T('敗')+(stt.d?stt.d+T('分'):'');
   const recColor=stt.w>stt.l?'#37c26e':(stt.l>stt.w?'#ff5a4d':st.accent);
   shareLS(ctx,fp.ls);
-  const tt=shareFit(ctx,ev.name||'',maxW,2, heroImg?66:82, 40, fp.tw);
+  const tt=shareFit(ctx,ti.title||'',maxW,2, heroImg?66:82, 40, fp.tw);
   shareLS(ctx,0);
   const cmt=(DB.eventNotes&&DB.eventNotes[rkNoteKey(ev)])||'';
   sfont(ctx,fp.bw,30); const noteLines=cmt?shareWrapLines(ctx,'「'+cmt+'」',maxW).slice(0,2):[];
   const wz=stt.wazas||[];
   const lhT=tt.size*1.26;
-  const hRec=34,g1=16, hTitle=tt.lines.length*lhT,g2=26, th=112,gT=30, hWaza=wz.length?(40+58):0, hNote=noteLines.length*46;
-  const total=hRec+g1+hTitle+g2+th+(hWaza?gT+hWaza:0)+(hNote?26+hNote:0);
+  const hTop=48,g1=16, hTitle=tt.lines.length*lhT,g2=26, th=112,gT=30, hWaza=wz.length?(40+58):0, hNote=noteLines.length*46;
+  const total=hTop+g1+hTitle+g2+th+(hWaza?gT+hWaza:0)+(hNote?26+hNote:0);
   const areaTop=(heroImg?panelTop:0)+(heroImg?44:130), areaBot=1150;
   let y=areaTop+Math.max(0,((areaBot-areaTop)-total)/2);
-  ctx.fillStyle=recColor; sfont(ctx,fp.tw,34); ctx.fillText(rec,x,y); y+=hRec+g1;
+  // 種類バッジ（色付き・白抜き）＋戦績を同じ行に
+  let curX=x;
+  if(ti.type){ sfont(ctx,fp.tw,28); const lbl=T(ti.type); const pw=ctx.measureText(lbl).width+34; ctx.fillStyle=typeColor(ti.type); rkRR(ctx,curX,y,pw,44,11); ctx.fill(); ctx.fillStyle='#fff'; ctx.textBaseline='middle'; ctx.fillText(lbl,curX+17,y+23); ctx.textBaseline='top'; curX+=pw+16; }
+  ctx.fillStyle=recColor; sfont(ctx,fp.tw,32); ctx.textBaseline='middle'; ctx.fillText(rec,curX,y+23); ctx.textBaseline='top'; y+=hTop+g1;
   shareLS(ctx,fp.ls); ctx.fillStyle=st.ink; tt.lines.forEach((ln,i)=>{ sfont(ctx,fp.tw,tt.size); ctx.fillText(ln,x,y+i*lhT); }); shareLS(ctx,0); y+=hTitle+g2;
   const gap=24, tw=(maxW-2*gap)/3, ty=y;
   const tiles=[[T('勝'),stt.w,'#37c26e'],[T('敗'),stt.l,'#ff5a4d'],[T('分'),stt.d,st.sub]];
@@ -5983,7 +6000,10 @@ function pickStSelf(v){
   pickedStSelf=!!v;
   document.getElementById('stSelfMate').classList.toggle('on',!pickedStSelf);
   document.getElementById('stSelfMe').classList.toggle('on',pickedStSelf);
+  updateStJudoIdVis();
 }
+// v159: 柔道メンバーIDは「自分（主役）」だけ登録できる（事務モードは全員に表示）
+function updateStJudoIdVis(){ const row=document.getElementById('stJudoIdRow'); if(row)row.style.display=(DB.mode!=='personal'||pickedStSelf)?'':'none'; }
 let pickedSex='';
 function pickSex(s){
   pickedSex=s;
