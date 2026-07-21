@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v162（団体戦の取り込み：既存カードがあるときは「取り込み先」を必ず選ばせる方式に変更[自動で新規に倒さない]。回戦や相手名が違っても全カードを選択肢に表示し、有力候補に★。未選択のままは取り込み不可） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v163（決まり技レーダーのバグ修正：決まり技が空欄でも「内容」欄で分類するようにし、判定・指導差・反則・不戦・棄権・合わせ技が「その他投技」に誤集計されていた問題を解消。負け試合は技が空のことが多く影響が大きかった） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -2031,7 +2031,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v162'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v163'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -3901,8 +3901,30 @@ function raSelectAxes(bouts,result){
   return {names:[a[0],a[1],a[2],a[3],'その他投技','合わせ技','寝技','反則・判定','不戦・棄権'],keys:a};
 }
 // v131: 0-3=上位投技 / 4=その他投技(上位以外の投技・不明) / 5=合わせ技 / 6=寝技 / 7=反則・判定 / 8=不戦・棄権
-function raBucket(w,keys){if(w===keys[0])return 0;if(w===keys[1])return 1;if(w===keys[2])return 2;if(w===keys[3])return 3;if(w==='合わせ技')return 5;const g=raGroup(w);if(g&&RA_GROUND.has(g))return 6;if(RA_HANSOKU.has(w))return 7;if(RA_FUSEN.has(w))return 8;return 4;}
-function raPct(bouts,result,keys){const c=[0,0,0,0,0,0,0,0,0];let tot=0;bouts.forEach(b=>{if(b.result!==result)return;tot++;c[raBucket(b.waza,keys)]++;});return {arr:c.map(v=>tot?v/tot*100:0),tot};}
+// v163: 決まり技が空でも「内容（grade）」で判定できるように。判定負け等が その他投技 に落ちる不具合の修正。
+const RA_G_FUSEN=/(不戦|棄権)/;
+const RA_G_HANSOKU=/(指導|反則|判定|優勢)/;
+const RA_G_AWASE=/合わせ/;
+function raBucket(w,keys,grade){
+  if(w===keys[0])return 0;
+  if(w===keys[1])return 1;
+  if(w===keys[2])return 2;
+  if(w===keys[3])return 3;
+  if(w==='合わせ技')return 5;
+  const g=raGroup(w);
+  if(g&&RA_GROUND.has(g))return 6;
+  if(RA_HANSOKU.has(w))return 7;
+  if(RA_FUSEN.has(w))return 8;
+  // 決まり技で判別できないときは内容欄で補う（負け試合は技が空のことが多い）
+  const gr=(grade||'').trim();
+  if(gr){
+    if(RA_G_FUSEN.test(gr))return 8;
+    if(RA_G_HANSOKU.test(gr))return 7;
+    if(RA_G_AWASE.test(gr))return 5;
+  }
+  return 4;
+}
+function raPct(bouts,result,keys){const c=[0,0,0,0,0,0,0,0,0];let tot=0;bouts.forEach(b=>{if(b.result!==result)return;tot++;c[raBucket(b.waza,keys,b.grade)]++;});return {arr:c.map(v=>tot?v/tot*100:0),tot};}
 function raRadarSVG(ax,series,scaleMax,subCol){
   const fs=raFsNow(),cx=150,cy=150,R=78,n=9;
   const ang=i=>(-Math.PI/2)+(2*Math.PI*i/n),pt=(i,r)=>[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];
@@ -3940,7 +3962,7 @@ function raSectionHtml(bs,teamBs){
     ${wl}
     <div class="ra-single">${svg}</div>
     <div class="ra-legend"><span><i style="background:${col}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>
-    <div class="ra-note">軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則勝ち/判定勝ち）・不戦・棄権（不戦勝/棄権勝ち）。金の破線＝道場全体。</div>
+    <div class="ra-note">軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。</div>
   </div>`;
 }
 function openWazaPicker(cb,current){
