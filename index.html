@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v159（選手登録：役職例を簡略化、柔道メンバーIDは主役のみ登録可。メモリーカード：大会の「種類」を色付き・白抜きマーク(スケジュール設定の色に連動)にし、タイトルは大会名のみ表示。シェア画像も同様） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v160（LINE連携：メモリーカードに「📩 道場に送る」を新設。個人の試合結果を道場側の「テキストから取り込み」形式で書き出し、共有シート(LINE等)で送信／コピー可能に。担当者は貼り付けるだけで登録できる） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -543,6 +543,8 @@
   .rk-badge.mile{background:rgba(200,164,77,.95);color:#3a2b00;}
   .rk-pill.mile{background:#f6efdc;color:#7a5c00;}
   .rk-actions .edit{background:#fff;color:var(--navy);}
+  .rk-actions .dojo{background:#eaf7ef;color:#1a7a44;border-color:#9fd8b8;}
+  .dojo-send-ta{width:100%;box-sizing:border-box;min-height:220px;font-family:inherit;font-size:calc(13px*var(--fs,1));line-height:1.7;border:1.5px solid var(--line);border-radius:10px;padding:10px;background:#faf9f5;color:var(--ink);resize:vertical;}
   .share-style-label{color:rgba(255,255,255,.7);font-size:calc(12.5px*var(--fs,1));font-weight:700;margin:12px 2px 8px;}
   .share-styles{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
   .share-styles button{flex:0 0 auto;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:16px;padding:7px 15px;font-family:inherit;font-weight:700;font-size:calc(13px*var(--fs,1));cursor:pointer;white-space:nowrap;}
@@ -1365,6 +1367,20 @@ function applyUpdate(){
   </div>
 </div>
 
+<!-- 道場に送る（試合結果をテキストで書き出し→LINE等で共有） -->
+<div class="modal-bg" id="dojoSendModal">
+  <div class="modal">
+    <h3 style="margin-top:0">道場に送る</h3>
+    <p class="list-mini">この内容を、LINEなどで道場の担当者に送ってください。担当者はアプリの「試合結果 › 📋テキストから取り込み」に貼り付けるだけで登録できます。</p>
+    <textarea id="dojoSendText" readonly class="dojo-send-ta"></textarea>
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost" onclick="closeModal('dojoSendModal')">閉じる</button>
+      <button class="btn" style="background:#06C755;color:#fff" onclick="dojoSendShare()">送る</button>
+    </div>
+    <button class="btn ghost full" style="margin-top:10px" onclick="dojoSendCopy()">コピーする</button>
+  </div>
+</div>
+
 <!-- 写真クロップ（位置調整・ズーム）モーダル -->
 <div class="modal-bg" id="photoCropModal">
   <div class="modal" style="max-width:430px">
@@ -2006,7 +2022,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v159'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v160'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2451,6 +2467,13 @@ Object.assign(DICT,{
   'ワイド':{en:'Wide',fr:'Large',pt:'Larga'},
   '太明朝':{en:'Serif Bold',fr:'Serif gras',pt:'Serifada negrito'},
   '柄・模様を選ぶ':{en:'Choose a pattern',fr:'Choisir un motif',pt:'Escolha um padrão'},
+  '道場に送る':{en:'Send to dojo',fr:'Envoyer au dojo',pt:'Enviar ao dojô'},
+  'この内容を、LINEなどで道場の担当者に送ってください。担当者はアプリの「試合結果 › 📋テキストから取り込み」に貼り付けるだけで登録できます。':{en:'Send this text to your dojo staff (e.g. via LINE). They can register it by pasting into “Match results › 📋 Import from text”.',fr:'Envoyez ce texte au responsable du dojo (ex. via LINE). Il lui suffit de le coller dans « Résultats › 📋 Importer depuis un texte ».',pt:'Envie este texto ao responsável do dojô (ex.: via LINE). Basta colar em “Resultados › 📋 Importar de texto”.'},
+  '送る':{en:'Send',fr:'Envoyer',pt:'Enviar'},
+  'コピーする':{en:'Copy',fr:'Copier',pt:'Copiar'},
+  'コピーしました':{en:'Copied',fr:'Copié',pt:'Copiado'},
+  'コピーできませんでした':{en:'Could not copy',fr:'Copie impossible',pt:'Não foi possível copiar'},
+  '送る試合結果がありません':{en:'No match results to send',fr:'Aucun résultat à envoyer',pt:'Nenhum resultado para enviar'},
   'なし':{en:'None',fr:'Aucun',pt:'Nenhum'},
   '市松':{en:'Checkered',fr:'Damier',pt:'Xadrez'},
   '縦じま':{en:'Stripes',fr:'Rayures',pt:'Listras'},
@@ -4355,11 +4378,48 @@ function rkCardHtml(ev,i){
       <div class="rk-rec"><span class="rk-pill w">${st.w}${T('勝')}</span><span class="rk-pill l">${st.l}${T('敗')}</span>${st.d?`<span class="rk-pill d">${st.d}${T('分')}</span>`:''}</div>
       ${wz?`<div class="rk-wz">${wz}</div>`:''}
       <textarea class="rk-cmt" placeholder="${T('この大会のひとことメモ（任意）')}" onchange="rkSaveNote(this)" data-key="${esc(key)}">${esc(cmt)}</textarea>
-      <div class="rk-actions"><button class="share" onclick="rkOpenShare(${i})">📤 ${T('シェア画像')}</button></div>
+      <div class="rk-actions"><button class="dojo" onclick="rkSendToDojo(${i})">📩 ${T('道場に送る')}</button><button class="share" onclick="rkOpenShare(${i})">📤 ${T('シェア画像')}</button></div>
     </div>
   </div>`;
 }
 function rkSaveNote(el){const key=el.getAttribute('data-key'),v=el.value.trim();if(!DB.eventNotes)DB.eventNotes={};if(v)DB.eventNotes[key]=v;else delete DB.eventNotes[key];save();}
+/* ===== v160: 道場に送る＝個人モードの試合結果を、道場側の「テキストから取り込み」形式で書き出してLINE等で共有 ===== */
+let dojoSendCache='';
+function rkDojoText(ev){
+  const s=DB.students.find(x=>x.id===rkSelfId)||{name:''};
+  const ti=rkTypeInfo(ev);
+  const L=[];
+  L.push('【My道場 試合きろく】');
+  L.push('選手｜'+(s.name||''));
+  L.push('大会｜'+(ti.title||ev.name||''));
+  L.push('日付｜'+((ev.date||'').replace(/-/g,'/')));
+  L.push('種別｜個人');
+  L.push('--- 試合 ---');
+  (ev.bouts||[]).forEach(b=>{
+    const note=[b.note||'', (b.sheet==='団体戦'?'団体戦':'')].filter(Boolean).join(' / ');
+    L.push([b.result||'', b.waza||'', b.grip||'', b.grade||'', boutOppName(b)||'', b.oppAffil||'', b.round||'', note].join('｜'));
+  });
+  return L.join('\n');
+}
+function rkSendToDojo(i){
+  const ev=rkEvents[i]; if(!ev||ev.kind==='milestone')return;
+  if(!(ev.bouts||[]).length){toast(T('送る試合結果がありません'));return;}
+  dojoSendCache=rkDojoText(ev);
+  document.getElementById('dojoSendText').value=dojoSendCache;
+  openModal('dojoSendModal');
+}
+async function dojoSendShare(){
+  const text=dojoSendCache;
+  if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
+  dojoSendCopy();
+}
+async function dojoSendCopy(){
+  try{ await navigator.clipboard.writeText(dojoSendCache); toast(T('コピーしました')); return; }catch(e){}
+  const ta=document.getElementById('dojoSendText');
+  try{ ta.removeAttribute('readonly'); ta.select(); document.execCommand('copy'); toast(T('コピーしました')); }
+  catch(_){ toast(T('コピーできませんでした')); }
+  ta.setAttribute('readonly','readonly');
+}
 /* v149: 履歴カードの写真（1大会1枚・自動圧縮してDBに保存＝バックアップに同梱） */
 function rkCompressImage(file,maxSide,quality){
   return new Promise((resolve,reject)=>{
