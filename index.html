@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v161（団体戦カードの乱立を修正：取り込みの統合判定を表記ゆれ対応[相手チーム名の正規化・部分一致／回戦の正規化／両方未記入はまとめる]に強化し、同じ相手で回戦違いは警告表示。さらに対戦カードの「統合」機能を追加し、既に割れたカードを1枚にまとめられるように） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v162（団体戦の取り込み：既存カードがあるときは「取り込み先」を必ず選ばせる方式に変更[自動で新規に倒さない]。回戦や相手名が違っても全カードを選択肢に表示し、有力候補に★。未選択のままは取り込み不可） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -695,6 +695,8 @@
   .imp-tgt{padding:9px 0 2px;}
   .imp-tgt .imp-tgt-b{font-weight:800;font-size:calc(11px*var(--fs,1));border-radius:8px;padding:2px 8px;margin-left:6px;background:#eaf5ee;color:var(--green);border:1px solid #bfe0cb;}
   .imp-warn{margin-top:7px;background:#fdf3e3;border:1px solid #e8c99a;color:#8a5a12;border-radius:9px;padding:7px 10px;font-size:calc(12px*var(--fs,1));font-weight:700;line-height:1.5;}
+  .imp-tgt .imp-tgt-b.need{background:#fdecea;color:var(--red);border-color:#f0b7ae;}
+  .imp-tgt.need .imp-tgt-sel{border-color:var(--red);background:#fffafa;}
   .imp-tgt .imp-tgt-b.new{background:#eef1f8;color:var(--navy);border-color:#cfd8ea;}
   .imp-tgt-sel{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);box-sizing:border-box;}
   .mate-count{font-size:calc(12px*var(--fs,1));font-weight:700;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1px 9px;}
@@ -2029,7 +2031,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v161'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v162'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -2475,6 +2477,9 @@ Object.assign(DICT,{
   '太明朝':{en:'Serif Bold',fr:'Serif gras',pt:'Serifada negrito'},
   '柄・模様を選ぶ':{en:'Choose a pattern',fr:'Choisir un motif',pt:'Escolha um padrão'},
   '道場に送る':{en:'Send to dojo',fr:'Envoyer au dojo',pt:'Enviar ao dojô'},
+  '選んでください':{en:'Please choose',fr:'Veuillez choisir',pt:'Escolha'},
+  '未選択':{en:'Not selected',fr:'Non sélectionné',pt:'Não selecionado'},
+  '取り込み先のカードを選んでください':{en:'Please choose the target card for each match',fr:'Choisissez la carte de destination pour chaque match',pt:'Escolha o cartão de destino de cada luta'},
   'この内容を、LINEなどで道場の担当者に送ってください。担当者はアプリの「試合結果 › 📋テキストから取り込み」に貼り付けるだけで登録できます。':{en:'Send this text to your dojo staff (e.g. via LINE). They can register it by pasting into “Match results › 📋 Import from text”.',fr:'Envoyez ce texte au responsable du dojo (ex. via LINE). Il lui suffit de le coller dans « Résultats › 📋 Importer depuis un texte ».',pt:'Envie este texto ao responsável do dojô (ex.: via LINE). Basta colar em “Resultados › 📋 Importar de texto”.'},
   '送る':{en:'Send',fr:'Envoyer',pt:'Enviar'},
   'コピーする':{en:'Copy',fr:'Copier',pt:'Copiar'},
@@ -5017,14 +5022,14 @@ function computeImportTargets(){
   const cards=importTargetCards();
   importParsed.bouts.forEach(b=>{
     if(b.targetCardId&&b.targetCardId!=='__new__'&&!cards.some(c=>c.id===b.targetCardId))b.targetCardId=null;
-    if(b.targetCardId==null){
-      const p=importPickCard(cards,b);
-      b.targetCardId=p.card?p.card.id:'__new__';
-      b.warnCard=p.warn?impCardLabel(p.warn):'';
-    }
+    const p=importPickCard(cards,b);
+    b.suggestId=p.card?p.card.id:'';                 // 有力候補（★で表示）
+    b.warnCard=p.warn?impCardLabel(p.warn):'';       // 同じ相手だが回戦違い
+    // v162: 既存カードがあるときは自動で「新規」に倒さず、必ず選ばせる（カード乱立の防止）
+    if(b.targetCardId==null)b.targetCardId=cards.length?'':'__new__';
   });
 }
-function setImportTarget(i,v){if(importParsed&&importParsed.bouts[i])importParsed.bouts[i].targetCardId=v;}
+function setImportTarget(i,v){if(importParsed&&importParsed.bouts[i]){importParsed.bouts[i].targetCardId=v;renderImportBouts();}}
 function toggleImportBout(i){if(importParsed&&importParsed.bouts[i])importParsed.bouts[i].include=!importParsed.bouts[i].include;renderImportBouts();}
 function renderImportBouts(){
   const h=importParsed.head;
@@ -5032,7 +5037,7 @@ function renderImportBouts(){
   const cards=isTeam?importTargetCards():[];
   const role=h.role||(POS[h.teamCount||5]||[])[0]||'先鋒';
   const note=isTeam
-    ? `<div class="imp-hint">団体戦として取り込み（${h.teamCount||5}人制・役割：${esc(role)}）。各試合の<b>「取り込み先カード」</b>を確認してください。同じ回戦の既存カードを選べば、その${esc(role)}の位置に<b>まとめて登録（上書き）</b>されます。</div>`
+    ? `<div class="imp-hint">団体戦として取り込み（${h.teamCount||5}人制・役割：${esc(role)}）。各試合の<b>「取り込み先カード」を必ず選んでください</b>。既存カードを選べば、その${esc(role)}の位置に<b>まとめて登録（上書き）</b>されます。あとから対戦カードの「統合」でまとめ直すこともできます。</div>`
     : '';
   document.getElementById('importBouts').innerHTML=note+importParsed.bouts.map((b,i)=>{
     const mark=b.res==='○'?'win':b.res==='▲'?'lose':'draw';
@@ -5047,12 +5052,20 @@ function renderImportBouts(){
     const opp=b.opp?('<span class="imp-opp">vs '+esc(b.opp)+(b.affil?'（'+esc(b.affil)+'）':'')+'</span>'):'';
     let tgt='';
     if(isTeam&&b.include){
+      const need=!b.targetCardId;                       // v162: 未選択なら必ず選ばせる
+      const optPick=`<option value="" ${need?'selected':''}>選んでください</option>`;
       const optNew=`<option value="__new__" ${b.targetCardId==='__new__'?'selected':''}>＋ 新しいカードを作成</option>`;
-      const optCards=cards.map(c=>`<option value="${c.id}" ${b.targetCardId===c.id?'selected':''}>${esc(impCardLabel(c))}</option>`).join('');
+      const optCards=cards.map(c=>`<option value="${c.id}" ${b.targetCardId===c.id?'selected':''}>${c.id===b.suggestId?'★ ':''}${esc(impCardLabel(c))}</option>`).join('');
       const merging=(b.targetCardId&&b.targetCardId!=='__new__');
-      const badge=merging?'<span class="imp-tgt-b">既存にまとめる</span>':'<span class="imp-tgt-b new">新規カード</span>';
-      const warn=(!merging&&b.warnCard)?`<div class="imp-warn">⚠ 同じ相手の既存カードがあります（${esc(b.warnCard)}）。同じ試合ならここで選んでください。</div>`:'';
-      tgt=`<div class="imp-tgt"><label class="fld">この試合の取り込み先${badge}</label><select class="imp-tgt-sel" onclick="event.stopPropagation()" onchange="setImportTarget(${i},this.value)">${optNew}${optCards}</select>${warn}</div>`;
+      const badge=need?'<span class="imp-tgt-b need">未選択</span>':(merging?'<span class="imp-tgt-b">既存にまとめる</span>':'<span class="imp-tgt-b new">新規カード</span>');
+      let warn='';
+      if(need){
+        const h=[];
+        if(b.suggestId)h.push('★ の付いたカードが有力候補です。');
+        if(b.warnCard)h.push(`同じ相手の既存カードがあります（${esc(b.warnCard)}）。`);
+        warn=`<div class="imp-warn">⚠ ${h.join('')}同じ試合なら既存カードを、別の試合なら「＋ 新しいカードを作成」を選んでください。</div>`;
+      }
+      tgt=`<div class="imp-tgt${need?' need':''}"><label class="fld">この試合の取り込み先${badge}</label><select class="imp-tgt-sel" onclick="event.stopPropagation()" onchange="setImportTarget(${i},this.value)">${optPick}${optNew}${optCards}</select>${warn}</div>`;
     }
     const bodyParts=[roundChip,rwWord,sub,opp].filter(Boolean);
     return `<div class="imp-item"><div class="imp-row ${b.include?'':'off'}" onclick="toggleImportBout(${i})">
@@ -5077,6 +5090,8 @@ function doImport(){
   const picked=importParsed.bouts.filter(b=>b.include);
   if(!picked.length){toast(T('取り込む試合がありません'));return;}
   if(importParsed.head.kind==='団体'){
+    // v162: 取り込み先が未選択のまま進ませない（自動で新規カードを作らない）
+    if(picked.some(b=>!b.targetCardId)){toast(T('取り込み先のカードを選んでください'));return;}
     // 団体戦：対戦カード（同じ相手チーム＋回戦）に選手を役割の位置で登録。
     // 既存カードがあれば新規作成せず、その役割位置に上書き補完（後から他選手/再送分が来ても統合される）。
     const impCount=importParsed.head.teamCount||5;
