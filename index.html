@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v160（LINE連携：メモリーカードに「📩 道場に送る」を新設。個人の試合結果を道場側の「テキストから取り込み」形式で書き出し、共有シート(LINE等)で送信／コピー可能に。担当者は貼り付けるだけで登録できる） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v161（団体戦カードの乱立を修正：取り込みの統合判定を表記ゆれ対応[相手チーム名の正規化・部分一致／回戦の正規化／両方未記入はまとめる]に強化し、同じ相手で回戦違いは警告表示。さらに対戦カードの「統合」機能を追加し、既に割れたカードを1枚にまとめられるように） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -694,6 +694,7 @@
   .imp-item .imp-row{margin-bottom:0;}
   .imp-tgt{padding:9px 0 2px;}
   .imp-tgt .imp-tgt-b{font-weight:800;font-size:calc(11px*var(--fs,1));border-radius:8px;padding:2px 8px;margin-left:6px;background:#eaf5ee;color:var(--green);border:1px solid #bfe0cb;}
+  .imp-warn{margin-top:7px;background:#fdf3e3;border:1px solid #e8c99a;color:#8a5a12;border-radius:9px;padding:7px 10px;font-size:calc(12px*var(--fs,1));font-weight:700;line-height:1.5;}
   .imp-tgt .imp-tgt-b.new{background:#eef1f8;color:var(--navy);border-color:#cfd8ea;}
   .imp-tgt-sel{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);box-sizing:border-box;}
   .mate-count{font-size:calc(12px*var(--fs,1));font-weight:700;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1px 9px;}
@@ -1904,6 +1905,12 @@ function applyUpdate(){
       <div class="row">
         <button class="btn ghost" onclick="closeModal('cardModal')">やめる</button>
       </div>
+      <div id="cardMergeWrap" style="display:none;margin-top:18px;padding-top:14px;border-top:1px dashed var(--line)">
+        <label class="fld" style="margin-top:0">このカードを別のカードに統合</label>
+        <p class="list-mini">同じ試合が複数のカードに分かれてしまったときに使います。<b>このカードの記入済みの選手</b>を、選んだカードの空いている位置へ移し、このカードは削除します。</p>
+        <select id="cardMergeSel"></select>
+        <button class="btn ghost full" style="margin-top:10px" onclick="mergeCardConfirm()">選んだカードに統合する</button>
+      </div>
       <button class="btn del-full" id="cardDeleteBtn" onclick="deleteCard()">この対戦カードを削除する</button>
     </div>
 
@@ -2022,7 +2029,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v160'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v161'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -3738,6 +3745,7 @@ function fillCardStep1(suffix){
   pickCardMate(curCard.oppIsMate===true);
   renderCdRoundPicks();
   document.getElementById('cardDeleteBtn').style.display=curCardId?'block':'none';
+  renderCardMergeUI();   // v161: 統合UI（既存カードが他にあるときだけ表示）
   showCardStep(1);
   openModal('cardModal');
 }
@@ -4058,6 +4066,53 @@ function deleteCard(){
     t.cards=t.cards.filter(x=>x.id!==id);
     save();closeModal('cardModal');renderMatchList();toast('削除しました');
   });
+}
+/* ===== v161: 対戦カードの統合（同じ試合が複数カードに割れたときの復旧） ===== */
+function renderCardMergeUI(){
+  const wrap=document.getElementById('cardMergeWrap'), sel=document.getElementById('cardMergeSel');
+  if(!wrap||!sel)return;
+  const t=ensureMatch(curMatchSched).team;
+  const others=(t.cards||[]).filter(c=>c.id!==curCardId);
+  if(!curCardId||!others.length){wrap.style.display='none';return;}
+  sel.innerHTML=others.map(c=>`<option value="${c.id}">${esc(impCardLabel(c))}</option>`).join('');
+  wrap.style.display='block';
+}
+function mergeCardConfirm(){
+  const targetId=document.getElementById('cardMergeSel').value;
+  if(!targetId)return;
+  const t=ensureMatch(curMatchSched).team;
+  const dst=(t.cards||[]).find(c=>c.id===targetId); if(!dst)return;
+  askConfirm(`このカードの記入済みの選手を「${esc(impCardLabel(dst))}」へ移し、このカードは削除します。よろしいですか？`,()=>mergeCardInto(targetId),'統合する');
+}
+function mergeCardInto(targetId){
+  const t=ensureMatch(curMatchSched).team;
+  const src=(t.cards||[]).find(c=>c.id===curCardId);
+  const dst=(t.cards||[]).find(c=>c.id===targetId);
+  if(!src||!dst)return;
+  const sCount=src.count||5, dCount=dst.count||5;
+  const sPos=POS[sCount]||[], dPos=POS[dCount]||[];
+  if(!Array.isArray(dst.bouts))dst.bouts=[];
+  while(dst.bouts.length<dCount)dst.bouts.push(impEmptyBout());
+  let moved=0, skipped=0;
+  (src.bouts||[]).forEach((b,i)=>{
+    if(!b||!b.selfId)return;
+    const nm=sPos[i]||'';
+    let di=dPos.indexOf(nm); if(di<0)di=i;
+    if(di<0||di>=dst.bouts.length){skipped++;return;}
+    if(dst.bouts[di]&&dst.bouts[di].selfId){skipped++;return;}   // 既に埋まっている位置は上書きしない
+    dst.bouts[di]=Object.assign({},b,{id:uid()}); moved++;
+  });
+  if(src.tiebreak==='rep'&&src.rep&&src.rep.selfId){
+    if(!(dst.tiebreak==='rep'&&dst.rep&&dst.rep.selfId)){dst.tiebreak='rep';dst.rep=Object.assign({},src.rep,{id:uid()});moved++;}
+    else skipped++;
+  }
+  // 空欄のメタ情報を補完
+  if(!(dst.oppTeam||'').trim()&&(src.oppTeam||'').trim())dst.oppTeam=src.oppTeam;
+  if(!(dst.round||'').trim()&&(src.round||'').trim())dst.round=src.round;
+  if(!(dst.division||'').trim()&&(src.division||'').trim())dst.division=src.division;
+  t.cards=t.cards.filter(c=>c.id!==src.id);
+  save();closeModal('cardModal');renderMatchList();
+  toast(moved+'件を統合しました'+(skipped?`（${skipped}件は位置が埋まっていたため見送り）`:''));
 }
 // 全試合を選手ごとに集約（個人戦＋団体戦をまたぐ）
 function allBoutsBySelf(){
@@ -4917,16 +4972,55 @@ function impCardLabel(c){
   const filled=(c.bouts||[]).filter(b=>b.selfId).length+((c.tiebreak==='rep'&&c.rep&&c.rep.selfId)?1:0);
   return (c.round||'回戦未設定')+'／'+(c.oppTeam||'(相手未入力)')+'（'+filled+'名記入済）';
 }
-// 団体戦：各試合の取り込み先カードの初期値＝同じ回戦の既存カード（無ければ新規）
+/* v161: 表記ゆれを吸収して取り込み先カードを判定（回戦の完全一致だけだとカードが乱立するため）
+   ※「代表決定戦」はチームの1試合。同点時の個人「代表戦」とは別物なので寄せない。 */
+function normRound(s){
+  s=(s||'').trim(); if(!s)return '';
+  s=s.replace(/[Ａ-Ｚａ-ｚ０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+  s=s.replace(/[\s　・,，.．\-−―ー()（）]/g,'');
+  const kan={'一':'1','二':'2','三':'3','四':'4','五':'5','六':'6','七':'7','八':'8','九':'9'};
+  s=s.replace(/^[一二三四五六七八九]/,m=>kan[m]||m);
+  s=s.replace(/^(\d+)(回戦|回|R|r)$/,'$1回戦');
+  return s;
+}
+function normTeam(s){
+  s=(s||'').trim(); if(!s)return '';
+  s=s.replace(/[Ａ-Ｚａ-ｚ０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+  s=s.replace(/[\s　・,，.．\-−―ー()（）]/g,'');
+  s=s.replace(/\d+年(生)?$/,'');
+  s=s.replace(/(男子|女子|チーム)$/,'');
+  s=s.replace(/(スポーツ少年団|少年団|柔道クラブ|柔道教室|柔道少年団|柔道場|道場|クラブ|学園|高等学校|高校|中学校|中学|小学校|小学|大学)/g,'');
+  s=s.replace(/^(北海道|東京都|京都府|大阪府|..県)/,'');
+  s=s.replace(/(市|区|町|村)立/g,'');
+  s=s.replace(/(中|高|小)$/,function(m,p1,off){return off>=2?'':m;});   // 「共進中」→共進／「府中」は残す
+  return s;
+}
+function sameTeamName(a,b){
+  a=normTeam(a); b=normTeam(b);
+  if(!a||!b)return false;
+  if(a===b)return true;
+  return (a.length>=2&&b.length>=2&&(a.includes(b)||b.includes(a)));   // 「共進」⊂「横浜共進」
+}
+function importPickCard(cards,b){
+  const r=normRound(b.round), t=(b.affil||'').trim();
+  const rOf=c=>normRound(c.round), tOf=c=>(c.oppTeam||'').trim();
+  let c;
+  if(r&&t){ c=cards.find(x=>rOf(x)===r&&sameTeamName(tOf(x),t)); if(c)return {card:c}; }      // 回戦＋相手が一致
+  if(t){ c=cards.find(x=>sameTeamName(tOf(x),t)&&(!r||!rOf(x))); if(c)return {card:c}; }      // 相手一致・回戦が空
+  if(r){ c=cards.find(x=>rOf(x)===r&&(!t||!tOf(x))); if(c)return {card:c}; }                  // 回戦一致・相手が空
+  if(!r&&!t){ c=cards.find(x=>!rOf(x)&&!tOf(x)); if(c)return {card:c}; }                      // 両方未記入はまとめる
+  if(r&&t){ c=cards.find(x=>sameTeamName(tOf(x),t)); if(c)return {card:null,warn:c}; }         // 相手は同じだが回戦違い＝要確認
+  return {card:null};
+}
 function computeImportTargets(){
   if(!importParsed||importParsed.head.kind!=='団体')return;
   const cards=importTargetCards();
   importParsed.bouts.forEach(b=>{
     if(b.targetCardId&&b.targetCardId!=='__new__'&&!cards.some(c=>c.id===b.targetCardId))b.targetCardId=null;
     if(b.targetCardId==null){
-      const rnd=(b.round||'').trim();
-      const same=rnd?cards.find(c=>(c.round||'').trim()===rnd):null;
-      b.targetCardId=same?same.id:'__new__';
+      const p=importPickCard(cards,b);
+      b.targetCardId=p.card?p.card.id:'__new__';
+      b.warnCard=p.warn?impCardLabel(p.warn):'';
     }
   });
 }
@@ -4957,7 +5051,8 @@ function renderImportBouts(){
       const optCards=cards.map(c=>`<option value="${c.id}" ${b.targetCardId===c.id?'selected':''}>${esc(impCardLabel(c))}</option>`).join('');
       const merging=(b.targetCardId&&b.targetCardId!=='__new__');
       const badge=merging?'<span class="imp-tgt-b">既存にまとめる</span>':'<span class="imp-tgt-b new">新規カード</span>';
-      tgt=`<div class="imp-tgt"><label class="fld">この試合の取り込み先${badge}</label><select class="imp-tgt-sel" onclick="event.stopPropagation()" onchange="setImportTarget(${i},this.value)">${optNew}${optCards}</select></div>`;
+      const warn=(!merging&&b.warnCard)?`<div class="imp-warn">⚠ 同じ相手の既存カードがあります（${esc(b.warnCard)}）。同じ試合ならここで選んでください。</div>`:'';
+      tgt=`<div class="imp-tgt"><label class="fld">この試合の取り込み先${badge}</label><select class="imp-tgt-sel" onclick="event.stopPropagation()" onchange="setImportTarget(${i},this.value)">${optNew}${optCards}</select>${warn}</div>`;
     }
     const bodyParts=[roundChip,rwWord,sub,opp].filter(Boolean);
     return `<div class="imp-item"><div class="imp-row ${b.include?'':'off'}" onclick="toggleImportBout(${i})">
@@ -4995,8 +5090,10 @@ function doImport(){
       if(!card){
         card={id:uid(),count:impCount,division:'',round:b.round||'',oppTeam:b.affil||'',oppIsMate:false,tiebreak:'',rep:null,bouts:[]};
         mr.team.cards.push(card);
-      }else if(!(card.oppTeam||'').trim()&&(b.affil||'').trim()){
-        card.oppTeam=(b.affil||'').trim();   // 既存カードの相手名が空なら補完
+      }else{
+        // 既存カードの空欄を補完（相手チーム名・回戦）
+        if(!(card.oppTeam||'').trim()&&(b.affil||'').trim())card.oppTeam=(b.affil||'').trim();
+        if(!(card.round||'').trim()&&(b.round||'').trim())card.round=(b.round||'').trim();
       }
       const cnt=card.count||impCount;
       if(!Array.isArray(card.bouts))card.bouts=[];
