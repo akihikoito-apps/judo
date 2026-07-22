@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v163（決まり技レーダーのバグ修正：決まり技が空欄でも「内容」欄で分類するようにし、判定・指導差・反則・不戦・棄権・合わせ技が「その他投技」に誤集計されていた問題を解消。負け試合は技が空のことが多く影響が大きかった） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v164（出欠タブは各属性を開いた状態から表示。毎日使うため「開いて入力」より「入力して閉じる」動線に。お金・仲間・集計は従来どおり閉じた状態から） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -2031,7 +2031,7 @@ function applyUpdate(){
 
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v163'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v164'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
@@ -5918,9 +5918,15 @@ function sortMembersList(list){
 }
 /* ===== v133: 属性グループの折りたたみ（仲間/出欠/お金/試合一覧を畳み込み表示から開始） ===== */
 const foldOpen={mates:new Set(),att:new Set(),fee:new Set(),match:new Set()};
+// v164: 出欠は毎日使うので「開いた状態」から始める（Setには“閉じた”グループを持つ＝意味が反転）。
+//       お金（月謝）などは従来どおり閉じた状態から。
+const FOLD_DEFAULT_OPEN=new Set(['att']);
 function foldRender(ns){const f={mates:renderMates,att:renderAtt,fee:renderFee,match:renderMatchSummary}[ns];if(f)f();}
 function toggleFold(ns,key){const s=foldOpen[ns];if(!s)return;if(s.has(key))s.delete(key);else s.add(key);foldRender(ns);}
-function isFoldOpen(ns,gi){return foldOpen[ns]&&foldOpen[ns].has('g'+gi);}
+function isFoldOpen(ns,gi){
+  const listed=!!(foldOpen[ns]&&foldOpen[ns].has('g'+gi));
+  return FOLD_DEFAULT_OPEN.has(ns)?!listed:listed;
+}
 // 折りたたみ見出し（矢印＋区分名＋人数＋任意サマリ）。giはグループindex。
 function foldHead(ns,gi,color,label,count,summary){
   const open=isFoldOpen(ns,gi);
