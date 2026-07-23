@@ -816,7 +816,7 @@
      controllerchange で再読込（勝手にリロードしない）。
    ※ 反映の本体（HTMLはネットワーク優先／旧キャッシュ全削除）は sw.js 側に実装 */
 (function(){
-  if(!('serviceWorker' in navigator))return;
+  return; /* personal-preview: SW無効 */ if(!('serviceWorker' in navigator))return;
   var refreshing=false;
   var hadController=!!navigator.serviceWorker.controller; // 初回インストール判定
   navigator.serviceWorker.addEventListener('controllerchange',function(){
@@ -4370,7 +4370,7 @@ const STORE_KEY='judoTeamApp_v2';
 const APP_VERSION='v166'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
-const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
+const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
 /* ===== 多言語対応（i18n）エンジン（v104：全UI走査方式）=====
    ・辞書は「日本語をキー」に {en,fr,pt} を持つ。未登録・ja は日本語のまま。
    ・DOMのテキストノードを走査して翻訳。MutationObserverで動的描画にも自動追従。
