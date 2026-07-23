@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v168（個人アプリのフリーミアム機能ゲート適用：シェア画像の配色/書式/柄を無料は限定セット・その他はPro(🔒表示→ペイウォール)。無料でも1枚は作れて拡散は維持。道場アプリ(suite)はisPro常時trueで全解放＝一切影響なし。課金は未接続） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v169（App Store課金の下準備：ペイウォールに「Proにする（年額）／購入を復元」を追加。App Store版で window.__iap（ネイティブ課金）が購入/復元を担い、成功で自動解錠。Web版では「App Store版でご利用ください」の案内。壊れない差し込み口として実装） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1433,7 +1433,9 @@ function applyUpdate(){
       <div class="list-mini">・組手別・技別などの深掘り分析</div>
     </div>
     <p class="list-mini" style="margin-top:12px">試合結果の報告は、これからもずっと無料です。</p>
-    <div class="row" style="margin-top:14px"><button class="btn ghost full" onclick="closeModal('paywallModal')">とじる</button></div>
+    <button class="btn gold full" style="margin-top:14px" id="paywallBuyBtn" onclick="purchasePro()">⭐ Proにする（年額）</button>
+    <button class="btn ghost full" style="margin-top:10px" onclick="restorePro()">購入を復元する</button>
+    <div class="row" style="margin-top:10px"><button class="btn ghost full" onclick="closeModal('paywallModal')">とじる</button></div>
   </div>
 </div>
 
@@ -4422,7 +4424,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v168'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v169'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -4899,6 +4901,12 @@ Object.assign(DICT,{
   'この配色は Pro で使えます':{en:'This color set is available with Pro',fr:'Ces couleurs sont disponibles avec Pro',pt:'Estas cores estão disponíveis no Pro'},
   'この書式は Pro で使えます':{en:'This font is available with Pro',fr:'Cette police est disponible avec Pro',pt:'Esta fonte está disponível no Pro'},
   'この柄は Pro で使えます':{en:'This pattern is available with Pro',fr:'Ce motif est disponible avec Pro',pt:'Este padrão está disponível no Pro'},
+  'Proになりました。ありがとうございます！':{en:'You are now Pro. Thank you!',fr:'Vous êtes Pro. Merci !',pt:'Agora você é Pro. Obrigado!'},
+  '購入は完了しませんでした':{en:'Purchase did not complete',fr:'L’achat n’a pas abouti',pt:'A compra não foi concluída'},
+  '購入を復元しました':{en:'Purchase restored',fr:'Achat restauré',pt:'Compra restaurada'},
+  '復元できる購入がありませんでした':{en:'No purchase to restore',fr:'Aucun achat à restaurer',pt:'Nenhuma compra para restaurar'},
+  '復元できませんでした':{en:'Could not restore',fr:'Restauration impossible',pt:'Não foi possível restaurar'},
+  '購入はApp Store版アプリでご利用いただけます':{en:'Purchases are available in the App Store version',fr:'Les achats sont disponibles dans la version App Store',pt:'As compras estão disponíveis na versão da App Store'},
   'なし':{en:'None',fr:'Aucun',pt:'Nenhum'},
   '市松':{en:'Checkered',fr:'Damier',pt:'Xadrez'},
   '縦じま':{en:'Stripes',fr:'Rayures',pt:'Listras'},
@@ -7011,6 +7019,28 @@ function requirePro(msg){
   const el=document.getElementById('paywallMsg'); if(el&&msg)el.textContent=msg;
   openModal('paywallModal');
   return false;
+}
+// v169: 購入導線。App Store版では window.__iap（ネイティブ課金の差し込み口）が購入/復元を担う。
+function proUnlocked(){ setPro(true); closeModal('paywallModal');
+  if(typeof renderShareStyles==='function'){renderShareStyles();renderShareFonts();renderSharePatterns();}
+  if(rkShareEv&&typeof drawRkShare==='function')drawRkShare(rkShareEv);
+  toast(T('Proになりました。ありがとうございます！'));
+}
+async function purchasePro(){
+  if(window.__iap&&window.__iap.buy){
+    try{ const ok=await window.__iap.buy(); if(ok)proUnlocked(); else toast(T('購入は完了しませんでした')); }
+    catch(e){ toast(T('購入は完了しませんでした')); }
+    return;
+  }
+  toast(T('購入はApp Store版アプリでご利用いただけます'));   // Web版（App Store外）では購入不可
+}
+async function restorePro(){
+  if(window.__iap&&window.__iap.restore){
+    try{ const ok=await window.__iap.restore(); if(ok){setPro(true);toast(T('購入を復元しました'));} else toast(T('復元できる購入がありませんでした')); }
+    catch(e){ toast(T('復元できませんでした')); }
+    return;
+  }
+  toast(T('購入はApp Store版アプリでご利用いただけます'));
 }
 /* ===== v165: QRで受け渡し（会場でアプリ間・個人LINE不要）＝渡す側は生成、受け取る側はカメラ/写真で読取 ===== */
 function qrMakeSvg(text){
