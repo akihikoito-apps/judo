@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v167（個人モードに「報告」タブ(無料)を新設＝試合結果を入力→道場に送る(LINE/QR/コピー)。個人専用アプリは起動時に報告タブを開く。Proフラグの土台(isPro/requirePro/paywallModal)を追加＝課金は未接続・現行は全機能そのまま） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v168（個人アプリのフリーミアム機能ゲート適用：シェア画像の配色/書式/柄を無料は限定セット・その他はPro(🔒表示→ペイウォール)。無料でも1枚は作れて拡散は維持。道場アプリ(suite)はisPro常時trueで全解放＝一切影響なし。課金は未接続） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -557,6 +557,8 @@
   .share-styles{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
   .share-styles button{flex:0 0 auto;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:16px;padding:7px 15px;font-family:inherit;font-weight:700;font-size:calc(13px*var(--fs,1));cursor:pointer;white-space:nowrap;}
   .share-styles button.on{background:var(--gold);border-color:var(--gold);color:#2a2100;}
+  .share-styles button.locked{opacity:.72;}
+  .share-styles button.locked::first-letter{font-size:.9em;}
   .rk-photo .rk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .rk-add{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:rgba(255,255,255,.85);font-size:calc(13.5px*var(--fs,1));font-weight:700;cursor:pointer;text-align:center;}
   .rk-add .big{font-size:40px;display:block;margin-bottom:4px;}
@@ -1424,7 +1426,13 @@ function applyUpdate(){
     <div style="font-size:38px">⭐</div>
     <h3 style="margin:6px 0 4px">Proでもっと楽しく</h3>
     <p class="list-mini" id="paywallMsg">この機能はPro（有料）でご利用いただけます。</p>
-    <p class="list-mini" style="margin-top:10px">試合結果の報告は、これからもずっと無料です。</p>
+    <div style="text-align:left;background:#faf7ef;border:1px solid #eadcb0;border-radius:12px;padding:12px 14px;margin-top:12px">
+      <div class="list-mini" style="font-weight:800;color:var(--navy);margin-bottom:6px">Proでできること</div>
+      <div class="list-mini">・シェア画像の全デザイン（配色8×書式8×柄）</div>
+      <div class="list-mini">・複数の主役（家族）を登録</div>
+      <div class="list-mini">・組手別・技別などの深掘り分析</div>
+    </div>
+    <p class="list-mini" style="margin-top:12px">試合結果の報告は、これからもずっと無料です。</p>
     <div class="row" style="margin-top:14px"><button class="btn ghost full" onclick="closeModal('paywallModal')">とじる</button></div>
   </div>
 </div>
@@ -4414,7 +4422,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v167'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v168'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -4888,6 +4896,9 @@ Object.assign(DICT,{
   '勝ち':{en:'Win',fr:'Victoire',pt:'Vitória'},'負け':{en:'Loss',fr:'Défaite',pt:'Derrota'},'分け':{en:'Draw',fr:'Nul',pt:'Empate'},
   '相手のなまえ':{en:'Opponent name',fr:'Nom de l’adversaire',pt:'Nome do adversário'},
   '相手の所属':{en:'Opponent team',fr:'Équipe adverse',pt:'Equipe adversária'},
+  'この配色は Pro で使えます':{en:'This color set is available with Pro',fr:'Ces couleurs sont disponibles avec Pro',pt:'Estas cores estão disponíveis no Pro'},
+  'この書式は Pro で使えます':{en:'This font is available with Pro',fr:'Cette police est disponible avec Pro',pt:'Esta fonte está disponível no Pro'},
+  'この柄は Pro で使えます':{en:'This pattern is available with Pro',fr:'Ce motif est disponible avec Pro',pt:'Este padrão está disponível no Pro'},
   'なし':{en:'None',fr:'Aucun',pt:'Nenhum'},
   '市松':{en:'Checkered',fr:'Damier',pt:'Xadrez'},
   '縦じま':{en:'Stripes',fr:'Rayures',pt:'Listras'},
@@ -6992,7 +7003,8 @@ function repToDojo(){
   openModal('dojoSendModal');
 }
 /* ===== v167: Proフラグの土台（課金は未接続。将来ネイティブ化のIAPで setPro を呼ぶ）===== */
-function isPro(){ return !!(DB&&DB.pro); }
+// v168: 個人アプリ(edition='personal')のみフリーミアム。道場アプリ(suite/office)は有料製品なので常に全解放。
+function isPro(){ return (APP_EDITION!=='personal') || !!(DB&&DB.pro); }
 function setPro(v){ DB.pro=!!v; save(); }
 function requirePro(msg){
   if(isPro())return true;
@@ -7213,7 +7225,8 @@ function rkPhotoDel(i){
     save(); renderRireki(); toast(T('削除しました'));
   });
 }
-function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareStyle=DB.shareStyle||shareStyle;shareFont=DB.shareFont||shareFont;sharePattern=DB.sharePattern||sharePattern;renderShareStyles();renderShareFonts();renderSharePatterns();drawRkShare(ev);openModal('rkShareModal');}
+function shareEnsureFree(){ if(isPro())return; if(shareLocked('style',shareStyle))shareStyle='classic'; if(shareLocked('font',shareFont))shareFont='gothic'; if(shareLocked('pattern',sharePattern))sharePattern='none'; }
+function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareStyle=DB.shareStyle||shareStyle;shareFont=DB.shareFont||shareFont;sharePattern=DB.sharePattern||sharePattern;shareEnsureFree();renderShareStyles();renderShareFonts();renderSharePatterns();drawRkShare(ev);openModal('rkShareModal');}
 /* ===== v150→v153: 節目＝履歴に手動追加し試合カードと同仕様で表示。
    種類欄は廃止し「よく使う」ワード(きもち/できごと)のタップで連続追記。
    昇級/昇段のチップだけアイコン種別も設定（既定は自由=⭐） ===== */
@@ -7296,10 +7309,21 @@ let shareStyle='classic', shareFont='gothic';
 function shareStyleObj(){ return SHARE_STYLES.find(s=>s.key===shareStyle)||SHARE_STYLES[0]; }
 function shareFontObj(){ return SHARE_FONTS.find(f=>f.key===shareFont)||SHARE_FONTS[0]; }
 function shareFam(){ return shareFontObj().fam; }
-function shareSetStyle(k){ shareStyle=k; DB.shareStyle=k; save(); renderShareStyles(); if(rkShareEv)drawRkShare(rkShareEv); }
-function shareSetFont(k){ shareFont=k; DB.shareFont=k; save(); renderShareFonts(); if(rkShareEv)drawRkShare(rkShareEv); }
-function renderShareStyles(){ const el=document.getElementById('shareStyles'); if(el)el.innerHTML=SHARE_STYLES.map(s=>`<button class="${s.key===shareStyle?'on':''}" onclick="shareSetStyle('${s.key}')">${T(s.name)}</button>`).join(''); }
-function renderShareFonts(){ const el=document.getElementById('shareFonts'); if(el)el.innerHTML=SHARE_FONTS.map(f=>`<button class="${f.key===shareFont?'on':''}" onclick="shareSetFont('${f.key}')">${T(f.name)}</button>`).join(''); }
+// v168: 無料で使えるシェアのデザイン（無料でも“1枚”は作れる＝拡散を止めない）。それ以外はPro。
+const SHARE_FREE_STYLES=new Set(['classic','cool','mono']);
+const SHARE_FREE_FONTS=new Set(['gothic','mincho']);
+const SHARE_FREE_PATTERNS=new Set(['none']);
+function shareLocked(kind,key){ if(isPro())return false;
+  if(kind==='style')return !SHARE_FREE_STYLES.has(key);
+  if(kind==='font')return !SHARE_FREE_FONTS.has(key);
+  if(kind==='pattern')return !SHARE_FREE_PATTERNS.has(key);
+  return false;
+}
+function shareSetStyle(k){ if(shareLocked('style',k)){requirePro(T('この配色は Pro で使えます'));return;} shareStyle=k; DB.shareStyle=k; save(); renderShareStyles(); if(rkShareEv)drawRkShare(rkShareEv); }
+function shareSetFont(k){ if(shareLocked('font',k)){requirePro(T('この書式は Pro で使えます'));return;} shareFont=k; DB.shareFont=k; save(); renderShareFonts(); if(rkShareEv)drawRkShare(rkShareEv); }
+function shareChipHtml(kind,key,name,on){ const lock=shareLocked(kind,key)?'🔒':''; return `<button class="${on?'on':''}${lock?' locked':''}" onclick="shareSet${kind[0].toUpperCase()+kind.slice(1)}('${key}')">${lock}${T(name)}</button>`; }
+function renderShareStyles(){ const el=document.getElementById('shareStyles'); if(el)el.innerHTML=SHARE_STYLES.map(s=>shareChipHtml('style',s.key,s.name,s.key===shareStyle)).join(''); }
+function renderShareFonts(){ const el=document.getElementById('shareFonts'); if(el)el.innerHTML=SHARE_FONTS.map(f=>shareChipHtml('font',f.key,f.name,f.key===shareFont)).join(''); }
 // 柄・模様（なし＋8種）。色・透明度はテーマに合わせ、控えめに（文字の可読性を損なわない）
 const SHARE_PATTERNS=[
   {key:'none',      name:'なし'},
@@ -7313,8 +7337,8 @@ const SHARE_PATTERNS=[
   {key:'confetti',  name:'紙吹雪'},
 ];
 let sharePattern='none';
-function shareSetPattern(k){ sharePattern=k; DB.sharePattern=k; save(); renderSharePatterns(); if(rkShareEv)drawRkShare(rkShareEv); }
-function renderSharePatterns(){ const el=document.getElementById('sharePatterns'); if(el)el.innerHTML=SHARE_PATTERNS.map(p=>`<button class="${p.key===sharePattern?'on':''}" onclick="shareSetPattern('${p.key}')">${T(p.name)}</button>`).join(''); }
+function shareSetPattern(k){ if(shareLocked('pattern',k)){requirePro(T('この柄は Pro で使えます'));return;} sharePattern=k; DB.sharePattern=k; save(); renderSharePatterns(); if(rkShareEv)drawRkShare(rkShareEv); }
+function renderSharePatterns(){ const el=document.getElementById('sharePatterns'); if(el)el.innerHTML=SHARE_PATTERNS.map(p=>shareChipHtml('pattern',p.key,p.name,p.key===sharePattern)).join(''); }
 function hexA(h,a){ h=(h||'#000').replace('#',''); if(h.length===3)h=h.split('').map(c=>c+c).join(''); const n=parseInt(h,16)||0; return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
 // パネル領域（写真の下・写真なしは全面）に控えめな柄を描く
 function drawSharePattern(ctx,st,key,top){
