@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v166（1ソース→2ビルドの土台：APP_EDITION('suite'/'personal'/'office')を導入。suite=両モード(このマスター/道場配布)。build.js が personal.html を生成＝個人専用アプリ(モード固定・切替UI非表示・manifestはストーリー名)。将来のネイティブ化/App Store2アプリ化の下準備） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v167（個人モードに「報告」タブ(無料)を新設＝試合結果を入力→道場に送る(LINE/QR/コピー)。個人専用アプリは起動時に報告タブを開く。Proフラグの土台(isPro/requirePro/paywallModal)を追加＝課金は未接続・現行は全機能そのまま） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -545,6 +545,8 @@
   .rk-actions .edit{background:#fff;color:var(--navy);}
   .rk-actions .dojo{background:#eaf7ef;color:#1a7a44;border-color:#9fd8b8;}
   .dojo-send-ta{width:100%;box-sizing:border-box;min-height:220px;font-family:inherit;font-size:calc(13px*var(--fs,1));line-height:1.7;border:1.5px solid var(--line);border-radius:10px;padding:10px;background:#faf9f5;color:var(--ink);resize:vertical;}
+  .rep-match .rep-mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .rep-waza{width:100%;text-align:left;min-height:48px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--navy);font-family:inherit;font-weight:700;font-size:calc(15px*var(--fs,1));padding:10px 12px;cursor:pointer;}
   #qrShowBox svg{width:236px;height:236px;display:block;}
   .qr-stage{position:relative;width:100%;aspect-ratio:1/1;max-height:60vh;background:#0b1526;border-radius:14px;overflow:hidden;}
   .qr-stage video{width:100%;height:100%;object-fit:cover;display:block;}
@@ -1416,6 +1418,17 @@ function applyUpdate(){
   </div>
 </div>
 
+<!-- Pro案内（ペイウォール）モーダル ※v167は土台のみ・課金は未接続 -->
+<div class="modal-bg" id="paywallModal">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <div style="font-size:38px">⭐</div>
+    <h3 style="margin:6px 0 4px">Proでもっと楽しく</h3>
+    <p class="list-mini" id="paywallMsg">この機能はPro（有料）でご利用いただけます。</p>
+    <p class="list-mini" style="margin-top:10px">試合結果の報告は、これからもずっと無料です。</p>
+    <div class="row" style="margin-top:14px"><button class="btn ghost full" onclick="closeModal('paywallModal')">とじる</button></div>
+  </div>
+</div>
+
 <!-- 写真クロップ（位置調整・ズーム）モーダル -->
 <div class="modal-bg" id="photoCropModal">
   <div class="modal" style="max-width:430px">
@@ -1434,7 +1447,41 @@ function applyUpdate(){
   </div>
 </div>
 
+<!-- 報告（個人モード）：試合結果を入力して道場に送る（無料機能） -->
+<section id="screen-report" class="screen">
+  <div class="card">
+    <h3 style="margin-top:0;color:var(--navy)">試合結果を報告</h3>
+    <p class="list-mini">入力して「道場に送る」を押すと、LINE・QR・コピーで道場の担当者に渡せます。担当者はそのまま登録できます。</p>
+    <label class="fld">選手のなまえ</label>
+    <input type="text" id="repName" placeholder="例：山本 蓮" oninput="repGen()">
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label class="fld">大会名</label><input type="text" id="repTaikai" placeholder="例：春季市民大会" oninput="repGen()"></div>
+      <div style="flex:1"><label class="fld">日づけ</label><input type="date" id="repDate" oninput="repGen()"></div>
+    </div>
+    <label class="fld">種別</label>
+    <div class="io-pick">
+      <button id="repKindI" class="on" onclick="repPickKind('個人')">個人戦</button>
+      <button id="repKindT" onclick="repPickKind('団体')">団体戦</button>
+    </div>
+    <div id="repTeamRow" style="display:none">
+      <label class="fld">チームの人数</label>
+      <div class="cat-pick" id="repCountPick"></div>
+      <label class="fld">あなたの役割（ポジション）</label>
+      <div class="cat-pick" id="repRolePick"></div>
+      <p class="list-mini">分かる範囲でOK。ちがっていても道場の担当者が直せます。</p>
+    </div>
+  </div>
+  <div id="repMatches"></div>
+  <button class="btn ghost full" onclick="repAddMatch()">＋ 試合をふやす</button>
+  <div class="card" style="margin-top:12px">
+    <label class="fld" style="margin-top:0">送る内容（自動でできます）</label>
+    <div id="repPreview" class="dojo-send-ta" style="min-height:110px;white-space:pre-wrap"></div>
+    <button class="btn" style="background:var(--navy);color:#fff;width:100%;margin-top:12px" onclick="repToDojo()">📩 道場に送る（LINE / QR / コピー）</button>
+  </div>
+</section>
+
 <nav class="tabbar">
+  <button data-tab="report" onclick="switchTab('report')" style="display:none"><span class="ico">📝</span><span class="tlbl" data-i18n="報告">報告</span></button>
   <button data-tab="rireki" onclick="switchTab('rireki')" style="display:none"><span class="ico">📖</span><span class="tlbl" data-i18n="メモリー">メモリー</span></button>
   <button data-tab="analysis" onclick="switchTab('analysis')" style="display:none"><span class="ico">📈</span><span class="tlbl" data-i18n="分析">分析</span></button>
   <button data-tab="mates" onclick="switchTab('mates')"><span class="ico">👥</span><span class="tlbl" data-i18n="仲間">仲間</span></button>
@@ -4367,7 +4414,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v166'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v167'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -4832,6 +4879,15 @@ Object.assign(DICT,{
   'この端末はQR読取に非対応です。':{en:'This device does not support QR reading.',fr:'Cet appareil ne prend pas en charge la lecture de QR.',pt:'Este dispositivo não suporta leitura de QR.'},
   'QRを読み取れませんでした。もう一度お試しください。':{en:'Could not read the QR code. Please try again.',fr:'Impossible de lire le QR code. Réessayez.',pt:'Não foi possível ler o QR. Tente novamente.'},
   '試合結果のQRではありませんでした':{en:'That QR code is not a match record',fr:'Ce QR code n’est pas un résultat de match',pt:'Este QR não é um registro de luta'},
+  '報告':{en:'Report',fr:'Signaler',pt:'Reportar'},
+  '試合結果を報告':{en:'Report match results',fr:'Signaler les résultats',pt:'Reportar resultados'},
+  '選手のなまえ':{en:'Player name',fr:'Nom du joueur',pt:'Nome do atleta'},
+  '選手のなまえを入れてください':{en:'Please enter the player name',fr:'Veuillez saisir le nom du joueur',pt:'Digite o nome do atleta'},
+  'タップして技をえらぶ':{en:'Tap to choose a technique',fr:'Touchez pour choisir',pt:'Toque para escolher'},
+  '試合目':{en:'',fr:'',pt:''},
+  '勝ち':{en:'Win',fr:'Victoire',pt:'Vitória'},'負け':{en:'Loss',fr:'Défaite',pt:'Derrota'},'分け':{en:'Draw',fr:'Nul',pt:'Empate'},
+  '相手のなまえ':{en:'Opponent name',fr:'Nom de l’adversaire',pt:'Nome do adversário'},
+  '相手の所属':{en:'Opponent team',fr:'Équipe adverse',pt:'Equipe adversária'},
   'なし':{en:'None',fr:'Aucun',pt:'Nenhum'},
   '市松':{en:'Checkered',fr:'Damier',pt:'Xadrez'},
   '縦じま':{en:'Stripes',fr:'Rayures',pt:'Listras'},
@@ -5157,11 +5213,11 @@ function switchTab(tab){
   document.getElementById('screen-'+tab).classList.add('active');
   document.querySelectorAll('nav.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   window.scrollTo(0,0);
-  ({att:renderAtt,money:renderMoney,sched:renderSched,mates:renderMates,list:renderList,set:renderSettings,rireki:renderRireki,analysis:renderAnalysisTab}[tab])();
+  ({att:renderAtt,money:renderMoney,sched:renderSched,mates:renderMates,list:renderList,set:renderSettings,rireki:renderRireki,analysis:renderAnalysisTab,report:renderReport}[tab])();
 }
 /* v143/144: 表示モード（事務/個人）。個人モードは出欠・お金を隠し履歴を出す（データは保持） */
 const PERSONAL_HIDDEN=['att','money','list'];   // 個人モードで隠す（集計は分析タブに集約）
-const OFFICE_HIDDEN=['rireki','analysis'];       // 事務モードで隠す（履歴・分析は個人モード専用）
+const OFFICE_HIDDEN=['rireki','analysis','report'];  // 事務モードで隠す（履歴・分析・報告は個人モード専用）
 function applyMode(){
   const personal=(DB.mode==='personal');
   const hidden=personal?PERSONAL_HIDDEN:OFFICE_HIDDEN;
@@ -6855,6 +6911,94 @@ async function dojoSendCopy(){
   try{ ta.removeAttribute('readonly'); ta.select(); document.execCommand('copy'); toast(T('コピーしました')); }
   catch(_){ toast(T('コピーできませんでした')); }
   ta.setAttribute('readonly','readonly');
+}
+/* ===== v167: 報告タブ（無料）＝試合結果を入力→道場に送る（LINE/QR/コピー）。個人専用アプリの起動タブ ===== */
+let repMatches=[], repKind='個人', repCount=5, repRole='先鋒', repCache='';
+function repNewMatch(){return {id:uid(),res:'○',waza:'',grip:'右',grade:'',opp:'',affil:'',round:'',note:''};}
+function renderReport(){
+  const nameEl=document.getElementById('repName');
+  if(nameEl&&!nameEl.value){ const self=DB.students.find(s=>s.isSelf)||DB.students[0]; if(self)nameEl.value=self.name; }
+  const dEl=document.getElementById('repDate'); if(dEl&&!dEl.value)dEl.value=todayStr();
+  if(!repMatches.length)repMatches=[repNewMatch()];
+  repRenderKind(); repRenderMatches(); repGen();
+}
+function repPickKind(k){
+  repKind=k;
+  document.getElementById('repKindI').classList.toggle('on',k==='個人');
+  document.getElementById('repKindT').classList.toggle('on',k==='団体');
+  document.getElementById('repTeamRow').style.display=(k==='団体')?'block':'none';
+  repRenderKind(); repGen();
+}
+function repRenderKind(){
+  const cp=document.getElementById('repCountPick'); if(cp)cp.innerHTML=[3,5,7].map(n=>`<button class="${repCount===n?'on':''}" onclick="repPickCount(${n})">${n}人制</button>`).join('');
+  const roles=(POS[repCount]||POS[5]).concat(['代表戦']);
+  if(!roles.includes(repRole))repRole=roles[0];
+  const rp=document.getElementById('repRolePick'); if(rp)rp.innerHTML=roles.map(r=>`<button class="${repRole===r?'on':''}" onclick="repPickRole('${esc(r)}')">${esc(r)}</button>`).join('');
+}
+function repPickCount(n){repCount=n;repRenderKind();repGen();}
+function repPickRole(r){repRole=r;repRenderKind();repGen();}
+function repAddMatch(){repMatches.push(repNewMatch());repRenderMatches();repGen();}
+function repDel(id){repMatches=repMatches.filter(m=>m.id!==id);if(!repMatches.length)repMatches=[repNewMatch()];repRenderMatches();repGen();}
+function repSet(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;repRenderMatches();repGen();}}
+function repSetRaw(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;repGen();}}
+function repOpenWaza(id){const m=repMatches.find(x=>x.id===id);if(!m)return;openWazaPicker(function(v){m.waza=v;repRenderMatches();repGen();},m.waza);}
+function repRenderMatches(){
+  const ROUNDS=(DB.matchPresets&&DB.matchPresets.rounds)||['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
+  const box=document.getElementById('repMatches'); if(!box)return;
+  box.innerHTML=repMatches.map((m,i)=>{
+    const draw=m.res==='×';
+    const wazaLbl=m.waza?esc(m.waza):T('タップして技をえらぶ');
+    return `<div class="card rep-match">
+      <div class="rep-mh"><b>${i+1}${T('試合目')}</b><button class="btn ghost sm" onclick="repDel('${m.id}')">${T('削除')}</button></div>
+      <label class="fld" style="margin-top:0">${T('結果')}</label>
+      <div class="io-pick">
+        <button class="${m.res==='○'?'on':''}" onclick="repSet('${m.id}','res','○')">○ ${T('勝ち')}</button>
+        <button class="${m.res==='▲'?'on':''}" onclick="repSet('${m.id}','res','▲')">▲ ${T('負け')}</button>
+        <button class="${m.res==='×'?'on':''}" onclick="repSet('${m.id}','res','×')">× ${T('分け')}</button>
+      </div>
+      ${draw?'':`<label class="fld">${T('決まり技')}</label><button class="rep-waza" onclick="repOpenWaza('${m.id}')">${wazaLbl}</button>`}
+      <label class="fld">${T('組手')}</label>
+      <div class="io-pick"><button class="${m.grip==='右'?'on':''}" onclick="repSet('${m.id}','grip','右')">${T('右組み')}</button><button class="${m.grip==='左'?'on':''}" onclick="repSet('${m.id}','grip','左')">${T('左組み')}</button></div>
+      ${draw?'':`<label class="fld">${T('内容')}</label><div class="cat-pick">${GRADE_FIXED.map(g=>`<button class="${m.grade===g?'on':''}" onclick="repSet('${m.id}','grade','${m.grade===g?'':g}')">${esc(g)}</button>`).join('')}</div>`}
+      <label class="fld">${T('回戦')}</label>
+      <div class="cat-pick">${ROUNDS.map(r=>`<button class="${m.round===r?'on':''}" onclick="repSet('${m.id}','round','${m.round===r?'':esc(r)}')">${esc(r)}</button>`).join('')}</div>
+      <label class="fld">${T('相手のなまえ')}</label>
+      <input type="text" value="${esc(m.opp)}" oninput="repSetRaw('${m.id}','opp',this.value)" placeholder="例：青葉 太郎">
+      <label class="fld">${T('相手の所属')}</label>
+      <input type="text" value="${esc(m.affil)}" oninput="repSetRaw('${m.id}','affil',this.value)" placeholder="例：〇〇中／2番">
+      <label class="fld">${T('備考（任意）')}</label>
+      <input type="text" value="${esc(m.note)}" oninput="repSetRaw('${m.id}','note',this.value)" placeholder="気づいたことなど">
+    </div>`;
+  }).join('');
+}
+function repGen(){
+  const name=(document.getElementById('repName').value||'').trim();
+  const tk=(document.getElementById('repTaikai').value||'').trim();
+  const hd=(document.getElementById('repDate').value||'').trim();
+  const L=['【My道場 試合きろく】','選手｜'+name,'大会｜'+tk,'日付｜'+hd.replace(/-/g,'/'),'種別｜'+repKind];
+  if(repKind==='団体'){L.push('人数｜'+repCount);L.push('役割｜'+repRole);}
+  L.push('--- 試合 ---');
+  repMatches.forEach(m=>{ const f=[m.res,(m.res==='×'?'':m.waza),m.grip,(m.res==='×'?'':m.grade),m.opp,m.affil,m.round,m.note]; L.push(f.join('｜')); });
+  repCache=L.join('\n');
+  const pv=document.getElementById('repPreview'); if(pv)pv.textContent=repCache;
+  return repCache;
+}
+function repToDojo(){
+  const name=(document.getElementById('repName').value||'').trim();
+  if(!name){ toast(T('選手のなまえを入れてください')); return; }
+  if(!repMatches.length){ toast(T('送る試合結果がありません')); return; }
+  dojoSendCache=repGen();
+  document.getElementById('dojoSendText').value=dojoSendCache;
+  openModal('dojoSendModal');
+}
+/* ===== v167: Proフラグの土台（課金は未接続。将来ネイティブ化のIAPで setPro を呼ぶ）===== */
+function isPro(){ return !!(DB&&DB.pro); }
+function setPro(v){ DB.pro=!!v; save(); }
+function requirePro(msg){
+  if(isPro())return true;
+  const el=document.getElementById('paywallMsg'); if(el&&msg)el.textContent=msg;
+  openModal('paywallModal');
+  return false;
 }
 /* ===== v165: QRで受け渡し（会場でアプリ間・個人LINE不要）＝渡す側は生成、受け取る側はカメラ/写真で読取 ===== */
 function qrMakeSvg(text){
@@ -9240,7 +9384,8 @@ function initUI(){
   runI18nScan();
   applyMode();                                  // v143: 表示モードでタブを出し分け
   renderAtt();
-  if(DB.mode==='personal')switchTab('rireki');  // 個人モードは履歴から開始
+  if(APP_EDITION==='personal')switchTab('report');   // v167: 個人専用アプリは「報告」から開始（無料の入口）
+  else if(DB.mode==='personal')switchTab('rireki');  // 個人モードは履歴から開始
   showBackupReminder();   // 期限超過なら催促バナー
 }
 load();seedIfEmpty();save();initUI();
