@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v169（App Store課金の下準備：ペイウォールに「Proにする（年額）／購入を復元」を追加。App Store版で window.__iap（ネイティブ課金）が購入/復元を担い、成功で自動解錠。Web版では「App Store版でご利用ください」の案内。壊れない差し込み口として実装） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v170（バグ修正：取り込みモーダルを開いたまま「QRで受け取る」を押すとモーダルが二重に重なって表示される不具合を修正。QRを開く前に取り込みを閉じ、QRを閉じたら取り込みに戻す。背景タップでもカメラを解放） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -4424,7 +4424,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v169'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v170'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -7065,6 +7065,7 @@ function qrShowFromDojo(){ if(dojoSendCache)qrShow(dojoSendCache); }
 /* 受け取る側 */
 let qrStream=null, qrRAF=0, qrScanning=false;
 function openQrScan(){
+  closeModal('importModal');   // v170: 取り込みモーダルを閉じてから開く（重なり防止）
   const st=document.getElementById('qrScanStatus'); st.className='qr-status'; st.textContent=T('カメラを起動しています…');
   openModal('qrScanModal');
   qrStartCamera();
@@ -7103,7 +7104,7 @@ function qrStopCamera(){
   if(qrStream){ try{ qrStream.getTracks().forEach(t=>t.stop()); }catch(_){} qrStream=null; }
   const video=document.getElementById('qrVideo'); if(video)video.srcObject=null;
 }
-function closeQrScan(){ qrStopCamera(); closeModal('qrScanModal'); }
+function closeQrScan(){ qrStopCamera(); closeModal('qrScanModal'); openImportModal(); }  // v170: 取り込みへ戻す（貼り付けに切替可）
 function qrScanFromFile(evt){
   const file=evt.target&&evt.target.files&&evt.target.files[0]; if(evt.target)evt.target.value='';
   if(!file)return;
@@ -9417,7 +9418,7 @@ function openModal(id){
   if(inner){inner.scrollTop=0;requestAnimationFrame(()=>{inner.scrollTop=0;});}
 }
 function closeModal(id){document.getElementById(id).classList.remove('show');if(id==='qrScanModal'&&typeof qrStopCamera==='function')qrStopCamera();}
-document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('show');}));
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg){if(bg.id==='qrScanModal'&&typeof qrStopCamera==='function')qrStopCamera();bg.classList.remove('show');}}));
 let tT=null;
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2000);}
 
