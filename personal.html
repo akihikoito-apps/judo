@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v173（見やすさ改善：会計・お金・月謝の金額を等幅数字(tabular-nums)で表示。右揃えの一覧で桁が縦にそろい、金額の大小をぱっと比較しやすく。書体自体は変えないので不自然にならない） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v174（個人アプリのブラッシュアップ：報告タブの先頭に「はじめての方向けの使い方説明」を追加。試合結果報告機能を3ステップ＋無料/有料案内つきで説明。「×」で畳み「使い方をみる」で再表示・状態は保存。無料＝報告のみ／有料＝メモリー・分析の線引きに合わせた入口整備の第一歩） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -325,6 +325,16 @@
   .summary-box .lbl{font-size:calc(13px*var(--fs,1));color:var(--gold);margin-top:4px;}
   .summary-box.alert{background:var(--red);}
   .summary-box.alert .lbl{color:#ffe;}
+  /* 報告タブ：はじめての方向けの使い方説明 */
+  .report-intro{position:relative;background:linear-gradient(180deg,#fbf7ea,#fff);border:1.5px solid var(--gold);}
+  .report-intro h3{margin-top:0;color:var(--navy);padding-right:28px;}
+  .ri-close{position:absolute;top:8px;right:10px;background:none;border:none;font-size:calc(22px*var(--fs,1));line-height:1;color:var(--muted);cursor:pointer;font-family:inherit;padding:2px 6px;}
+  .ri-lead{font-size:calc(13.5px*var(--fs,1));color:var(--ink);line-height:1.6;margin:2px 0 12px;}
+  .ri-steps{display:flex;flex-direction:column;gap:9px;}
+  .ri-step{display:flex;align-items:flex-start;gap:10px;font-size:calc(14px*var(--fs,1));line-height:1.5;}
+  .ri-no{flex-shrink:0;width:calc(24px*var(--fs,1));height:calc(24px*var(--fs,1));min-width:22px;min-height:22px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;font-size:calc(13px*var(--fs,1));display:flex;align-items:center;justify-content:center;}
+  .ri-tip{margin:12px 0 0;font-size:calc(12.5px*var(--fs,1));color:#9a7400;background:#fffaf0;border-radius:10px;padding:8px 10px;line-height:1.55;}
+  .ri-reopen{margin:0 0 12px;background:#fff;border:2px solid var(--gold);color:#9a7400;border-radius:12px;padding:9px 14px;font-weight:700;font-family:inherit;font-size:calc(13px*var(--fs,1));cursor:pointer;}
 
   /* ===== タイムライン型スケジュール ===== */
   .tl-month{display:block;margin-bottom:8px;}
@@ -1461,9 +1471,20 @@ function applyUpdate(){
 
 <!-- 報告（個人モード）：試合結果を入力して道場に送る（無料機能） -->
 <section id="screen-report" class="screen">
+  <button class="ri-reopen" id="reportIntroReopen" onclick="openReportIntro()" style="display:none">❓ 使い方をみる</button>
+  <div class="card report-intro" id="reportIntro">
+    <button class="ri-close" onclick="closeReportIntro()" aria-label="閉じる">×</button>
+    <h3>📝 試合の結果を道場に報告できます</h3>
+    <p class="ri-lead">入力して送るだけ。<b>LINE・QRコード・コピー</b>で道場の先生に渡せます。先生は受け取った内容をそのまま登録できるので、伝え間違いや二度手間がありません。</p>
+    <div class="ri-steps">
+      <div class="ri-step"><span class="ri-no">1</span><div><b>選手名・大会名・日づけ</b>を入れます（分かる範囲でOK）。</div></div>
+      <div class="ri-step"><span class="ri-no">2</span><div><b>「＋試合をふやす」</b>で1試合ずつ、勝ち負け・決まり技・相手を選びます。</div></div>
+      <div class="ri-step"><span class="ri-no">3</span><div><b>「📩 道場に送る」</b>でLINE・QR・コピー。会場では<b>QRを画面に出して先生に読み取ってもらう</b>のが手早いです。</div></div>
+    </div>
+    <p class="ri-tip">💡 この「報告」は無料でずっと使えます。自分の試合を<b>記録として残したり、勝率や決まり技を分析したい</b>ときは、有料版でメモリー・分析もご利用いただけます。</p>
+  </div>
   <div class="card">
     <h3 style="margin-top:0;color:var(--navy)">試合結果を報告</h3>
-    <p class="list-mini">入力して「道場に送る」を押すと、LINE・QR・コピーで道場の担当者に渡せます。担当者はそのまま登録できます。</p>
     <label class="fld">選手のなまえ</label>
     <input type="text" id="repName" placeholder="例：山本 蓮" oninput="repGen()">
     <div style="display:flex;gap:8px">
@@ -4426,7 +4447,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v173'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v174'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -6943,8 +6964,18 @@ function renderReport(){
   if(nameEl&&!nameEl.value){ const self=DB.students.find(s=>s.isSelf)||DB.students[0]; if(self)nameEl.value=self.name; }
   const dEl=document.getElementById('repDate'); if(dEl&&!dEl.value)dEl.value=todayStr();
   if(!repMatches.length)repMatches=[repNewMatch()];
+  applyReportIntro();
   repRenderKind(); repRenderMatches(); repGen();
 }
+// はじめての方向けの使い方説明（初回は開いた状態・「×」で閉じると小さな「使い方をみる」ボタンに畳む）
+function applyReportIntro(){
+  const closed=!!(DB&&DB.reportIntroClosed);
+  const card=document.getElementById('reportIntro'), btn=document.getElementById('reportIntroReopen');
+  if(card)card.style.display=closed?'none':'';
+  if(btn)btn.style.display=closed?'':'none';
+}
+function closeReportIntro(){ if(DB){DB.reportIntroClosed=true;save();} applyReportIntro(); }
+function openReportIntro(){ if(DB){DB.reportIntroClosed=false;save();} applyReportIntro(); }
 function repPickKind(k){
   repKind=k;
   document.getElementById('repKindI').classList.toggle('on',k==='個人');
