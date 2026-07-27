@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v176（個人アプリ：初回オンボーディング（数枚ナビ）を追加。新規ユーザーに「ようこそ→主役の名前を入力→使い方3ステップ（入力→メモリー登録→SNSシェア）」を案内し、報告画面へ誘導（名前は自動入力）。名前入力で主役(isSelf)を自動作成。既存データ利用者・完了/スキップ後は再表示しない。v175の報告→メモリー導線と接続） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v177（個人アプリ：無料/有料ゲート（A案）。無料＝報告＋メモリー（記録・シェア）、有料＝試合結果分析。分析タブは見せるが中身は「有料版で使えます」のロック（勝率・決まり技レーダー等の紹介＋Pro CTA）に。Pro化で即解除。ペイウォール文面も分析主役に更新。道場アプリ(suite)はisPro=trueで影響なし） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -352,6 +352,15 @@
   .ob-dots{display:flex;gap:7px;justify-content:center;margin-top:14px;}
   .ob-dot{width:8px;height:8px;border-radius:50%;background:var(--line);}
   .ob-dot.on{background:var(--navy);}
+  /* 分析タブのロック（無料ユーザー向け・A案） */
+  .ana-lock{background:#fff;border:1.5px solid var(--gold);border-radius:16px;padding:22px 18px;text-align:center;margin-top:4px;}
+  .al-emoji{font-size:calc(38px*var(--fs,1));line-height:1;margin-bottom:8px;}
+  .al-h{font-size:calc(20px*var(--fs,1));font-weight:800;color:var(--navy);margin:0 0 10px;line-height:1.35;}
+  .al-p{font-size:calc(14px*var(--fs,1));color:var(--ink);line-height:1.7;margin:0 0 14px;}
+  .al-feat{text-align:left;background:#faf7ef;border:1px solid #eadcb0;border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;flex-direction:column;gap:9px;}
+  .al-item{font-size:calc(13.5px*var(--fs,1));color:var(--ink);line-height:1.55;display:flex;gap:9px;align-items:flex-start;}
+  .al-item span{flex-shrink:0;}
+  .al-note{font-size:calc(12.5px*var(--fs,1));color:var(--muted);margin:12px 0 0;line-height:1.6;}
 
   /* ===== タイムライン型スケジュール ===== */
   .tl-month{display:block;margin-bottom:8px;}
@@ -1457,11 +1466,11 @@ function applyUpdate(){
     <p class="list-mini" id="paywallMsg">この機能はPro（有料）でご利用いただけます。</p>
     <div style="text-align:left;background:#faf7ef;border:1px solid #eadcb0;border-radius:12px;padding:12px 14px;margin-top:12px">
       <div class="list-mini" style="font-weight:800;color:var(--navy);margin-bottom:6px">Proでできること</div>
+      <div class="list-mini">・試合結果の分析（勝率・決まり技レーダー・組手別/技別）</div>
       <div class="list-mini">・シェア画像の全デザイン（配色8×書式8×柄）</div>
       <div class="list-mini">・複数の主役（家族）を登録</div>
-      <div class="list-mini">・組手別・技別などの深掘り分析</div>
     </div>
-    <p class="list-mini" style="margin-top:12px">試合結果の報告は、これからもずっと無料です。</p>
+    <p class="list-mini" style="margin-top:12px">「報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。</p>
     <button class="btn gold full" style="margin-top:14px" id="paywallBuyBtn" onclick="purchasePro()">⭐ Proにする（年額）</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="restorePro()">購入を復元する</button>
     <div class="row" style="margin-top:10px"><button class="btn ghost full" onclick="closeModal('paywallModal')">とじる</button></div>
@@ -4477,7 +4486,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v176'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v177'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -7201,6 +7210,9 @@ function requirePro(msg){
 function proUnlocked(){ setPro(true); closeModal('paywallModal');
   if(typeof renderShareStyles==='function'){renderShareStyles();renderShareFonts();renderSharePatterns();}
   if(rkShareEv&&typeof drawRkShare==='function')drawRkShare(rkShareEv);
+  // 分析タブを開いていたらロックを解いて即座に本来の分析を表示
+  const anaScreen=document.getElementById('screen-analysis');
+  if(anaScreen&&anaScreen.classList.contains('active')&&typeof renderAnalysisTab==='function')renderAnalysisTab();
   toast(T('Proになりました。ありがとうございます！'));
 }
 async function purchasePro(){
@@ -7716,7 +7728,27 @@ function rkSaveShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{co
 function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=>{const file=new File([b],'card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:'#柔道 #My道場'});}catch(e){}}else{rkSaveShare();alert(T('この端末は直接シェア非対応のため画像を保存しました。'));}},'image/png');}
 /* ===== v146: 分析タブ（個人モード）＝選手の試合分析（既存の決まり技レーダー等を再利用） ===== */
 let anaSelfId=null;
+// 個人アプリの無料ユーザーには分析をゲート（A案：タブは見せて、中身は「有料版で使えます」）
+function analysisLockHtml(){
+  return `<div class="ana-lock">
+    <div class="al-emoji">🔒📈</div>
+    <h3 class="al-h">試合結果の分析は<br>有料版（Pro）で</h3>
+    <p class="al-p">あなたの柔道を数字で深掘り。<b>「報告」と「メモリー」は無料</b>のまま、Proでは分析が使えます。</p>
+    <div class="al-feat">
+      <div class="al-item"><span>📊</span><div><b>勝率・決まり技レーダー</b>——どの技で勝てているかが一目でわかる</div></div>
+      <div class="al-item"><span>🤼</span><div><b>組手（右/左）別・技別</b>の傾向</div></div>
+      <div class="al-item"><span>📈</span><div>直近の調子や対戦の振り返り</div></div>
+    </div>
+    <button class="btn gold full" onclick="requirePro('試合結果の分析（勝率・決まり技レーダー）')">⭐ 有料版（Pro）にする</button>
+    <p class="al-note">「報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。</p>
+  </div>`;
+}
 function renderAnalysisTab(){
+  if(!isPro()){
+    const c=document.getElementById('anaChips'), b=document.getElementById('anaAnalysis');
+    if(c)c.innerHTML=''; if(b)b.innerHTML=analysisLockHtml();
+    return;
+  }
   const map=allBoutsBySelf();
   const withMatches=DB.students.filter(s=>map[s.id]&&map[s.id].length);
   const selfW=withMatches.filter(s=>s.isSelf);        // v147: 主役(isSelf)が居ればそれを優先
