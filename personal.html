@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v175（個人アプリ：報告→メモリー登録の導線を追加。報告画面に「自分のメモリーにも残そう」カード＝入力中の試合をワンタップで自分(主役)のメモリーに登録し、そのままメモリータブへ誘導（＝戦績カードのSNSシェアへ）。主役が無ければ名前から自動作成、既存主役は表記ゆれを吸収して追記、同一内容は二重登録防止。個人戦/団体戦対応。メモリーは無料開放） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v176（個人アプリ：初回オンボーディング（数枚ナビ）を追加。新規ユーザーに「ようこそ→主役の名前を入力→使い方3ステップ（入力→メモリー登録→SNSシェア）」を案内し、報告画面へ誘導（名前は自動入力）。名前入力で主役(isSelf)を自動作成。既存データ利用者・完了/スキップ後は再表示しない。v175の報告→メモリー導線と接続） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -335,6 +335,23 @@
   .ri-no{flex-shrink:0;width:calc(24px*var(--fs,1));height:calc(24px*var(--fs,1));min-width:22px;min-height:22px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;font-size:calc(13px*var(--fs,1));display:flex;align-items:center;justify-content:center;}
   .ri-tip{margin:12px 0 0;font-size:calc(12.5px*var(--fs,1));color:#9a7400;background:#fffaf0;border-radius:10px;padding:8px 10px;line-height:1.55;}
   .ri-reopen{margin:0 0 12px;background:#fff;border:2px solid var(--gold);color:#9a7400;border-radius:12px;padding:9px 14px;font-weight:700;font-family:inherit;font-size:calc(13px*var(--fs,1));cursor:pointer;}
+  /* 初回オンボーディング */
+  .ob-overlay{position:fixed;inset:0;background:rgba(10,15,30,.74);display:none;align-items:center;justify-content:center;z-index:120;padding:18px;}
+  .ob-overlay.show{display:flex;}
+  .ob-card{background:#fff;width:100%;max-width:460px;border-radius:20px;padding:26px 22px calc(20px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;box-shadow:0 22px 60px rgba(0,0,0,.4);}
+  .ob-emoji{font-size:calc(52px*var(--fs,1));text-align:center;margin:2px 0 12px;line-height:1;}
+  .ob-h{font-size:calc(22px*var(--fs,1));font-weight:800;color:var(--navy);text-align:center;margin:0 0 12px;line-height:1.35;}
+  .ob-p{font-size:calc(14.5px*var(--fs,1));color:var(--ink);line-height:1.75;text-align:center;margin:0 0 18px;}
+  .ob-steps{display:flex;flex-direction:column;gap:11px;margin:2px 0 16px;}
+  .ob-step{display:flex;gap:11px;align-items:flex-start;font-size:calc(14px*var(--fs,1));line-height:1.5;text-align:left;}
+  .ob-no{flex-shrink:0;width:calc(26px*var(--fs,1));height:calc(26px*var(--fs,1));min-width:24px;min-height:24px;border-radius:50%;background:var(--gold);color:#3a2c07;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:calc(14px*var(--fs,1));}
+  .ob-input{width:100%;font-size:calc(18px*var(--fs,1));padding:14px;border:2px solid var(--line);border-radius:12px;font-family:inherit;text-align:center;margin-bottom:4px;box-sizing:border-box;}
+  .ob-btn{width:100%;min-height:54px;border:none;border-radius:14px;font-weight:800;font-size:calc(16px*var(--fs,1));font-family:inherit;cursor:pointer;background:var(--navy);color:#fff;margin-top:6px;}
+  .ob-btn.gold{background:var(--gold);color:#3a2c07;}
+  .ob-skip{display:block;width:100%;background:none;border:none;color:var(--muted);font-family:inherit;font-size:calc(13px*var(--fs,1));padding:12px;cursor:pointer;margin-top:4px;text-decoration:underline;}
+  .ob-dots{display:flex;gap:7px;justify-content:center;margin-top:14px;}
+  .ob-dot{width:8px;height:8px;border-radius:50%;background:var(--line);}
+  .ob-dot.on{background:var(--navy);}
 
   /* ===== タイムライン型スケジュール ===== */
   .tl-month{display:block;margin-bottom:8px;}
@@ -1517,6 +1534,14 @@ function applyUpdate(){
     <button class="btn" id="repMemBtn" style="background:var(--gold);color:#3a2c07;width:100%" onclick="repToMemory()">この試合をメモリーに登録する</button>
   </div>
 </section>
+
+<!-- 初回オンボーディング（個人アプリ・新規ユーザー向け／数枚ナビ） -->
+<div class="ob-overlay" id="onboardModal">
+  <div class="ob-card">
+    <div class="ob-body" id="obBody"></div>
+    <div class="ob-dots" id="obDots"></div>
+  </div>
+</div>
 
 <nav class="tabbar">
   <button data-tab="report" onclick="switchTab('report')" style="display:none"><span class="ico">📝</span><span class="tlbl" data-i18n="報告">報告</span></button>
@@ -4452,7 +4477,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v175'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v176'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -7054,12 +7079,74 @@ function repToDojo(){
 let repRegSig='';   // 直前に登録した内容の署名（二重登録の防止）
 function repCreateSelf(name){
   const parts=(name||'').split(/[\s　]+/).filter(Boolean);
+  const grip=(typeof repMatches!=='undefined'&&repMatches&&repMatches[0]&&repMatches[0].grip)||'右';
   const s={id:uid(),name:name,lastName:parts[0]||name,firstName:parts.slice(1).join(' '),lastKana:'',firstKana:'',kana:'',
     role:'',category:(cats()[0]||{}).name||'',gradeBaseFY:null,gradeBaseLevel:null,gradeFixed:false,gradeTouchedFY:null,
-    rank:'',rankDate:'',sex:'',grip:(repMatches[0]&&repMatches[0].grip)||'右',feeReq:false,feeType:'monthly',visitBase:0,feeAmount:0,
+    rank:'',rankDate:'',sex:'',grip:grip,feeReq:false,feeType:'monthly',visitBase:0,feeAmount:0,
     startDate:'',endDate:'',leaveStart:'',leaveEnd:'',leaveFee:0,birth:'',judoId:'',note:'',isSelf:true};
   DB.students.push(s);
   return s;
+}
+// ===== 初回オンボーディング（個人アプリ・新規ユーザー／数枚ナビ）=====
+let obStep=0, obNameVal='';
+function maybeStartOnboarding(){
+  if(APP_EDITION!=='personal')return;                       // 個人アプリのみ
+  if(DB.onboarded)return;                                   // 済みなら出さない
+  if(DB.students&&DB.students.length>0){DB.onboarded=true;save();return;} // 既存データ利用者には出さない
+  if(typeof lockEnabled!=='undefined'&&lockEnabled&&lockCode)return;      // ロック中は出さない
+  startOnboarding();
+}
+function startOnboarding(){ obStep=0; obNameVal=(DB.students.find(s=>s.isSelf)||{}).name||''; obRender(); document.getElementById('onboardModal').classList.add('show'); }
+function obRender(){
+  const body=document.getElementById('obBody'); if(!body)return;
+  let h='';
+  if(obStep===0){
+    h=`<div class="ob-emoji">🥋</div>
+       <h3 class="ob-h">ようこそ！<br>マイ柔道ヒストリーへ</h3>
+       <p class="ob-p">試合の記録を残して、成長を“見える化”。<br><b>戦績カードはSNSにシェア</b>できます。</p>
+       <button class="ob-btn gold" onclick="obNext()">はじめる</button>
+       <button class="ob-skip" onclick="obSkip()">あとで</button>`;
+  }else if(obStep===1){
+    h=`<div class="ob-emoji">✍️</div>
+       <h3 class="ob-h">まず、主役のお名前を<br>教えてください</h3>
+       <p class="ob-p">あなた自身、または お子さんの名前でOK。<br>（あとで変更・追加できます）</p>
+       <input class="ob-input" id="obName" type="text" placeholder="例：山本 蓮" value="${esc(obNameVal)}">
+       <button class="ob-btn" onclick="obNext()">次へ</button>
+       <button class="ob-skip" onclick="obSkip()">スキップ</button>`;
+  }else if(obStep===2){
+    h=`<div class="ob-emoji">🎉</div>
+       <h3 class="ob-h">使い方はカンタン<br>3ステップ</h3>
+       <div class="ob-steps">
+         <div class="ob-step"><span class="ob-no">1</span><div><b>試合結果を入力</b>（勝ち負け・決まり技・相手）</div></div>
+         <div class="ob-step"><span class="ob-no">2</span><div><b>「メモリーに登録」</b>で自分の記録に残す</div></div>
+         <div class="ob-step"><span class="ob-no">3</span><div><b>戦績カードをSNSにシェア</b>！（Instagramなど）</div></div>
+       </div>
+       <p class="ob-p" style="margin-bottom:10px">さっそく、最初の試合を入れてみましょう。</p>
+       <button class="ob-btn gold" onclick="obFinish()">試合を入力する</button>
+       <button class="ob-skip" onclick="obFinish()">あとで入力する</button>`;
+  }
+  body.innerHTML=h;
+  const dots=document.getElementById('obDots');
+  if(dots)dots.innerHTML=[0,1,2].map(i=>`<span class="ob-dot ${i===obStep?'on':''}"></span>`).join('');
+  const inp=document.getElementById('obName'); if(inp)setTimeout(()=>{try{inp.focus();}catch(_){}},120);
+}
+function obNext(){
+  if(obStep===1){
+    const inp=document.getElementById('obName');
+    obNameVal=(inp?inp.value:'').trim();
+    if(!obNameVal){ toast('お名前を入れてください'); return; }
+    let self=findStudentByName(obNameVal)||DB.students.find(s=>s.isSelf)||null;
+    if(!self){ self=repCreateSelf(obNameVal); }
+    else { self.isSelf=true; if(!self.name)self.name=obNameVal; }
+    save();
+  }
+  obStep++; obRender();
+}
+function obSkip(){ obFinish(); }
+function obFinish(){
+  if(DB){ DB.onboarded=true; save(); }
+  const m=document.getElementById('onboardModal'); if(m)m.classList.remove('show');
+  if(APP_EDITION==='personal'||DB.mode==='personal'){ switchTab('report'); }
 }
 function repToMemory(){
   const name=(document.getElementById('repName').value||'').trim();
@@ -9540,6 +9627,7 @@ function initUI(){
   if(APP_EDITION==='personal')switchTab('report');   // v167: 個人専用アプリは「報告」から開始（無料の入口）
   else if(DB.mode==='personal')switchTab('rireki');  // 個人モードは履歴から開始
   showBackupReminder();   // 期限超過なら催促バナー
+  maybeStartOnboarding(); // v176: 個人アプリの新規ユーザーに初回ナビ
 }
 load();seedIfEmpty();save();initUI();
 loadLock();
