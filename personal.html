@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v171（改善：試合結果の取り込み時、選手名の照合を「字が合えば一致」に。氏名内の半角/全角スペースや前後の空白のゆれを吸収して自動一致（NFKC正規化＋空白除去＋部分一致フォールバック）。手動で選ぶ手間を軽減） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v172（iPad/文字拡大時の見た目改善：ヘッダーのロゴと下段タブのアイコン/文字を文字サイズに合わせて拡大（上限付き）し相対的な小ささを解消。決まり技レーダーの％数値を小さめ固定・軸名は控えめ拡大にして、文字拡大時に数字がチャートに重なって見えない問題を解消） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -48,7 +48,7 @@
   }
   header .title{display:flex;align-items:center;gap:12px;}
   header .crest{
-    width:48px;height:48px;border-radius:10px;flex-shrink:0;overflow:hidden;
+    width:min(calc(48px*var(--fs,1)),76px);height:min(calc(48px*var(--fs,1)),76px);border-radius:10px;flex-shrink:0;overflow:hidden;
     background-size:cover;background-position:center;background-repeat:no-repeat;
   }
   header h1{font-size:calc(24px*var(--fs,1));margin:0;font-weight:700;letter-spacing:.03em;line-height:1.1;}
@@ -480,8 +480,8 @@
 
   nav.tabbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;gap:4px;z-index:20;padding:4px max(env(safe-area-inset-left),14px) calc(env(safe-area-inset-bottom) + 12px) max(env(safe-area-inset-right),14px);box-shadow:0 -2px 8px rgba(0,0,0,.06);}
   nav.tabbar button{flex:1;min-width:0;background:none;border:none;font-family:inherit;padding:8px 2px;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:12px;transition:background .15s;}
-  nav.tabbar button .ico{font-size:20px;}
-  nav.tabbar button .tlbl{font-size:clamp(8px,2.5vw,10px);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;letter-spacing:-.2px;}
+  nav.tabbar button .ico{font-size:min(calc(20px*var(--fs,1)),34px);}
+  nav.tabbar button .tlbl{font-size:min(calc(clamp(8px,2.5vw,10px)*var(--fs,1)),15px);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;letter-spacing:-.2px;}
   nav.tabbar button.active{color:#fff;background:var(--navy);}
 
   .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;align-items:flex-end;justify-content:center;}
@@ -4424,7 +4424,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v171'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v172'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -6358,7 +6358,9 @@ function raRadarSVG(ax,series,scaleMax,subCol){
   const fs=raFsNow(),cx=150,cy=150,R=78,n=9;
   const ang=i=>(-Math.PI/2)+(2*Math.PI*i/n),pt=(i,r)=>[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];
   const mx=scaleMax||1;
-  const fLab=(13.5*fs).toFixed(1),fVal=(12.5*fs).toFixed(1),labR=R+16+fs*5,valOff=10+fs*5;
+  // 文字拡大(fs)で％数字が巨大化しチャートに重なるのを防ぐ：数値は小さめ固定、軸名のみ控えめに拡大（チャート枠は max-width で拡大するため相対的な見やすさは保たれる）
+  const flx=Math.min(fs,1.25);
+  const fLab=(13.5*flx).toFixed(1),fVal='12.5',labR=R+16+flx*5,valOff=11;
   let g='';for(let r=1;r<=4;r++){const rr=R*r/4;g+=`<polygon points="${ax.names.map((_,i)=>pt(i,rr).join(',')).join(' ')}" fill="none" stroke="rgba(20,30,55,.10)"/>`;}
   let axl='';ax.names.forEach((_,i)=>{const[x,y]=pt(i,R);axl+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(20,30,55,.13)"/>`;});
   let polys='';series.forEach(s=>{const p=s.values.map((v,i)=>pt(i,R*Math.min(v/mx,1)).join(',')).join(' ');polys+=`<polygon points="${p}" fill="${s.fill}" stroke="${s.color}" stroke-width="3" ${s.dash?'stroke-dasharray="6 4"':''}/>`;});
