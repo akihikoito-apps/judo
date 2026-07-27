@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v170（バグ修正：取り込みモーダルを開いたまま「QRで受け取る」を押すとモーダルが二重に重なって表示される不具合を修正。QRを開く前に取り込みを閉じ、QRを閉じたら取り込みに戻す。背景タップでもカメラを解放） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v171（改善：試合結果の取り込み時、選手名の照合を「字が合えば一致」に。氏名内の半角/全角スペースや前後の空白のゆれを吸収して自動一致（NFKC正規化＋空白除去＋部分一致フォールバック）。手動で選ぶ手間を軽減） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -4424,7 +4424,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v170'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v171'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -7575,6 +7575,14 @@ function impResult(t){
   return '';
 }
 function impSplit(line){return line.split(/[｜|]/).map(s=>s.trim());}
+// 氏名照合：空白（半角/全角）や全半角のゆれを吸収し「字が合えば」一致させる
+function normName(s){return (s||'').normalize('NFKC').replace(/[\s　]/g,'').toLowerCase();}
+function findStudentByName(nm){
+  const t=normName(nm); if(!t)return null;
+  return DB.students.find(s=>normName(s.name)===t)                                   // 空白等を無視した一致
+      || DB.students.find(s=>{const n=normName(s.name);return n&&(n.includes(t)||t.includes(n));}) // 姓のみ等の部分一致
+      || null;
+}
 function impNormDate(v){v=(v||'').trim();const m=v.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);return m?`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`:'';}
 function impDayDiff(a,b){if(!a||!b)return 9999;return Math.round((new Date(a+'T00:00')-new Date(b+'T00:00'))/86400000);}
 function parseImportText(raw){
@@ -7609,7 +7617,7 @@ function analyzeImport(){
   const p=parseImportText(document.getElementById('importText').value);
   if(!p.bouts.length){toast(T('試合が読み取れませんでした。形式を確認してください'));return;}
   importParsed=p;
-  const matched=DB.students.find(s=>s.name===p.head.self);
+  const matched=findStudentByName(p.head.self);
   const selEl=document.getElementById('importSelf');
   selEl.innerHTML='<option value="">'+T('（選手を選ぶ）')+'</option>'+DB.students.map(s=>`<option value="${s.id}" ${matched&&matched.id===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
   document.getElementById('importSelfHint').textContent = p.head.self ? ('記入：'+p.head.self+(matched?'（自動一致）':'（一致者なし・選んでください）')) : '（記入に選手名がありません）';
