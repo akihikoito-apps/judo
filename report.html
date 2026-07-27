@@ -40,9 +40,15 @@
   .actions button{flex:1;min-height:54px;border-radius:14px;font-weight:800;font-size:16px;font-family:inherit;cursor:pointer;border:none;}
   .btn-copy{background:var(--navy);color:#fff;}
   .btn-line{background:#06C755;color:#fff;}
-  .btn-qr{width:100%;min-height:54px;margin-top:10px;background:var(--gold);color:#3a2c07;border:none;border-radius:14px;font-weight:800;font-size:16px;font-family:inherit;cursor:pointer;}
   #qrBox{display:flex;justify-content:center;padding:10px;background:#fff;border-radius:12px;border:1px solid var(--line);}
   #qrBox svg{width:min(80vw,300px);height:auto;display:block;}
+  .qrhead{font-size:12.5px;font-weight:800;color:var(--navy);margin:14px 2px 6px;}
+  .qrhead span{font-weight:600;color:var(--muted);}
+  #qrInline{display:flex;justify-content:center;align-items:center;min-height:120px;padding:12px;background:#fff;border:1px solid var(--line);border-radius:12px;cursor:pointer;}
+  #qrInline svg{width:min(58vw,210px);height:auto;display:block;}
+  .qrph{color:var(--muted);font-size:13px;text-align:center;line-height:1.6;}
+  .fmtwrap{margin-top:14px;}
+  .fmtwrap .lbl{display:block;font-size:12.5px;color:var(--muted);font-weight:700;margin:0 2px 6px;}
   .hint{font-size:12.5px;color:var(--muted);line-height:1.6;margin:6px 2px 0;}
   .req{color:var(--red);font-size:11px;margin-left:4px;}
   /* modal */
@@ -90,12 +96,20 @@
   <div class="card mt">
     <label class="fld">送る内容（自動でできます）</label>
     <div class="genbox" id="genOut"></div>
+    <div class="qrhead">QRコード<span>（タップで大きく表示）</span></div>
+    <div id="qrInline" onclick="showQr()"></div>
+    <div class="fmtwrap">
+      <span class="lbl">送る形式をえらぶ</span>
+      <div class="seg" id="fmtSeg">
+        <button class="on" data-f="text" onclick="setFmt('text')">📝 文字</button>
+        <button data-f="qr" onclick="setFmt('qr')">📷 QRコード</button>
+      </div>
+    </div>
     <div class="actions">
       <button class="btn-copy" onclick="doCopy()">📋 コピー</button>
       <button class="btn-line" onclick="doShare()">LINEで送る</button>
     </div>
-    <button class="btn-qr" onclick="showQr()">📷 QRコードで送る</button>
-    <p class="hint">遠くの道場へは「コピー」か「LINEで送る」。<b>会場でその場なら「QRコードで送る」</b>——このスマホにQRを表示し、道場のiPadアプリ「試合結果 › 📷 QRで受け取る」で読み取ってもらえます。</p>
+    <p class="hint">上で<b>「文字」か「QRコード」</b>をえらんでから「コピー」または「LINEで送る」を押してください。<br>会場では、上のQRを直接見せて、道場のiPadアプリ「試合結果 › 📷 QRで受け取る」で読み取ってもらってもOKです。</p>
   </div>
 </div>
 
@@ -2519,6 +2533,7 @@ function gen(){
     }).join('\n');
   }
   document.getElementById('genOut').textContent=out;
+  renderInlineQr(out);
   return out;
 }
 function fallbackCopy(t){
@@ -2528,14 +2543,10 @@ function fallbackCopy(t){
   ta.remove();
   alert(ok?'コピーしました。LINEに貼って送ってください。':'自動コピーできませんでした。下の黒い枠を長押しして選択→コピーしてください。');
 }
-function doCopy(){
-  const t=gen();
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(t).then(()=>alert('コピーしました。LINEに貼って送ってください。')).catch(()=>fallbackCopy(t));
-  }else{fallbackCopy(t);}
-}
-function doShare(){const t=gen();if(navigator.share){navigator.share({text:t}).catch(()=>{});}else{doCopy();}}
-// ---- QRで送る ----
+// ---- QR（文字/画像） ----
+let sendFmt='text';                 // 'text' | 'qr'
+let lastQrSvg=null, lastQrBlob=null, qrGenToken=0;
+function setFmt(f){sendFmt=f;[...document.querySelectorAll('#fmtSeg button')].forEach(b=>b.classList.toggle('on',b.dataset.f===f));}
 function qrMakeSvg(text){
   if(typeof qrcode==='undefined')return null;
   try{ if(qrcode.stringToBytesFuncs&&qrcode.stringToBytesFuncs['UTF-8'])qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8']; }catch(_){}
@@ -2546,16 +2557,74 @@ function qrMakeSvg(text){
   }
   return null;
 }
+function svgToPngBlob(svg){
+  return new Promise(resolve=>{
+    try{
+      const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+      const img=new Image();
+      img.onload=()=>{const S=720;const cv=document.createElement('canvas');cv.width=S;cv.height=S;const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,S,S);ctx.drawImage(img,0,0,S,S);cv.toBlob(b=>resolve(b),'image/png');};
+      img.onerror=()=>resolve(null);
+      img.src=url;
+    }catch(e){resolve(null);}
+  });
+}
+// 入力のたびに「送る内容」欄へQRを表示（＋送信用PNGを先読みキャッシュ）
+function renderInlineQr(text){
+  const box=document.getElementById('qrInline');if(!box)return;
+  const ready=document.getElementById('selfName').value.trim()&&matches.length;
+  if(!ready){lastQrSvg=null;lastQrBlob=null;box.innerHTML='<span class="qrph">選手名と試合を入れるとQRができます</span>';return;}
+  const svg=qrMakeSvg(text);lastQrSvg=svg;
+  if(!svg){lastQrBlob=null;box.innerHTML='<span class="qrph">内容が多すぎてQRにできません（「文字」で送ってください）</span>';return;}
+  box.innerHTML=svg;
+  const tok=++qrGenToken;lastQrBlob=null;
+  svgToPngBlob(svg).then(b=>{if(tok===qrGenToken)lastQrBlob=b;});
+}
+function qrReady(){
+  if(lastQrSvg)return true;
+  if(!document.getElementById('selfName').value.trim()){alert('選手のなまえを入れてください。');return false;}
+  if(!matches.length){alert('試合を1つ以上入れてください。');return false;}
+  alert('内容が多すぎてQRにできませんでした。試合数を減らすか、「文字」で送ってください。');return false;
+}
 function showQr(){
-  const name=document.getElementById('selfName').value.trim();
-  if(!name){alert('選手のなまえを入れてください。');return;}
-  if(!matches.length){alert('試合を1つ以上入れてください。');return;}
-  const svg=qrMakeSvg(gen());
-  if(!svg){alert('内容が多すぎてQRにできませんでした。試合数を減らすか、「コピー」または「LINEで送る」をお使いください。');return;}
-  document.getElementById('qrBox').innerHTML=svg;
+  if(!lastQrSvg){qrReady();return;}
+  document.getElementById('qrBox').innerHTML=lastQrSvg;
   document.getElementById('qrModal').classList.add('show');
 }
 function closeQr(){document.getElementById('qrModal').classList.remove('show');}
+async function copyQrImage(){
+  if(!qrReady())return;
+  if(navigator.clipboard&&window.ClipboardItem){
+    try{
+      const item=new ClipboardItem({'image/png':(lastQrBlob?Promise.resolve(lastQrBlob):svgToPngBlob(lastQrSvg)).then(b=>{if(!b)throw 0;return b;})});
+      await navigator.clipboard.write([item]);
+      alert('QRコードの画像をコピーしました。LINEに貼って送ってください。');return;
+    }catch(e){}
+  }
+  showQr();
+  alert('画像の自動コピーができませんでした。表示されたQRを長押しで保存、またはスクリーンショットで送ってください。');
+}
+async function shareQrImage(){
+  if(!qrReady())return;
+  const blob=lastQrBlob||await svgToPngBlob(lastQrSvg);
+  if(blob){
+    const file=new File([blob],'match-qr.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file]});return;}catch(e){if(e&&e.name==='AbortError')return;}
+    }
+  }
+  await copyQrImage();
+}
+function doCopy(){
+  if(sendFmt==='qr'){copyQrImage();return;}
+  const t=gen();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(()=>alert('コピーしました。LINEに貼って送ってください。')).catch(()=>fallbackCopy(t));
+  }else{fallbackCopy(t);}
+}
+function doShare(){
+  if(sendFmt==='qr'){shareQrImage();return;}
+  const t=gen();if(navigator.share){navigator.share({text:t}).catch(()=>{});}else{doCopy();}
+}
 renderCountRole();
 addMatch();
 </script>
