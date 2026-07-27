@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v174（個人アプリのブラッシュアップ：報告タブの先頭に「はじめての方向けの使い方説明」を追加。試合結果報告機能を3ステップ＋無料/有料案内つきで説明。「×」で畳み「使い方をみる」で再表示・状態は保存。無料＝報告のみ／有料＝メモリー・分析の線引きに合わせた入口整備の第一歩） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v175（個人アプリ：報告→メモリー登録の導線を追加。報告画面に「自分のメモリーにも残そう」カード＝入力中の試合をワンタップで自分(主役)のメモリーに登録し、そのままメモリータブへ誘導（＝戦績カードのSNSシェアへ）。主役が無ければ名前から自動作成、既存主役は表記ゆれを吸収して追記、同一内容は二重登録防止。個人戦/団体戦対応。メモリーは無料開放） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1510,6 +1510,11 @@ function applyUpdate(){
     <label class="fld" style="margin-top:0">送る内容（自動でできます）</label>
     <div id="repPreview" class="dojo-send-ta" style="min-height:110px;white-space:pre-wrap"></div>
     <button class="btn" style="background:var(--navy);color:#fff;width:100%;margin-top:12px" onclick="repToDojo()">📩 道場に送る（LINE / QR / コピー）</button>
+  </div>
+  <div class="card rep-mem">
+    <h3 style="margin-top:0;color:var(--navy)">📖 自分のメモリーにも残そう</h3>
+    <p class="list-mini" style="margin-bottom:12px">いま入力した試合を記録しておくと、<b>あとで見返せて、戦績カードをSNSにシェア</b>できます（無料）。道場への報告とは別に、自分の思い出として残せます。</p>
+    <button class="btn" id="repMemBtn" style="background:var(--gold);color:#3a2c07;width:100%" onclick="repToMemory()">この試合をメモリーに登録する</button>
   </div>
 </section>
 
@@ -4447,7 +4452,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v174'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v175'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -7044,6 +7049,56 @@ function repToDojo(){
   dojoSendCache=repGen();
   document.getElementById('dojoSendText').value=dojoSendCache;
   openModal('dojoSendModal');
+}
+// ===== 報告→メモリー登録の導線（無料）。入力中の試合を自分(主役)のメモリーに残す =====
+let repRegSig='';   // 直前に登録した内容の署名（二重登録の防止）
+function repCreateSelf(name){
+  const parts=(name||'').split(/[\s　]+/).filter(Boolean);
+  const s={id:uid(),name:name,lastName:parts[0]||name,firstName:parts.slice(1).join(' '),lastKana:'',firstKana:'',kana:'',
+    role:'',category:(cats()[0]||{}).name||'',gradeBaseFY:null,gradeBaseLevel:null,gradeFixed:false,gradeTouchedFY:null,
+    rank:'',rankDate:'',sex:'',grip:(repMatches[0]&&repMatches[0].grip)||'右',feeReq:false,feeType:'monthly',visitBase:0,feeAmount:0,
+    startDate:'',endDate:'',leaveStart:'',leaveEnd:'',leaveFee:0,birth:'',judoId:'',note:'',isSelf:true};
+  DB.students.push(s);
+  return s;
+}
+function repToMemory(){
+  const name=(document.getElementById('repName').value||'').trim();
+  if(!name){ toast(T('選手のなまえを入れてください')); return; }
+  const bouts=repMatches.filter(m=>m&&m.res);
+  if(!bouts.length){ toast(T('登録する試合結果がありません')); return; }
+  const sig=repGen();
+  if(sig&&sig===repRegSig){ toast('この試合はすでにメモリーに登録済みです'); return; }
+  // 1) 主役(self)を決める：名前一致 → 既存の主役 → 新規作成
+  let self=findStudentByName(name)||DB.students.find(s=>s.isSelf)||null;
+  if(!self){ self=repCreateSelf(name); }
+  else if(!self.isSelf&&APP_EDITION==='personal'){ self.isSelf=true; }
+  // 2) 予定(大会)を作成/検索：同じ日付＆同名の試合予定があれば再利用
+  const dt=(document.getElementById('repDate').value||'').trim()||todayStr();
+  const tk=(document.getElementById('repTaikai').value||'').trim();
+  let sched=DB.schedule.find(s=>s.date===dt&&((s.title||'').trim()===tk)&&s.showMatch);
+  if(!sched){ sched={id:uid(),name:'大会',title:tk,date:dt,time:'',place:'',note:'',showMatch:true}; DB.schedule.push(sched); }
+  const mr=ensureMatch(sched.id);
+  // 3) 登録（個人戦／団体戦）
+  if(repKind==='団体'){
+    const cnt=repCount||5, role=repRole||(POS[cnt]?POS[cnt][0]:'先鋒'), isRep=(role==='代表戦'||role==='代表');
+    bouts.forEach(m=>{
+      const ab={id:uid(),selfId:self.id,result:m.res,grade:m.res==='×'?'':(m.grade||''),waza:m.res==='×'?'':(m.waza||''),oppName:m.opp||'',oppId:'',grip:m.grip||'右',note:m.note||''};
+      const card={id:uid(),count:cnt,division:'',round:m.round||'',oppTeam:m.affil||'',oppIsMate:false,tiebreak:'',rep:null,bouts:[]};
+      while(card.bouts.length<cnt)card.bouts.push(impEmptyBout());
+      if(isRep){card.tiebreak='rep';card.rep=ab;} else {const idx=(POS[cnt]||[]).indexOf(role);card.bouts[idx>=0?idx:0]=ab;}
+      mr.team.cards.push(card);
+    });
+  }else{
+    bouts.forEach(m=>{
+      mr.individual.push({id:uid(),selfId:self.id,division:'',round:m.round||'',result:m.res,grade:m.res==='×'?'':(m.grade||''),waza:m.res==='×'?'':(m.waza||''),oppIsMate:false,oppId:'',oppName:m.opp||'',oppAffil:m.affil||'',grip:m.grip||'',note:m.note||'',sheet:'individual'});
+    });
+  }
+  save();
+  repRegSig=sig;
+  toast(bouts.length+'件をメモリーに登録しました');
+  // 4) 誘導：メモリーへ移動してその選手を表示（＝戦績カードのシェアへ）
+  rkSelfId=self.id; rkYear='all';
+  switchTab('rireki');
 }
 /* ===== v167: Proフラグの土台（課金は未接続。将来ネイティブ化のIAPで setPro を呼ぶ）===== */
 // v168: 個人アプリ(edition='personal')のみフリーミアム。道場アプリ(suite/office)は有料製品なので常に全解放。
