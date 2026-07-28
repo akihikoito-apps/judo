@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v177（個人アプリ：無料/有料ゲート（A案）。無料＝報告＋メモリー（記録・シェア）、有料＝試合結果分析。分析タブは見せるが中身は「有料版で使えます」のロック（勝率・決まり技レーダー等の紹介＋Pro CTA）に。Pro化で即解除。ペイウォール文面も分析主役に更新。道場アプリ(suite)はisPro=trueで影響なし） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v178（個人アプリ：①シェアカード魅力アップ＝写真が無いカードの空いた上部に「柔エンブレム＋スポットライト＋日付」のヒーロー領域を追加しポスター化（試合/節目カード共通・全8配色対応、写真ありは従来どおり）。②設定に「はじめの案内をもう一度見る」を追加（初回オンボーディングを再表示）） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1193,6 +1193,11 @@ function applyUpdate(){
 
     <!-- 個人モードの設定：ストーリー名 → ストーリーロゴ → 年度の開始月 -->
     <div id="setPersonalFields" style="display:none">
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">はじめの案内</h3>
+        <p class="list-mini">最初のご案内（ようこそ → お名前 → 使い方3ステップ）を、もう一度見られます。</p>
+        <button class="btn ghost full" onclick="startOnboarding()">▶ はじめの案内をもう一度見る</button>
+      </div>
       <div class="card">
         <h3 style="margin-top:0;color:var(--navy)">ストーリー名</h3>
         <p class="list-mini">上部の帯とシェア画像に表示される、あなた（または家族）の記録の名前です。</p>
@@ -4486,7 +4491,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v177'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v178'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -7643,6 +7648,22 @@ function shareBase(ctx,st,heroImg,heroH){
   if(heroImg){ rkDrawCover(ctx,heroImg,0,0,SW,heroH); ctx.fillStyle=st.accent; ctx.fillRect(0,heroH-6,SW,6); return heroH; }
   return 0;
 }
+// 写真が無いカードの上部の空きを、エンブレム＋日付＋スポットライトで“ポスター”に仕立てる
+function shareHeroBand(ctx,st,dateStr){
+  const cx=SW/2, cy=278, R=120;
+  const gg=ctx.createRadialGradient(cx,cy-10,20,cx,cy-10,560);
+  gg.addColorStop(0,hexA(st.accent, st.light?0.12:0.16)); gg.addColorStop(1,hexA(st.accent,0));
+  ctx.save(); ctx.fillStyle=gg; ctx.fillRect(0,0,SW,640); ctx.restore();
+  ctx.save();
+  ctx.strokeStyle=hexA(st.accent,0.95); ctx.lineWidth=6; ctx.beginPath(); ctx.arc(cx,cy,R,0,6.2832); ctx.stroke();
+  ctx.strokeStyle=hexA(st.accent,0.32); ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,R-15,0,6.2832); ctx.stroke();
+  ctx.fillStyle=st.ink; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.font='900 134px "Hiragino Mincho ProN","YuMincho","Yu Mincho",serif'; ctx.fillText('柔',cx,cy+8);
+  ctx.restore();
+  if(dateStr){ ctx.save(); ctx.fillStyle=st.sub; ctx.textAlign='center'; ctx.textBaseline='top'; shareLS(ctx,4);
+    ctx.font='700 30px '+shareFam(); ctx.fillText(dateStr,cx,cy+R+30); shareLS(ctx,0); ctx.restore(); }
+  ctx.textAlign='left'; ctx.textBaseline='top';
+}
 // 署名：右下に 主役名／ストーリー名／My道場（柔道）を積む
 function shareSignature(ctx,st,name){
   const fp=shareFontObj(), rx=SW-80;
@@ -7664,6 +7685,7 @@ function _drawMileShare(ev,heroImg){
   const label=(ev.type==='昇段')?T('昇段'):(ev.type==='昇級')?T('昇級'):T('記念');
   const heroH=640, panelTop=shareBase(ctx,st,heroImg,heroH);
   drawSharePattern(ctx,st,sharePattern,panelTop);
+  if(!heroImg) shareHeroBand(ctx,st,'');   // 写真が無いときは上部にヒーロー領域（日付は本文側に出る）
   const x=80, maxW=SW-160;
   ctx.textAlign='left'; ctx.textBaseline='top';
   // タイトル計測（字間つき）
@@ -7676,7 +7698,7 @@ function _drawMileShare(ev,heroImg){
   const lhT=tt.size*1.28;
   const hLabel=36,g1=20, hTitle=tt.lines.length*lhT,g2=18, hDate=30,g3=26, hDiv=6,g4=30, hNote=noteLines.length*50;
   const total=hLabel+g1+hTitle+g2+hDate+g3+hDiv+(hNote?g4+hNote:0);
-  const areaTop=(heroImg?panelTop:0)+(heroImg?52:150), areaBot=1150;
+  const areaTop=heroImg?(panelTop+52):500, areaBot=1150;   // 写真なしはヒーロー領域の下から
   let y=areaTop+Math.max(0,((areaBot-areaTop)-total)/2);
   ctx.fillStyle=st.accent; sfont(ctx,fp.tw,36); ctx.fillText(label,x,y); y+=hLabel+g1;
   shareLS(ctx,fp.ls); ctx.fillStyle=st.ink; tt.lines.forEach((ln,i)=>{ sfont(ctx,fp.tw,tt.size); ctx.fillText(ln,x,y+i*lhT); }); shareLS(ctx,0); y+=hTitle+g2;
@@ -7690,6 +7712,7 @@ function _drawRkShare(ev,heroImg){
   const s=DB.students.find(x=>x.id===rkSelfId)||{name:''}, stt=rkStats(ev);
   const heroH=560, panelTop=shareBase(ctx,st,heroImg,heroH);
   drawSharePattern(ctx,st,sharePattern,panelTop);
+  if(!heroImg) shareHeroBand(ctx,st,(ev.date||'').replace(/-/g,'/'));   // 写真が無いときは上部にヒーロー領域
   const x=80, maxW=SW-160;
   ctx.textAlign='left'; ctx.textBaseline='top';
   const ti=rkTypeInfo(ev);
@@ -7704,7 +7727,7 @@ function _drawRkShare(ev,heroImg){
   const lhT=tt.size*1.26;
   const hTop=48,g1=16, hTitle=tt.lines.length*lhT,g2=26, th=112,gT=30, hWaza=wz.length?(40+58):0, hNote=noteLines.length*46;
   const total=hTop+g1+hTitle+g2+th+(hWaza?gT+hWaza:0)+(hNote?26+hNote:0);
-  const areaTop=(heroImg?panelTop:0)+(heroImg?44:130), areaBot=1150;
+  const areaTop=heroImg?(panelTop+44):500, areaBot=1150;   // 写真なしはヒーロー領域の下から
   let y=areaTop+Math.max(0,((areaBot-areaTop)-total)/2);
   // 種類バッジ（色付き・白抜き）＋戦績を同じ行に
   let curX=x;
