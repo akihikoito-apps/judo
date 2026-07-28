@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v178（個人アプリ：①シェアカード魅力アップ＝写真が無いカードの空いた上部に「柔エンブレム＋スポットライト＋日付」のヒーロー領域を追加しポスター化（試合/節目カード共通・全8配色対応、写真ありは従来どおり）。②設定に「はじめの案内をもう一度見る」を追加（初回オンボーディングを再表示）） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v179（軽微：報告タブ「相手の所属」の記入例を「〇〇中／2番」→「〇〇中学」に修正。柔道ではゼッケンに番号が載らないのが一般的で混乱を招くため番号例を削除。report.html側も「例：東光中学」に統一） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -4491,7 +4491,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v178'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v179'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -7063,7 +7063,7 @@ function repRenderMatches(){
       <label class="fld">${T('相手のなまえ')}</label>
       <input type="text" value="${esc(m.opp)}" oninput="repSetRaw('${m.id}','opp',this.value)" placeholder="例：青葉 太郎">
       <label class="fld">${T('相手の所属')}</label>
-      <input type="text" value="${esc(m.affil)}" oninput="repSetRaw('${m.id}','affil',this.value)" placeholder="例：〇〇中／2番">
+      <input type="text" value="${esc(m.affil)}" oninput="repSetRaw('${m.id}','affil',this.value)" placeholder="例：〇〇中学">
       <label class="fld">${T('備考（任意）')}</label>
       <input type="text" value="${esc(m.note)}" oninput="repSetRaw('${m.id}','note',this.value)" placeholder="気づいたことなど">
     </div>`;
