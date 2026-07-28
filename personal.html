@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v179（軽微：報告タブ「相手の所属」の記入例を「〇〇中／2番」→「〇〇中学」に修正。柔道ではゼッケンに番号が載らないのが一般的で混乱を招くため番号例を削除。report.html側も「例：東光中学」に統一） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v180（個人アプリ：無料メモリーは10件まで／11件目からPro。報告→メモリー登録・節目追加が上限でペイウォール表示（既存の閲覧・シェア・編集・既存カードへの追記は無制限）。報告カードに残枚数表示（あとN件）。ペイウォールに「メモリー無制限」を追記。道場アプリ(suite)はisPro=trueで影響なし） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1471,6 +1471,7 @@ function applyUpdate(){
     <p class="list-mini" id="paywallMsg">この機能はPro（有料）でご利用いただけます。</p>
     <div style="text-align:left;background:#faf7ef;border:1px solid #eadcb0;border-radius:12px;padding:12px 14px;margin-top:12px">
       <div class="list-mini" style="font-weight:800;color:var(--navy);margin-bottom:6px">Proでできること</div>
+      <div class="list-mini">・メモリーの保存が無制限（無料は10件まで）</div>
       <div class="list-mini">・試合結果の分析（勝率・決まり技レーダー・組手別/技別）</div>
       <div class="list-mini">・シェア画像の全デザイン（配色8×書式8×柄）</div>
       <div class="list-mini">・複数の主役（家族）を登録</div>
@@ -1546,6 +1547,7 @@ function applyUpdate(){
     <h3 style="margin-top:0;color:var(--navy)">📖 自分のメモリーにも残そう</h3>
     <p class="list-mini" style="margin-bottom:12px">いま入力した試合を記録しておくと、<b>あとで見返せて、戦績カードをSNSにシェア</b>できます（無料）。道場への報告とは別に、自分の思い出として残せます。</p>
     <button class="btn" id="repMemBtn" style="background:var(--gold);color:#3a2c07;width:100%" onclick="repToMemory()">この試合をメモリーに登録する</button>
+    <p class="list-mini" id="repMemLeft" style="margin-top:8px;text-align:center"></p>
   </div>
 </section>
 
@@ -4491,7 +4493,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v179'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v180'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -7009,6 +7011,14 @@ function renderReport(){
   const dEl=document.getElementById('repDate'); if(dEl&&!dEl.value)dEl.value=todayStr();
   if(!repMatches.length)repMatches=[repNewMatch()];
   applyReportIntro();
+  const leftEl=document.getElementById('repMemLeft');
+  if(leftEl){
+    if(isPro()){ leftEl.textContent=''; }
+    else { const left=memoryFreeLeft();
+      leftEl.innerHTML = left>0
+        ? ('無料で保存できるメモリー：あと <b style="color:var(--navy)">'+left+'</b> 件')
+        : ('<span style="color:#9a7400">無料の保存上限（'+FREE_MEMORY_LIMIT+'件）です。Proにすると無制限に保存できます。</span>'); }
+  }
   repRenderKind(); repRenderMatches(); repGen();
 }
 // はじめての方向けの使い方説明（初回は開いた状態・「×」で閉じると小さな「使い方をみる」ボタンに畳む）
@@ -7169,14 +7179,17 @@ function repToMemory(){
   if(!bouts.length){ toast(T('登録する試合結果がありません')); return; }
   const sig=repGen();
   if(sig&&sig===repRegSig){ toast('この試合はすでにメモリーに登録済みです'); return; }
-  // 1) 主役(self)を決める：名前一致 → 既存の主役 → 新規作成
+  // 1) 対象の主役・大会を「まだ作らずに」特定
   let self=findStudentByName(name)||DB.students.find(s=>s.isSelf)||null;
-  if(!self){ self=repCreateSelf(name); }
-  else if(!self.isSelf&&APP_EDITION==='personal'){ self.isSelf=true; }
-  // 2) 予定(大会)を作成/検索：同じ日付＆同名の試合予定があれば再利用
   const dt=(document.getElementById('repDate').value||'').trim()||todayStr();
   const tk=(document.getElementById('repTaikai').value||'').trim();
-  let sched=DB.schedule.find(s=>s.date===dt&&((s.title||'').trim()===tk)&&s.showMatch);
+  let sched=DB.schedule.find(s=>s.date===dt&&((s.title||'').trim()===tk)&&s.showMatch)||null;
+  // 2) 無料上限：新しいメモリーカードになる時だけ制限（既存カードへの追記は無制限）
+  const addsNewCard = !( self && sched && (allBoutsBySelf()[self.id]||[]).some(b=>b.schedId===sched.id) );
+  if(!isPro() && addsNewCard && memoryCardCount()>=FREE_MEMORY_LIMIT){ requirePro(memoryLimitMsg()); return; }
+  // 3) ここから作成（主役→大会）
+  if(!self){ self=repCreateSelf(name); }
+  else if(!self.isSelf&&APP_EDITION==='personal'){ self.isSelf=true; }
   if(!sched){ sched={id:uid(),name:'大会',title:tk,date:dt,time:'',place:'',note:'',showMatch:true}; DB.schedule.push(sched); }
   const mr=ensureMatch(sched.id);
   // 3) 登録（個人戦／団体戦）
@@ -7205,6 +7218,22 @@ function repToMemory(){
 // v168: 個人アプリ(edition='personal')のみフリーミアム。道場アプリ(suite/office)は有料製品なので常に全解放。
 function isPro(){ return (APP_EDITION!=='personal') || !!(DB&&DB.pro); }
 function setPro(v){ DB.pro=!!v; save(); }
+// 無料版のメモリー保存上限（11件目からPro）。※既存の閲覧・シェア・編集は一切制限しない。
+const FREE_MEMORY_LIMIT=10;
+function memoryCardCount(){
+  const map=allBoutsBySelf();
+  const selfIds=DB.students.filter(s=>s.isSelf).map(s=>s.id);
+  const ids=selfIds.length?selfIds:Object.keys(map);
+  let n=0;
+  ids.forEach(id=>{
+    const bouts=map[id]||[];
+    n+=new Set(bouts.map(b=>b.schedId||('x'+b.schedName))).size;   // 大会カード（同じ大会は1枚）
+    n+=((DB.milestones&&DB.milestones[id])||[]).length;            // 節目カード
+  });
+  return n;
+}
+function memoryFreeLeft(){ return Math.max(0, FREE_MEMORY_LIMIT-memoryCardCount()); }
+function memoryLimitMsg(){ return '無料で保存できるメモリーは'+FREE_MEMORY_LIMIT+'件までです。これまでの記録はそのまま見られます。Proにすると無制限に保存できます。'; }
 function requirePro(msg){
   if(isPro())return true;
   const el=document.getElementById('paywallMsg'); if(el&&msg)el.textContent=msg;
@@ -7479,6 +7508,7 @@ function mileSave(){
   const title=document.getElementById('mileTitle').value.trim();
   const date=document.getElementById('mileDate').value||todayStr();
   if(!title){toast(T('タイトルを入れてください'));return;}
+  if(!mileEditId && !isPro() && memoryCardCount()>=FREE_MEMORY_LIMIT){ requirePro(memoryLimitMsg()); return; }  // 新規追加のみ上限
   if(!DB.milestones)DB.milestones={};
   if(!DB.milestones[rkSelfId])DB.milestones[rkSelfId]=[];
   const list=DB.milestones[rkSelfId];
