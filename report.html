@@ -101,15 +101,15 @@
     <div class="fmtwrap">
       <span class="lbl">送る形式をえらぶ</span>
       <div class="seg" id="fmtSeg">
-        <button class="on" data-f="text" onclick="setFmt('text')">📝 文字</button>
-        <button data-f="qr" onclick="setFmt('qr')">📷 QRコード</button>
+        <button class="on" data-f="qr" onclick="setFmt('qr')">📷 QRコード</button>
+        <button data-f="text" onclick="setFmt('text')">📝 文字</button>
       </div>
     </div>
     <div class="actions">
       <button class="btn-copy" onclick="doCopy()">📋 コピー</button>
       <button class="btn-line" onclick="doShare()">LINEで送る</button>
     </div>
-    <p class="hint">上で<b>「文字」か「QRコード」</b>をえらんでから「コピー」または「LINEで送る」を押してください。<br>会場では、上のQRを直接見せて、道場のiPadアプリ「試合結果 › 📷 QRで受け取る」で読み取ってもらってもOKです。</p>
+    <p class="hint">上で<b>「QRコード」か「文字」</b>をえらんでから「コピー」または「LINEで送る」を押してください（<b>初期はQRコード</b>）。<br>会場では、上のQRを直接見せて、道場のiPadアプリ「試合結果 › 📷 QRで受け取る」で読み取ってもらってもOKです。</p>
   </div>
 </div>
 
@@ -2544,7 +2544,7 @@ function fallbackCopy(t){
   alert(ok?'コピーしました。LINEに貼って送ってください。':'自動コピーできませんでした。下の黒い枠を長押しして選択→コピーしてください。');
 }
 // ---- QR（文字/画像） ----
-let sendFmt='text';                 // 'text' | 'qr'
+let sendFmt='qr';                   // 'text' | 'qr'（既定＝QRコード）
 let lastQrSvg=null, lastQrBlob=null, qrGenToken=0;
 function setFmt(f){sendFmt=f;[...document.querySelectorAll('#fmtSeg button')].forEach(b=>b.classList.toggle('on',b.dataset.f===f));}
 function qrMakeSvg(text){
