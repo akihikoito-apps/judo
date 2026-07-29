@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v180（個人アプリ：無料メモリーは10件まで／11件目からPro。報告→メモリー登録・節目追加が上限でペイウォール表示（既存の閲覧・シェア・編集・既存カードへの追記は無制限）。報告カードに残枚数表示（あとN件）。ペイウォールに「メモリー無制限」を追記。道場アプリ(suite)はisPro=trueで影響なし） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v181（事務アプリ：試合結果の取り込みを「まずQR/文字を選ぶ」画面に刷新。QR＝カメラ起動／文字＝貼り付け画面へ分岐（並列の2ボタン＋サブ説明）。貼付画面に「←もどる」、QRを閉じると選択画面へ戻る。従来の混在レイアウトを解消しわかりやすく） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -361,6 +361,10 @@
   .al-item{font-size:calc(13.5px*var(--fs,1));color:var(--ink);line-height:1.55;display:flex;gap:9px;align-items:flex-start;}
   .al-item span{flex-shrink:0;}
   .al-note{font-size:calc(12.5px*var(--fs,1));color:var(--muted);margin:12px 0 0;line-height:1.6;}
+  /* 取り込み方法の選択（QR / 文字） */
+  .imp-choice{width:100%;min-height:70px;flex-direction:column;gap:3px;line-height:1.3;padding:12px 10px;}
+  .imp-choice .ic-t{font-size:calc(17px*var(--fs,1));font-weight:800;}
+  .imp-choice .ic-s{font-size:calc(12.5px*var(--fs,1));font-weight:600;opacity:.85;}
 
   /* ===== タイムライン型スケジュール ===== */
   .tl-month{display:block;margin-bottom:8px;}
@@ -2009,13 +2013,24 @@ function applyUpdate(){
 <!-- 試合結果 テキスト取り込みモーダル -->
 <div class="modal-bg" id="importModal">
   <div class="modal">
-    <h3 style="margin-top:0">📋 テキストから取り込み</h3>
-    <div id="importStep1">
-      <button class="btn" style="background:var(--navy);color:#fff;width:100%;margin-bottom:10px" onclick="openQrScan()">📷 QRで受け取る（会場で受け渡し）</button>
-      <p class="list-mini" style="margin:0 0 8px">または、保護者からLINEで届いた「試合きろく」のテキストを、まるごと貼り付けて「解析」を押してください。</p>
+    <h3 style="margin-top:0">📥 試合結果の取り込み</h3>
+    <div id="importChoice">
+      <p class="list-mini" style="margin:0 0 14px">保護者から届いた試合結果を、どちらの方法で取り込みますか？</p>
+      <button class="btn imp-choice" style="background:var(--navy);color:#fff" onclick="openQrScan()">
+        <span class="ic-t">📷 QRで取り込む</span>
+        <span class="ic-s">会場でその場で受け取る（カメラで読取）</span>
+      </button>
+      <button class="btn gold imp-choice" style="margin-top:12px" onclick="importGotoText()">
+        <span class="ic-t">📋 文字で取り込む</span>
+        <span class="ic-s">LINEで届いたテキストを貼り付ける</span>
+      </button>
+      <div class="row" style="margin-top:16px"><button class="btn ghost full" onclick="closeModal('importModal')">やめる</button></div>
+    </div>
+    <div id="importStep1" style="display:none">
+      <p class="list-mini" style="margin:0 0 8px">保護者からLINEで届いた「試合きろく」のテキストを、<b>まるごと貼り付け</b>て「解析する」を押してください。</p>
       <textarea id="importText" rows="7" placeholder="【My道場 試合きろく】…をここに貼り付け" style="width:100%;font-size:15px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical"></textarea>
       <div class="row" style="margin-top:12px">
-        <button class="btn ghost" onclick="closeModal('importModal')">やめる</button>
+        <button class="btn ghost" onclick="importShow('choice')">← もどる</button>
         <button class="btn gold" onclick="analyzeImport()">解析する</button>
       </div>
     </div>
@@ -4493,7 +4508,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v180'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v181'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -7818,17 +7833,19 @@ function renderAnalysisTab(){
 function anaSelect(id){anaSelfId=id;renderAnalysisTab();}
 /* ===== v134: 試合結果 テキスト取り込み（保護者LINE記入→貼付）===== */
 let importParsed=null;
+// 取り込みモーダルの表示切替：'choice'（QR/文字の選択）→ 'text'（貼り付け）/ 'preview'（解析結果）
+function importShow(which){
+  const set=(id,on)=>{const el=document.getElementById(id);if(el)el.style.display=on?'block':'none';};
+  set('importChoice',which==='choice'); set('importStep1',which==='text'); set('importStep2',which==='preview');
+}
 function openImportModal(){
   importParsed=null;
   document.getElementById('importText').value='';
-  document.getElementById('importStep1').style.display='block';
-  document.getElementById('importStep2').style.display='none';
+  importShow('choice');
   openModal('importModal');
 }
-function backImportStep1(){
-  document.getElementById('importStep1').style.display='block';
-  document.getElementById('importStep2').style.display='none';
-}
+function importGotoText(){ importShow('text'); const t=document.getElementById('importText'); if(t)setTimeout(()=>{try{t.focus();}catch(_){}},120); }
+function backImportStep1(){ importShow('text'); }
 function impResult(t){
   t=(t||'').trim();
   if(/負/.test(t)||/^(▲|△|lose|l)$/i.test(t))return '▲';
@@ -7894,8 +7911,7 @@ function analyzeImport(){
   document.getElementById('importNewDate').value=p.head.date||'';
   onImportSchedChange();
   renderImportBouts();
-  document.getElementById('importStep1').style.display='none';
-  document.getElementById('importStep2').style.display='block';
+  importShow('preview');
 }
 function onImportSchedChange(){
   document.getElementById('importNewSched').style.display=(document.getElementById('importSched').value==='__new__')?'block':'none';
