@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v181（事務アプリ：試合結果の取り込みを「まずQR/文字を選ぶ」画面に刷新。QR＝カメラ起動／文字＝貼り付け画面へ分岐（並列の2ボタン＋サブ説明）。貼付画面に「←もどる」、QRを閉じると選択画面へ戻る。従来の混在レイアウトを解消しわかりやすく） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v182（事務アプリ：試合申込・エントリー管理を新設。試合予定ごとに「申込締切／エントリー費（1人・個別変更可）／申込内容メモ／出場者（仲間から選択）／各人の集金済・未集金」を管理。予定カードに🏷️申込ボタン＋締切・未集金バッジ。会計とは非連動＝預り金の手続き記録として独立。DB.entries[予定ID]に保存（バックアップ同梱）。事務モード専用） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -365,6 +365,29 @@
   .imp-choice{width:100%;min-height:70px;flex-direction:column;gap:3px;line-height:1.3;padding:12px 10px;}
   .imp-choice .ic-t{font-size:calc(17px*var(--fs,1));font-weight:800;}
   .imp-choice .ic-s{font-size:calc(12.5px*var(--fs,1));font-weight:600;opacity:.85;}
+  /* 試合申込・エントリー管理 */
+  .entry-btn{border-color:var(--navy);color:var(--navy);margin-left:8px;}
+  .ent-cardmeta{margin-top:4px;}
+  .ent-grid{display:flex;gap:10px;}
+  .ent-grid>div{flex:1;min-width:0;}
+  .ent-grid input{width:100%;box-sizing:border-box;}
+  .ent-sumbar{display:flex;gap:8px;margin:14px 0 2px;}
+  .ent-sum-item{flex:1;background:#f3f1ea;border-radius:12px;padding:10px 4px;text-align:center;display:flex;flex-direction:column;gap:2px;}
+  .ent-sum-item b{font-size:calc(22px*var(--fs,1));font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1;}
+  .ent-sum-item span{font-size:calc(11px*var(--fs,1));color:var(--muted);}
+  .ent-sum-item.ok b{color:#2e9e5b;} .ent-sum-item.warn b{color:#e04b3a;}
+  .ent-row{display:flex;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line);}
+  .ent-nm{flex:1;min-width:0;font-weight:700;color:var(--ink);font-size:calc(15px*var(--fs,1));word-break:break-word;}
+  .ent-fee{display:flex;align-items:center;gap:2px;flex-shrink:0;}
+  .ent-fee .cur{color:var(--muted);font-size:13px;}
+  .ent-fee input{width:74px;text-align:right;font-size:calc(15px*var(--fs,1));padding:6px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;font-variant-numeric:tabular-nums;}
+  .ent-pay{flex-shrink:0;min-width:66px;min-height:38px;border-radius:9px;border:2px solid var(--red);background:#fff;color:var(--red);font-weight:700;font-family:inherit;font-size:calc(12.5px*var(--fs,1));cursor:pointer;}
+  .ent-pay.on{background:var(--green);border-color:var(--green);color:#fff;}
+  .ent-del{flex-shrink:0;width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:18px;cursor:pointer;font-family:inherit;line-height:1;padding:0;}
+  .ent-empty{color:var(--muted);font-size:calc(13px*var(--fs,1));text-align:center;padding:14px 0;line-height:1.6;}
+  .ent-pick-grp{font-weight:800;color:var(--navy);font-size:calc(13px*var(--fs,1));margin:12px 2px 4px;}
+  .ent-pick-row{display:flex;align-items:center;gap:10px;padding:11px 6px;border-bottom:1px solid var(--line);cursor:pointer;font-size:calc(15px*var(--fs,1));}
+  .ent-pick-row input{width:20px;height:20px;flex-shrink:0;}
 
   /* ===== タイムライン型スケジュール ===== */
   .tl-month{display:block;margin-bottom:8px;}
@@ -1848,6 +1871,43 @@ function applyUpdate(){
       <button class="btn gold" onclick="saveSched()">保存する</button>
     </div>
     <button class="btn del-full" id="schDeleteBtn" onclick="deleteSchedFromModal()">この予定を削除する</button>
+  </div>
+</div>
+
+<!-- 試合申込・エントリー管理モーダル -->
+<div class="modal-bg" id="entryModal">
+  <div class="modal">
+    <h3 id="entryModalTitle">🏷️ 試合申込・エントリー</h3>
+    <p class="list-mini" style="margin:0 0 12px">この大会の申込情報を管理します（会計とは別＝道場が参加者から預かって主催者へ渡す“手続き”の記録です）。</p>
+    <div class="ent-grid">
+      <div><label class="fld" style="margin-top:0">申込締切</label><input type="date" id="entDeadline" onchange="entryMetaSave()"></div>
+      <div><label class="fld" style="margin-top:0">エントリー費（1人）</label><input type="number" id="entFee" inputmode="numeric" placeholder="例：3000" onchange="entryMetaSave()"></div>
+    </div>
+    <button class="btn ghost" style="width:100%;margin-top:8px;min-height:44px;font-size:14px" onclick="entryApplyFeeAll()">↧ この金額を出場者全員に反映</button>
+    <label class="fld">申込内容（メモ）</label>
+    <textarea id="entDetail" rows="3" placeholder="例：個人戦 55kg級／団体戦Aチーム／申込は〇〇連盟サイト・〆切厳守" onchange="entryMetaSave()" style="width:100%;font-size:15px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical"></textarea>
+    <div class="ent-sumbar" id="entSummary"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 2px 6px">
+      <label class="fld" style="margin:0">出場者</label>
+      <button class="btn gold sm" onclick="openEntryPick()">＋ 出場者を追加</button>
+    </div>
+    <div id="entParts"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn ghost full" onclick="closeEntryModal()">とじる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 出場者をえらぶ（チェックボックス） -->
+<div class="modal-bg" id="entryPickModal">
+  <div class="modal">
+    <h3>出場者をえらぶ</h3>
+    <p class="list-mini">この大会に出場する仲間にチェックしてください（チェックを外すと外れます）。</p>
+    <div id="entPickList" style="max-height:56vh;overflow-y:auto"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost" onclick="closeModal('entryPickModal')">やめる</button>
+      <button class="btn gold" onclick="entryPickApply()">反映する</button>
+    </div>
   </div>
 </div>
 
@@ -4508,7 +4568,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v181'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v182'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5167,6 +5227,7 @@ let DB={
     {name:'指導者',grade:false}
   ],
   matchResults:{},
+  entries:{},      // 試合申込・エントリー管理：DB.entries[予定ID]={deadline,feeDefault,detail,parts:{選手ID:{fee,paid}}}
   mode:'office'   // 'office'=道場事務モード / 'personal'=個人モード（v143）
 };
 const GRADE_COLOR={白帯:'#9aa0a6',黄帯:'#d4ac0d',橙帯:'#d68910',緑帯:'#2e7d4f',紫帯:'#7d3c98',茶帯:'#7b5230',黒帯:'#222'};
@@ -5249,6 +5310,7 @@ function normalizeDB(){
   // 旧ロゴ（赤丸の旧マーク・180x180）を新ロゴ（赤丸なし・虎拡大）へ自動更新
   if(DB.logo && DB.logo.indexOf('SUhEUgAAALQAAAC0CAIAAACyr5Fl')!==-1) DB.logo=DEFAULT_LOGO;
   if(!DB.matchResults)DB.matchResults={};
+  if(!DB.entries||typeof DB.entries!=='object')DB.entries={};
   // 団体戦データの新形式(cards)への移行
   Object.keys(DB.matchResults).forEach(k=>{
     const mr=DB.matchResults[k];
@@ -8287,6 +8349,9 @@ function schedCardHtml(i){
   const showMatch=(i.showMatch===true||i.showMatch===false)?i.showMatch:/試合|大会/.test(i.name||'');
   const isMatch=showMatch||hasResult;
   const resultBtn=isMatch?`<button class="result-btn" onclick="event.stopPropagation();openMatchModal('${i.id}')">🥋 試合結果${hasResult?'<span class="result-dot"></span>':''}</button>`:'';
+  const entOn=isMatch&&DB.mode!=='personal';                        // 申込管理は事務モード専用
+  const entryBtn=entOn?`<button class="result-btn entry-btn" onclick="event.stopPropagation();openEntryModal('${i.id}')">🏷️ 申込${entryDotHtml(i.id)}</button>`:'';
+  const entryMeta=entOn?entryCardMetaHtml(i.id):'';
   return `<div class="tl-card" onclick="openSchedModal('${i.id}')">
     <div class="tl-daybox" style="background:${col}">
       <div class="drow"><span class="d">${d.getDate()}</span><span class="w">${weekday(d)}</span></div>
@@ -8294,7 +8359,8 @@ function schedCardHtml(i){
     </div>
     <div class="tl-info"><div class="t">${esc(i.name)}${i.title?'<span class="tl-event">'+esc(i.title)+'</span>':''}</div>
     ${place||i.note?`<div class="meta">${place?esc(place):''}${place&&i.note?' / ':''}${noteHtml}</div>`:''}
-    ${resultBtn}</div>
+    ${entryMeta}
+    ${resultBtn}${entryBtn}</div>
     </div>`;
 }
 // 予定が「試合・大会」かどうか（結果ありも含む）
@@ -8302,6 +8368,98 @@ function schedIsMatch(i){
   const showMatch=(i.showMatch===true||i.showMatch===false)?i.showMatch:/試合|大会/.test(i.name||'');
   const hasResult=DB.matchResults[i.id]&&((DB.matchResults[i.id].individual||[]).length||(DB.matchResults[i.id].team&&(DB.matchResults[i.id].team.cards||[]).length));
   return showMatch||hasResult;
+}
+/* ===== 試合申込・エントリー管理（事務モード専用・会計非連動＝預り金の手続き記録）===== */
+let curEntrySched=null;
+function ensureEntry(id){ if(!DB.entries)DB.entries={}; if(!DB.entries[id])DB.entries[id]={deadline:'',feeDefault:0,detail:'',parts:{}}; const e=DB.entries[id]; if(!e.parts||typeof e.parts!=='object')e.parts={}; return e; }
+function entryOf(id){ return (DB.entries&&DB.entries[id])||null; }
+function entryStats(id){
+  const e=entryOf(id); if(!e)return null;
+  const parts=e.parts||{}, ids=Object.keys(parts);
+  let paid=0,paidSum=0,unpaid=0,unpaidSum=0;
+  ids.forEach(sid=>{ const p=parts[sid]||{}, fee=Number(p.fee)||0; if(p.paid){paid++;paidSum+=fee;}else{unpaid++;unpaidSum+=fee;} });
+  return {count:ids.length,paid,paidSum,unpaid,unpaidSum,deadline:e.deadline||''};
+}
+function entryDeadlineInfo(deadline){ if(!deadline)return null; const days=Math.round((new Date(deadline+'T00:00')-new Date(todayStr()+'T00:00'))/86400000); return {days,overdue:days<0,today:days===0,soon:days>0&&days<=3}; }
+function entryHasData(id){ const st=entryStats(id); return !!(st&&(st.count||st.deadline)); }
+function entryDotHtml(id){ const st=entryStats(id); if(!st)return ''; const di=entryDeadlineInfo(st.deadline); const alert=(st.unpaid>0)||(di&&(di.overdue||di.today)); if(alert)return '<span class="result-dot" style="background:#e04b3a"></span>'; return st.count?'<span class="result-dot" style="background:#37c26e"></span>':''; }
+function entryCardMetaHtml(id){
+  const st=entryStats(id); if(!st||(!st.count&&!st.deadline))return '';
+  const parts=[];
+  if(st.deadline){ const md=st.deadline.replace(/-/g,'/').slice(5), di=entryDeadlineInfo(st.deadline);
+    let dl='締切 '+md;
+    if(di){ if(di.overdue)dl='<span style="color:#e04b3a;font-weight:700">締切超過('+md+')</span>'; else if(di.today)dl='<span style="color:#e04b3a;font-weight:700">本日締切</span>'; else if(di.soon)dl='<span style="color:#c77f0a;font-weight:700">締切あと'+di.days+'日</span>'; }
+    parts.push(dl); }
+  if(st.count)parts.push('出場'+st.count+'人');
+  if(st.unpaid)parts.push('<span style="color:#e04b3a;font-weight:700">未集金'+st.unpaid+'人</span>');
+  return `<div class="meta ent-cardmeta">🏷 ${parts.join('・')}</div>`;
+}
+function openEntryModal(schedId){
+  curEntrySched=schedId; const e=ensureEntry(schedId); const s=DB.schedule.find(x=>x.id===schedId);
+  document.getElementById('entryModalTitle').innerHTML='🏷️ 試合申込 <span style="font-weight:600;font-size:14px;color:var(--muted)">'+(s?esc(schedLabel(s))+'／'+(s.date||'').replace(/-/g,'/'):'')+'</span>';
+  document.getElementById('entDeadline').value=e.deadline||'';
+  document.getElementById('entFee').value=e.feeDefault||'';
+  document.getElementById('entDetail').value=e.detail||'';
+  renderEntryParts();
+  openModal('entryModal');
+}
+function closeEntryModal(){ closeModal('entryModal'); if(document.getElementById('screen-sched').classList.contains('active'))renderSched(); }
+function entryMetaSave(){
+  if(!curEntrySched)return; const e=ensureEntry(curEntrySched);
+  e.deadline=document.getElementById('entDeadline').value||'';
+  e.feeDefault=Math.max(0,Number(document.getElementById('entFee').value)||0);
+  e.detail=document.getElementById('entDetail').value||'';
+  save(); renderEntrySummary();
+}
+function renderEntrySummary(){
+  const st=entryStats(curEntrySched)||{count:0,paid:0,paidSum:0,unpaid:0,unpaidSum:0};
+  const el=document.getElementById('entSummary'); if(!el)return;
+  el.innerHTML=`<div class="ent-sum-item"><b>${st.count}</b><span>出場</span></div>`+
+    `<div class="ent-sum-item ok"><b>${st.paid}</b><span>集金済 ¥${st.paidSum.toLocaleString()}</span></div>`+
+    `<div class="ent-sum-item warn"><b>${st.unpaid}</b><span>未集金 ¥${st.unpaidSum.toLocaleString()}</span></div>`;
+}
+function renderEntryParts(){
+  const e=ensureEntry(curEntrySched), box=document.getElementById('entParts'); if(!box)return;
+  const ids=Object.keys(e.parts);
+  if(!ids.length){ box.innerHTML='<div class="ent-empty">まだ出場者がいません。<br>「＋出場者を追加」から選んでください。</div>'; renderEntrySummary(); return; }
+  const order=catNames();
+  const sorted=ids.map(id=>DB.students.find(s=>s.id===id)||{id,name:studentName(id),category:'',kana:''}).sort((a,b)=>{
+    const ca=order.indexOf(a.category), cb=order.indexOf(b.category); if(ca!==cb)return (cb-ca); return (a.kana||a.name||'').localeCompare(b.kana||b.name||'');
+  });
+  box.innerHTML=sorted.map(s=>{ const p=e.parts[s.id]||{}, fee=Number(p.fee)||0, paid=!!p.paid;
+    return `<div class="ent-row">
+      <div class="ent-nm">${esc(s.name)}</div>
+      <div class="ent-fee"><span class="cur">¥</span><input type="number" inputmode="numeric" value="${fee||''}" placeholder="0" onchange="entrySetFee('${s.id}',this.value)"></div>
+      <button class="ent-pay ${paid?'on':''}" onclick="entryTogglePaid('${s.id}')">${paid?'集金済':'未集金'}</button>
+      <button class="ent-del" onclick="entryRemovePart('${s.id}')" aria-label="削除">×</button>
+    </div>`; }).join('');
+  renderEntrySummary();
+}
+function entrySetFee(sid,val){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].fee=Math.max(0,Number(val)||0); save(); renderEntrySummary(); }
+function entryTogglePaid(sid){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].paid=!e.parts[sid].paid; save(); renderEntryParts(); }
+function entryRemovePart(sid){ const e=ensureEntry(curEntrySched); delete e.parts[sid]; save(); renderEntryParts(); }
+function entryApplyFeeAll(){ const e=ensureEntry(curEntrySched); const f=Math.max(0,Number(document.getElementById('entFee').value)||0); e.feeDefault=f; Object.keys(e.parts).forEach(sid=>e.parts[sid].fee=f); save(); renderEntryParts(); toast('出場者全員に ¥'+f.toLocaleString()+' を反映しました'); }
+function openEntryPick(){
+  const e=ensureEntry(curEntrySched), s=DB.schedule.find(x=>x.id===curEntrySched), ym=s&&s.date?s.date.slice(0,7):thisMonthStr();
+  const roster=DB.students.filter(st=>!st.isSelf&&isEnrolledInMonth(st,ym));
+  const order=catNames(), groups={};
+  roster.forEach(st=>{ (groups[st.category]=groups[st.category]||[]).push(st); });
+  const rowHtml=st=>`<label class="ent-pick-row"><input type="checkbox" value="${st.id}" ${e.parts[st.id]?'checked':''}><span>${esc(st.name)}</span></label>`;
+  let html='';
+  order.slice().reverse().forEach(cat=>{ const arr=(groups[cat]||[]).sort((a,b)=>(a.kana||a.name||'').localeCompare(b.kana||b.name||'')); if(arr.length)html+=`<div class="ent-pick-grp">${esc(cat)}</div>`+arr.map(rowHtml).join(''); });
+  const noCat=roster.filter(st=>!order.includes(st.category)).sort((a,b)=>(a.kana||a.name||'').localeCompare(b.kana||b.name||''));
+  if(noCat.length)html+=`<div class="ent-pick-grp">その他</div>`+noCat.map(rowHtml).join('');
+  document.getElementById('entPickList').innerHTML=html||'<div class="ent-empty">この時期に在籍している仲間がいません。<br>「仲間」から登録してください。</div>';
+  openModal('entryPickModal');
+}
+function entryPickApply(){
+  const e=ensureEntry(curEntrySched);
+  const boxes=[...document.querySelectorAll('#entPickList input[type=checkbox]')];
+  boxes.forEach(c=>{ const id=c.value;
+    if(c.checked){ if(!e.parts[id])e.parts[id]={fee:e.feeDefault||0,paid:false}; }
+    else if(e.parts[id])delete e.parts[id];
+  });
+  save(); closeModal('entryPickModal'); renderEntryParts();
 }
 let schedFilter='all';                 // v133: 'all' | 'match'（試合のみ）
 let schedMonthOpen=null;               // 展開中の月。初回renderで当月を開いた状態にする
