@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v183（エントリー管理を強化：①申込締切が試合日より後だと赤字エラー表示。②「申込を完了にする」ボタン＝完了で締切アラート停止・カードに✅申込完了。③締切が近い申込を目立たせる＝予定タブ上部に「要対応」バナー（タップで該当予定へ）＋要対応カードを色帯で強調＋下部タブ「予定」に未対応件数の赤バッジ） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v184（エントリー管理：出場者ごとの個人メモ欄を追加（記入例＝出場区分・申請体重）。「📝個人メモ欄」トグルで大会ごとにON/OFF（普段はスッキリのまま／必要な大会だけ表示・状態は保存）。OFFでも入力済みメモは小さく表示しタップで編集復帰＝データを隠さない） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -376,7 +376,11 @@
   .ent-sum-item b{font-size:calc(22px*var(--fs,1));font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;line-height:1;}
   .ent-sum-item span{font-size:calc(11px*var(--fs,1));color:var(--muted);}
   .ent-sum-item.ok b{color:#2e9e5b;} .ent-sum-item.warn b{color:#e04b3a;}
-  .ent-row{display:flex;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line);}
+  .ent-rowwrap{border-bottom:1px solid var(--line);}
+  .ent-row{display:flex;align-items:center;gap:8px;padding:9px 2px;}
+  .ent-memo-inp{width:100%;box-sizing:border-box;margin:0 0 9px;font-size:calc(13.5px*var(--fs,1));padding:8px 10px;border:1.5px dashed var(--line);border-radius:9px;font-family:inherit;background:#fbfbf9;}
+  .ent-memo-show{margin:-2px 2px 9px;font-size:calc(12.5px*var(--fs,1));color:var(--muted);line-height:1.5;cursor:pointer;word-break:break-word;}
+  #entMemoToggle.on{background:var(--navy);color:#fff;border-color:var(--navy);}
   .ent-nm{flex:1;min-width:0;font-weight:700;color:var(--ink);font-size:calc(15px*var(--fs,1));word-break:break-word;}
   .ent-fee{display:flex;align-items:center;gap:2px;flex-shrink:0;}
   .ent-fee .cur{color:var(--muted);font-size:13px;}
@@ -1907,6 +1911,7 @@ function applyUpdate(){
       <label class="fld" style="margin:0">出場者</label>
       <button class="btn gold sm" onclick="openEntryPick()">＋ 出場者を追加</button>
     </div>
+    <div style="margin:0 2px 8px"><button class="chip-toggle" id="entMemoToggle" onclick="entryToggleMemoCol()">📝 個人メモ欄を表示</button></div>
     <div id="entParts"></div>
     <div id="entDoneBox" style="margin-top:18px"></div>
     <div class="row" style="margin-top:12px">
@@ -4585,7 +4590,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v183'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v184'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -8479,20 +8484,31 @@ function renderEntrySummary(){
 function renderEntryParts(){
   const e=ensureEntry(curEntrySched), box=document.getElementById('entParts'); if(!box)return;
   const ids=Object.keys(e.parts);
+  const tg=document.getElementById('entMemoToggle');
+  if(tg){ tg.classList.toggle('on',!!e.showMemo); tg.textContent=e.showMemo?'📝 個人メモ欄：表示中':'📝 個人メモ欄を表示'; }
   if(!ids.length){ box.innerHTML='<div class="ent-empty">まだ出場者がいません。<br>「＋出場者を追加」から選んでください。</div>'; renderEntrySummary(); return; }
   const order=catNames();
   const sorted=ids.map(id=>DB.students.find(s=>s.id===id)||{id,name:studentName(id),category:'',kana:''}).sort((a,b)=>{
     const ca=order.indexOf(a.category), cb=order.indexOf(b.category); if(ca!==cb)return (cb-ca); return (a.kana||a.name||'').localeCompare(b.kana||b.name||'');
   });
-  box.innerHTML=sorted.map(s=>{ const p=e.parts[s.id]||{}, fee=Number(p.fee)||0, paid=!!p.paid;
-    return `<div class="ent-row">
-      <div class="ent-nm">${esc(s.name)}</div>
-      <div class="ent-fee"><span class="cur">¥</span><input type="number" inputmode="numeric" value="${fee||''}" placeholder="0" onchange="entrySetFee('${s.id}',this.value)"></div>
-      <button class="ent-pay ${paid?'on':''}" onclick="entryTogglePaid('${s.id}')">${paid?'集金済':'未集金'}</button>
-      <button class="ent-del" onclick="entryRemovePart('${s.id}')" aria-label="削除">×</button>
+  box.innerHTML=sorted.map(s=>{ const p=e.parts[s.id]||{}, fee=Number(p.fee)||0, paid=!!p.paid, memo=p.memo||'';
+    let memoLine='';
+    if(e.showMemo) memoLine=`<input class="ent-memo-inp" value="${esc(memo)}" placeholder="例：55kg級／申請体重 54.2kg" onchange="entrySetMemo('${s.id}',this.value)">`;
+    else if(memo) memoLine=`<div class="ent-memo-show" onclick="entryOpenMemo()">📝 ${esc(memo)}</div>`;
+    return `<div class="ent-rowwrap">
+      <div class="ent-row">
+        <div class="ent-nm">${esc(s.name)}</div>
+        <div class="ent-fee"><span class="cur">¥</span><input type="number" inputmode="numeric" value="${fee||''}" placeholder="0" onchange="entrySetFee('${s.id}',this.value)"></div>
+        <button class="ent-pay ${paid?'on':''}" onclick="entryTogglePaid('${s.id}')">${paid?'集金済':'未集金'}</button>
+        <button class="ent-del" onclick="entryRemovePart('${s.id}')" aria-label="削除">×</button>
+      </div>
+      ${memoLine}
     </div>`; }).join('');
   renderEntrySummary();
 }
+function entrySetMemo(sid,val){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].memo=(val||'').trim(); save(); }
+function entryOpenMemo(){ const e=ensureEntry(curEntrySched); e.showMemo=true; save(); renderEntryParts(); }
+function entryToggleMemoCol(){ const e=ensureEntry(curEntrySched); e.showMemo=!e.showMemo; save(); renderEntryParts(); }
 function entrySetFee(sid,val){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].fee=Math.max(0,Number(val)||0); save(); renderEntrySummary(); }
 function entryTogglePaid(sid){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].paid=!e.parts[sid].paid; save(); renderEntryParts(); }
 function entryRemovePart(sid){ const e=ensureEntry(curEntrySched); delete e.parts[sid]; save(); renderEntryParts(); }
