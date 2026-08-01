@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v184（エントリー管理：出場者ごとの個人メモ欄を追加（記入例＝出場区分・申請体重）。「📝個人メモ欄」トグルで大会ごとにON/OFF（普段はスッキリのまま／必要な大会だけ表示・状態は保存）。OFFでも入力済みメモは小さく表示しタップで編集復帰＝データを隠さない） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v185（エントリー管理：出場者名の下に「学年」「段位/級」を小さなタグで表示（あるものだけ・学年=青系/段級=金系）。gradeLabel()とs.rankを流用。出場者リストと出場者選択（ピッカー）の両方に表示し、階級・区分の判断をしやすく） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -381,7 +381,13 @@
   .ent-memo-inp{width:100%;box-sizing:border-box;margin:0 0 9px;font-size:calc(13.5px*var(--fs,1));padding:8px 10px;border:1.5px dashed var(--line);border-radius:9px;font-family:inherit;background:#fbfbf9;}
   .ent-memo-show{margin:-2px 2px 9px;font-size:calc(12.5px*var(--fs,1));color:var(--muted);line-height:1.5;cursor:pointer;word-break:break-word;}
   #entMemoToggle.on{background:var(--navy);color:#fff;border-color:var(--navy);}
-  .ent-nm{flex:1;min-width:0;font-weight:700;color:var(--ink);font-size:calc(15px*var(--fs,1));word-break:break-word;}
+  .ent-nm{flex:1;min-width:0;}
+  .ent-nm-main{font-weight:700;color:var(--ink);font-size:calc(15px*var(--fs,1));word-break:break-word;}
+  .ent-nm-sub{margin-top:3px;line-height:1.4;}
+  .ent-tag{display:inline-block;font-size:calc(11px*var(--fs,1));font-weight:700;border-radius:6px;padding:1px 7px;margin-right:5px;line-height:1.6;white-space:nowrap;}
+  .ent-tag.grade{background:#eef2fb;color:#33507e;}
+  .ent-tag.rank{background:#f7f0dd;color:#8a6d1e;}
+  .ent-pick-row .ent-tag{margin-left:4px;margin-right:0;}
   .ent-fee{display:flex;align-items:center;gap:2px;flex-shrink:0;}
   .ent-fee .cur{color:var(--muted);font-size:13px;}
   .ent-fee input{width:74px;text-align:right;font-size:calc(15px*var(--fs,1));padding:6px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;font-variant-numeric:tabular-nums;}
@@ -4590,7 +4596,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v184'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v185'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -8495,9 +8501,10 @@ function renderEntryParts(){
     let memoLine='';
     if(e.showMemo) memoLine=`<input class="ent-memo-inp" value="${esc(memo)}" placeholder="例：55kg級／申請体重 54.2kg" onchange="entrySetMemo('${s.id}',this.value)">`;
     else if(memo) memoLine=`<div class="ent-memo-show" onclick="entryOpenMemo()">📝 ${esc(memo)}</div>`;
+    const sub=entryTagsHtml(s);
     return `<div class="ent-rowwrap">
       <div class="ent-row">
-        <div class="ent-nm">${esc(s.name)}</div>
+        <div class="ent-nm"><span class="ent-nm-main">${esc(s.name)}</span>${sub?'<div class="ent-nm-sub">'+sub+'</div>':''}</div>
         <div class="ent-fee"><span class="cur">¥</span><input type="number" inputmode="numeric" value="${fee||''}" placeholder="0" onchange="entrySetFee('${s.id}',this.value)"></div>
         <button class="ent-pay ${paid?'on':''}" onclick="entryTogglePaid('${s.id}')">${paid?'集金済':'未集金'}</button>
         <button class="ent-del" onclick="entryRemovePart('${s.id}')" aria-label="削除">×</button>
@@ -8505,6 +8512,16 @@ function renderEntryParts(){
       ${memoLine}
     </div>`; }).join('');
   renderEntrySummary();
+}
+// 学年（あれば）・段位/級（あれば）を小さなタグで表示
+function entryTagsHtml(s){
+  if(!s||!s.id)return '';
+  let gl=''; try{ gl=(typeof gradeLabel==='function')?(gradeLabel(s)||''):''; }catch(_){}
+  const rk=(s.rank||'').trim();
+  let h='';
+  if(gl)h+=`<span class="ent-tag grade">${esc(gl)}</span>`;
+  if(rk)h+=`<span class="ent-tag rank">${esc(rk)}</span>`;
+  return h;
 }
 function entrySetMemo(sid,val){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].memo=(val||'').trim(); save(); }
 function entryOpenMemo(){ const e=ensureEntry(curEntrySched); e.showMemo=true; save(); renderEntryParts(); }
@@ -8518,7 +8535,7 @@ function openEntryPick(){
   const roster=DB.students.filter(st=>!st.isSelf&&isEnrolledInMonth(st,ym));
   const order=catNames(), groups={};
   roster.forEach(st=>{ (groups[st.category]=groups[st.category]||[]).push(st); });
-  const rowHtml=st=>`<label class="ent-pick-row"><input type="checkbox" value="${st.id}" ${e.parts[st.id]?'checked':''}><span>${esc(st.name)}</span></label>`;
+  const rowHtml=st=>`<label class="ent-pick-row"><input type="checkbox" value="${st.id}" ${e.parts[st.id]?'checked':''}><span>${esc(st.name)}${entryTagsHtml(st)}</span></label>`;
   let html='';
   order.slice().reverse().forEach(cat=>{ const arr=(groups[cat]||[]).sort((a,b)=>(a.kana||a.name||'').localeCompare(b.kana||b.name||'')); if(arr.length)html+=`<div class="ent-pick-grp">${esc(cat)}</div>`+arr.map(rowHtml).join(''); });
   const noCat=roster.filter(st=>!order.includes(st.category)).sort((a,b)=>(a.kana||a.name||'').localeCompare(b.kana||b.name||''));
