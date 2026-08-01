@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v182（事務アプリ：試合申込・エントリー管理を新設。試合予定ごとに「申込締切／エントリー費（1人・個別変更可）／申込内容メモ／出場者（仲間から選択）／各人の集金済・未集金」を管理。予定カードに🏷️申込ボタン＋締切・未集金バッジ。会計とは非連動＝預り金の手続き記録として独立。DB.entries[予定ID]に保存（バックアップ同梱）。事務モード専用） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v183（エントリー管理を強化：①申込締切が試合日より後だと赤字エラー表示。②「申込を完了にする」ボタン＝完了で締切アラート停止・カードに✅申込完了。③締切が近い申込を目立たせる＝予定タブ上部に「要対応」バナー（タップで該当予定へ）＋要対応カードを色帯で強調＋下部タブ「予定」に未対応件数の赤バッジ） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -388,6 +388,20 @@
   .ent-pick-grp{font-weight:800;color:var(--navy);font-size:calc(13px*var(--fs,1));margin:12px 2px 4px;}
   .ent-pick-row{display:flex;align-items:center;gap:10px;padding:11px 6px;border-bottom:1px solid var(--line);cursor:pointer;font-size:calc(15px*var(--fs,1));}
   .ent-pick-row input{width:20px;height:20px;flex-shrink:0;}
+  .ent-err{display:none;color:#e04b3a;font-size:calc(13px*var(--fs,1));font-weight:700;margin:8px 2px 0;line-height:1.55;background:#fff4f1;border:1px solid #f0c0b5;border-radius:9px;padding:8px 10px;}
+  .ent-done-note{background:#eafaf0;border:1px solid #b8e6c8;border-radius:10px;padding:10px 12px;font-size:calc(13px*var(--fs,1));color:#1f7a45;line-height:1.6;}
+  /* ③要対応：バナー・カード強調・タブ赤バッジ */
+  #schedAlertBanner:empty{display:none;}
+  .sched-alert{background:#fff4f1;border:1.5px solid #f0c0b5;border-radius:14px;padding:12px 12px 11px;margin-bottom:12px;}
+  .sa-head{font-weight:800;color:#c0392b;font-size:calc(15px*var(--fs,1));margin-bottom:9px;}
+  .sa-list{display:flex;flex-direction:column;gap:7px;}
+  .sa-chip{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:#fff;border:1.5px solid #f0c0b5;border-radius:10px;padding:9px 10px;font-family:inherit;font-size:calc(13.5px*var(--fs,1));font-weight:700;color:var(--navy);cursor:pointer;}
+  .sa-tag{flex-shrink:0;background:#e04b3a;color:#fff;font-size:calc(11px*var(--fs,1));font-weight:800;border-radius:7px;padding:3px 8px;white-space:nowrap;}
+  .sa-nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sa-date{margin-left:auto;flex-shrink:0;color:var(--muted);font-weight:600;font-size:calc(12px*var(--fs,1));font-variant-numeric:tabular-nums;}
+  .tl-card.tl-alert{border:1.5px solid #f0b0a3;background:#fff7f5;box-shadow:0 0 0 2px rgba(224,75,58,.07);}
+  nav.tabbar button{position:relative;}
+  .tab-badge{position:absolute;top:1px;left:50%;margin-left:3px;min-width:16px;height:16px;padding:0 3px;background:#e04b3a;color:#fff;border-radius:9px;font-size:10px;font-weight:800;line-height:16px;text-align:center;box-sizing:border-box;z-index:1;}
 
   /* ===== タイムライン型スケジュール ===== */
   .tl-month{display:block;margin-bottom:8px;}
@@ -1029,6 +1043,7 @@ function applyUpdate(){
     <button id="schedFilterAllB" class="on" onclick="setSchedFilter('all')">すべて表示</button>
     <button id="schedFilterMatchB" onclick="setSchedFilter('match')"><span>🥋</span> 試合のみ</button>
   </div>
+  <div id="schedAlertBanner"></div>
   <div class="card" id="schedList"></div>
 </section>
 
@@ -1593,7 +1608,7 @@ function applyUpdate(){
   <button data-tab="mates" onclick="switchTab('mates')"><span class="ico">👥</span><span class="tlbl" data-i18n="仲間">仲間</span></button>
   <button data-tab="att" class="active" onclick="switchTab('att')"><span class="ico">📋</span><span class="tlbl" data-i18n="出欠">出欠</span></button>
   <button data-tab="money" onclick="switchTab('money')"><span class="ico">💴</span><span class="tlbl" data-i18n="お金">お金</span></button>
-  <button data-tab="sched" onclick="switchTab('sched')"><span class="ico">📅</span><span class="tlbl" data-i18n="予定">予定</span></button>
+  <button data-tab="sched" onclick="switchTab('sched')"><span class="tab-badge" id="schedTabBadge" style="display:none"></span><span class="ico">📅</span><span class="tlbl" data-i18n="予定">予定</span></button>
   <button data-tab="list" onclick="switchTab('list')"><span class="ico">📊</span><span class="tlbl" data-i18n="集計">集計</span></button>
   <button data-tab="set" onclick="switchTab('set')"><span class="ico">⚙️</span><span class="tlbl" data-i18n="設定">設定</span></button>
 </nav>
@@ -1883,6 +1898,7 @@ function applyUpdate(){
       <div><label class="fld" style="margin-top:0">申込締切</label><input type="date" id="entDeadline" onchange="entryMetaSave()"></div>
       <div><label class="fld" style="margin-top:0">エントリー費（1人）</label><input type="number" id="entFee" inputmode="numeric" placeholder="例：3000" onchange="entryMetaSave()"></div>
     </div>
+    <div id="entDeadlineErr" class="ent-err"></div>
     <button class="btn ghost" style="width:100%;margin-top:8px;min-height:44px;font-size:14px" onclick="entryApplyFeeAll()">↧ この金額を出場者全員に反映</button>
     <label class="fld">申込内容（メモ）</label>
     <textarea id="entDetail" rows="3" placeholder="例：個人戦 55kg級／団体戦Aチーム／申込は〇〇連盟サイト・〆切厳守" onchange="entryMetaSave()" style="width:100%;font-size:15px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical"></textarea>
@@ -1892,7 +1908,8 @@ function applyUpdate(){
       <button class="btn gold sm" onclick="openEntryPick()">＋ 出場者を追加</button>
     </div>
     <div id="entParts"></div>
-    <div class="row" style="margin-top:16px">
+    <div id="entDoneBox" style="margin-top:18px"></div>
+    <div class="row" style="margin-top:12px">
       <button class="btn ghost full" onclick="closeEntryModal()">とじる</button>
     </div>
   </div>
@@ -4568,7 +4585,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v182'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v183'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -8352,7 +8369,8 @@ function schedCardHtml(i){
   const entOn=isMatch&&DB.mode!=='personal';                        // 申込管理は事務モード専用
   const entryBtn=entOn?`<button class="result-btn entry-btn" onclick="event.stopPropagation();openEntryModal('${i.id}')">🏷️ 申込${entryDotHtml(i.id)}</button>`:'';
   const entryMeta=entOn?entryCardMetaHtml(i.id):'';
-  return `<div class="tl-card" onclick="openSchedModal('${i.id}')">
+  const alertCls=(entOn&&entryNeedsAttention(i.id))?' tl-alert':'';   // ③要対応カードを強調
+  return `<div class="tl-card${alertCls}" onclick="openSchedModal('${i.id}')">
     <div class="tl-daybox" style="background:${col}">
       <div class="drow"><span class="d">${d.getDate()}</span><span class="w">${weekday(d)}</span></div>
       ${i.time?`<div class="tm">${esc(i.time)}</div>`:''}
@@ -8382,17 +8400,42 @@ function entryStats(id){
 }
 function entryDeadlineInfo(deadline){ if(!deadline)return null; const days=Math.round((new Date(deadline+'T00:00')-new Date(todayStr()+'T00:00'))/86400000); return {days,overdue:days<0,today:days===0,soon:days>0&&days<=3}; }
 function entryHasData(id){ const st=entryStats(id); return !!(st&&(st.count||st.deadline)); }
-function entryDotHtml(id){ const st=entryStats(id); if(!st)return ''; const di=entryDeadlineInfo(st.deadline); const alert=(st.unpaid>0)||(di&&(di.overdue||di.today)); if(alert)return '<span class="result-dot" style="background:#e04b3a"></span>'; return st.count?'<span class="result-dot" style="background:#37c26e"></span>':''; }
+// 要対応＝未完了で締切7日以内（超過含む）
+function entryNeedsAttention(id){ const e=entryOf(id); if(!e||e.done)return false; const di=entryDeadlineInfo(e.deadline); return !!(di&&di.days<=7); }
+function entryDotHtml(id){ const e=entryOf(id); if(!e)return ''; const st=entryStats(id);
+  if(e.done)return '<span class="result-dot" style="background:#2e9e5b"></span>';
+  const di=entryDeadlineInfo(st.deadline), alert=(st.unpaid>0)||(di&&di.days<=7);
+  if(alert)return '<span class="result-dot" style="background:#e04b3a"></span>';
+  return st.count?'<span class="result-dot" style="background:#37c26e"></span>':''; }
 function entryCardMetaHtml(id){
-  const st=entryStats(id); if(!st||(!st.count&&!st.deadline))return '';
+  const e=entryOf(id); if(!e)return ''; const st=entryStats(id); if(!st||(!st.count&&!st.deadline&&!e.done))return '';
+  if(e.done){ const extra=st.unpaid?`・<span style="color:#c77f0a;font-weight:700">未集金${st.unpaid}人</span>`:''; return `<div class="meta ent-cardmeta"><span style="color:#2e9e5b;font-weight:800">✅ 申込完了</span>${st.count?'・出場'+st.count+'人':''}${extra}</div>`; }
+  const red=t=>'<span style="color:#e04b3a;font-weight:700">'+t+'</span>', amber=t=>'<span style="color:#c77f0a;font-weight:700">'+t+'</span>';
   const parts=[];
   if(st.deadline){ const md=st.deadline.replace(/-/g,'/').slice(5), di=entryDeadlineInfo(st.deadline);
     let dl='締切 '+md;
-    if(di){ if(di.overdue)dl='<span style="color:#e04b3a;font-weight:700">締切超過('+md+')</span>'; else if(di.today)dl='<span style="color:#e04b3a;font-weight:700">本日締切</span>'; else if(di.soon)dl='<span style="color:#c77f0a;font-weight:700">締切あと'+di.days+'日</span>'; }
+    if(di){ if(di.overdue)dl=red('締切超過('+md+')'); else if(di.today)dl=red('本日締切'); else if(di.days<=7)dl=amber('締切あと'+di.days+'日'); }
     parts.push(dl); }
   if(st.count)parts.push('出場'+st.count+'人');
-  if(st.unpaid)parts.push('<span style="color:#e04b3a;font-weight:700">未集金'+st.unpaid+'人</span>');
+  if(st.unpaid)parts.push(red('未集金'+st.unpaid+'人'));
   return `<div class="meta ent-cardmeta">🏷 ${parts.join('・')}</div>`;
+}
+// 予定タブ上部の「要対応」バナー
+function renderSchedAlert(){
+  const box=document.getElementById('schedAlertBanner'); if(!box)return;
+  if(DB.mode==='personal'){ box.innerHTML=''; return; }
+  const items=DB.schedule.filter(s=>entryNeedsAttention(s.id)).sort((a,b)=>((entryOf(a.id).deadline)||'').localeCompare((entryOf(b.id).deadline)||''));
+  if(!items.length){ box.innerHTML=''; return; }
+  const chips=items.slice(0,8).map(s=>{ const e=entryOf(s.id), di=entryDeadlineInfo(e.deadline);
+    const tag=di.overdue?'締切超過':(di.today?'本日締切':'あと'+di.days+'日');
+    return `<button class="sa-chip" onclick="openEntryModal('${s.id}')"><span class="sa-tag">${tag}</span><span class="sa-nm">${esc(schedLabel(s))}</span><span class="sa-date">${(e.deadline||'').replace(/-/g,'/').slice(5)}</span></button>`; }).join('');
+  box.innerHTML=`<div class="sched-alert"><div class="sa-head">⚠ 締切が近い申込 <b>${items.length}件</b></div><div class="sa-list">${chips}</div></div>`;
+}
+// 下部タブバー「予定」の赤バッジ（未対応件数）
+function updateSchedTabBadge(){
+  const b=document.getElementById('schedTabBadge'); if(!b)return;
+  const n=(DB.mode!=='personal')?DB.schedule.filter(s=>entryNeedsAttention(s.id)).length:0;
+  if(n>0){ b.textContent=n>99?'99+':n; b.style.display='block'; } else { b.style.display='none'; }
 }
 function openEntryModal(schedId){
   curEntrySched=schedId; const e=ensureEntry(schedId); const s=DB.schedule.find(x=>x.id===schedId);
@@ -8400,7 +8443,7 @@ function openEntryModal(schedId){
   document.getElementById('entDeadline').value=e.deadline||'';
   document.getElementById('entFee').value=e.feeDefault||'';
   document.getElementById('entDetail').value=e.detail||'';
-  renderEntryParts();
+  entryCheckDeadline(); renderEntryDone(); renderEntryParts();
   openModal('entryModal');
 }
 function closeEntryModal(){ closeModal('entryModal'); if(document.getElementById('screen-sched').classList.contains('active'))renderSched(); }
@@ -8409,8 +8452,23 @@ function entryMetaSave(){
   e.deadline=document.getElementById('entDeadline').value||'';
   e.feeDefault=Math.max(0,Number(document.getElementById('entFee').value)||0);
   e.detail=document.getElementById('entDetail').value||'';
-  save(); renderEntrySummary();
+  save(); entryCheckDeadline(); renderEntrySummary(); updateSchedTabBadge();
 }
+// ①締切の妥当性：試合日より後の締切はありえない → 赤字で警告
+function entryCheckDeadline(){
+  const el=document.getElementById('entDeadlineErr'); if(!el)return;
+  const s=DB.schedule.find(x=>x.id===curEntrySched), dl=(document.getElementById('entDeadline')||{}).value||'';
+  if(s&&s.date&&dl&&dl>s.date){ el.innerHTML='⚠ 申込締切が試合日（'+s.date.replace(/-/g,'/')+'）より<b>後</b>になっています。日付を確認してください。'; el.style.display='block'; }
+  else { el.style.display='none'; el.innerHTML=''; }
+}
+// ②申込完了ボタン
+function renderEntryDone(){
+  const e=ensureEntry(curEntrySched), box=document.getElementById('entDoneBox'); if(!box)return;
+  if(e.done){ box.innerHTML=`<div class="ent-done-note">✅ この大会の申込は<b>完了</b>にしています${e.doneDate?'（'+e.doneDate.replace(/-/g,'/')+'）':''}。締切アラートは出ません。</div>`+
+      `<button class="btn ghost full" style="margin-top:8px" onclick="entryToggleDone()">完了を取り消す</button>`; }
+  else { box.innerHTML=`<button class="btn full" style="background:var(--green);color:#fff" onclick="entryToggleDone()">✅ この大会の申込を完了にする</button>`; }
+}
+function entryToggleDone(){ const e=ensureEntry(curEntrySched); e.done=!e.done; e.doneDate=e.done?todayStr():''; save(); renderEntryDone(); updateSchedTabBadge(); toast(e.done?'申込を完了にしました':'完了を取り消しました'); }
 function renderEntrySummary(){
   const st=entryStats(curEntrySched)||{count:0,paid:0,paidSum:0,unpaid:0,unpaidSum:0};
   const el=document.getElementById('entSummary'); if(!el)return;
@@ -8459,7 +8517,7 @@ function entryPickApply(){
     if(c.checked){ if(!e.parts[id])e.parts[id]={fee:e.feeDefault||0,paid:false}; }
     else if(e.parts[id])delete e.parts[id];
   });
-  save(); closeModal('entryPickModal'); renderEntryParts();
+  save(); closeModal('entryPickModal'); renderEntryParts(); updateSchedTabBadge();
 }
 let schedFilter='all';                 // v133: 'all' | 'match'（試合のみ）
 let schedMonthOpen=null;               // 展開中の月。初回renderで当月を開いた状態にする
@@ -8505,6 +8563,7 @@ function renderSched(){
   if(schedFilter==='match')items=items.filter(schedIsMatch);
   const emptyMsg=schedFilter==='match'?'試合・大会はありません':`${fy}年度の予定はありません`;
   list.innerHTML=items.length?schedMonthGroupsHtml(items):`<div class="empty">${emptyMsg}</div>`;
+  renderSchedAlert(); updateSchedTabBadge();
 }
 
 /* 月別一覧マトリクス */
@@ -9886,6 +9945,7 @@ function initUI(){
   if(APP_EDITION==='personal')switchTab('report');   // v167: 個人専用アプリは「報告」から開始（無料の入口）
   else if(DB.mode==='personal')switchTab('rireki');  // 個人モードは履歴から開始
   showBackupReminder();   // 期限超過なら催促バナー
+  updateSchedTabBadge();  // v183: 予定タブの申込・要対応バッジ
   maybeStartOnboarding(); // v176: 個人アプリの新規ユーザーに初回ナビ
 }
 load();seedIfEmpty();save();initUI();
