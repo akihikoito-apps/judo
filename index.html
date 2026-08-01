@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v185（エントリー管理：出場者名の下に「学年」「段位/級」を小さなタグで表示（あるものだけ・学年=青系/段級=金系）。gradeLabel()とs.rankを流用。出場者リストと出場者選択（ピッカー）の両方に表示し、階級・区分の判断をしやすく） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v186（不具合対応：入力中に画面外(背景)をタップすると突然閉じてデータが消える問題を修正。入力欄がある画面は外側タップで閉じず「やめる/とじる で閉じられます」とヒント表示、情報だけの画面（確認・ペイウォール等）は従来どおり外タップで閉じる。中からドラッグして外で離す誤操作でも閉じないようガード。全27モーダルに閉じるボタンがあり閉じられない不具合も回避） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -4596,7 +4596,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v185'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v186'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -9954,7 +9954,22 @@ function openModal(id){
   if(inner){inner.scrollTop=0;requestAnimationFrame(()=>{inner.scrollTop=0;});}
 }
 function closeModal(id){document.getElementById(id).classList.remove('show');if(id==='qrScanModal'&&typeof qrStopCamera==='function')qrStopCamera();}
-document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg){if(bg.id==='qrScanModal'&&typeof qrStopCamera==='function')qrStopCamera();bg.classList.remove('show');}}));
+// 外側タップで閉じる挙動：入力欄がある画面は誤タップでの消失を防ぐため閉じない（ボタンで閉じる）
+function modalHasEntry(bg){
+  const f=bg.querySelectorAll('input:not([type=file]):not([type=hidden]):not([type=button]):not([type=submit]):not([type=reset]),textarea,select');
+  for(let i=0;i<f.length;i++){ if(f[i].offsetParent!==null) return true; }  // 表示中の入力欄があるか
+  return false;
+}
+let mdDownTarget=null;
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('pointerdown',e=>{ mdDownTarget=e.target; });
+  bg.addEventListener('click',e=>{
+    if(e.target!==bg) return;                          // 中身のタップは無視
+    if(mdDownTarget&&mdDownTarget!==bg) return;        // 中からドラッグして外で離した誤操作では閉じない
+    if(modalHasEntry(bg)){ toast('入力中の内容を守るため、外側タップでは閉じません。「やめる／とじる」で閉じられます。'); return; }
+    closeModal(bg.id);                                 // 情報だけの画面は従来どおり外タップで閉じる
+  });
+});
 let tT=null;
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2000);}
 
