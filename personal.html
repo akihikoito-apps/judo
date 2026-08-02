@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v188（不具合修正：試合申込の出場者ごとのエントリー費入力欄が狭く、文字サイズ大のとき「1000」が「100」等に切れて見える問題を修正（データは元から正しい）。入力欄の幅を文字サイズに応じて拡張＋上限、行を折り返し可にして、金額が必ず全額表示されるように。※.nojekyll追加でPagesを静的配信化） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v189（試合申込モーダルのレイアウト修正：①申込締切の日付が枠から溢れて切れる問題を修正（上段を狭い画面では縦積み＝全幅で日付が収まる）。②出場者行の集金済/未集金・×ボタンを金額の右側に横並びへ戻し縦に揃うように（右側を1グループ化）。文字サイズ大でも密な行が収まるよう当行の拡大率は最大1.3倍に調整） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -368,8 +368,8 @@
   /* 試合申込・エントリー管理 */
   .entry-btn{border-color:var(--navy);color:var(--navy);margin-left:8px;}
   .ent-cardmeta{margin-top:4px;}
-  .ent-grid{display:flex;gap:10px;}
-  .ent-grid>div{flex:1;min-width:0;}
+  .ent-grid{display:flex;gap:10px;flex-wrap:wrap;}
+  .ent-grid>div{flex:1 1 190px;min-width:190px;}   /* 狭い画面では縦積み＝日付が全幅で収まる */
   .ent-grid input{width:100%;box-sizing:border-box;}
   .ent-sumbar{display:flex;gap:8px;margin:14px 0 2px;}
   .ent-sum-item{flex:1;background:#f3f1ea;border-radius:12px;padding:10px 4px;text-align:center;display:flex;flex-direction:column;gap:2px;}
@@ -377,12 +377,13 @@
   .ent-sum-item span{font-size:calc(11px*var(--fs,1));color:var(--muted);}
   .ent-sum-item.ok b{color:#2e9e5b;} .ent-sum-item.warn b{color:#e04b3a;}
   .ent-rowwrap{border-bottom:1px solid var(--line);}
-  .ent-row{display:flex;align-items:center;gap:8px;padding:9px 2px;flex-wrap:wrap;row-gap:8px;}
+  .ent-row{display:flex;align-items:center;gap:8px;padding:9px 2px;}
+  .ent-ctrl{display:flex;align-items:center;gap:8px;flex-shrink:0;}
   .ent-memo-inp{width:100%;box-sizing:border-box;margin:0 0 9px;font-size:calc(13.5px*var(--fs,1));padding:8px 10px;border:1.5px dashed var(--line);border-radius:9px;font-family:inherit;background:#fbfbf9;}
   .ent-memo-show{margin:-2px 2px 9px;font-size:calc(12.5px*var(--fs,1));color:var(--muted);line-height:1.5;cursor:pointer;word-break:break-word;}
   #entMemoToggle.on{background:var(--navy);color:#fff;border-color:var(--navy);}
-  .ent-nm{flex:1 1 44%;min-width:108px;}
-  .ent-nm-main{font-weight:700;color:var(--ink);font-size:calc(15px*var(--fs,1));word-break:break-word;}
+  .ent-nm{flex:1 1 auto;min-width:0;}
+  .ent-nm-main{font-weight:700;color:var(--ink);font-size:calc(15px*min(var(--fs,1),1.3));word-break:break-word;}
   .ent-nm-sub{margin-top:3px;line-height:1.4;}
   .ent-tag{display:inline-block;font-size:calc(11px*var(--fs,1));font-weight:700;border-radius:6px;padding:1px 7px;margin-right:5px;line-height:1.6;white-space:nowrap;}
   .ent-tag.grade{background:#eef2fb;color:#33507e;}
@@ -390,10 +391,10 @@
   .ent-pick-row .ent-tag{margin-left:4px;margin-right:0;}
   .ent-fee{display:flex;align-items:center;gap:2px;flex-shrink:0;}
   .ent-fee .cur{color:var(--muted);font-size:13px;}
-  .ent-fee input{width:min(calc(72px*var(--fs,1)),172px);min-width:82px;box-sizing:border-box;text-align:right;font-size:calc(15px*var(--fs,1));padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;font-variant-numeric:tabular-nums;}
-  .ent-pay{flex-shrink:0;min-width:66px;min-height:38px;border-radius:9px;border:2px solid var(--red);background:#fff;color:var(--red);font-weight:700;font-family:inherit;font-size:calc(12.5px*var(--fs,1));cursor:pointer;}
+  .ent-fee input{width:calc(66px*min(var(--fs,1),1.3));min-width:80px;box-sizing:border-box;text-align:right;font-size:calc(15px*min(var(--fs,1),1.3));padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;font-variant-numeric:tabular-nums;}
+  .ent-pay{flex-shrink:0;min-width:60px;min-height:calc(38px*min(var(--fs,1),1.3));border-radius:9px;border:2px solid var(--red);background:#fff;color:var(--red);font-weight:700;font-family:inherit;font-size:calc(12.5px*min(var(--fs,1),1.3));cursor:pointer;white-space:nowrap;padding:0 8px;}
   .ent-pay.on{background:var(--green);border-color:var(--green);color:#fff;}
-  .ent-del{flex-shrink:0;width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:18px;cursor:pointer;font-family:inherit;line-height:1;padding:0;}
+  .ent-del{flex-shrink:0;width:calc(32px*min(var(--fs,1),1.3));height:calc(32px*min(var(--fs,1),1.3));border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:calc(18px*min(var(--fs,1),1.3));cursor:pointer;font-family:inherit;line-height:1;padding:0;}
   .ent-empty{color:var(--muted);font-size:calc(13px*var(--fs,1));text-align:center;padding:14px 0;line-height:1.6;}
   .ent-pick-grp{font-weight:800;color:var(--navy);font-size:calc(13px*var(--fs,1));margin:12px 2px 4px;}
   .ent-pick-row{display:flex;align-items:center;gap:10px;padding:11px 6px;border-bottom:1px solid var(--line);cursor:pointer;font-size:calc(15px*var(--fs,1));}
@@ -4609,7 +4610,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v188'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v189'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -8518,9 +8519,11 @@ function renderEntryParts(){
     return `<div class="ent-rowwrap">
       <div class="ent-row">
         <div class="ent-nm"><span class="ent-nm-main">${esc(s.name)}</span>${sub?'<div class="ent-nm-sub">'+sub+'</div>':''}</div>
-        <div class="ent-fee"><span class="cur">¥</span><input type="number" inputmode="numeric" value="${fee||''}" placeholder="0" onchange="entrySetFee('${s.id}',this.value)"></div>
-        <button class="ent-pay ${paid?'on':''}" onclick="entryTogglePaid('${s.id}')">${paid?'集金済':'未集金'}</button>
-        <button class="ent-del" onclick="entryRemovePart('${s.id}')" aria-label="削除">×</button>
+        <div class="ent-ctrl">
+          <div class="ent-fee"><span class="cur">¥</span><input type="number" inputmode="numeric" value="${fee||''}" placeholder="0" onchange="entrySetFee('${s.id}',this.value)"></div>
+          <button class="ent-pay ${paid?'on':''}" onclick="entryTogglePaid('${s.id}')">${paid?'集金済':'未集金'}</button>
+          <button class="ent-del" onclick="entryRemovePart('${s.id}')" aria-label="削除">×</button>
+        </div>
       </div>
       ${memoLine}
     </div>`; }).join('');
