@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v186（不具合対応：入力中に画面外(背景)をタップすると突然閉じてデータが消える問題を修正。入力欄がある画面は外側タップで閉じず「やめる/とじる で閉じられます」とヒント表示、情報だけの画面（確認・ペイウォール等）は従来どおり外タップで閉じる。中からドラッグして外で離す誤操作でも閉じないようガード。全27モーダルに閉じるボタンがあり閉じられない不具合も回避） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v187（入力画面の外側タップ時に「この画面を閉じますか？」の確認ダイアログを表示（入力画面の手前z-index80に重ねる／[入力を続ける][閉じる]）。閉じたい時はワンタップで閉じられ、誤タップでは入力を続けられる。情報だけの画面（確認・ペイウォール等）は従来どおり確認なしで閉じる。中ドラッグ→外離しの誤操作ガードは維持） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -574,6 +574,7 @@
   nav.tabbar button.active{color:#fff;background:var(--navy);}
 
   .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;align-items:flex-end;justify-content:center;}
+  .modal-bg.close-confirm{z-index:80;}
   .modal-bg.show{display:flex;}
   /* 削除確認は常に最前面・予定編集はアーカイブより前面に */
   #confirmModal{z-index:70;}
@@ -1742,6 +1743,18 @@ function applyUpdate(){
     <div class="row">
       <button class="btn ghost" onclick="closeModal('confirmModal')">やめる</button>
       <button class="btn" id="confirmYesBtn" style="background:var(--red);color:#fff" onclick="confirmDeleteYes()">削除する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 入力画面で外側タップ時の「閉じる確認」（入力画面の上に重ねる） -->
+<div class="modal-bg close-confirm" id="closeConfirmModal">
+  <div class="modal" style="max-width:340px">
+    <h3 style="margin-top:0;color:var(--navy)">この画面を閉じますか？</h3>
+    <p class="list-mini" style="margin:8px 0 18px">入力中の内容がある場合、閉じると反映されないことがあります。</p>
+    <div class="row">
+      <button class="btn" style="background:var(--navy);color:#fff" onclick="closeConfirmStay()">入力を続ける</button>
+      <button class="btn ghost" onclick="closeConfirmDo()">閉じる</button>
     </div>
   </div>
 </div>
@@ -4596,7 +4609,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v186'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v187'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -9965,11 +9978,17 @@ document.querySelectorAll('.modal-bg').forEach(bg=>{
   bg.addEventListener('pointerdown',e=>{ mdDownTarget=e.target; });
   bg.addEventListener('click',e=>{
     if(e.target!==bg) return;                          // 中身のタップは無視
+    if(bg.id==='closeConfirmModal'){ closeConfirmStay(); return; }  // 確認の外側タップ＝入力を続ける（確認だけ閉じる）
     if(mdDownTarget&&mdDownTarget!==bg) return;        // 中からドラッグして外で離した誤操作では閉じない
-    if(modalHasEntry(bg)){ toast('入力中の内容を守るため、外側タップでは閉じません。「やめる／とじる」で閉じられます。'); return; }
+    if(modalHasEntry(bg)){ askCloseConfirm(bg.id); return; }  // 入力欄あり＝閉じるか確認する
     closeModal(bg.id);                                 // 情報だけの画面は従来どおり外タップで閉じる
   });
 });
+// 入力画面で外側タップ→「閉じますか？」を確認（入力画面の上に重ねて表示）
+let pendingCloseId=null;
+function askCloseConfirm(id){ pendingCloseId=id; openModal('closeConfirmModal'); }
+function closeConfirmDo(){ const id=pendingCloseId; pendingCloseId=null; closeModal('closeConfirmModal'); if(id)closeModal(id); }
+function closeConfirmStay(){ pendingCloseId=null; closeModal('closeConfirmModal'); }
 let tT=null;
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2000);}
 
