@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v187（入力画面の外側タップ時に「この画面を閉じますか？」の確認ダイアログを表示（入力画面の手前z-index80に重ねる／[入力を続ける][閉じる]）。閉じたい時はワンタップで閉じられ、誤タップでは入力を続けられる。情報だけの画面（確認・ペイウォール等）は従来どおり確認なしで閉じる。中ドラッグ→外離しの誤操作ガードは維持） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v188（不具合修正：試合申込の出場者ごとのエントリー費入力欄が狭く、文字サイズ大のとき「1000」が「100」等に切れて見える問題を修正（データは元から正しい）。入力欄の幅を文字サイズに応じて拡張＋上限、行を折り返し可にして、金額が必ず全額表示されるように。※.nojekyll追加でPagesを静的配信化） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -377,11 +377,11 @@
   .ent-sum-item span{font-size:calc(11px*var(--fs,1));color:var(--muted);}
   .ent-sum-item.ok b{color:#2e9e5b;} .ent-sum-item.warn b{color:#e04b3a;}
   .ent-rowwrap{border-bottom:1px solid var(--line);}
-  .ent-row{display:flex;align-items:center;gap:8px;padding:9px 2px;}
+  .ent-row{display:flex;align-items:center;gap:8px;padding:9px 2px;flex-wrap:wrap;row-gap:8px;}
   .ent-memo-inp{width:100%;box-sizing:border-box;margin:0 0 9px;font-size:calc(13.5px*var(--fs,1));padding:8px 10px;border:1.5px dashed var(--line);border-radius:9px;font-family:inherit;background:#fbfbf9;}
   .ent-memo-show{margin:-2px 2px 9px;font-size:calc(12.5px*var(--fs,1));color:var(--muted);line-height:1.5;cursor:pointer;word-break:break-word;}
   #entMemoToggle.on{background:var(--navy);color:#fff;border-color:var(--navy);}
-  .ent-nm{flex:1;min-width:0;}
+  .ent-nm{flex:1 1 44%;min-width:108px;}
   .ent-nm-main{font-weight:700;color:var(--ink);font-size:calc(15px*var(--fs,1));word-break:break-word;}
   .ent-nm-sub{margin-top:3px;line-height:1.4;}
   .ent-tag{display:inline-block;font-size:calc(11px*var(--fs,1));font-weight:700;border-radius:6px;padding:1px 7px;margin-right:5px;line-height:1.6;white-space:nowrap;}
@@ -390,7 +390,7 @@
   .ent-pick-row .ent-tag{margin-left:4px;margin-right:0;}
   .ent-fee{display:flex;align-items:center;gap:2px;flex-shrink:0;}
   .ent-fee .cur{color:var(--muted);font-size:13px;}
-  .ent-fee input{width:74px;text-align:right;font-size:calc(15px*var(--fs,1));padding:6px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;font-variant-numeric:tabular-nums;}
+  .ent-fee input{width:min(calc(72px*var(--fs,1)),172px);min-width:82px;box-sizing:border-box;text-align:right;font-size:calc(15px*var(--fs,1));padding:6px 8px;border:1.5px solid var(--line);border-radius:8px;font-family:inherit;font-variant-numeric:tabular-nums;}
   .ent-pay{flex-shrink:0;min-width:66px;min-height:38px;border-radius:9px;border:2px solid var(--red);background:#fff;color:var(--red);font-weight:700;font-family:inherit;font-size:calc(12.5px*var(--fs,1));cursor:pointer;}
   .ent-pay.on{background:var(--green);border-color:var(--green);color:#fff;}
   .ent-del{flex-shrink:0;width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:18px;cursor:pointer;font-family:inherit;line-height:1;padding:0;}
@@ -4609,7 +4609,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v187'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v188'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
