@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v201（報告の改善：①入力の並びを 回戦(シード時は2回戦以降からの説明付き)→結果→決まり技→内容→相手の組手→相手のなまえ→所属→備考 に変更（組手は「相手の組手」に明確化）。②入力画面の「送る内容」プレビューを撤去。③「道場に送る」モーダルを刷新＝QRコード/テキストの切替プレビュー（既定QR・タップで拡大）→送る/コピーは選択形式で動作（QR=画像共有/画像コピー、テキスト=文字共有/コピー）。旧「QRで渡す」ボタンは廃止。説明文は「道場アプリの集計›試合結果›取り込みから登録できる」に簡潔化。report.htmlも並びを統一） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v202（「道場に送る」のQR/テキスト切替でポップアップの高さが変わって見づらい問題を修正：プレビュー領域(QR枠とテキスト枠)を同一の固定高さ(min(62vw,260px))に統一し、案内文も両形式で常時表示（形式に応じて文言だけ切替・高さ確保）。iPhone/文字大/iPadで切替前後の高さ完全一致を実測確認。他画面の同種切替は点検の上、対象は本モーダルのみ（report.htmlは両方同時表示・タブ切替は画面全体のため対象外）） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -917,7 +917,7 @@
   .gwd-h{font-weight:800;color:var(--navy);font-size:calc(14px*var(--fs,1));margin-bottom:2px;}
   .gwd-sec .gw-field-row:last-child{border-bottom:none;}
   .chip-btn.gwd-att{border-color:#2e9e5b;color:#1f7a45;background:#fff;}
-  #dojoPrevQr svg{width:min(58vw,220px);height:auto;display:block;}
+  #dojoPrevQr svg{width:min(50vw,210px);height:auto;display:block;}
   .gw-field-row .nm{flex:1;font-weight:700;}
   .kk-field{display:flex;align-items:center;gap:8px;margin-top:8px;}
   .kk-field label{flex:1;font-size:calc(14px*var(--fs,1));font-weight:700;color:var(--navy);margin:0;}
@@ -1538,9 +1538,9 @@ function applyUpdate(){
       <button id="dojoFmtQr" class="on" onclick="dojoSetFmt('qr')">📷 QRコード</button>
       <button id="dojoFmtTx" onclick="dojoSetFmt('text')">📝 テキスト</button>
     </div>
-    <div id="dojoPrevQr" onclick="qrShowFromDojo()" style="display:flex;justify-content:center;align-items:center;min-height:150px;padding:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;margin-top:10px;cursor:pointer"></div>
-    <p class="list-mini" id="dojoQrHint" style="margin-top:6px">タップで大きく表示できます。会場では、この画面をそのまま読み取ってもらえます。</p>
-    <textarea id="dojoSendText" readonly class="dojo-send-ta" style="display:none;margin-top:10px"></textarea>
+    <div id="dojoPrevQr" onclick="qrShowFromDojo()" style="display:flex;justify-content:center;align-items:center;height:min(62vw,260px);padding:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;margin-top:10px;cursor:pointer;box-sizing:border-box"></div>
+    <textarea id="dojoSendText" readonly class="dojo-send-ta" style="display:none;margin-top:10px;height:min(62vw,260px);box-sizing:border-box"></textarea>
+    <p class="list-mini" id="dojoQrHint" style="margin-top:6px;min-height:2.9em">タップで大きく表示できます。会場では、この画面をそのまま読み取ってもらえます。</p>
     <div class="row" style="margin-top:12px">
       <button class="btn ghost" onclick="closeModal('dojoSendModal')">閉じる</button>
       <button class="btn" style="background:#06C755;color:#fff" onclick="dojoSendShare()">送る</button>
@@ -4763,7 +4763,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v201'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v202'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5515,6 +5515,7 @@ Object.assign(DICT,{
   'タップで大きく表示できます。会場では、この画面をそのまま読み取ってもらえます。':{en:'Tap to enlarge. At the venue, staff can scan this screen directly.',fr:'Touchez pour agrandir. Sur place, le responsable peut scanner cet écran.',pt:'Toque para ampliar. No local, o responsável pode ler esta tela.'},
   '内容が多すぎてQRにできません。テキストでお送りください。':{en:'Too much content for a QR. Please send as text.',fr:'Contenu trop long pour un QR. Envoyez en texte.',pt:'Conteúdo grande demais para QR. Envie como texto.'},
   'QR画像をコピーしました':{en:'QR image copied',fr:'Image QR copiée',pt:'Imagem do QR copiada'},
+  '「送る」でLINEなどへ文字として送れます。「コピーする」で貼り付け用にコピーできます。':{en:'“Send” shares it as text via LINE etc. “Copy” copies it for pasting.',fr:'« Envoyer » partage le texte via LINE, etc. « Copier » le copie pour le coller.',pt:'“Enviar” compartilha como texto via LINE etc. “Copiar” copia para colar.'},
   '画像コピー非対応のため表示しました。スクショで送れます。':{en:'Image copy unsupported — showing the QR (send a screenshot).',fr:'Copie d’image non prise en charge — QR affiché (envoyez une capture).',pt:'Cópia de imagem não suportada — QR exibido (envie um print).'}
 });
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
@@ -7545,8 +7546,10 @@ function dojoSetFmt(f){
   if(q)q.classList.toggle('on',f==='qr'); if(t)t.classList.toggle('on',f==='text');
   const pv=document.getElementById('dojoPrevQr'), hint=document.getElementById('dojoQrHint'), ta=document.getElementById('dojoSendText');
   if(pv)pv.style.display=(f==='qr')?'flex':'none';
-  if(hint)hint.style.display=(f==='qr')?'block':'none';
   if(ta)ta.style.display=(f==='qr')?'none':'block';
+  if(hint)hint.textContent=(f==='qr')
+    ?T('タップで大きく表示できます。会場では、この画面をそのまま読み取ってもらえます。')
+    :T('「送る」でLINEなどへ文字として送れます。「コピーする」で貼り付け用にコピーできます。');
   if(f==='qr'&&pv){ const svg=qrMakeSvg(dojoSendCache); pv.innerHTML=svg||('<p class="list-mini" style="margin:0">'+T('内容が多すぎてQRにできません。テキストでお送りください。')+'</p>'); }
 }
 function dojoQrPngBlob(){
