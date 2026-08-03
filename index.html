@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v199（予定入力の改善：①日付を最初に（思考の流れに合わせ 日付→くり返し→種類→イベント名→対象→試合有無→時間→場所→備考 の順へ）。②くり返し（一括）登録を日付直後に移動して見つけやすく＝週次の稽古のまとめ登録が個人アプリでも簡単に。③対象（主役）の既定を「全員」に統一。成長カレンダー・メモリーの初期表示も「全員」に。④試合の質問を「この予定では試合はありますか？」へ変更し、道場アプリの記載を削除） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v200（メモリー改善：①節目追加ボタンは全員表示でも表示し、押した時に「だれの節目？」の対象者ピッカーを挟んで追加（選んだ主役で節目モーダルへ）。②メモリーカードの勝敗数と決まり技を横一列に（縦長で右が余る印象を解消・狭い幅では自然に折返し）） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -668,6 +668,9 @@
   .rk-pill{border-radius:9px;padding:3px 10px;font-weight:800;font-size:calc(13px*var(--fs,1));}
   .rk-pill.w{background:#eaf5ee;color:var(--green);} .rk-pill.l{background:#faecea;color:var(--red);} .rk-pill.d{background:#eef0f4;color:var(--muted);}
   .rk-wz{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  /* v200: 勝敗と決まり技を横並び（狭い幅では自然に折返し） */
+  .rk-recwz{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;margin-bottom:8px;}
+  .rk-recwz .rk-rec,.rk-recwz .rk-wz{margin-bottom:0;}
   .rk-wz .c{background:#f2f4f8;border:1px solid #e2e7f0;border-radius:8px;padding:2px 9px;font-size:calc(12.5px*var(--fs,1));font-weight:700;color:var(--navy);}
   .rk-cmt{width:100%;box-sizing:border-box;font-family:inherit;font-size:calc(13.5px*var(--fs,1));border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#faf9f5;resize:vertical;min-height:44px;color:var(--ink);}
   .rk-actions{display:flex;gap:8px;margin-top:10px;}
@@ -1670,6 +1673,15 @@ function applyUpdate(){
     <button class="btn ghost" onclick="gwOpenFields()">⚙️ 記録する項目</button>
   </div>
 </section>
+
+<!-- 節目の対象者を選ぶ（全員表示からの追加時） -->
+<div class="modal-bg" id="mileStarModal">
+  <div class="modal" style="max-width:360px">
+    <h3>だれの節目を追加しますか？</h3>
+    <div class="cat-pick" id="mileStarPick" style="margin-top:10px"></div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost full" onclick="closeModal('mileStarModal')">やめる</button></div>
+  </div>
+</div>
 
 <!-- 日別モーダル（その日の予定一覧＋けいこ） -->
 <div class="modal-bg" id="gwDayModal">
@@ -4747,7 +4759,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v199'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v200'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5487,7 +5499,8 @@ Object.assign(DICT,{
   // v199
   'この予定では試合はありますか？':{en:'Will there be matches at this event?',fr:'Y aura-t-il des combats à cet événement ?',pt:'Haverá lutas neste evento?'},
   '「はい」にすると、この予定で試合結果を記録できるようになります。':{en:'Choosing “Yes” lets you record match results for this event.',fr:'« Oui » permet d’enregistrer les résultats de combats pour cet événement.',pt:'“Sim” permite registrar resultados de lutas neste evento.'},
-  'くり返し登録（週次の稽古などをまとめて）':{en:'Recurring (bulk-add weekly practice etc.)',fr:'Récurrent (ajout groupé : entraînements hebdo, etc.)',pt:'Recorrente (adicionar em lote: treinos semanais etc.)'}
+  'くり返し登録（週次の稽古などをまとめて）':{en:'Recurring (bulk-add weekly practice etc.)',fr:'Récurrent (ajout groupé : entraînements hebdo, etc.)',pt:'Recorrente (adicionar em lote: treinos semanais etc.)'},
+  'だれの節目を追加しますか？':{en:'Whose milestone is this?',fr:'À qui appartient cette étape ?',pt:'De quem é este marco?'}
 });
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
@@ -7396,7 +7409,7 @@ function renderRireki(){
   if(!rkSelfId||!withB.some(s=>s.id===rkSelfId)){rkSelfId=withB[0].id;rkYear=null;}
   chips.innerHTML=(withB.length>1?`<button class="${rkAllView?'on':''}" onclick="rkSelectAll()"><span class="rk-av">👥</span>${T('全員')}</button>`:'')+
     withB.map(s=>`<button class="${(!rkAllView&&s.id===rkSelfId)?'on':''}" onclick="rkSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join('');
-  const mileBtn=document.getElementById('mileAddBtn'); if(mileBtn)mileBtn.style.display=rkAllView?'none':'';
+  // v200: 節目追加は全員表示でも出す（押した時に対象者を選ぶ）
   // 大会（schedId）単位にまとめる（v197: 全員表示は主役ごとに束ねて主役名を付与）
   const viewIds=rkAllView?withB.map(s=>s.id):[rkSelfId];
   const evMap={};
@@ -7477,8 +7490,7 @@ function rkCardHtml(ev,i){
     <div class="rk-body">
       <div class="rk-date">${(ev.date||'').replace(/-/g,'/')}</div>
       <div class="rk-ttl">${typeBadge}${esc(ti.title)}${ev.starName?` <span class="mate-tag" style="background:#33507e">${esc(ev.starName)}</span>`:''}</div>
-      <div class="rk-rec"><span class="rk-pill w">${st.w}${T('勝')}</span><span class="rk-pill l">${st.l}${T('敗')}</span>${st.d?`<span class="rk-pill d">${st.d}${T('分')}</span>`:''}</div>
-      ${wz?`<div class="rk-wz">${wz}</div>`:''}
+      <div class="rk-recwz"><div class="rk-rec"><span class="rk-pill w">${st.w}${T('勝')}</span><span class="rk-pill l">${st.l}${T('敗')}</span>${st.d?`<span class="rk-pill d">${st.d}${T('分')}</span>`:''}</div>${wz?`<div class="rk-wz">${wz}</div>`:''}</div>
       <textarea class="rk-cmt" placeholder="${T('この大会のひとことメモ（任意）')}" onchange="rkSaveNote(this)" data-key="${esc(key)}">${esc(cmt)}</textarea>
       <div class="rk-actions"><button class="dojo" onclick="rkSetStar(${i});rkSendToDojo(${i})">📩 ${T('道場に送る')}</button><button class="share" onclick="rkSetStar(${i});rkOpenShare(${i})">📤 ${T('シェア画像')}</button></div>
     </div>
@@ -8007,6 +8019,15 @@ function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareSty
    昇級/昇段のチップだけアイコン種別も設定（既定は自由=⭐） ===== */
 let mileEditId=null, pickedMileType='自由';
 function mileOpenAdd(){
+  const stars=DB.students.filter(s=>s.isSelf);
+  if(rkAllView&&stars.length>1){   // v200: 全員表示なら先に対象者を選ぶ
+    document.getElementById('mileStarPick').innerHTML=stars.map(s=>`<button onclick="mileStarChoose('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join('');
+    openModal('mileStarModal'); return;
+  }
+  mileOpenAddGo();
+}
+function mileStarChoose(id){ rkSelfId=id; closeModal('mileStarModal'); mileOpenAddGo(); }
+function mileOpenAddGo(){
   if(!rkSelfId){toast(T('先に主役（自分）を選んでください'));return;}
   mileEditId=null; pickedMileType='自由';
   document.getElementById('mileModalTitle').textContent=T('節目を追加');
