@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v202（「道場に送る」のQR/テキスト切替でポップアップの高さが変わって見づらい問題を修正：プレビュー領域(QR枠とテキスト枠)を同一の固定高さ(min(62vw,260px))に統一し、案内文も両形式で常時表示（形式に応じて文言だけ切替・高さ確保）。iPhone/文字大/iPadで切替前後の高さ完全一致を実測確認。他画面の同種切替は点検の上、対象は本モーダルのみ（report.htmlは両方同時表示・タブ切替は画面全体のため対象外）） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v203（個人アプリの再構成：①タブ名変更＝報告→試合報告・成長→予定・記録・仲間→選手（事務モードは「仲間」のまま）。②タブ順＝選手→予定・記録→試合報告→メモリー→分析→設定（事務の順序は不変）。③起動タブ＝予定・記録。④「-1年度」バグ修正＝大会予定を削除した記録（日付なし）が不正な年度チップを作っていた→不正年度はチップ・見出しに出さず「すべて」で「日付なし」見出しの下に表示。⑤新規ユーザー（選手ゼロ）で予定・記録タブ起動時のJSエラー修正） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1587,7 +1587,7 @@ function applyUpdate(){
       <div class="list-mini">・シェア画像の全デザイン（配色8×書式8×柄）</div>
       <div class="list-mini">・複数の主役（家族）を登録</div>
     </div>
-    <p class="list-mini" style="margin-top:12px">「報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。</p>
+    <p class="list-mini" style="margin-top:12px">「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。</p>
     <button class="btn gold full" style="margin-top:14px" id="paywallBuyBtn" onclick="purchasePro()">⭐ Proにする（年額）</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="restorePro()">購入を復元する</button>
     <div class="row" style="margin-top:10px"><button class="btn ghost full" onclick="closeModal('paywallModal')">とじる</button></div>
@@ -1624,7 +1624,7 @@ function applyUpdate(){
       <div class="ri-step"><span class="ri-no">2</span><div><b>「＋試合をふやす」</b>で1試合ずつ、勝ち負け・決まり技・相手を選びます。</div></div>
       <div class="ri-step"><span class="ri-no">3</span><div><b>「📩 道場に送る」</b>でLINE・QR・コピー。会場では<b>QRを画面に出して先生に読み取ってもらう</b>のが手早いです。</div></div>
     </div>
-    <p class="ri-tip">💡 この「報告」は無料でずっと使えます。自分の試合を<b>記録として残したり、勝率や決まり技を分析したい</b>ときは、有料版でメモリー・分析もご利用いただけます。</p>
+    <p class="ri-tip">💡 この「試合報告」は無料でずっと使えます。自分の試合を<b>記録として残したり、勝率や決まり技を分析したい</b>ときは、有料版でメモリー・分析もご利用いただけます。</p>
   </div>
   <div class="card">
     <h3 style="margin-top:0;color:var(--navy)">試合結果を報告</h3>
@@ -1749,11 +1749,11 @@ function applyUpdate(){
 </div>
 
 <nav class="tabbar">
-  <button data-tab="report" onclick="switchTab('report')" style="display:none"><span class="ico">📝</span><span class="tlbl" data-i18n="報告">報告</span></button>
-  <button data-tab="growth" onclick="switchTab('growth')" style="display:none"><span class="ico">🌱</span><span class="tlbl" data-i18n="成長">成長</span></button>
+  <button data-tab="mates" onclick="switchTab('mates')"><span class="ico">👥</span><span class="tlbl" id="matesTabLbl">仲間</span></button>
+  <button data-tab="growth" onclick="switchTab('growth')" style="display:none"><span class="ico">🌱</span><span class="tlbl" data-i18n="予定・記録">予定・記録</span></button>
+  <button data-tab="report" onclick="switchTab('report')" style="display:none"><span class="ico">📝</span><span class="tlbl" data-i18n="試合報告">試合報告</span></button>
   <button data-tab="rireki" onclick="switchTab('rireki')" style="display:none"><span class="ico">📖</span><span class="tlbl" data-i18n="メモリー">メモリー</span></button>
   <button data-tab="analysis" onclick="switchTab('analysis')" style="display:none"><span class="ico">📈</span><span class="tlbl" data-i18n="分析">分析</span></button>
-  <button data-tab="mates" onclick="switchTab('mates')"><span class="ico">👥</span><span class="tlbl" data-i18n="仲間">仲間</span></button>
   <button data-tab="att" class="active" onclick="switchTab('att')"><span class="ico">📋</span><span class="tlbl" data-i18n="出欠">出欠</span></button>
   <button data-tab="money" onclick="switchTab('money')"><span class="ico">💴</span><span class="tlbl" data-i18n="お金">お金</span></button>
   <button data-tab="sched" onclick="switchTab('sched')"><span class="tab-badge" id="schedTabBadge" style="display:none"></span><span class="ico">📅</span><span class="tlbl" data-i18n="予定">予定</span></button>
@@ -4763,7 +4763,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v202'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v203'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5330,7 +5330,7 @@ Object.assign(DICT,{
   '・試合結果の分析（勝率・決まり技レーダー・組手別/技別）':{en:'• Match analysis (win rate, technique radar, by grip/technique)',fr:'• Analyse des combats (taux de victoire, radar des techniques, par garde/technique)',pt:'• Análise das lutas (taxa de vitória, radar de técnicas, por pegada/técnica)'},
   '・シェア画像の全デザイン（配色8×書式8×柄）':{en:'• All share-image designs (8 colors × 8 fonts × patterns)',fr:'• Tous les visuels à partager (8 couleurs × 8 styles × motifs)',pt:'• Todos os designs de imagem (8 cores × 8 fontes × padrões)'},
   '・複数の主役（家族）を登録':{en:'• Register multiple stars (family)',fr:'• Enregistrer plusieurs profils (famille)',pt:'• Cadastrar vários protagonistas (família)'},
-  '「報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。':{en:'“Report” and “Memory” (recording & sharing) stay free forever.',fr:'« Rapport » et « Souvenirs » (enregistrement et partage) restent gratuits.',pt:'“Relatório” e “Memória” (registrar e compartilhar) continuam grátis.'},
+  '「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。':{en:'“Report” and “Memory” (recording & sharing) stay free forever.',fr:'« Rapport » et « Souvenirs » (enregistrement et partage) restent gratuits.',pt:'“Relatório” e “Memória” (registrar e compartilhar) continuam grátis.'},
   '⭐ Proにする（年額）':{en:'⭐ Get Pro (yearly)',fr:'⭐ Passer à Pro (annuel)',pt:'⭐ Assinar o Pro (anual)'},
   '購入を復元する':{en:'Restore purchase',fr:'Restaurer l’achat',pt:'Restaurar compra'},
   // 予定：よく使う設定・くり返し
@@ -5373,7 +5373,7 @@ Object.assign(DICT,{
   'でLINE・QR・コピー。会場では':{en:' — via LINE, QR, or copy. At the venue, ',fr:' — par LINE, QR ou copie. Sur place, ',pt:' — por LINE, QR ou cópia. No local, '},
   'QRを画面に出して先生に読み取ってもらう':{en:'showing the QR for the teacher to scan',fr:'montrer le QR au professeur pour qu’il le scanne',pt:'mostrar o QR para o professor ler'},
   'のが手早いです。':{en:' is quickest.',fr:' est le plus rapide.',pt:' é o mais rápido.'},
-  '💡 この「報告」は無料でずっと使えます。自分の試合を':{en:'💡 This “Report” is always free. To ',fr:'💡 Ce « Rapport » est toujours gratuit. Pour ',pt:'💡 Este “Relatório” é sempre grátis. Para '},
+  '💡 この「試合報告」は無料でずっと使えます。自分の試合を':{en:'💡 This “Report” is always free. To ',fr:'💡 Ce « Rapport » est toujours gratuit. Pour ',pt:'💡 Este “Relatório” é sempre grátis. Para '},
   '記録として残したり、勝率や決まり技を分析したい':{en:'keep records and analyze win rate and techniques',fr:'garder des traces et analyser le taux de victoire et les techniques',pt:'guardar registros e analisar taxa de vitória e técnicas'},
   'ときは、有料版でメモリー・分析もご利用いただけます。':{en:', use Pro for Memory and analysis.',fr:', utilisez Pro pour les Souvenirs et l’analyse.',pt:', use o Pro para Memória e análise.'},
   '日づけ':{en:'Date',fr:'Date',pt:'Data'},
@@ -5458,7 +5458,7 @@ Object.assign(DICT,{
   '予定から選ぶ':{en:'Pick from schedule',fr:'Choisir depuis l’agenda',pt:'Escolher da agenda'},
   '予定から入力しました':{en:'Filled from schedule',fr:'Rempli depuis l’agenda',pt:'Preenchido pela agenda'},
   '結果登録済み':{en:'results saved',fr:'résultats enregistrés',pt:'resultados salvos'},
-  '結果は報告タブから':{en:'report via the Report tab',fr:'à saisir via Rapport',pt:'informe pela aba Relatório'},
+  '結果は試合報告タブから':{en:'report via the Report tab',fr:'à saisir via Rapport',pt:'informe pela aba Relatório'},
   '稽古の分析':{en:'Practice analysis',fr:'Analyse des entraînements',pt:'Análise de treinos'},
   '月別のけいこ回数':{en:'Practices per month',fr:'Entraînements par mois',pt:'Treinos por mês'},
   '自己評価の推移（月平均）':{en:'Self-score trend (monthly avg)',fr:'Évolution de l’auto-évaluation (moy. mensuelle)',pt:'Evolução da autoavaliação (média mensal)'},
@@ -5467,13 +5467,13 @@ Object.assign(DICT,{
   'のメモ':{en:' memos',fr:' — mémos',pt:' — memos'},
   '該当するメモがありません':{en:'No matching memos',fr:'Aucun mémo correspondant',pt:'Nenhum memo encontrado'},
   'まだけいこの記録がありません':{en:'No practice logs yet',fr:'Pas encore d’entraînements',pt:'Ainda sem treinos'},
-  '「成長」タブから記録できます':{en:'Log them from the Growth tab',fr:'Notez-les depuis l’onglet Progrès',pt:'Registre na aba Evolução'},
+  '「予定・記録」タブから記録できます':{en:'Log them from the Growth tab',fr:'Notez-les depuis l’onglet Progrès',pt:'Registre na aba Evolução'},
   'からだの記録':{en:'Body tracking',fr:'Suivi du corps',pt:'Registro do corpo'},
   'まだ記録する項目がありません':{en:'No tracked fields yet',fr:'Aucun champ suivi',pt:'Nenhum campo registrado'},
-  '「成長」タブ →「⚙️記録する項目」で体重などを追加できます':{en:'Add weight etc. via Growth tab → “⚙️ Tracked fields”.',fr:'Ajoutez le poids etc. via Progrès → « ⚙️ Champs suivis ».',pt:'Adicione peso etc. em Evolução → “⚙️ Campos registrados”.'},
+  '「予定・記録」タブ →「⚙️記録する項目」で体重などを追加できます':{en:'Add weight etc. via Growth tab → “⚙️ Tracked fields”.',fr:'Ajoutez le poids etc. via Progrès → « ⚙️ Champs suivis ».',pt:'Adicione peso etc. em Evolução → “⚙️ Campos registrados”.'},
   'まだ記録がありません':{en:'No entries yet',fr:'Pas encore de données',pt:'Sem dados ainda'},
   '点':{en:' pts',fr:' pts',pt:' pts'},
-  '「仲間」から主役を登録してください':{en:'Register a star from the Members tab first',fr:'Enregistrez d’abord un profil dans Membres',pt:'Cadastre um protagonista em Membros primeiro'},
+  '「選手」から主役を登録してください':{en:'Register a star from the Members tab first',fr:'Enregistrez d’abord un profil dans Membres',pt:'Cadastre um protagonista em Membros primeiro'},
   // v197
   '全員':{en:'Everyone',fr:'Tous',pt:'Todos'},
   '対象（主役）':{en:'For (star)',fr:'Pour (profil)',pt:'Para (protagonista)'},
@@ -5505,6 +5505,17 @@ Object.assign(DICT,{
   '「はい」にすると、この予定で試合結果を記録できるようになります。':{en:'Choosing “Yes” lets you record match results for this event.',fr:'« Oui » permet d’enregistrer les résultats de combats pour cet événement.',pt:'“Sim” permite registrar resultados de lutas neste evento.'},
   'くり返し登録（週次の稽古などをまとめて）':{en:'Recurring (bulk-add weekly practice etc.)',fr:'Récurrent (ajout groupé : entraînements hebdo, etc.)',pt:'Recorrente (adicionar em lote: treinos semanais etc.)'},
   'だれの節目を追加しますか？':{en:'Whose milestone is this?',fr:'À qui appartient cette étape ?',pt:'De quem é este marco?'},
+  // v203: タブ名変更・文言更新
+  '試合報告':{en:'Report',fr:'Rapport',pt:'Relatório'},
+  '予定・記録':{en:'Planner',fr:'Agenda',pt:'Agenda'},
+  '日付なし':{en:'No date',fr:'Sans date',pt:'Sem data'},
+  '「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。':{en:'“Report” and “Memory” (recording & sharing) stay free forever.',fr:'« Rapport » et « Souvenirs » restent gratuits pour toujours.',pt:'“Relatório” e “Memória” continuam grátis para sempre.'},
+  '「試合報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。':{en:'“Report” and “Memory” (records & share images) stay free forever.',fr:'« Rapport » et « Souvenirs » (cartes à partager incluses) restent gratuits.',pt:'“Relatório” e “Memória” (com imagens) continuam grátis.'},
+  '結果は試合報告タブから':{en:'report via the Report tab',fr:'à saisir via l’onglet Rapport',pt:'informe pela aba Relatório'},
+  '「予定・記録」タブから記録できます':{en:'Log them from the Planner tab',fr:'Notez-les depuis l’onglet Agenda',pt:'Registre na aba Agenda'},
+  '「予定・記録」タブ →「⚙️記録する項目」で体重などを追加できます':{en:'Add weight etc. via Planner tab → “⚙️ Tracked fields”.',fr:'Ajoutez le poids etc. via Agenda → « ⚙️ Champs suivis ».',pt:'Adicione peso etc. em Agenda → “⚙️ Campos registrados”.'},
+  '「選手」から主役を登録してください':{en:'Register a star from the Players tab first',fr:'Enregistrez d’abord un profil dans Athlètes',pt:'Cadastre um protagonista em Atletas primeiro'},
+  '💡 この「試合報告」は無料でずっと使えます。自分の試合を':{en:'💡 This “Report” is always free. To ',fr:'💡 Ce « Rapport » est toujours gratuit. Pour ',pt:'💡 Este “Relatório” é sempre grátis. Para '},
   // v201
   '相手の組手':{en:'Opponent’s grip',fr:'Garde de l’adversaire',pt:'Pegada do adversário'},
   '1回戦がシード等の場合は、2回戦以降の報告をしてください。':{en:'If Round 1 was a bye (seed), report from Round 2 onward.',fr:'Si le 1er tour était exempté, déclarez à partir du 2e tour.',pt:'Se a 1ª fase foi bye, informe a partir da 2ª fase.'},
@@ -5836,6 +5847,7 @@ function applyMode(){
   document.querySelectorAll('nav.tabbar button[data-tab]').forEach(b=>{
     b.style.display=hidden.includes(b.dataset.tab)?'none':'';
   });
+  const ml=document.getElementById('matesTabLbl'); if(ml)ml.textContent=T(personal?'選手':'仲間');  // v203: 個人は「選手」
   const o=document.getElementById('modeOfficeB'),p=document.getElementById('modePersonalB');
   if(o)o.classList.toggle('on',!personal);
   if(p)p.classList.toggle('on',personal);
@@ -7438,14 +7450,15 @@ function renderRireki(){
   viewIds.forEach(sid=>{ miles=miles.concat(((DB.milestones&&DB.milestones[sid])||[]).map(m=>({kind:'milestone',selfId:sid,starName:rkAllView?studentName(sid):'',id:m.id,type:m.type,title:m.title,date:m.date}))); });
   const allEvents=matchEvents.concat(miles).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   // 年度セレクタ
-  const years=[...new Set(allEvents.map(ev=>schedFY(ev.date||'')).filter(y=>!isNaN(y)))].sort((a,b)=>b-a);
+  // v203: 日付なし（大会予定を削除した記録など）は年度チップに出さない（「すべて」で見られる）
+  const years=[...new Set(allEvents.map(ev=>schedFY(ev.date||'')).filter(y=>isFinite(y)&&y>1990))].sort((a,b)=>b-a);
   if(rkYear!=='all'&&(rkYear==null||!years.includes(rkYear)))rkYear=years.length?years[0]:'all';
   yearsEl.innerHTML=years.map(y=>`<button class="${rkYear===y?'on':''}" onclick="rkSetYear(${y})">${y}年度</button>`).join('')+`<button class="${rkYear==='all'?'on':''}" onclick="rkSetYear('all')">${T('すべて')}</button>`;
   // 絞り込み
   rkEvents=(rkYear==='all')?allEvents:allEvents.filter(ev=>schedFY(ev.date||'')===rkYear);
   let html='',curFy='';
   rkEvents.forEach((ev,i)=>{
-    if(rkYear==='all'){const fy=schedFY(ev.date||'');if(fy!==curFy){curFy=fy;html+=`<div class="rk-year">${isNaN(fy)?'—':fy+'年度'}</div>`;}}
+    if(rkYear==='all'){const fy=schedFY(ev.date||'');if(fy!==curFy){curFy=fy;html+=`<div class="rk-year">${(!isFinite(fy)||fy<1990)?T('日付なし'):fy+'年度'}</div>`;}}
     html+=(ev.kind==='milestone')?rkMilestoneCardHtml(ev,i):rkCardHtml(ev,i);
   });
   tl.innerHTML=html||`<div class="rk-empty">${T('この年度の記録はまだありません')}</div>`;
@@ -8380,14 +8393,14 @@ function analysisLockHtml(){
   return `<div class="ana-lock">
     <div class="al-emoji">🔒📈</div>
     <h3 class="al-h">試合結果の分析は<br>有料版（Pro）で</h3>
-    <p class="al-p">あなたの柔道を数字で深掘り。<b>「報告」と「メモリー」は無料</b>のまま、Proでは分析が使えます。</p>
+    <p class="al-p">あなたの柔道を数字で深掘り。<b>「試合報告」と「メモリー」は無料</b>のまま、Proでは分析が使えます。</p>
     <div class="al-feat">
       <div class="al-item"><span>📊</span><div><b>勝率・決まり技レーダー</b>——どの技で勝てているかが一目でわかる</div></div>
       <div class="al-item"><span>🤼</span><div><b>組手（右/左）別・技別</b>の傾向</div></div>
       <div class="al-item"><span>📈</span><div>直近の調子や対戦の振り返り</div></div>
     </div>
     <button class="btn gold full" onclick="requirePro('試合結果の分析（勝率・決まり技レーダー）')">⭐ 有料版（Pro）にする</button>
-    <p class="al-note">「報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。</p>
+    <p class="al-note">「試合報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。</p>
   </div>`;
 }
 let anaView='match';   // v196: 分析ビュー 'match'|'keiko'|'body'
@@ -8433,7 +8446,7 @@ function gwSchedByDate(){
 function renderGrowth(){
   const stars=gwStars();
   const chips=document.getElementById('gwChips');
-  if(!stars.length){ chips.innerHTML=''; document.getElementById('gwGrid').innerHTML=''; document.getElementById('gwSummary').innerHTML=`<div class="ent-empty">${T('「仲間」から主役を登録してください')}</div>`; return; }
+  if(!stars.length){ chips.innerHTML=''; const g=document.getElementById('gwGrid'); if(g)g.innerHTML=`<div class="ent-empty" style="grid-column:1/-1">${T('「選手」から主役を登録してください')}</div>`; const ml=document.getElementById('gwMonthLbl'); if(ml)ml.textContent=gwMonth?gwMonth.replace('-','/'):''; return; }
   if(!gwSelfId||!stars.some(s=>s.id===gwSelfId))gwSelfId=stars[0].id;
   if(stars.length<2)gwAllView=false;
   chips.innerHTML=stars.length>1?
@@ -8493,7 +8506,7 @@ function gwAttendFor(sid,ds){
 }
 function gwQuickAttend(){
   if(gwAllView){ gwOpenDay(todayStr()); return; }
-  if(!gwSelfId){ const st=gwStars(); if(!st.length){toast(T('「仲間」から主役を登録してください'));return;} gwSelfId=st[0].id; }
+  if(!gwSelfId){ const st=gwStars(); if(!st.length){toast(T('「選手」から主役を登録してください'));return;} gwSelfId=st[0].id; }
   const t=todayStr();
   if(gwAttendFor(gwSelfId,t)){ gwMonth=t.slice(0,7); renderGrowth(); toast(T('出席をつけました')+' 🔥'); }
   else toast(T('きょうは出席ずみです（「📝メモ」から編集できます）'));
@@ -8550,7 +8563,7 @@ function gwAllTags(){
 }
 function gwOpenKeiko(dateStr,starId){
   if(starId)gwSelfId=starId;   // 日別モーダル/全員表示からの指定
-  if(!gwSelfId){ const st=gwStars(); if(!st.length){toast(T('「仲間」から主役を登録してください'));return;} gwSelfId=st[0].id; }
+  if(!gwSelfId){ const st=gwStars(); if(!st.length){toast(T('「選手」から主役を登録してください'));return;} gwSelfId=st[0].id; }
   const ds=dateStr||todayStr();
   kkEditKey=ds;
   const e=keikoOf(gwSelfId)[ds]||null;
@@ -8558,7 +8571,7 @@ function gwOpenKeiko(dateStr,starId){
   // その日の予定・試合情報
   const sc=(gwSchedByDate()[ds]||[]);
   const info=document.getElementById('kkSchedInfo');
-  if(sc.length){ info.style.display='block'; info.innerHTML=sc.map(s=>{ const isM=schedIsMatch(s); const done=DB.matchResults[s.id]&&((DB.matchResults[s.id].individual||[]).length||(DB.matchResults[s.id].team&&(DB.matchResults[s.id].team.cards||[]).length)); return (isM?'🥋 ':'📅 ')+esc(schedLabel(s))+(isM?(done?'（'+T('結果登録済み')+'）':'（'+T('結果は報告タブから')+'）'):''); }).join('<br>'); }
+  if(sc.length){ info.style.display='block'; info.innerHTML=sc.map(s=>{ const isM=schedIsMatch(s); const done=DB.matchResults[s.id]&&((DB.matchResults[s.id].individual||[]).length||(DB.matchResults[s.id].team&&(DB.matchResults[s.id].team.cards||[]).length)); return (isM?'🥋 ':'📅 ')+esc(schedLabel(s))+(isM?(done?'（'+T('結果登録済み')+'）':'（'+T('結果は試合報告タブから')+'）'):''); }).join('<br>'); }
   else { info.style.display='none'; info.innerHTML=''; }
   document.getElementById('kkDate').value=ds;
   document.getElementById('kkScore').value=(e&&e.s!=null)?e.s:'';
@@ -8667,7 +8680,7 @@ function gwLineChart(pairs,color,unit){  // pairs=[{l,v}] 時系列
 function anaSetKeikoTag(t){ anaKeikoTag=(anaKeikoTag===t)?'':t; renderAnalysisTab(); }
 function anaKeikoHtml(){
   const K=keikoOf(anaSelfId), dates=Object.keys(K).sort();
-  if(!dates.length)return `<div class="rk-empty">${T('まだけいこの記録がありません')}<div class="list-mini" style="margin-top:6px">${T('「成長」タブから記録できます')}</div></div>`;
+  if(!dates.length)return `<div class="rk-empty">${T('まだけいこの記録がありません')}<div class="list-mini" style="margin-top:6px">${T('「予定・記録」タブから記録できます')}</div></div>`;
   // 月別回数（直近12ヶ月）
   const months=[]; { let[y,m]=thisMonthStr().split('-').map(Number); for(let i=11;i>=0;i--){ let mm=m-i,yy=y; while(mm<1){mm+=12;yy--;} months.push(`${yy}-${String(mm).padStart(2,'0')}`);} }
   const cnt=months.map(mo=>({l:String(Number(mo.slice(5))) ,v:dates.filter(d=>d.slice(0,7)===mo).length}));
@@ -8696,7 +8709,7 @@ function anaKeikoHtml(){
 function anaBodyHtml(){
   const K=keikoOf(anaSelfId), dates=Object.keys(K).sort();
   const fields=gwFields();
-  if(!fields.length)return `<div class="rk-empty">${T('まだ記録する項目がありません')}<div class="list-mini" style="margin-top:6px">${T('「成長」タブ →「⚙️記録する項目」で体重などを追加できます')}</div></div>`;
+  if(!fields.length)return `<div class="rk-empty">${T('まだ記録する項目がありません')}<div class="list-mini" style="margin-top:6px">${T('「予定・記録」タブ →「⚙️記録する項目」で体重などを追加できます')}</div></div>`;
   let html=`<div class="ana-sec"><div class="ra-secttl"><span class="ra-ico">💪</span> ${T('からだの記録')}</div>`;
   fields.forEach(fd=>{
     const pts=dates.map(d=>({l:d.slice(5).replace('-','/'),v:parseFloat((K[d].f||{})[fd.id])})).filter(p=>!isNaN(p.v)).slice(-30);
@@ -10797,8 +10810,8 @@ function initUI(){
   runI18nScan();
   applyMode();                                  // v143: 表示モードでタブを出し分け
   renderAtt();
-  if(APP_EDITION==='personal')switchTab('report');   // v167: 個人専用アプリは「報告」から開始（無料の入口）
-  else if(DB.mode==='personal')switchTab('rireki');  // 個人モードは履歴から開始
+  if(APP_EDITION==='personal')switchTab('growth');   // v203: 個人専用アプリは「予定・記録」から開始（社長方針）
+  else if(DB.mode==='personal')switchTab('growth');  // suiteの個人モードも同じ
   showBackupReminder();   // 期限超過なら催促バナー
   updateSchedTabBadge();  // v183: 予定タブの申込・要対応バッジ
   maybeStartOnboarding(); // v176: 個人アプリの新規ユーザーに初回ナビ
