@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v196（個人アプリに「成長」タブを新設：けいこカレンダー（🔥チェックイン・自己評価100点・ひとことメモ・検索タグ・任意記入欄=体重等のカスタム項目）＋予定機能を集約（個人の予定タブは廃止・試合🥋と予定・を表示）。報告タブは予定の試合から大会名/日付を選択可。分析(Pro)に「試合/稽古/からだ」ビュー切替＝月別回数・自己評価推移・タグ検索・からだ項目の推移グラフ。道場アプリには影響なし） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v197（成長タブ改善：①試合・稽古以外の予定マークを種類色の●に。②日付タップは「日別モーダル」＝その日の予定一覧（タップで編集・対象者バッジ付き）＋主役ごとのけいこ記録行＋「この日に予定を追加」（日付プリフィル）。③予定登録に「対象（主役）」選択を追加（主役2人以上の個人モードのみ表示・全員/各主役、カレンダーは対象で絞り込み）。④成長カレンダーとメモリーに「全員」表示を追加（メモリーは各カードに主役名バッジ・操作時は自動でその主役に切替・節目追加は主役選択時のみ）。⑤タグはスペース区切りに対応（カンマ・読点もOK）） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -903,7 +903,8 @@
   .gw-day.today{border:2px solid var(--gold);}
   .gw-day .dnum{font-weight:700;line-height:1.2;}
   .gw-day .marks{display:flex;gap:1px;flex-wrap:wrap;justify-content:center;font-size:calc(12px*min(var(--fs,1),1.4));line-height:1.1;}
-  .gw-day .marks .plan{color:var(--muted);}
+  .gw-day .marks .pl{font-size:calc(9px*min(var(--fs,1),1.4));vertical-align:middle;}
+  .gw-day .marks .kkn{font-size:calc(9px*min(var(--fs,1),1.4));font-weight:800;color:#c0442e;}
   .gw-day .sc{font-size:calc(9px*min(var(--fs,1),1.4));color:#2e7d4f;font-weight:800;line-height:1.1;}
   .gw-field-row{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--line);}
   .gw-field-row .nm{flex:1;font-weight:700;}
@@ -1471,7 +1472,7 @@ function applyUpdate(){
 <section id="screen-rireki" class="screen">
   <div class="rk-chips" id="rkChips"></div>
   <div class="rk-years" id="rkYears"></div>
-  <div class="rk-toolbar" style="display:flex;justify-content:flex-end;margin:2px 2px 10px"><button class="btn gold sm" onclick="mileOpenAdd()">＋ 節目を追加</button></div>
+  <div class="rk-toolbar" style="display:flex;justify-content:flex-end;margin:2px 2px 10px"><button class="btn gold sm" id="mileAddBtn" onclick="mileOpenAdd()">＋ 節目を追加</button></div>
   <p class="list-mini" id="rkHint" style="margin:2px 2px 12px">大会ごとに1枚のカードで成長を振り返れます。昇級・昇段などの節目も追加でき、写真は「シェア画像」に載せてInstagram/LINEへ。</p>
   <div id="rkTimeline"></div>
 </section>
@@ -1652,7 +1653,7 @@ function applyUpdate(){
   <div class="gw-cal">
     <div class="gw-cal-head"><button class="gw-nav" onclick="gwMove(-1)">‹</button><b id="gwMonthLbl"></b><button class="gw-nav" onclick="gwMove(1)">›</button></div>
     <div class="gw-grid" id="gwGrid"></div>
-    <p class="hint" style="margin:8px 2px 0">🔥＝けいこ　🥋＝試合　・＝予定　（日付をタップで記録・編集）</p>
+    <p class="hint" style="margin:8px 2px 0">🔥＝けいこ　🥋＝試合　●＝予定（色＝種類）　日付をタップすると、その日の予定と記録が開きます</p>
   </div>
   <button class="btn gold full" style="margin-top:12px" onclick="gwOpenKeiko()">🔥 今日のけいこを記録</button>
   <div class="row" style="margin-top:10px">
@@ -1660,6 +1661,19 @@ function applyUpdate(){
     <button class="btn ghost" onclick="gwOpenFields()">⚙️ 記録する項目</button>
   </div>
 </section>
+
+<!-- 日別モーダル（その日の予定一覧＋けいこ） -->
+<div class="modal-bg" id="gwDayModal">
+  <div class="modal">
+    <h3 id="gwDayTitle"></h3>
+    <div id="gwDayKeiko"></div>
+    <div id="gwDaySched" style="margin-top:8px"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn ghost" onclick="closeModal('gwDayModal')">とじる</button>
+      <button class="btn gold" onclick="gwDayAddSched()">📅 この日に予定を追加</button>
+    </div>
+  </div>
+</div>
 
 <!-- けいこ記録モーダル -->
 <div class="modal-bg" id="keikoModal">
@@ -1675,7 +1689,7 @@ function applyUpdate(){
     <input type="text" id="kkMemo" placeholder="例：内股の入り方を直された">
     <label class="fld">タグ（任意・あとで検索できます）</label>
     <div class="cat-pick" id="kkTagChips"></div>
-    <input type="text" id="kkTags" placeholder="例：内股, 打ち込み（カンマ区切り）" style="margin-top:8px">
+    <input type="text" id="kkTags" placeholder="例：内股 打ち込み（スペースで区切り）" style="margin-top:8px">
     <div id="kkFields"></div>
     <div class="row">
       <button class="btn ghost" onclick="closeModal('keikoModal')">やめる</button>
@@ -1969,6 +1983,10 @@ function applyUpdate(){
     <input type="text" id="schTypeFree" placeholder="その他（自由記載）" style="margin-top:8px">
     <label class="fld">イベント名（任意）</label>
     <input type="text" id="schTitle" placeholder="例：中学生総合体育大会／夏季バーベキュー">
+    <div id="schForRow" style="display:none">
+      <label class="fld">対象（主役）</label>
+      <div class="cat-pick" id="schForPick"></div>
+    </div>
     <label class="fld">試合結果ボタン</label>
     <div class="io-pick">
       <button id="smYes" onclick="pickShowMatch(true)">表示する</button>
@@ -4719,7 +4737,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v196'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v197'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5429,7 +5447,19 @@ Object.assign(DICT,{
   '「成長」タブ →「⚙️記録する項目」で体重などを追加できます':{en:'Add weight etc. via Growth tab → “⚙️ Tracked fields”.',fr:'Ajoutez le poids etc. via Progrès → « ⚙️ Champs suivis ».',pt:'Adicione peso etc. em Evolução → “⚙️ Campos registrados”.'},
   'まだ記録がありません':{en:'No entries yet',fr:'Pas encore de données',pt:'Sem dados ainda'},
   '点':{en:' pts',fr:' pts',pt:' pts'},
-  '「仲間」から主役を登録してください':{en:'Register a star from the Members tab first',fr:'Enregistrez d’abord un profil dans Membres',pt:'Cadastre um protagonista em Membros primeiro'}
+  '「仲間」から主役を登録してください':{en:'Register a star from the Members tab first',fr:'Enregistrez d’abord un profil dans Membres',pt:'Cadastre um protagonista em Membros primeiro'},
+  // v197
+  '全員':{en:'Everyone',fr:'Tous',pt:'Todos'},
+  '対象（主役）':{en:'For (star)',fr:'Pour (profil)',pt:'Para (protagonista)'},
+  '📅 この日に予定を追加':{en:'📅 Add an event on this day',fr:'📅 Ajouter un événement ce jour',pt:'📅 Adicionar evento neste dia'},
+  'この日の予定はありません':{en:'No events on this day',fr:'Aucun événement ce jour',pt:'Nenhum evento neste dia'},
+  '未記録':{en:'Not logged',fr:'Non noté',pt:'Sem registro'},
+  '記録あり':{en:'Logged',fr:'Noté',pt:'Registrado'},
+  '記録':{en:'Log',fr:'Noter',pt:'Registrar'},
+  'けいこ':{en:'Practice',fr:'Entraînement',pt:'Treino'},
+  '予定':{en:'Events',fr:'Agenda',pt:'Agenda'},
+  '例：内股 打ち込み（スペースで区切り）':{en:'e.g. uchi-mata uchikomi (separate with spaces)',fr:'ex. uchi-mata uchikomi (séparés par des espaces)',pt:'ex. uchi-mata uchikomi (separe com espaços)'},
+  '🔥＝けいこ　🥋＝試合　●＝予定（色＝種類）　日付をタップすると、その日の予定と記録が開きます':{en:'🔥=practice 🥋=match ●=event (color=type). Tap a date to open that day’s events & log.',fr:'🔥=entraînement 🥋=combat ●=événement (couleur=type). Touchez une date pour ouvrir le jour.',pt:'🔥=treino 🥋=luta ●=evento (cor=tipo). Toque numa data para abrir o dia.'}
 });
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
@@ -6086,6 +6116,18 @@ function renderCash(){
 /* スケジュール */
 let pickedSchType='';
 let pickedShowMatch=false;   // 試合結果ボタンを表示するか
+let pickedSchFor='';         // v197: 予定の対象（主役ID・''=全員）
+function renderSchForPick(){
+  const row=document.getElementById('schForRow'), box=document.getElementById('schForPick');
+  if(!row||!box)return;
+  const stars=(DB.mode==='personal')?DB.students.filter(s=>s.isSelf):[];
+  if(stars.length<2){ row.style.display='none'; box.innerHTML=''; if(stars.length<2)pickedSchFor=pickedSchFor&&stars.some(s=>s.id===pickedSchFor)?pickedSchFor:''; return; }
+  row.style.display='block';
+  if(pickedSchFor&&!stars.some(s=>s.id===pickedSchFor))pickedSchFor='';
+  box.innerHTML=`<button class="${!pickedSchFor?'on':''}" onclick="pickSchFor('')">${T('全員')}</button>`+
+    stars.map(s=>`<button class="${pickedSchFor===s.id?'on':''}" onclick="pickSchFor('${s.id}')">${esc(s.name)}</button>`).join('');
+}
+function pickSchFor(v){ pickedSchFor=v; renderSchForPick(); }
 let showMatchTouched=false;  // 手動で切り替えたか（自動連動の抑制用）
 function renderShowMatchPick(){
   document.getElementById('smYes').classList.toggle('on',pickedShowMatch);
@@ -6233,7 +6275,7 @@ function applyRecurScope(scope){
     // v125: 「以降すべて」で日付を変更した場合、以降の各回へ同じ日数差分を一律加算（当該回だけズレて間隔が崩れる不具合を修正）
     const deltaDays=Math.round((new Date(p.date+'T00:00')-new Date(p.origDate+'T00:00'))/86400000);
     DB.schedule.forEach(x=>{ if(x.seriesId===sid && x.date>=from){
-      x.name=p.name;x.title=p.title;x.time=p.time;x.place=p.place;x.note=p.note;x.showMatch=p.showMatch;
+      x.name=p.name;x.title=p.title;x.time=p.time;x.place=p.place;x.note=p.note;x.showMatch=p.showMatch;x.forId=p.forId||'';
       if(deltaDays!==0){ const nd=new Date(x.date+'T00:00'); nd.setDate(nd.getDate()+deltaDays); x.date=isoOf(nd); }
     } });
   }
@@ -6245,6 +6287,7 @@ function openSchedModal(id){
   if(id){
     const s=DB.schedule.find(x=>x.id===id);
     document.getElementById('schedModalTitle').textContent='予定を編集';
+    pickedSchFor=(s&&s.forId)||'';
     pickedSchType=s.name||s.type||'';
     document.getElementById('schTitle').value=s.title||'';
     document.getElementById('schDate').value=s.date;
@@ -6255,6 +6298,7 @@ function openSchedModal(id){
     else{pickedShowMatch=/試合|大会/.test(s.name||'');showMatchTouched=false;}
   }else{
     document.getElementById('schedModalTitle').textContent='予定を追加';
+    pickedSchFor=(!gwAllView&&DB.mode==='personal'&&gwSelfId)?gwSelfId:'';   // 個人：表示中の主役を既定に
     pickedSchType=(DB.schedPresets.types.find(x=>x&&x.trim()))||'';
     document.getElementById('schTitle').value='';
     document.getElementById('schDate').value=todayStr();
@@ -6270,6 +6314,7 @@ function openSchedModal(id){
   document.getElementById('recurCreateWrap').style.display=isSeries?'none':'block';
   document.getElementById('recurSeriesInfo').style.display=isSeries?'block':'none';
   renderShowMatchPick();
+  renderSchForPick();
   renderSchedPicks();
   updateSchedWeek();
   document.getElementById('schDeleteBtn').style.display=editingSched?'block':'none';
@@ -6288,7 +6333,7 @@ function saveSched(){
   const note=document.getElementById('schNote').value.trim();
   if(!date){toast('日付を選んでください');return;}
   if(!name){toast('種類を選んでください');return;}
-  const fields={name,title,date,time,place,note,showMatch:pickedShowMatch};
+  const fields={name,title,date,time,place,note,showMatch:pickedShowMatch,forId:pickedSchFor||''};
   // ① 既存のくり返し予定の編集 → 反映範囲を確認
   if(editingSched){
     const s=DB.schedule.find(x=>x.id===editingSched);
@@ -7310,7 +7355,7 @@ function allBoutsFlat(){
   return out;
 }
 /* ===== v144: 履歴タブ（個人モード）＝大会ごとのカード＋シェア画像 ===== */
-let rkSelfId=null, rkYear=null, rkEvents=[], rkShareEv=null;
+let rkSelfId=null, rkYear=null, rkEvents=[], rkShareEv=null, rkAllView=false;
 function renderRireki(){
   const map=allBoutsBySelf();
   // v150: 主役(isSelf)が居ればisSelf全員を候補に（試合が無くても節目を追加できる）。居なければ従来＝試合のある人。
@@ -7319,14 +7364,21 @@ function renderRireki(){
   const withB=selfStudents.length?selfStudents:DB.students.filter(hasHist);
   const chips=document.getElementById('rkChips'), yearsEl=document.getElementById('rkYears'), tl=document.getElementById('rkTimeline');
   if(!withB.length){chips.innerHTML='';yearsEl.innerHTML='';tl.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
+  if(withB.length<2)rkAllView=false;
   if(!rkSelfId||!withB.some(s=>s.id===rkSelfId)){rkSelfId=withB[0].id;rkYear=null;}
-  chips.innerHTML=withB.map(s=>`<button class="${s.id===rkSelfId?'on':''}" onclick="rkSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join('');
-  // 大会（schedId）単位にまとめる
+  chips.innerHTML=(withB.length>1?`<button class="${rkAllView?'on':''}" onclick="rkSelectAll()"><span class="rk-av">👥</span>${T('全員')}</button>`:'')+
+    withB.map(s=>`<button class="${(!rkAllView&&s.id===rkSelfId)?'on':''}" onclick="rkSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join('');
+  const mileBtn=document.getElementById('mileAddBtn'); if(mileBtn)mileBtn.style.display=rkAllView?'none':'';
+  // 大会（schedId）単位にまとめる（v197: 全員表示は主役ごとに束ねて主役名を付与）
+  const viewIds=rkAllView?withB.map(s=>s.id):[rkSelfId];
   const evMap={};
-  (map[rkSelfId]||[]).forEach(b=>{const k=b.schedId||('x'+b.schedName);(evMap[k]=evMap[k]||{kind:'match',schedId:b.schedId||'',name:b.schedName,schedType:b.schedType||'',schedTitle:b.schedTitle||'',date:b.schedDate,bouts:[]}).bouts.push(b);});
+  viewIds.forEach(sid=>{
+    (map[sid]||[]).forEach(b=>{const k=sid+'|'+(b.schedId||('x'+b.schedName));(evMap[k]=evMap[k]||{kind:'match',selfId:sid,starName:rkAllView?studentName(sid):'',schedId:b.schedId||'',name:b.schedName,schedType:b.schedType||'',schedTitle:b.schedTitle||'',date:b.schedDate,bouts:[]}).bouts.push(b);});
+  });
   const matchEvents=Object.values(evMap);
   // 節目（昇級/昇段/自由）をマージ
-  const miles=((DB.milestones&&DB.milestones[rkSelfId])||[]).map(m=>({kind:'milestone',id:m.id,type:m.type,title:m.title,date:m.date}));
+  let miles=[];
+  viewIds.forEach(sid=>{ miles=miles.concat(((DB.milestones&&DB.milestones[sid])||[]).map(m=>({kind:'milestone',selfId:sid,starName:rkAllView?studentName(sid):'',id:m.id,type:m.type,title:m.title,date:m.date}))); });
   const allEvents=matchEvents.concat(miles).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   // 年度セレクタ
   const years=[...new Set(allEvents.map(ev=>schedFY(ev.date||'')).filter(y=>!isNaN(y)))].sort((a,b)=>b-a);
@@ -7341,7 +7393,10 @@ function renderRireki(){
   });
   tl.innerHTML=html||`<div class="rk-empty">${T('この年度の記録はまだありません')}</div>`;
 }
-function rkSelect(id){rkSelfId=id;rkYear=null;renderRireki();}
+function rkSelect(id){rkSelfId=id;rkAllView=false;rkYear=null;renderRireki();}
+function rkSelectAll(){rkAllView=true;rkYear=null;renderRireki();}
+// v197: 全員表示のカードから操作するとき、そのカードの主役に切り替えてから実行する
+function rkSetStar(i){ const ev=rkEvents[i]; if(ev&&ev.selfId)rkSelfId=ev.selfId; }
 function rkSetYear(y){rkYear=y;renderRireki();}
 function rkStats(ev){
   let w=0,l=0,d=0;const wz={};
@@ -7349,7 +7404,7 @@ function rkStats(ev){
   const wazas=Object.keys(wz).map(k=>[k,wz[k]]).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,4);
   return {w,l,d,wazas};
 }
-function rkNoteKey(ev){ if(ev.kind==='milestone')return rkSelfId+'|m:'+ev.id; return rkSelfId+'|'+(ev.schedId||ev.name); }
+function rkNoteKey(ev){ const sid=ev.selfId||rkSelfId; if(ev.kind==='milestone')return sid+'|m:'+ev.id; return sid+'|'+(ev.schedId||ev.name); }
 // v149→v150: 写真枠の共通HTML（試合カード・節目カードで共用）
 function rkPhotoAreaHtml(key,i){
   const photo=(DB.eventPhotos&&DB.eventPhotos[key])||'';
@@ -7368,10 +7423,10 @@ function rkMilestoneCardHtml(ev,i){
     <div class="rk-photo">${rkPhotoAreaHtml(key,i)}<div class="rk-badge mile">${T('節目')}</div></div>
     <div class="rk-body">
       <div class="rk-date">${(ev.date||'').replace(/-/g,'/')}</div>
-      <div class="rk-ttl">${esc(ev.title||'')}</div>
+      <div class="rk-ttl">${esc(ev.title||'')}${ev.starName?` <span class="mate-tag" style="background:#33507e">${esc(ev.starName)}</span>`:''}</div>
       ${typePill}
       <textarea class="rk-cmt" placeholder="${T('この節目のひとことメモ（任意）')}" onchange="rkSaveNote(this)" data-key="${esc(key)}">${esc(cmt)}</textarea>
-      <div class="rk-actions"><button class="edit" onclick="mileOpenEdit('${ev.id}')">✏️ ${T('編集')}</button><button class="share" onclick="rkOpenShare(${i})">📤 ${T('シェア画像')}</button></div>
+      <div class="rk-actions"><button class="edit" onclick="rkSetStar(${i});mileOpenEdit('${ev.id}')">✏️ ${T('編集')}</button><button class="share" onclick="rkSetStar(${i});rkOpenShare(${i})">📤 ${T('シェア画像')}</button></div>
     </div>
   </div>`;
 }
@@ -7393,11 +7448,11 @@ function rkCardHtml(ev,i){
     <div class="rk-photo">${photoArea}<div class="rk-badge ${cls}">${st.w}${T('勝')}${st.l}${T('敗')}${st.d?st.d+T('分'):''}</div></div>
     <div class="rk-body">
       <div class="rk-date">${(ev.date||'').replace(/-/g,'/')}</div>
-      <div class="rk-ttl">${typeBadge}${esc(ti.title)}</div>
+      <div class="rk-ttl">${typeBadge}${esc(ti.title)}${ev.starName?` <span class="mate-tag" style="background:#33507e">${esc(ev.starName)}</span>`:''}</div>
       <div class="rk-rec"><span class="rk-pill w">${st.w}${T('勝')}</span><span class="rk-pill l">${st.l}${T('敗')}</span>${st.d?`<span class="rk-pill d">${st.d}${T('分')}</span>`:''}</div>
       ${wz?`<div class="rk-wz">${wz}</div>`:''}
       <textarea class="rk-cmt" placeholder="${T('この大会のひとことメモ（任意）')}" onchange="rkSaveNote(this)" data-key="${esc(key)}">${esc(cmt)}</textarea>
-      <div class="rk-actions"><button class="dojo" onclick="rkSendToDojo(${i})">📩 ${T('道場に送る')}</button><button class="share" onclick="rkOpenShare(${i})">📤 ${T('シェア画像')}</button></div>
+      <div class="rk-actions"><button class="dojo" onclick="rkSetStar(${i});rkSendToDojo(${i})">📩 ${T('道場に送る')}</button><button class="share" onclick="rkSetStar(${i});rkOpenShare(${i})">📤 ${T('シェア画像')}</button></div>
     </div>
   </div>`;
 }
@@ -8265,7 +8320,7 @@ function renderAnalysisTab(){
 }
 function anaSelect(id){anaSelfId=id;renderAnalysisTab();}
 /* ===== v196: 成長タブ（けいこカレンダー・自己評価・任意記入欄）＋分析の稽古/からだビュー ===== */
-let gwSelfId=null, gwMonth=null, kkEditKey=null, anaKeikoTag='';
+let gwSelfId=null, gwMonth=null, kkEditKey=null, anaKeikoTag='', gwAllView=false, gwDayDs=null;
 function gwStars(){ const s=DB.students.filter(x=>x.isSelf); return s.length?s:DB.students.slice(0,1); }
 function keikoOf(id){ if(!DB.keiko||typeof DB.keiko!=='object')DB.keiko={}; if(!DB.keiko[id])DB.keiko[id]={}; return DB.keiko[id]; }
 function gwFields(){ return Array.isArray(DB.growthFields)?DB.growthFields:[]; }
@@ -8279,9 +8334,13 @@ function renderGrowth(){
   const chips=document.getElementById('gwChips');
   if(!stars.length){ chips.innerHTML=''; document.getElementById('gwGrid').innerHTML=''; document.getElementById('gwSummary').innerHTML=`<div class="ent-empty">${T('「仲間」から主役を登録してください')}</div>`; return; }
   if(!gwSelfId||!stars.some(s=>s.id===gwSelfId))gwSelfId=stars[0].id;
-  chips.innerHTML=stars.length>1?stars.map(s=>`<button class="${s.id===gwSelfId?'on':''}" onclick="gwSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join(''):'';
+  if(stars.length<2)gwAllView=false;
+  chips.innerHTML=stars.length>1?
+    `<button class="${gwAllView?'on':''}" onclick="gwSelectAll()"><span class="rk-av">👥</span>${T('全員')}</button>`+
+    stars.map(s=>`<button class="${(!gwAllView&&s.id===gwSelfId)?'on':''}" onclick="gwSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join(''):'';
   if(!gwMonth)gwMonth=thisMonthStr();
   document.getElementById('gwMonthLbl').textContent=gwMonth.replace('-','/');
+  const viewStars=gwAllView?stars:[stars.find(s=>s.id===gwSelfId)];
   const K=keikoOf(gwSelfId), sched=gwSchedByDate();
   // ―― カレンダー ――
   const [gy,gm]=gwMonth.split('-').map(Number);
@@ -8294,26 +8353,31 @@ function renderGrowth(){
     const d=new Date(start); d.setDate(start.getDate()+i);
     const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const out=(d.getMonth()!==gm-1);
-    const e=K[ds];
+    const kkCount=viewStars.filter(st=>st&&keikoOf(st.id)[ds]).length;
+    const e=gwAllView?null:K[ds];
     const marks=[];
-    if(e)marks.push('🔥');
-    (sched[ds]||[]).forEach(s=>{ marks.push(schedIsMatch(s)?'🥋':'<span class="plan">・</span>'); });
-    html+=`<div class="gw-day${out?' out':''}${ds===today?' today':''}" onclick="gwOpenKeiko('${ds}')">`+
+    if(kkCount)marks.push('🔥'+(gwAllView&&kkCount>1?`<span class="kkn">${kkCount}</span>`:''));
+    gwDaySchedList(ds).forEach(s=>{ marks.push(schedIsMatch(s)?'🥋':`<span class="pl" style="color:${typeColor(s.name)}">●</span>`); });
+    html+=`<div class="gw-day${out?' out':''}${ds===today?' today':''}" onclick="gwOpenDay('${ds}')">`+
       `<span class="dnum">${d.getDate()}</span>`+
       `<span class="marks">${marks.slice(0,3).join('')}</span>`+
       `${(e&&e.s!=null&&e.s!=='')?`<span class="sc">${e.s}</span>`:''}</div>`;
   }
   document.getElementById('gwGrid').innerHTML=html;
   // ―― サマリー（今月の回数・平均点・連続週）――
-  const monthKeys=Object.keys(K).filter(d=>d.slice(0,7)===gwMonth);
-  const scoreVals=monthKeys.map(d=>K[d].s).filter(v=>v!=null&&v!=='').map(Number).filter(v=>!isNaN(v));
+  let monthCount=0; const scoreVals=[]; const allDates=new Set();
+  viewStars.forEach(st=>{ if(!st)return; const KK=keikoOf(st.id);
+    Object.keys(KK).forEach(d=>{ allDates.add(d);
+      if(d.slice(0,7)===gwMonth){ monthCount++; const v=KK[d].s; if(v!=null&&v!==''&&!isNaN(Number(v)))scoreVals.push(Number(v)); } });
+  });
+  const monthKeys={length:monthCount};   // 表示用
   const avg=scoreVals.length?Math.round(scoreVals.reduce((a,b)=>a+b,0)/scoreVals.length):null;
   // 連続週：今週から遡って、けいこが1回以上ある週を数える
   let streak=0;
   {
     const now=new Date(todayStr()+'T00:00');
     const week0=new Date(now); week0.setDate(now.getDate()-now.getDay());  // 今週の日曜
-    const all=Object.keys(K);
+    const all=[...allDates];
     for(let w=0;w<200;w++){
       const ws=new Date(week0); ws.setDate(week0.getDate()-7*w);
       const we=new Date(ws); we.setDate(ws.getDate()+6);
@@ -8326,15 +8390,48 @@ function renderGrowth(){
     `<div class="ent-sum-item ok"><b>${avg!=null?avg:'—'}</b><span>${T('平均点')}</span></div>`+
     `<div class="ent-sum-item"><b>${streak}</b><span>${T('連続週')}</span></div>`;
 }
-function gwSelect(id){gwSelfId=id;renderGrowth();}
+function gwSelect(id){gwSelfId=id;gwAllView=false;renderGrowth();}
+function gwSelectAll(){gwAllView=true;renderGrowth();}
 function gwMove(d){ let[y,m]=gwMonth.split('-').map(Number); m+=d; if(m<1){m=12;y--;} if(m>12){m=1;y++;} gwMonth=`${y}-${String(m).padStart(2,'0')}`; renderGrowth(); }
+// その日の予定（対象＝全員 or 表示中の主役）
+function gwDaySchedList(ds){
+  const list=(gwSchedByDate()[ds]||[]);
+  if(gwAllView)return list;
+  return list.filter(s=>!s.forId||s.forId===gwSelfId);
+}
+// ―― 日別モーダル：その日の予定一覧＋けいこ記録への入口 ――
+function gwOpenDay(ds){
+  gwDayDs=ds;
+  document.getElementById('gwDayTitle').textContent='📅 '+ds.replace(/-/g,'/')+'（'+T(['日','月','火','水','木','金','土'][new Date(ds+'T00:00').getDay()])+'）';
+  const stars=gwStars(), viewStars=gwAllView?stars:stars.filter(s=>s.id===gwSelfId);
+  // けいこ（主役ごとの行）
+  document.getElementById('gwDayKeiko').innerHTML=`<label class="fld" style="margin-top:2px">🔥 ${T('けいこ')}</label>`+
+    viewStars.map(st=>{ const e=keikoOf(st.id)[ds];
+      const sum=e?[(e.s!=null&&e.s!=='')?e.s+T('点'):'',e.m?esc(e.m):''].filter(Boolean).join('・')||T('記録あり'):T('未記録');
+      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayKeikoOpen('${st.id}')"><span class="nm">${e?'🔥':'○'} ${esc(st.name)}<span class="list-mini" style="display:block">${sum}</span></span><button class="chip-btn" onclick="event.stopPropagation();gwDayKeikoOpen('${st.id}')">${e?T('編集'):T('記録')}</button></div>`; }).join('');
+  // 予定一覧（タップで編集）
+  const sc=gwDaySchedList(ds), many=gwStars().length>1;
+  document.getElementById('gwDaySched').innerHTML=`<label class="fld">📅 ${T('予定')}</label>`+
+    (sc.length?sc.map(s=>{ const isM=schedIsMatch(s);
+      const tgt=(many&&s.forId)?`<span class="mate-tag" style="background:#33507e">${esc(studentName(s.forId))}</span>`:'';
+      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayEditSched('${s.id}')"><span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${tgt}</span><button class="chip-btn" onclick="event.stopPropagation();gwDayEditSched('${s.id}')">${T('編集')}</button></div>`; }).join('')
+    :`<p class="list-mini" style="margin:4px 0">${T('この日の予定はありません')}</p>`);
+  openModal('gwDayModal');
+}
+function gwDayKeikoOpen(sid){ closeModal('gwDayModal'); gwOpenKeiko(gwDayDs,sid); }
+function gwDayEditSched(id){ closeModal('gwDayModal'); openSchedModal(id); }
+function gwDayAddSched(){
+  closeModal('gwDayModal'); openSchedModal();
+  const el=document.getElementById('schDate'); if(el&&gwDayDs){ el.value=gwDayDs; if(typeof updateSchedWeek==='function')updateSchedWeek(); }
+}
 // ―― けいこ記録モーダル ――
 function gwAllTags(){
   const cnt={};
   Object.values(DB.keiko||{}).forEach(byDate=>Object.values(byDate).forEach(e=>(e.t||[]).forEach(t=>cnt[t]=(cnt[t]||0)+1)));
   return Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
 }
-function gwOpenKeiko(dateStr){
+function gwOpenKeiko(dateStr,starId){
+  if(starId)gwSelfId=starId;   // 日別モーダル/全員表示からの指定
   if(!gwSelfId){ const st=gwStars(); if(!st.length){toast(T('「仲間」から主役を登録してください'));return;} gwSelfId=st[0].id; }
   const ds=dateStr||todayStr();
   kkEditKey=ds;
@@ -8358,14 +8455,14 @@ function gwOpenKeiko(dateStr){
   document.getElementById('kkDelBtn').style.display=e?'block':'none';
   openModal('keikoModal');
 }
-function kkAddTag(t){ const el=document.getElementById('kkTags'); const cur=el.value.trim(); const arr=cur?cur.split(/[,、]/).map(s=>s.trim()).filter(Boolean):[]; if(!arr.includes(t))arr.push(t); el.value=arr.join(', '); }
+function kkAddTag(t){ const el=document.getElementById('kkTags'); const cur=el.value.trim(); const arr=cur?cur.split(/[,、\s　]+/).map(s=>s.trim()).filter(Boolean):[]; if(!arr.includes(t))arr.push(t); el.value=arr.join(' '); }
 function keikoSave(){
   const ds=document.getElementById('kkDate').value||kkEditKey||todayStr();
   const K=keikoOf(gwSelfId);
   let sv=document.getElementById('kkScore').value.trim();
   let s=sv===''?null:Math.max(0,Math.min(100,Number(sv)||0));
   const m=document.getElementById('kkMemo').value.trim();
-  const t=document.getElementById('kkTags').value.split(/[,、]/).map(x=>x.trim()).filter(Boolean);
+  const t=document.getElementById('kkTags').value.split(/[,、\s　]+/).map(x=>x.trim()).filter(Boolean);
   const f={};
   gwFields().forEach(fd=>{ const el=document.getElementById('kkF_'+fd.id); if(el&&el.value.trim()!=='')f[fd.id]=el.value.trim(); });
   if(kkEditKey&&kkEditKey!==ds)delete K[kkEditKey];    // 日付を変えた場合は移動
