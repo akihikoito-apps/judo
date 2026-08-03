@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v192（品質点検：文字サイズ大のiPhoneで日付入力欄(生年月日/入会日/段位取得日/予定日/お金/節目 等)が値＋カレンダーで枠から溢れて切れていたのを、狭い画面(≤540px)でのみ日付欄の文字サイズに上限(最大30px)を付けて全箇所まとめて修正。全タブ×事務/個人×iPhone/iPadを機械点検し、他のはみ出し・重なりは無しを確認。iPadは影響なし） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v193（多言語対応の総点検：①「負け技（取られた技）」→「負け技」。②近年追加機能（試合申込・取り込み選択・報告オンボーディング・ペイウォール・設定案内・メモリー説明 等）の未翻訳UI約95件を英/仏/葡へ追加＋数値表示のパターン対応（記入例も翻訳）。③多言語×文字大の崩れを機械点検し全て解消：分析トグルの訳語短縮、出欠/お金の折りたたみ見出し折返し、報告の日付行、結果/収支ボタン(.io-pick)、モーダルのフッターボタン(.btn/.row)、シェアボタン、日付欄の上限24px。en/fr/pt/ja×iPhone/iPadで溢れゼロを確認） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -61,7 +61,7 @@
 
   .card{background:var(--paper-card);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08);border:1px solid var(--line);overflow:hidden;}
 
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 20px;font-size:calc(18px*var(--fs,1));font-weight:700;font-family:inherit;border:none;border-radius:12px;cursor:pointer;background:var(--navy);color:#fff;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 18px;font-size:calc(18px*var(--fs,1));font-weight:700;font-family:inherit;border:none;border-radius:12px;cursor:pointer;background:var(--navy);color:#fff;min-width:0;white-space:normal;line-height:1.15;overflow-wrap:anywhere;}
   .btn:active{transform:scale(.98);}
   .btn.full{width:100%;}
   .btn.gold{background:var(--gold);color:#3a2e00;}
@@ -247,7 +247,7 @@
   .cat-unset{background:#fff !important;color:var(--muted) !important;border:2px dashed var(--line);font-weight:600 !important;}
   /* 入出金 */
   .io-pick{display:flex;gap:8px;}
-  .io-pick button{flex:1;min-height:52px;font-size:calc(18px*var(--fs,1));font-weight:700;font-family:inherit;border:2px solid var(--line);background:#fff;color:var(--muted);border-radius:12px;cursor:pointer;}
+  .io-pick button{flex:1;min-width:0;min-height:52px;font-size:calc(18px*var(--fs,1));font-weight:700;font-family:inherit;border:2px solid var(--line);background:#fff;color:var(--muted);border-radius:12px;cursor:pointer;white-space:normal;line-height:1.15;padding:6px 6px;word-break:keep-all;overflow-wrap:anywhere;}
   .io-pick button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
   #sexM.on{background:#2d4373;border-color:#2d4373;}
   #sexF.on{background:#c0392b;border-color:#c0392b;}
@@ -585,6 +585,7 @@
   .modal{background:#fff;width:100%;max-width:680px;border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;}
   .modal h3{font-size:calc(21px*var(--fs,1));margin:0 0 12px;color:var(--navy);}
   .modal .row{display:flex;gap:10px;margin-top:18px;}
+  .modal .row>.btn{flex:1 1 0;min-width:0;}   /* フッターのボタンは均等幅で縮小可（長い訳語でも枠内に収める） */
   .modal .row .btn{flex:1;}
 
   .toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:14px 22px;border-radius:30px;font-size:calc(16px*var(--fs,1));z-index:100;opacity:0;transition:opacity .25s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.3);}
@@ -765,7 +766,7 @@
   .mate-group-head{display:flex;align-items:center;gap:8px;font-size:calc(15px*var(--fs,1));font-weight:700;color:var(--navy);margin:16px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--line);}
   .mate-group-head:first-child{margin-top:2px;}
   /* v133: 属性グループの折りたたみ見出し（畳み込み表示） */
-  .fold-head{display:flex;align-items:center;gap:8px;font-size:calc(15px*var(--fs,1));font-weight:700;margin:12px 0 8px;padding:10px 12px;border:1.5px solid var(--line);border-left:5px solid currentColor;border-radius:12px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;box-shadow:0 1px 4px rgba(20,30,55,.05);}
+  .fold-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;row-gap:6px;font-size:calc(15px*var(--fs,1));font-weight:700;margin:12px 0 8px;padding:10px 12px;border:1.5px solid var(--line);border-left:5px solid currentColor;border-radius:12px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;box-shadow:0 1px 4px rgba(20,30,55,.05);}
   .fold-head:first-child{margin-top:2px;}
   .fold-head .fold-tri{font-size:.72em;flex:0 0 auto;width:1em;text-align:center;opacity:.85;}
   .fold-head .fold-lbl{flex:0 0 auto;}
@@ -894,8 +895,13 @@
   @media (max-width:540px){
     html[data-font="large"] .ana-box{--fs:1.2;}
     html[data-font="mid"]   .ana-box{--fs:1.15;}
-    /* 日付欄：文字大でも「2026/08/03」＋カレンダーが枠に収まるよう、狭い画面では文字サイズに上限 */
-    input[type="date"]{font-size:min(calc(18px*var(--fs,1)),30px)!important;}
+    /* 日付欄：文字大でも「2026/08/03」＋カレンダーが（半幅でも）枠に収まるよう、狭い画面では文字サイズに上限 */
+    input[type="date"]{font-size:min(calc(18px*var(--fs,1)),24px)!important;}
+    /* 3分割の結果/収支ボタンは、長い訳語(pt Empate等)でも枠内に収まるよう狭い画面で文字上限 */
+    .io-pick button{font-size:min(calc(18px*var(--fs,1)),22px);}
+    /* モーダル等のボタンも、長い訳語(仏 Enregistrer 等)でも収まるよう狭い画面で文字上限 */
+    .btn{font-size:min(calc(18px*var(--fs,1)),22px);}
+    .btn.sm{font-size:min(calc(15px*var(--fs,1)),19px);}
   }
   /* v129: レーダーの勝ち/負け切替（1枚表示） */
   .ra-top{margin:2px 0 10px;}
@@ -1461,9 +1467,9 @@ function applyUpdate(){
     <div class="share-style-label">柄・模様を選ぶ</div>
     <div class="share-styles" id="sharePatterns"></div>
     <div class="row" style="margin-top:12px;gap:10px">
-      <button class="btn" style="flex:0 0 auto;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:0 16px" onclick="closeModal('rkShareModal')">閉じる</button>
-      <button class="btn" style="flex:1;background:#fff;color:var(--navy)" onclick="rkSaveShare()">保存</button>
-      <button class="btn" style="flex:1;background:#06C755;color:#fff" onclick="rkDoShare()">シェア</button>
+      <button class="btn" style="flex:0 0 auto;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:0 14px" onclick="closeModal('rkShareModal')">閉じる</button>
+      <button class="btn" style="flex:1;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:#fff;color:var(--navy)" onclick="rkSaveShare()">保存</button>
+      <button class="btn" style="flex:1;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:#06C755;color:#fff" onclick="rkDoShare()">シェア</button>
     </div>
   </div>
 </div>
@@ -1581,8 +1587,8 @@ function applyUpdate(){
     <label class="fld">選手のなまえ</label>
     <input type="text" id="repName" placeholder="例：山本 蓮" oninput="repGen()">
     <div style="display:flex;gap:8px">
-      <div style="flex:1"><label class="fld">大会名</label><input type="text" id="repTaikai" placeholder="例：春季市民大会" oninput="repGen()"></div>
-      <div style="flex:1"><label class="fld">日づけ</label><input type="date" id="repDate" oninput="repGen()"></div>
+      <div style="flex:1;min-width:0"><label class="fld">大会名</label><input type="text" id="repTaikai" placeholder="例：春季市民大会" oninput="repGen()" style="width:100%;min-width:0;box-sizing:border-box"></div>
+      <div style="flex:1;min-width:0"><label class="fld">日づけ</label><input type="date" id="repDate" oninput="repGen()" style="width:100%;min-width:0;box-sizing:border-box"></div>
     </div>
     <label class="fld">種別</label>
     <div class="io-pick">
@@ -4617,7 +4623,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v192'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v193'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -4927,7 +4933,8 @@ Object.assign(DICT,{
   '対 右組':{en:'vs Right grip',fr:'vs Garde droite',pt:'vs Pegada direita'},
   '対 左組':{en:'vs Left grip',fr:'vs Garde gauche',pt:'vs Pegada esquerda'},
   '決まり技レーダー（割合）':{en:'Deciding-technique radar (share)',fr:'Radar des techniques décisives (%)',pt:'Radar de técnicas decisivas (%)'},
-  '勝ち技':{en:'Winning techniques',fr:'Techniques gagnantes',pt:'Técnicas de vitória'},
+  '勝ち技':{en:'Winning',fr:'Gagnés',pt:'Vitórias'},
+  '負け技':{en:'Losing',fr:'Perdus',pt:'Derrotas'},
   '負け技（取られた技）':{en:'Conceded techniques',fr:'Techniques encaissées',pt:'Técnicas sofridas'},
   'その他投技':{en:'Other throws',fr:'Autres projections',pt:'Outras projeções'},
   '寝技':{en:'Groundwork',fr:'Ne-waza (sol)',pt:'Ne-waza (solo)'},
@@ -5136,8 +5143,152 @@ Object.assign(DICT,{
   '払腰返':{en:'Harai-goshi-gaeshi',fr:'Harai-goshi-gaeshi',pt:'Harai-goshi-gaeshi'},
   '腕挫腋固':{en:'Ude-hishigi-waki-gatame',fr:'Ude-hishigi-waki-gatame',pt:'Ude-hishigi-waki-gatame'}
 });
+// ―― v193: 近年追加機能のUI多言語対応（試合申込・取り込み選択・報告オンボーディング・ペイウォール 等）――
+Object.assign(DICT,{
+  // 取り込み（QR/文字を選ぶ）
+  '📥 試合結果の取り込み':{en:'📥 Import match results',fr:'📥 Importer les résultats',pt:'📥 Importar resultados'},
+  '保護者から届いた試合結果を、どちらの方法で取り込みますか？':{en:'How would you like to import the results a parent sent you?',fr:'Comment importer les résultats envoyés par un parent ?',pt:'Como deseja importar os resultados enviados por um responsável?'},
+  '📷 QRで取り込む':{en:'📷 Import by QR',fr:'📷 Importer par QR',pt:'📷 Importar por QR'},
+  '会場でその場で受け取る（カメラで読取）':{en:'Receive on the spot at the venue (scan with camera)',fr:'Recevoir sur place au tournoi (scan par caméra)',pt:'Receber na hora no local (ler com a câmera)'},
+  '📋 文字で取り込む':{en:'📋 Import by text',fr:'📋 Importer par texte',pt:'📋 Importar por texto'},
+  'LINEで届いたテキストを貼り付ける':{en:'Paste the text received via LINE',fr:'Coller le texte reçu par LINE',pt:'Colar o texto recebido pelo LINE'},
+  '← もどる':{en:'← Back',fr:'← Retour',pt:'← Voltar'},
+  '保護者からLINEで届いた「試合きろく」のテキストを、':{en:'Paste the whole “match record” text a parent sent via LINE, then press “Analyze”.',fr:'Collez tout le texte « fiche de combats » envoyé par un parent via LINE, puis appuyez sur « Analyser ».',pt:'Cole todo o texto de “registro de lutas” enviado por um responsável pelo LINE e toque em “Analisar”.'},
+  'まるごと貼り付け':{en:' ',fr:' ',pt:' '},
+  'て「解析する」を押してください。':{en:' ',fr:' ',pt:' '},
+  // 試合申込・エントリー管理
+  '🏷️ 試合申込':{en:'🏷️ Tournament entry',fr:'🏷️ Inscription au tournoi',pt:'🏷️ Inscrição no torneio'},
+  '🏷️ 試合申込・エントリー':{en:'🏷️ Tournament entry',fr:'🏷️ Inscription au tournoi',pt:'🏷️ Inscrição no torneio'},
+  'この大会の申込情報を管理します（会計とは別＝道場が参加者から預かって主催者へ渡す“手続き”の記録です）。':{en:'Manage this tournament’s entry info (separate from accounting — a record of the dojo collecting fees from participants and passing them to the organizer).',fr:'Gérez les informations d’inscription de ce tournoi (distinct de la comptabilité — le dojo collecte les frais des participants et les remet à l’organisateur).',pt:'Gerencie as informações de inscrição deste torneio (separado da contabilidade — o dojô recolhe as taxas dos participantes e repassa ao organizador).'},
+  '申込締切':{en:'Entry deadline',fr:'Date limite d’inscription',pt:'Prazo de inscrição'},
+  'エントリー費（1人）':{en:'Entry fee (per person)',fr:'Frais d’inscription (par personne)',pt:'Taxa de inscrição (por pessoa)'},
+  '↧ この金額を出場者全員に反映':{en:'↧ Apply this amount to all entrants',fr:'↧ Appliquer ce montant à tous les inscrits',pt:'↧ Aplicar este valor a todos os inscritos'},
+  '申込内容（メモ）':{en:'Entry details (memo)',fr:'Détails de l’inscription (mémo)',pt:'Detalhes da inscrição (memo)'},
+  '出場':{en:'Entered',fr:'Inscrits',pt:'Inscritos'},
+  '出場者':{en:'Entrants',fr:'Participants',pt:'Participantes'},
+  '＋ 出場者を追加':{en:'＋ Add entrant',fr:'＋ Ajouter un participant',pt:'＋ Adicionar participante'},
+  '📝 個人メモ欄を表示':{en:'📝 Show personal memo',fr:'📝 Afficher le mémo individuel',pt:'📝 Mostrar memo individual'},
+  '📝 個人メモ欄：表示中':{en:'📝 Personal memo: shown',fr:'📝 Mémo individuel : affiché',pt:'📝 Memo individual: exibido'},
+  'まだ出場者がいません。':{en:'No entrants yet.',fr:'Aucun participant pour l’instant.',pt:'Nenhum participante ainda.'},
+  '「＋出場者を追加」から選んでください。':{en:'Add them from “＋ Add entrant”.',fr:'Ajoutez-les via « ＋ Ajouter un participant ».',pt:'Adicione em “＋ Adicionar participante”.'},
+  '✅ この大会の申込を完了にする':{en:'✅ Mark this tournament’s entry as complete',fr:'✅ Marquer l’inscription comme terminée',pt:'✅ Concluir a inscrição deste torneio'},
+  '完了を取り消す':{en:'Undo completion',fr:'Annuler la finalisation',pt:'Desfazer conclusão'},
+  '出場者をえらぶ':{en:'Choose entrants',fr:'Choisir les participants',pt:'Escolher participantes'},
+  'この大会に出場する仲間にチェックしてください（チェックを外すと外れます）。':{en:'Check the members entering this tournament (uncheck to remove).',fr:'Cochez les membres inscrits à ce tournoi (décochez pour retirer).',pt:'Marque os membros inscritos neste torneio (desmarque para remover).'},
+  '反映する':{en:'Apply',fr:'Appliquer',pt:'Aplicar'},
+  '集金済':{en:'Collected',fr:'Collecté',pt:'Recolhido'},
+  '未集金':{en:'Not collected',fr:'Non collecté',pt:'A recolher'},
+  'その他':{en:'Other',fr:'Autre',pt:'Outro'},
+  'とじる':{en:'Close',fr:'Fermer',pt:'Fechar'},
+  '※「その他（自由記載）」で入力した予定は':{en:'Events entered under “Other (free text)” show in ',fr:'Les événements saisis en « Autre (libre) » s’affichent en ',pt:'Eventos em “Outro (livre)” aparecem em '},
+  'で表示されます。':{en:'.',fr:'.',pt:'.'},
+  // ペイウォール（Pro）
+  'Proでもっと楽しく':{en:'Enjoy more with Pro',fr:'Profitez plus avec Pro',pt:'Aproveite mais com o Pro'},
+  'この機能はPro（有料）でご利用いただけます。':{en:'This feature is available with Pro (paid).',fr:'Cette fonction est disponible avec Pro (payant).',pt:'Este recurso está disponível no Pro (pago).'},
+  'Proでできること':{en:'What Pro offers',fr:'Ce que Pro apporte',pt:'O que o Pro oferece'},
+  '・メモリーの保存が無制限（無料は10件まで）':{en:'• Unlimited memory saves (free is up to 10)',fr:'• Souvenirs illimités (10 max en gratuit)',pt:'• Memórias ilimitadas (grátis até 10)'},
+  '・試合結果の分析（勝率・決まり技レーダー・組手別/技別）':{en:'• Match analysis (win rate, technique radar, by grip/technique)',fr:'• Analyse des combats (taux de victoire, radar des techniques, par garde/technique)',pt:'• Análise das lutas (taxa de vitória, radar de técnicas, por pegada/técnica)'},
+  '・シェア画像の全デザイン（配色8×書式8×柄）':{en:'• All share-image designs (8 colors × 8 fonts × patterns)',fr:'• Tous les visuels à partager (8 couleurs × 8 styles × motifs)',pt:'• Todos os designs de imagem (8 cores × 8 fontes × padrões)'},
+  '・複数の主役（家族）を登録':{en:'• Register multiple stars (family)',fr:'• Enregistrer plusieurs profils (famille)',pt:'• Cadastrar vários protagonistas (família)'},
+  '「報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。':{en:'“Report” and “Memory” (recording & sharing) stay free forever.',fr:'« Rapport » et « Souvenirs » (enregistrement et partage) restent gratuits.',pt:'“Relatório” e “Memória” (registrar e compartilhar) continuam grátis.'},
+  '⭐ Proにする（年額）':{en:'⭐ Get Pro (yearly)',fr:'⭐ Passer à Pro (annuel)',pt:'⭐ Assinar o Pro (anual)'},
+  '購入を復元する':{en:'Restore purchase',fr:'Restaurer l’achat',pt:'Restaurar compra'},
+  // 予定：よく使う設定・くり返し
+  '繰り返し登録':{en:'Recurring',fr:'Récurrent',pt:'Recorrente'},
+  'この予定をくり返して登録する':{en:'Register this as a recurring event',fr:'Enregistrer en tant qu’événement récurrent',pt:'Registrar como evento recorrente'},
+  '予定を追加するときにボタンで選べる候補です。種類ごとに色を設定でき、予定はその色で表示されます。いくつでも登録できます。':{en:'These are the choices shown as buttons when adding an event. Each type can have a color, and events show in that color. Add as many as you like.',fr:'Ce sont les choix proposés lors de l’ajout d’un événement. Chaque type peut avoir une couleur ; les événements s’affichent dans cette couleur. Ajoutez-en autant que vous voulez.',pt:'São as opções mostradas como botões ao adicionar um evento. Cada tipo pode ter uma cor, e os eventos aparecem nessa cor. Adicione quantos quiser.'},
+  'グレー':{en:'Gray',fr:'Gris',pt:'Cinza'},
+  '繰越金':{en:'Carryover',fr:'Report',pt:'Saldo anterior'},
+  // メモリー・設定（個人）
+  '＋ 節目を追加':{en:'＋ Add milestone',fr:'＋ Ajouter une étape',pt:'＋ Adicionar marco'},
+  '大会ごとに1枚のカードで成長を振り返れます。昇級・昇段などの節目も追加でき、写真は「シェア画像」に載せてInstagram/LINEへ。':{en:'Look back on growth with one card per tournament. Add milestones like grade promotions, and put photos on a “share image” for Instagram/LINE.',fr:'Retracez la progression avec une carte par tournoi. Ajoutez des étapes (passages de grade) et placez des photos sur une « image à partager » pour Instagram/LINE.',pt:'Reveja a evolução com um card por torneio. Adicione marcos (promoções de faixa) e coloque fotos em uma “imagem de compartilhamento” para Instagram/LINE.'},
+  'はじめの案内':{en:'Getting started',fr:'Premiers pas',pt:'Primeiros passos'},
+  '最初のご案内（ようこそ → お名前 → 使い方3ステップ）を、もう一度見られます。':{en:'See the intro again (Welcome → Your name → 3-step guide).',fr:'Revoir l’intro (Bienvenue → Votre nom → guide en 3 étapes).',pt:'Ver a introdução de novo (Bem-vindo → Seu nome → guia em 3 passos).'},
+  '▶ はじめの案内をもう一度見る':{en:'▶ View the intro again',fr:'▶ Revoir l’intro',pt:'▶ Ver a introdução de novo'},
+  'シェア':{en:'Share',fr:'Partager',pt:'Compartilhar'},
+  '主将':{en:'Captain',fr:'Capitaine',pt:'Capitão'},
+  // プレースホルダ（記入例）
+  '例：主将・キャプテン':{en:'e.g. Captain',fr:'ex. Capitaine',pt:'ex. Capitão'},
+  '例：3000':{en:'e.g. 3000',fr:'ex. 3000',pt:'ex. 3000'},
+  '【My道場 試合きろく】…をここに貼り付け':{en:'Paste “【My道場 試合きろく】…” here',fr:'Collez ici « 【My道場 試合きろく】… »',pt:'Cole aqui “【My道場 試合きろく】…”'},
+  '例：55kg級／申請体重 54.2kg':{en:'e.g. -55kg / declared 54.2kg',fr:'ex. -55 kg / pesée 54,2 kg',pt:'ex. -55kg / peso 54,2kg'},
+  '例：個人戦 55kg級／団体戦Aチーム／申込は〇〇連盟サイト・〆切厳守':{en:'e.g. Individual -55kg / Team A / apply on the 〇〇 federation site — strict deadline',fr:'ex. Individuel -55 kg / Équipe A / inscription sur le site de la fédération 〇〇 — délai strict',pt:'ex. Individual -55kg / Equipe A / inscrição no site da federação 〇〇 — prazo rígido'},
+  '例：山本 蓮':{en:'e.g. Ren Yamamoto',fr:'ex. Ren Yamamoto',pt:'ex. Ren Yamamoto'},
+  '例：春季市民大会':{en:'e.g. Spring City Cup',fr:'ex. Coupe de printemps',pt:'ex. Copa de Primavera'},
+  '例：青葉 太郎':{en:'e.g. Taro Aoba',fr:'ex. Taro Aoba',pt:'ex. Taro Aoba'},
+  '例：〇〇中学':{en:'e.g. 〇〇 J.H. School',fr:'ex. Collège 〇〇',pt:'ex. Escola 〇〇'},
+  '気づいたことなど':{en:'Notes, observations, etc.',fr:'Remarques, observations…',pt:'Observações, notas…'}
+});
+Object.assign(DICT,{
+  // 報告タブ・使い方説明（<b>分割は前後に空白を入れて自然に連結）
+  '📝 試合の結果を道場に報告できます':{en:'📝 Report your match results to your dojo',fr:'📝 Signalez vos résultats à votre dojo',pt:'📝 Informe seus resultados ao dojô'},
+  '入力して送るだけ。':{en:'Just fill in and send. ',fr:'Il suffit de saisir et d’envoyer. ',pt:'Basta preencher e enviar. '},
+  'LINE・QRコード・コピー':{en:'LINE, QR code, or copy',fr:'LINE, QR ou copie',pt:'LINE, QR ou cópia'},
+  'で道場の先生に渡せます。先生は受け取った内容をそのまま登録できるので、伝え間違いや二度手間がありません。':{en:' — hand it to your dojo teacher, who can register it as-is, with no miscommunication or double work.',fr:' — remettez-le à votre professeur, qui l’enregistre tel quel, sans erreur ni double saisie.',pt:' — entregue ao professor, que registra como está, sem mal-entendidos nem retrabalho.'},
+  '選手名・大会名・日づけ':{en:'Player, tournament, and date',fr:'Athlète, tournoi et date',pt:'Atleta, torneio e data'},
+  'を入れます（分かる範囲でOK）。':{en:' — fill in what you know.',fr:' — remplissez ce que vous savez.',pt:' — preencha o que souber.'},
+  '「＋試合をふやす」':{en:'“＋ Add match”',fr:'« ＋ Ajouter un combat »',pt:'“＋ Adicionar luta”'},
+  'で1試合ずつ、勝ち負け・決まり技・相手を選びます。':{en:' — add each match: win/loss, technique, opponent.',fr:' — ajoutez chaque combat : victoire/défaite, technique, adversaire.',pt:' — adicione cada luta: vitória/derrota, técnica, adversário.'},
+  '「📩 道場に送る」':{en:'“📩 Send to dojo”',fr:'« 📩 Envoyer au dojo »',pt:'“📩 Enviar ao dojô”'},
+  'でLINE・QR・コピー。会場では':{en:' — via LINE, QR, or copy. At the venue, ',fr:' — par LINE, QR ou copie. Sur place, ',pt:' — por LINE, QR ou cópia. No local, '},
+  'QRを画面に出して先生に読み取ってもらう':{en:'showing the QR for the teacher to scan',fr:'montrer le QR au professeur pour qu’il le scanne',pt:'mostrar o QR para o professor ler'},
+  'のが手早いです。':{en:' is quickest.',fr:' est le plus rapide.',pt:' é o mais rápido.'},
+  '💡 この「報告」は無料でずっと使えます。自分の試合を':{en:'💡 This “Report” is always free. To ',fr:'💡 Ce « Rapport » est toujours gratuit. Pour ',pt:'💡 Este “Relatório” é sempre grátis. Para '},
+  '記録として残したり、勝率や決まり技を分析したい':{en:'keep records and analyze win rate and techniques',fr:'garder des traces et analyser le taux de victoire et les techniques',pt:'guardar registros e analisar taxa de vitória e técnicas'},
+  'ときは、有料版でメモリー・分析もご利用いただけます。':{en:', use Pro for Memory and analysis.',fr:', utilisez Pro pour les Souvenirs et l’analyse.',pt:', use o Pro para Memória e análise.'},
+  '日づけ':{en:'Date',fr:'Date',pt:'Data'},
+  '種別':{en:'Type',fr:'Type',pt:'Tipo'},
+  '結果':{en:'Result',fr:'Résultat',pt:'Resultado'},
+  '＋ 試合をふやす':{en:'＋ Add match',fr:'＋ Ajouter un combat',pt:'＋ Adicionar luta'},
+  '送る内容（自動でできます）':{en:'Content to send (auto-generated)',fr:'Contenu à envoyer (auto)',pt:'Conteúdo a enviar (automático)'},
+  '📩 道場に送る（LINE / QR / コピー）':{en:'📩 Send to dojo (LINE / QR / Copy)',fr:'📩 Envoyer au dojo (LINE / QR / Copie)',pt:'📩 Enviar ao dojô (LINE / QR / Cópia)'},
+  '📖 自分のメモリーにも残そう':{en:'📖 Save to your Memory too',fr:'📖 Gardez-le aussi dans vos Souvenirs',pt:'📖 Guarde também na sua Memória'},
+  'いま入力した試合を記録しておくと、':{en:'Save the match you just entered so you can ',fr:'Enregistrez le combat saisi pour ',pt:'Salve a luta que você inseriu para '},
+  'あとで見返せて、戦績カードをSNSにシェア':{en:'look back later and share a record card on social media',fr:'le revoir plus tard et partager une carte de résultats sur les réseaux',pt:'revê-la depois e compartilhar um card de resultados nas redes'},
+  'できます（無料）。道場への報告とは別に、自分の思い出として残せます。':{en:' (free). Separate from the dojo report, keep it as your own memory.',fr:' (gratuit). Distinct du rapport au dojo, gardez-le comme souvenir.',pt:' (grátis). Separado do relatório ao dojô, guarde como sua lembrança.'},
+  'この試合をメモリーに登録する':{en:'Save this match to Memory',fr:'Enregistrer ce combat dans Souvenirs',pt:'Salvar esta luta na Memória'},
+  '削除':{en:'Delete',fr:'Supprimer',pt:'Excluir'},
+  // レーダー説明
+  '軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。':{en:'Axes = the 4 most-used throws (filled from Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi if fewer) + other throws, combinations, groundwork (hold/strangle/joint), fouls & decisions (shido/foul/decision/superiority), and walkover/withdrawal. Even if the technique is blank, it’s judged from the “Content” field. Gold dashed line = whole dojo.',fr:'Axes = les 4 projections les plus fréquentes (complétées par Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + autres projections, combinaisons, sol (immobilisation/étranglement/luxation), fautes & décisions (shido/faute/décision/supériorité), et forfait/abandon. Même sans technique, le champ « Contenu » sert au classement. Ligne dorée en pointillés = tout le dojo.',pt:'Eixos = os 4 golpes mais usados (completados por Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + outros golpes, combinações, solo (imobilização/estrangulamento/chave), faltas & decisões (shido/falta/decisão/superioridade) e W.O./desistência. Mesmo sem técnica, usa-se o campo “Conteúdo”. Linha dourada tracejada = todo o dojô.'},
+  // 初回オンボーディング
+  'ようこそ！':{en:'Welcome!',fr:'Bienvenue !',pt:'Bem-vindo!'},
+  'マイ柔道ヒストリーへ':{en:'to My Judo History',fr:'sur My Judo History',pt:'ao My Judo History'},
+  '戦績カードはSNSにシェア':{en:'and share record cards on social media',fr:'et partagez vos cartes sur les réseaux',pt:'e compartilhe cards nas redes'},
+  'できます。':{en:'.',fr:'.',pt:'.'},
+  'はじめる':{en:'Get started',fr:'Commencer',pt:'Começar'},
+  'あとで':{en:'Later',fr:'Plus tard',pt:'Depois'},
+  'まず、主役のお名前を':{en:'First, tell us the',fr:'D’abord, indiquez le',pt:'Primeiro, informe o'},
+  '教えてください':{en:'star’s name',fr:'nom du protagoniste',pt:'nome do protagonista'},
+  'あなた自身、または お子さんの名前でOK。':{en:'Your own name or your child’s is fine.',fr:'Votre nom ou celui de votre enfant.',pt:'Seu nome ou o do seu filho serve.'},
+  '（あとで変更・追加できます）':{en:'(You can change or add later.)',fr:'(Modifiable ou ajoutable plus tard.)',pt:'(Pode alterar ou adicionar depois.)'},
+  '次へ':{en:'Next',fr:'Suivant',pt:'Avançar'},
+  'スキップ':{en:'Skip',fr:'Passer',pt:'Pular'},
+  '使い方はカンタン':{en:'It’s easy —',fr:'C’est simple —',pt:'É simples —'},
+  '3ステップ':{en:'3 steps',fr:'3 étapes',pt:'3 passos'},
+  '試合結果を入力':{en:'Enter match results',fr:'Saisir les résultats',pt:'Inserir resultados'},
+  '（勝ち負け・決まり技・相手）':{en:' (win/loss, technique, opponent)',fr:' (victoire/défaite, technique, adversaire)',pt:' (vitória/derrota, técnica, adversário)'},
+  '「メモリーに登録」':{en:'“Save to Memory”',fr:'« Enregistrer dans Souvenirs »',pt:'“Salvar na Memória”'},
+  'で自分の記録に残す':{en:' to keep your record',fr:' pour garder votre historique',pt:' para guardar seu histórico'},
+  '！（Instagramなど）':{en:'! (Instagram, etc.)',fr:' ! (Instagram, etc.)',pt:'! (Instagram, etc.)'},
+  'さっそく、最初の試合を入れてみましょう。':{en:'Let’s enter your first match now.',fr:'Ajoutons votre premier combat.',pt:'Vamos inserir sua primeira luta.'},
+  '試合を入力する':{en:'Enter a match',fr:'Saisir un combat',pt:'Inserir uma luta'},
+  'あとで入力する':{en:'Enter later',fr:'Plus tard',pt:'Depois'}
+});
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
+  // v193: 試合申込・報告の数値入り表示
+  [/^(\d+)試合目$/, (m,L)=>({en:'Match '+m[1],fr:'Combat '+m[1],pt:'Luta '+m[1]}[L])],                     // 1試合目
+  [/^集金済 ¥(.+)$/, (m,L)=>({en:'Collected ¥'+m[1],fr:'Collecté ¥'+m[1],pt:'Recolhido ¥'+m[1]}[L])],       // 集金済 ¥3,000
+  [/^未集金 ¥(.+)$/, (m,L)=>({en:'Not collected ¥'+m[1],fr:'Non collecté ¥'+m[1],pt:'A recolher ¥'+m[1]}[L])],// 未集金 ¥3,000
+  [/^出場(\d+)人$/, (m,L)=>({en:m[1]+' entrants',fr:m[1]+' inscrits',pt:m[1]+' inscritos'}[L])],           // 出場5人
+  [/^未集金(\d+)人$/, (m,L)=>({en:m[1]+' unpaid',fr:m[1]+' impayés',pt:m[1]+' sem pagar'}[L])],             // 未集金2人
+  [/^締切あと(\d+)日$/, (m,L)=>({en:m[1]+' days to deadline',fr:'J-'+m[1]+' avant clôture',pt:m[1]+' dias p/ prazo'}[L])], // 締切あと3日
+  [/^締切超過\((.+)\)$/, (m,L)=>({en:'Overdue ('+m[1]+')',fr:'Dépassé ('+m[1]+')',pt:'Vencido ('+m[1]+')'}[L])], // 締切超過(8/10)
+  [/^締切 (.+)$/, (m,L)=>({en:'Deadline '+m[1],fr:'Clôture '+m[1],pt:'Prazo '+m[1]}[L])],                  // 締切 8/10
+  [/^本日締切$/, (m,L)=>({en:'Due today',fr:'Aujourd’hui',pt:'Vence hoje'}[L])],                            // 本日締切
+  [/^✅ 申込完了$/, (m,L)=>({en:'✅ Entry complete',fr:'✅ Inscription terminée',pt:'✅ Inscrição concluída'}[L])], // ✅ 申込完了
+  [/^⚠ 締切が近い申込 (\d+)件$/, (m,L)=>({en:'⚠ '+m[1]+' entries near deadline',fr:'⚠ '+m[1]+' inscription(s) à échéance',pt:'⚠ '+m[1]+' inscrições perto do prazo'}[L])], // ⚠ 締切が近い申込 2件
+  [/^あと(\d+)日$/, (m,L)=>({en:m[1]+'d left',fr:'J-'+m[1],pt:m[1]+'d'}[L])],                              // あと3日 (バナーのタグ)
   [/^([小中高大])([1-6])$/, (m,L)=>STAGE[L][m[1]]+m[2]],                                   // 学年 小3→E3
   [/^([1-6])年$/, (m,L)=>({en:'Year '+m[1],fr:'Année '+m[1],pt:m[1]+'º ano'}[L])],           // 学年選択 3年
   [/^(\d+)回戦$/, (m,L)=>({en:'Round '+m[1],fr:'Tour '+m[1],pt:m[1]+'ª fase'}[L])],           // N回戦
@@ -6582,7 +6733,7 @@ function raSectionHtml(bs,teamBs){
   const mx=Math.max(1,...pv.arr,...tv.arr);
   const col=isWin?'#2e9e5b':'#d24a34',fil=isWin?'rgba(46,158,91,.22)':'rgba(210,74,52,.20)',subCol=isWin?'#2e7d4f':'#c0392b';
   const svg=raRadarSVG(ax,[{values:pv.arr,color:col,fill:fil},{values:tv.arr,color:'#c8a44d',fill:'rgba(200,164,77,.12)',dash:true}],mx,subCol);
-  const wl=`<div class="ra-wl-toggle"><button class="ra-wlbtn win ${isWin?'on':''}" onclick="setMatchRaResult('○')">勝ち技</button><button class="ra-wlbtn lose ${!isWin?'on':''}" onclick="setMatchRaResult('▲')">負け技（取られた技）</button></div>`;
+  const wl=`<div class="ra-wl-toggle"><button class="ra-wlbtn win ${isWin?'on':''}" onclick="setMatchRaResult('○')">勝ち技</button><button class="ra-wlbtn lose ${!isWin?'on':''}" onclick="setMatchRaResult('▲')">負け技</button></div>`;
   return `<div class="ana-sec ra-sec">
     <div class="ra-secttl"><span class="ra-ico">📊</span> 決まり技レーダー（割合）</div>
     ${wl}
