@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v197（成長タブ改善：①試合・稽古以外の予定マークを種類色の●に。②日付タップは「日別モーダル」＝その日の予定一覧（タップで編集・対象者バッジ付き）＋主役ごとのけいこ記録行＋「この日に予定を追加」（日付プリフィル）。③予定登録に「対象（主役）」選択を追加（主役2人以上の個人モードのみ表示・全員/各主役、カレンダーは対象で絞り込み）。④成長カレンダーとメモリーに「全員」表示を追加（メモリーは各カードに主役名バッジ・操作時は自動でその主役に切替・節目追加は主役選択時のみ）。⑤タグはスペース区切りに対応（カンマ・読点もOK）） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v198（成長タブ改善2：①サマリー3指標(今月のけいこ/平均点/連続週)を成長タブから分析タブ「稽古」ビュー先頭へ移動（主役ごとに表示＝2人以上でも明快）。②稽古入力を「🔥出席」「📝メモ」の2ボタン化＝出席はワンタップ完結（詳細画面を開かない・記録済みなら上書きせず案内）。日別モーダルも各主役行に[出席][メモ]でモーダルを開いたまま連続記録可。③日別モーダルは「けいこ(金地)」「予定(青地)」の色付きセクションカードで境目を明確化。④予定作成の「試合結果ボタン」→「この予定は試合・大会？(🥋はい/いいえ)」＋効果の説明文） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -907,6 +907,13 @@
   .gw-day .marks .kkn{font-size:calc(9px*min(var(--fs,1),1.4));font-weight:800;color:#c0442e;}
   .gw-day .sc{font-size:calc(9px*min(var(--fs,1),1.4));color:#2e7d4f;font-weight:800;line-height:1.1;}
   .gw-field-row{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--line);}
+  /* v198: 日別モーダルのセクション分け（けいこ／予定） */
+  .gwd-sec{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px 4px;margin-top:12px;background:#fff;}
+  .gwd-sec.keiko{background:#fdf8ec;border-color:#e6d6a8;}
+  .gwd-sec.sched{background:#f4f6fb;border-color:#c9d4e8;}
+  .gwd-h{font-weight:800;color:var(--navy);font-size:calc(14px*var(--fs,1));margin-bottom:2px;}
+  .gwd-sec .gw-field-row:last-child{border-bottom:none;}
+  .chip-btn.gwd-att{border-color:#2e9e5b;color:#1f7a45;background:#fff;}
   .gw-field-row .nm{flex:1;font-weight:700;}
   .kk-field{display:flex;align-items:center;gap:8px;margin-top:8px;}
   .kk-field label{flex:1;font-size:calc(14px*var(--fs,1));font-weight:700;color:var(--navy);margin:0;}
@@ -1649,13 +1656,15 @@ function applyUpdate(){
 
 <section id="screen-growth" class="screen">
   <div class="rk-chips" id="gwChips"></div>
-  <div class="ent-sumbar" id="gwSummary"></div>
   <div class="gw-cal">
     <div class="gw-cal-head"><button class="gw-nav" onclick="gwMove(-1)">‹</button><b id="gwMonthLbl"></b><button class="gw-nav" onclick="gwMove(1)">›</button></div>
     <div class="gw-grid" id="gwGrid"></div>
     <p class="hint" style="margin:8px 2px 0">🔥＝けいこ　🥋＝試合　●＝予定（色＝種類）　日付をタップすると、その日の予定と記録が開きます</p>
   </div>
-  <button class="btn gold full" style="margin-top:12px" onclick="gwOpenKeiko()">🔥 今日のけいこを記録</button>
+  <div class="row" style="margin-top:12px">
+    <button class="btn gold" onclick="gwQuickAttend()">🔥 出席（きょう）</button>
+    <button class="btn" style="background:var(--navy);color:#fff" onclick="gwQuickMemo()">📝 メモを書く</button>
+  </div>
   <div class="row" style="margin-top:10px">
     <button class="btn ghost" onclick="openSchedModal()">📅 予定を追加</button>
     <button class="btn ghost" onclick="gwOpenFields()">⚙️ 記録する項目</button>
@@ -1987,11 +1996,12 @@ function applyUpdate(){
       <label class="fld">対象（主役）</label>
       <div class="cat-pick" id="schForPick"></div>
     </div>
-    <label class="fld">試合結果ボタン</label>
+    <label class="fld">この予定は試合・大会？</label>
     <div class="io-pick">
-      <button id="smYes" onclick="pickShowMatch(true)">表示する</button>
-      <button id="smNo" class="on" onclick="pickShowMatch(false)">表示しない</button>
+      <button id="smYes" onclick="pickShowMatch(true)">🥋 はい</button>
+      <button id="smNo" class="on" onclick="pickShowMatch(false)">いいえ</button>
     </div>
+    <p class="list-mini" style="margin:6px 2px 0">「はい」にすると、この予定で<b>試合結果の記録</b>（道場アプリでは申込管理も）が使えるようになります。</p>
     <label class="fld">日付<span id="schDateWeek" style="color:var(--navy);font-weight:700;margin-left:6px"></span></label>
     <input type="date" id="schDate" onchange="updateSchedWeek()">
     <label class="fld">開始時間</label>
@@ -4737,7 +4747,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v197'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v198'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5459,7 +5469,21 @@ Object.assign(DICT,{
   'けいこ':{en:'Practice',fr:'Entraînement',pt:'Treino'},
   '予定':{en:'Events',fr:'Agenda',pt:'Agenda'},
   '例：内股 打ち込み（スペースで区切り）':{en:'e.g. uchi-mata uchikomi (separate with spaces)',fr:'ex. uchi-mata uchikomi (séparés par des espaces)',pt:'ex. uchi-mata uchikomi (separe com espaços)'},
-  '🔥＝けいこ　🥋＝試合　●＝予定（色＝種類）　日付をタップすると、その日の予定と記録が開きます':{en:'🔥=practice 🥋=match ●=event (color=type). Tap a date to open that day’s events & log.',fr:'🔥=entraînement 🥋=combat ●=événement (couleur=type). Touchez une date pour ouvrir le jour.',pt:'🔥=treino 🥋=luta ●=evento (cor=tipo). Toque numa data para abrir o dia.'}
+  '🔥＝けいこ　🥋＝試合　●＝予定（色＝種類）　日付をタップすると、その日の予定と記録が開きます':{en:'🔥=practice 🥋=match ●=event (color=type). Tap a date to open that day’s events & log.',fr:'🔥=entraînement 🥋=combat ●=événement (couleur=type). Touchez une date pour ouvrir le jour.',pt:'🔥=treino 🥋=luta ●=evento (cor=tipo). Toque numa data para abrir o dia.'},
+  // v198
+  '🔥 出席（きょう）':{en:'🔥 Attended (today)',fr:'🔥 Présent (aujourd’hui)',pt:'🔥 Presente (hoje)'},
+  '📝 メモを書く':{en:'📝 Write a memo',fr:'📝 Écrire un mémo',pt:'📝 Escrever memo'},
+  '出席':{en:'Attend',fr:'Présent',pt:'Presente'},
+  'メモ':{en:'Memo',fr:'Mémo',pt:'Memo'},
+  '出席ずみ':{en:'Attended',fr:'Présent',pt:'Presente'},
+  '出席をつけました':{en:'Attendance logged',fr:'Présence notée',pt:'Presença registrada'},
+  'きょうは出席ずみです（「📝メモ」から編集できます）':{en:'Already logged today (edit via “📝 Memo”)',fr:'Déjà noté aujourd’hui (modifiez via « 📝 Mémo »)',pt:'Já registrado hoje (edite em “📝 Memo”)'},
+  'この予定は試合・大会？':{en:'Is this a match / tournament?',fr:'Est-ce un combat / tournoi ?',pt:'É uma luta / torneio?'},
+  '🥋 はい':{en:'🥋 Yes',fr:'🥋 Oui',pt:'🥋 Sim'},
+  'いいえ':{en:'No',fr:'Non',pt:'Não'},
+  '「はい」にすると、この予定で':{en:'Choosing “Yes” enables ',fr:'« Oui » active ',pt:'“Sim” habilita '},
+  '試合結果の記録':{en:'match-result recording',fr:'l’enregistrement des résultats',pt:'o registro de resultados'},
+  '（道場アプリでは申込管理も）が使えるようになります。':{en:' for this event (and entry management in the dojo app).',fr:' pour cet événement (et la gestion des inscriptions dans l’appli dojo).',pt:' neste evento (e a gestão de inscrições no app do dojô).'}
 });
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
@@ -8365,30 +8389,41 @@ function renderGrowth(){
   }
   document.getElementById('gwGrid').innerHTML=html;
   // ―― サマリー（今月の回数・平均点・連続週）――
-  let monthCount=0; const scoreVals=[]; const allDates=new Set();
-  viewStars.forEach(st=>{ if(!st)return; const KK=keikoOf(st.id);
-    Object.keys(KK).forEach(d=>{ allDates.add(d);
-      if(d.slice(0,7)===gwMonth){ monthCount++; const v=KK[d].s; if(v!=null&&v!==''&&!isNaN(Number(v)))scoreVals.push(Number(v)); } });
-  });
-  const monthKeys={length:monthCount};   // 表示用
-  const avg=scoreVals.length?Math.round(scoreVals.reduce((a,b)=>a+b,0)/scoreVals.length):null;
-  // 連続週：今週から遡って、けいこが1回以上ある週を数える
+}
+// v198: 主役ごとの稽古サマリー（今月の回数・平均点・連続週）＝分析タブ「稽古」ビューで表示
+function gwSummaryFor(selfId){
+  const K=keikoOf(selfId), mo=thisMonthStr();
+  const monthDates=Object.keys(K).filter(d=>d.slice(0,7)===mo);
+  const vals=monthDates.map(d=>K[d].s).filter(v=>v!=null&&v!=='').map(Number).filter(v=>!isNaN(v));
+  const avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
   let streak=0;
-  {
-    const now=new Date(todayStr()+'T00:00');
-    const week0=new Date(now); week0.setDate(now.getDate()-now.getDay());  // 今週の日曜
-    const all=[...allDates];
-    for(let w=0;w<200;w++){
-      const ws=new Date(week0); ws.setDate(week0.getDate()-7*w);
-      const we=new Date(ws); we.setDate(ws.getDate()+6);
-      const has=all.some(ds=>{ const t=new Date(ds+'T00:00'); return t>=ws&&t<=we; });
-      if(has)streak++; else { if(w===0)continue; break; }  // 今週まだ0回でも連続は切らない
-    }
+  const now=new Date(todayStr()+'T00:00');
+  const week0=new Date(now); week0.setDate(now.getDate()-now.getDay());
+  const all=Object.keys(K);
+  for(let w=0;w<200;w++){
+    const ws=new Date(week0); ws.setDate(week0.getDate()-7*w);
+    const we=new Date(ws); we.setDate(ws.getDate()+6);
+    const has=all.some(ds=>{ const t=new Date(ds+'T00:00'); return t>=ws&&t<=we; });
+    if(has)streak++; else { if(w===0)continue; break; }
   }
-  document.getElementById('gwSummary').innerHTML=
-    `<div class="ent-sum-item"><b>${monthKeys.length}</b><span>${T('今月のけいこ')}</span></div>`+
-    `<div class="ent-sum-item ok"><b>${avg!=null?avg:'—'}</b><span>${T('平均点')}</span></div>`+
-    `<div class="ent-sum-item"><b>${streak}</b><span>${T('連続週')}</span></div>`;
+  return {count:monthDates.length,avg,streak};
+}
+// v198: ワンタップ出席／メモ（全員表示のときは日別モーダルへ）
+function gwAttendFor(sid,ds){
+  const K=keikoOf(sid);
+  if(K[ds])return false;                       // すでに記録あり
+  K[ds]={s:null,m:'',t:[],f:{}}; save(); return true;
+}
+function gwQuickAttend(){
+  if(gwAllView){ gwOpenDay(todayStr()); return; }
+  if(!gwSelfId){ const st=gwStars(); if(!st.length){toast(T('「仲間」から主役を登録してください'));return;} gwSelfId=st[0].id; }
+  const t=todayStr();
+  if(gwAttendFor(gwSelfId,t)){ gwMonth=t.slice(0,7); renderGrowth(); toast(T('出席をつけました')+' 🔥'); }
+  else toast(T('きょうは出席ずみです（「📝メモ」から編集できます）'));
+}
+function gwQuickMemo(){
+  if(gwAllView){ gwOpenDay(todayStr()); return; }
+  gwOpenKeiko(todayStr());
 }
 function gwSelect(id){gwSelfId=id;gwAllView=false;renderGrowth();}
 function gwSelectAll(){gwAllView=true;renderGrowth();}
@@ -8404,19 +8439,25 @@ function gwOpenDay(ds){
   gwDayDs=ds;
   document.getElementById('gwDayTitle').textContent='📅 '+ds.replace(/-/g,'/')+'（'+T(['日','月','火','水','木','金','土'][new Date(ds+'T00:00').getDay()])+'）';
   const stars=gwStars(), viewStars=gwAllView?stars:stars.filter(s=>s.id===gwSelfId);
-  // けいこ（主役ごとの行）
-  document.getElementById('gwDayKeiko').innerHTML=`<label class="fld" style="margin-top:2px">🔥 ${T('けいこ')}</label>`+
+  // けいこ（主役ごとの行・[出席][メモ]の2ボタン。出席はワンタップでモーダルは開いたまま）
+  document.getElementById('gwDayKeiko').innerHTML=`<div class="gwd-sec keiko"><div class="gwd-h">🔥 ${T('けいこ')}</div>`+
     viewStars.map(st=>{ const e=keikoOf(st.id)[ds];
-      const sum=e?[(e.s!=null&&e.s!=='')?e.s+T('点'):'',e.m?esc(e.m):''].filter(Boolean).join('・')||T('記録あり'):T('未記録');
-      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayKeikoOpen('${st.id}')"><span class="nm">${e?'🔥':'○'} ${esc(st.name)}<span class="list-mini" style="display:block">${sum}</span></span><button class="chip-btn" onclick="event.stopPropagation();gwDayKeikoOpen('${st.id}')">${e?T('編集'):T('記録')}</button></div>`; }).join('');
+      const sum=e?[(e.s!=null&&e.s!=='')?e.s+T('点'):'',e.m?esc(e.m):''].filter(Boolean).join('・')||T('出席ずみ'):T('未記録');
+      const btns=e
+        ?`<button class="chip-btn" onclick="event.stopPropagation();gwDayKeikoOpen('${st.id}')">📝 ${T('メモ')}</button>`
+        :`<button class="chip-btn gwd-att" onclick="event.stopPropagation();gwDayAttend('${st.id}')">🔥 ${T('出席')}</button><button class="chip-btn" onclick="event.stopPropagation();gwDayKeikoOpen('${st.id}')">📝 ${T('メモ')}</button>`;
+      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayKeikoOpen('${st.id}')"><span class="nm">${e?'🔥':'○'} ${esc(st.name)}<span class="list-mini" style="display:block">${sum}</span></span><span style="display:flex;gap:6px;flex-shrink:0">${btns}</span></div>`; }).join('')+`</div>`;
   // 予定一覧（タップで編集）
   const sc=gwDaySchedList(ds), many=gwStars().length>1;
-  document.getElementById('gwDaySched').innerHTML=`<label class="fld">📅 ${T('予定')}</label>`+
+  document.getElementById('gwDaySched').innerHTML=`<div class="gwd-sec sched"><div class="gwd-h">📅 ${T('予定')}</div>`+
     (sc.length?sc.map(s=>{ const isM=schedIsMatch(s);
       const tgt=(many&&s.forId)?`<span class="mate-tag" style="background:#33507e">${esc(studentName(s.forId))}</span>`:'';
       return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayEditSched('${s.id}')"><span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${tgt}</span><button class="chip-btn" onclick="event.stopPropagation();gwDayEditSched('${s.id}')">${T('編集')}</button></div>`; }).join('')
-    :`<p class="list-mini" style="margin:4px 0">${T('この日の予定はありません')}</p>`);
+    :`<p class="list-mini" style="margin:4px 0">${T('この日の予定はありません')}</p>`)+`</div>`;
   openModal('gwDayModal');
+}
+function gwDayAttend(sid){
+  if(gwAttendFor(sid,gwDayDs)){ toast(T('出席をつけました')+' 🔥'); renderGrowth(); gwOpenDay(gwDayDs); }  // モーダルは開いたまま＝連続タップ可
 }
 function gwDayKeikoOpen(sid){ closeModal('gwDayModal'); gwOpenKeiko(gwDayDs,sid); }
 function gwDayEditSched(id){ closeModal('gwDayModal'); openSchedModal(id); }
@@ -8559,8 +8600,14 @@ function anaKeikoHtml(){
   const tags=gwAllTags();
   const list=dates.slice().reverse().filter(d=>{ if(!anaKeikoTag)return true; return (K[d].t||[]).includes(anaKeikoTag); })
     .filter(d=>K[d].m||((K[d].t||[]).length)).slice(0,50);
+  const sm=gwSummaryFor(anaSelfId);
   return `<div class="ana-sec">
     <div class="ra-secttl"><span class="ra-ico">🔥</span> ${T('稽古の分析')}</div>
+    <div class="ent-sumbar" style="margin:4px 0 10px">
+      <div class="ent-sum-item"><b>${sm.count}</b><span>${T('今月のけいこ')}</span></div>
+      <div class="ent-sum-item ok"><b>${sm.avg!=null?sm.avg:'—'}</b><span>${T('平均点')}</span></div>
+      <div class="ent-sum-item"><b>${sm.streak}</b><span>${T('連続週')}</span></div>
+    </div>
     <div class="gw-chart"><div class="t">${T('月別のけいこ回数')}</div>${gwBarChart(cnt,'#2e9e5b')}</div>
     ${avg.length?`<div class="gw-chart"><div class="t">${T('自己評価の推移（月平均）')}</div>${gwLineChart(avg,'#b8963f','')}</div>`:''}
     ${tags.length?`<div class="gw-chart"><div class="t">${T('タグでメモを検索')}</div><div class="cat-pick">${tags.slice(0,14).map(t=>`<button class="${anaKeikoTag===t?'on':''}" onclick="anaSetKeikoTag(this.textContent)">${esc(t)}</button>`).join('')}</div></div>`:''}
