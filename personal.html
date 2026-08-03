@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v198（成長タブ改善2：①サマリー3指標(今月のけいこ/平均点/連続週)を成長タブから分析タブ「稽古」ビュー先頭へ移動（主役ごとに表示＝2人以上でも明快）。②稽古入力を「🔥出席」「📝メモ」の2ボタン化＝出席はワンタップ完結（詳細画面を開かない・記録済みなら上書きせず案内）。日別モーダルも各主役行に[出席][メモ]でモーダルを開いたまま連続記録可。③日別モーダルは「けいこ(金地)」「予定(青地)」の色付きセクションカードで境目を明確化。④予定作成の「試合結果ボタン」→「この予定は試合・大会？(🥋はい/いいえ)」＋効果の説明文） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v199（予定入力の改善：①日付を最初に（思考の流れに合わせ 日付→くり返し→種類→イベント名→対象→試合有無→時間→場所→備考 の順へ）。②くり返し（一括）登録を日付直後に移動して見つけやすく＝週次の稽古のまとめ登録が個人アプリでも簡単に。③対象（主役）の既定を「全員」に統一。成長カレンダー・メモリーの初期表示も「全員」に。④試合の質問を「この予定では試合はありますか？」へ変更し、道場アプリの記載を削除） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1987,33 +1987,10 @@ function applyUpdate(){
 <div class="modal-bg" id="schedModal">
   <div class="modal">
     <h3 id="schedModalTitle">予定を追加</h3>
-    <label class="fld">種類</label>
-    <div class="cat-pick" id="schTypePick"></div>
-    <input type="text" id="schTypeFree" placeholder="その他（自由記載）" style="margin-top:8px">
-    <label class="fld">イベント名（任意）</label>
-    <input type="text" id="schTitle" placeholder="例：中学生総合体育大会／夏季バーベキュー">
-    <div id="schForRow" style="display:none">
-      <label class="fld">対象（主役）</label>
-      <div class="cat-pick" id="schForPick"></div>
-    </div>
-    <label class="fld">この予定は試合・大会？</label>
-    <div class="io-pick">
-      <button id="smYes" onclick="pickShowMatch(true)">🥋 はい</button>
-      <button id="smNo" class="on" onclick="pickShowMatch(false)">いいえ</button>
-    </div>
-    <p class="list-mini" style="margin:6px 2px 0">「はい」にすると、この予定で<b>試合結果の記録</b>（道場アプリでは申込管理も）が使えるようになります。</p>
-    <label class="fld">日付<span id="schDateWeek" style="color:var(--navy);font-weight:700;margin-left:6px"></span></label>
+    <label class="fld" style="margin-top:6px">日付<span id="schDateWeek" style="color:var(--navy);font-weight:700;margin-left:6px"></span></label>
     <input type="date" id="schDate" onchange="updateSchedWeek()">
-    <label class="fld">開始時間</label>
-    <div class="cat-pick" id="schTimePick"></div>
-    <input type="text" id="schTimeFree" placeholder="その他（例 13:30）" style="margin-top:8px">
-    <label class="fld">場所</label>
-    <div class="cat-pick" id="schPlacePick"></div>
-    <input type="text" id="schPlaceFree" placeholder="その他（自由記載）" style="margin-top:8px">
-    <label class="fld">備考（任意）</label>
-    <input type="text" id="schNote" placeholder="例：上履き持参／集合は15分前">
     <div id="recurCreateWrap">
-      <label class="fld" style="margin-top:16px">繰り返し登録</label>
+      <label class="fld">くり返し登録（週次の稽古などをまとめて）</label>
       <label class="toggle-line" style="margin-top:4px"><input type="checkbox" id="recurToggle" onchange="onRecurToggle()"><span>この予定をくり返して登録する</span></label>
       <div id="recurPanel" style="display:none">
         <div class="recur-box">
@@ -2041,6 +2018,29 @@ function applyUpdate(){
         </div>
       </div>
     </div>
+    <label class="fld">種類</label>
+    <div class="cat-pick" id="schTypePick"></div>
+    <input type="text" id="schTypeFree" placeholder="その他（自由記載）" style="margin-top:8px">
+    <label class="fld">イベント名（任意）</label>
+    <input type="text" id="schTitle" placeholder="例：中学生総合体育大会／夏季バーベキュー">
+    <div id="schForRow" style="display:none">
+      <label class="fld">対象（主役）</label>
+      <div class="cat-pick" id="schForPick"></div>
+    </div>
+    <label class="fld">この予定では試合はありますか？</label>
+    <div class="io-pick">
+      <button id="smYes" onclick="pickShowMatch(true)">🥋 はい</button>
+      <button id="smNo" class="on" onclick="pickShowMatch(false)">いいえ</button>
+    </div>
+    <p class="list-mini" style="margin:6px 2px 0">「はい」にすると、この予定で試合結果を記録できるようになります。</p>
+    <label class="fld">開始時間</label>
+    <div class="cat-pick" id="schTimePick"></div>
+    <input type="text" id="schTimeFree" placeholder="その他（例 13:30）" style="margin-top:8px">
+    <label class="fld">場所</label>
+    <div class="cat-pick" id="schPlacePick"></div>
+    <input type="text" id="schPlaceFree" placeholder="その他（自由記載）" style="margin-top:8px">
+    <label class="fld">備考（任意）</label>
+    <input type="text" id="schNote" placeholder="例：上履き持参／集合は15分前">
     <p class="list-mini" id="recurSeriesInfo" style="display:none;margin-top:14px;background:#f3eef8;border-radius:10px;padding:10px">🔁 この予定はくり返し登録の一部です。保存・削除のときに「この予定だけ」か「この予定以降すべて」を選べます。</p>
     <div class="row">
       <button class="btn ghost" onclick="closeModal('schedModal')">やめる</button>
@@ -4747,7 +4747,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v198'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v199'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5483,7 +5483,11 @@ Object.assign(DICT,{
   'いいえ':{en:'No',fr:'Non',pt:'Não'},
   '「はい」にすると、この予定で':{en:'Choosing “Yes” enables ',fr:'« Oui » active ',pt:'“Sim” habilita '},
   '試合結果の記録':{en:'match-result recording',fr:'l’enregistrement des résultats',pt:'o registro de resultados'},
-  '（道場アプリでは申込管理も）が使えるようになります。':{en:' for this event (and entry management in the dojo app).',fr:' pour cet événement (et la gestion des inscriptions dans l’appli dojo).',pt:' neste evento (e a gestão de inscrições no app do dojô).'}
+  '（道場アプリでは申込管理も）が使えるようになります。':{en:' for this event (and entry management in the dojo app).',fr:' pour cet événement (et la gestion des inscriptions dans l’appli dojo).',pt:' neste evento (e a gestão de inscrições no app do dojô).'},
+  // v199
+  'この予定では試合はありますか？':{en:'Will there be matches at this event?',fr:'Y aura-t-il des combats à cet événement ?',pt:'Haverá lutas neste evento?'},
+  '「はい」にすると、この予定で試合結果を記録できるようになります。':{en:'Choosing “Yes” lets you record match results for this event.',fr:'« Oui » permet d’enregistrer les résultats de combats pour cet événement.',pt:'“Sim” permite registrar resultados de lutas neste evento.'},
+  'くり返し登録（週次の稽古などをまとめて）':{en:'Recurring (bulk-add weekly practice etc.)',fr:'Récurrent (ajout groupé : entraînements hebdo, etc.)',pt:'Recorrente (adicionar em lote: treinos semanais etc.)'}
 });
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
@@ -6322,7 +6326,7 @@ function openSchedModal(id){
     else{pickedShowMatch=/試合|大会/.test(s.name||'');showMatchTouched=false;}
   }else{
     document.getElementById('schedModalTitle').textContent='予定を追加';
-    pickedSchFor=(!gwAllView&&DB.mode==='personal'&&gwSelfId)?gwSelfId:'';   // 個人：表示中の主役を既定に
+    pickedSchFor='';   // v199: 既定は「全員」（社長方針＝対象の既定は全員で統一）
     pickedSchType=(DB.schedPresets.types.find(x=>x&&x.trim()))||'';
     document.getElementById('schTitle').value='';
     document.getElementById('schDate').value=todayStr();
@@ -7379,7 +7383,7 @@ function allBoutsFlat(){
   return out;
 }
 /* ===== v144: 履歴タブ（個人モード）＝大会ごとのカード＋シェア画像 ===== */
-let rkSelfId=null, rkYear=null, rkEvents=[], rkShareEv=null, rkAllView=false;
+let rkSelfId=null, rkYear=null, rkEvents=[], rkShareEv=null, rkAllView=true;   // v199: 既定は全員表示
 function renderRireki(){
   const map=allBoutsBySelf();
   // v150: 主役(isSelf)が居ればisSelf全員を候補に（試合が無くても節目を追加できる）。居なければ従来＝試合のある人。
@@ -8344,7 +8348,7 @@ function renderAnalysisTab(){
 }
 function anaSelect(id){anaSelfId=id;renderAnalysisTab();}
 /* ===== v196: 成長タブ（けいこカレンダー・自己評価・任意記入欄）＋分析の稽古/からだビュー ===== */
-let gwSelfId=null, gwMonth=null, kkEditKey=null, anaKeikoTag='', gwAllView=false, gwDayDs=null;
+let gwSelfId=null, gwMonth=null, kkEditKey=null, anaKeikoTag='', gwAllView=true, gwDayDs=null;   // v199: 既定は全員表示
 function gwStars(){ const s=DB.students.filter(x=>x.isSelf); return s.length?s:DB.students.slice(0,1); }
 function keikoOf(id){ if(!DB.keiko||typeof DB.keiko!=='object')DB.keiko={}; if(!DB.keiko[id])DB.keiko[id]={}; return DB.keiko[id]; }
 function gwFields(){ return Array.isArray(DB.growthFields)?DB.growthFields:[]; }
