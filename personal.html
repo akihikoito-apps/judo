@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v193（多言語対応の総点検：①「負け技（取られた技）」→「負け技」。②近年追加機能（試合申込・取り込み選択・報告オンボーディング・ペイウォール・設定案内・メモリー説明 等）の未翻訳UI約95件を英/仏/葡へ追加＋数値表示のパターン対応（記入例も翻訳）。③多言語×文字大の崩れを機械点検し全て解消：分析トグルの訳語短縮、出欠/お金の折りたたみ見出し折返し、報告の日付行、結果/収支ボタン(.io-pick)、モーダルのフッターボタン(.btn/.row)、シェアボタン、日付欄の上限24px。en/fr/pt/ja×iPhone/iPadで溢れゼロを確認） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v194（発売前最終点検：navigator.storage.persist() をinitUIで要求し、OSのストレージ自動削除(eviction)からlocalStorageのデータを保護。端末内完結アプリの最重要リスク対策。非対応環境では安全に無視） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -4623,7 +4623,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v193'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v194'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -10175,6 +10175,8 @@ function initUI(){
   showBackupReminder();   // 期限超過なら催促バナー
   updateSchedTabBadge();  // v183: 予定タブの申込・要対応バッジ
   maybeStartOnboarding(); // v176: 個人アプリの新規ユーザーに初回ナビ
+  // v194: ストレージの永続化を要求（OSの自動削除=evictionからlocalStorageを守る。対応外環境では無視される）
+  try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{}); }catch(_){}
 }
 load();seedIfEmpty();save();initUI();
 loadLock();
