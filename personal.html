@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v203（個人アプリの再構成：①タブ名変更＝報告→試合報告・成長→予定・記録・仲間→選手（事務モードは「仲間」のまま）。②タブ順＝選手→予定・記録→試合報告→メモリー→分析→設定（事務の順序は不変）。③起動タブ＝予定・記録。④「-1年度」バグ修正＝大会予定を削除した記録（日付なし）が不正な年度チップを作っていた→不正年度はチップ・見出しに出さず「すべて」で「日付なし」見出しの下に表示。⑤新規ユーザー（選手ゼロ）で予定・記録タブ起動時のJSエラー修正） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v204（記録の保全：大会予定を削除しても、紐づく試合記録の大会名・日付を失わないよう、削除前に結果データへ焼き付け(bakeSchedMeta)。メモリー・検索の表示は予定が無ければ焼き付け値で表示＝「(削除)」「日付なし」化を防止。単発削除・くり返し削除（この予定だけ/以降すべて）の全経路に適用。結果のない予定は焼き付け不要） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -4763,7 +4763,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v203'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v204'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -6331,8 +6331,8 @@ function applyRecurScope(scope){
   if(!s){closeModal('recurScopeModal');return;}
   if(recurScopeMode==='delete'){
     const sid=s.seriesId, from=s.date, id=s.id;
-    if(scope==='one') DB.schedule=DB.schedule.filter(x=>x.id!==id);
-    else DB.schedule=DB.schedule.filter(x=>!(x.seriesId===sid && x.date>=from));
+    if(scope==='one'){ bakeSchedMeta(id); DB.schedule=DB.schedule.filter(x=>x.id!==id); }
+    else { DB.schedule.filter(x=>x.seriesId===sid&&x.date>=from).forEach(x=>bakeSchedMeta(x.id)); DB.schedule=DB.schedule.filter(x=>!(x.seriesId===sid && x.date>=from)); }
     save();closeModal('recurScopeModal');closeModal('schedModal');renderSched();toast('削除しました');
     return;
   }
@@ -6436,11 +6436,12 @@ function deleteSchedFromModal(){
   if(s.seriesId){ openRecurScope('delete'); return; }
   const id=editingSched;
   askConfirm(`「${esc(s.name)}（${s.date.replace(/-/g,'/')}）」を削除します。この操作は取り消せません。`,()=>{
+    bakeSchedMeta(id);
     DB.schedule=DB.schedule.filter(x=>x.id!==id);
     save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast('予定を削除しました');
   });
 }
-function delSched(id){DB.schedule=DB.schedule.filter(s=>s.id!==id);save();renderSched();toast('予定を削除しました');}
+function delSched(id){bakeSchedMeta(id);DB.schedule=DB.schedule.filter(s=>s.id!==id);save();renderSched();toast('予定を削除しました');}
 
 /* ===== 試合結果 ===== */
 const RESULT_MARKS=['○','▲','×']; // 勝ち/負け/引分
@@ -6464,6 +6465,14 @@ function ensureMatch(id){
     mr.team={cards};
   }
   return mr;
+}
+// v204: 予定を削除しても記録の大会名・日付を失わないよう、削除前に結果データへ焼き付ける
+function bakeSchedMeta(id){
+  const mr=DB.matchResults&&DB.matchResults[id]; if(!mr)return;
+  const has=(mr.individual&&mr.individual.length)||(mr.team&&mr.team.cards&&mr.team.cards.length);
+  if(!has)return;
+  const s=DB.schedule.find(x=>x.id===id); if(!s)return;
+  mr.name=s.name||''; mr.title=s.title||''; mr.date=s.date||'';
 }
 function openMatchModal(schedId){
   curMatchSched=schedId;
@@ -7198,9 +7207,11 @@ function allBoutsBySelf(){
   Object.keys(DB.matchResults||{}).forEach(schedId=>{
     const sched=DB.schedule.find(s=>s.id===schedId);
     const mr=DB.matchResults[schedId];
+    // v204: 予定が削除済みでも、焼き付けた大会名・日付で表示（(削除)にしない）
+    const meta=sched||((mr&&(mr.name||mr.title||mr.date))?{name:mr.name||'',title:mr.title||'',date:mr.date||''}:null);
     const push=(b,sheet)=>{(map[b.selfId]=map[b.selfId]||[]).push(Object.assign({},b,{
-      schedName:sched?schedLabel(sched):T('(削除)'),schedDate:sched?sched.date:'',sheet,schedId,
-      schedType:sched?(sched.name||''):'', schedTitle:sched?(sched.title||''):''   // v159: 種類バッジ用
+      schedName:meta?schedLabel(meta):T('(削除)'),schedDate:meta?(meta.date||''):'',sheet,schedId,
+      schedType:meta?(meta.name||''):'', schedTitle:meta?(meta.title||''):''   // v159: 種類バッジ用
     }));};
     (mr.individual||[]).forEach(b=>{
       push(b,'個人戦');
@@ -7401,9 +7412,10 @@ function allBoutsFlat(){
   const out=[];
   Object.keys(DB.matchResults||{}).forEach(schedId=>{
     const sched=DB.schedule.find(s=>s.id===schedId);
-    const schedName=sched?schedLabel(sched):T('(削除)');
-    const schedDate=sched?sched.date:'';
     const mr=DB.matchResults[schedId];
+    const meta=sched||((mr&&(mr.name||mr.title||mr.date))?{name:mr.name||'',title:mr.title||'',date:mr.date||''}:null);  // v204
+    const schedName=meta?schedLabel(meta):T('(削除)');
+    const schedDate=meta?(meta.date||''):'';
     (mr.individual||[]).forEach(b=>out.push({
       selfName:studentName(b.selfId),oppName:boutOppName(b),team:'',oppAffil:b.oppAffil||'',
       schedName,schedDate,grade:b.grade||'',waza:b.waza||'',result:b.result,
