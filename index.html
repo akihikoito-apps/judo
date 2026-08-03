@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v189（試合申込モーダルのレイアウト修正：①申込締切の日付が枠から溢れて切れる問題を修正（上段を狭い画面では縦積み＝全幅で日付が収まる）。②出場者行の集金済/未集金・×ボタンを金額の右側に横並びへ戻し縦に揃うように（右側を1グループ化）。文字サイズ大でも密な行が収まるよう当行の拡大率は最大1.3倍に調整） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v190（試合分析の表示崩れ修正：文字サイズ大のiPhone等で、勝率ゲージ・フィルタ・勝敗タイル・レーダー見出しが枠外にはみ出し重なる問題を修正。狭い画面(≤540px)のときだけ分析コンポーネント(.ana-box)の文字拡大を上限付き(大=1.3/中=1.2)にし、円グラフ等の構成は現状のまま1画面に収める。iPad等の広い画面は無制限(=スカスカにしない)。ra-topに折り返し＋ゲージ列の最小幅で重なり防止） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -878,11 +878,11 @@
   .ra-legend i.dash{background:none;border:2px dashed #c8a44d;border-radius:2px;height:0;width:17px;}
   .ra-note{font-size:calc(12px*var(--fs,1));color:var(--muted);margin-top:12px;line-height:1.6;text-align:center;}
   /* v128: 上部（全データ/対右/対左 縦ボタン｜勝率ゲージ｜勝敗分数） */
-  .ra-top{display:flex;align-items:center;gap:10px;margin:2px 0 14px;}
+  .ra-top{display:flex;align-items:center;gap:10px;margin:2px 0 14px;flex-wrap:wrap;justify-content:center;}
   .ra-fcol{display:flex;flex-direction:column;gap:7px;flex-shrink:0;}
   .ra-fbtn{font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;border:2px solid var(--line);background:#fff;color:var(--navy);border-radius:11px;padding:9px 10px;cursor:pointer;white-space:nowrap;min-width:calc(82px*var(--fs,1));}
   .ra-fbtn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
-  .ra-gcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;}
+  .ra-gcol{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:calc(92px*var(--fs,1));}
   .ra-gcnt{font-size:calc(11px*var(--fs,1));color:var(--muted);font-weight:600;}
   .ra-rcol{flex-shrink:0;}
   .ra-rec{display:flex;flex-direction:column;gap:7px;}
@@ -890,6 +890,11 @@
   .ra-rc b{font-size:calc(20px*var(--fs,1));font-weight:800;line-height:1;order:2;}
   .ra-rc span{font-size:calc(12px*var(--fs,1));color:var(--muted);order:1;}
   .ra-rc.w b{color:var(--green);} .ra-rc.l b{color:var(--red);} .ra-rc.d b{color:var(--muted);}
+  /* 試合分析：狭い画面(iPhone等)のときだけ文字拡大に上限をつけ、1画面に収める（iPad等の広い画面は無制限＝スカスカにしない）。円グラフや構成は現状維持。 */
+  @media (max-width:540px){
+    html[data-font="large"] .ana-box{--fs:1.3;}
+    html[data-font="mid"]   .ana-box{--fs:1.2;}
+  }
   /* v129: レーダーの勝ち/負け切替（1枚表示） */
   .ra-top{margin:2px 0 10px;}
   .ra-secttl{margin-bottom:8px;}
@@ -4610,7 +4615,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v189'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v190'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
