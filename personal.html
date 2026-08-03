@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v194（発売前最終点検：navigator.storage.persist() をinitUIで要求し、OSのストレージ自動削除(eviction)からlocalStorageのデータを保護。端末内完結アプリの最重要リスク対策。非対応環境では安全に無視） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v195（初回バックアップ教育：データが10件貯まった頃に一度だけ、バックアップの大切さを丁寧に案内するモーダルを表示（今すぐ保存→既存exportData／あとで）。既にバックアップ済み・表示済みなら出さない。多言語対応。星1レビュー最大要因「データが消えた」の予防策） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1770,6 +1770,18 @@ function applyUpdate(){
       <button class="btn" style="background:var(--navy);color:#fff" onclick="closeConfirmStay()">入力を続ける</button>
       <button class="btn ghost" onclick="closeConfirmDo()">閉じる</button>
     </div>
+  </div>
+</div>
+
+<!-- 初回バックアップ教育（データが貯まった頃に一度だけ） -->
+<div class="modal-bg" id="backupEduModal">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <div style="font-size:40px">💾</div>
+    <h3 style="margin:8px 0 6px;color:var(--navy)">大切な記録が増えてきました</h3>
+    <p class="list-mini" style="text-align:left;line-height:1.7;margin:10px 0 4px">このアプリのデータは<b>この端末の中だけ</b>に保存されています。端末の故障・紛失・機種変更にそなえて、<b>バックアップを1度とっておく</b>と安心です。</p>
+    <p class="list-mini" style="text-align:left;line-height:1.7;margin:6px 0 14px">保存はかんたん・約10秒。iCloud Drive などに1つファイルを置くだけで、いつでもまるごと復元できます。</p>
+    <button class="btn gold full" onclick="backupEduSave()">💾 今すぐバックアップを保存（おすすめ）</button>
+    <button class="btn ghost full" style="margin-top:10px" onclick="closeModal('backupEduModal')">あとで（設定 › データ管理 からいつでも）</button>
   </div>
 </div>
 
@@ -4623,7 +4635,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v194'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v195'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5272,7 +5284,17 @@ Object.assign(DICT,{
   '！（Instagramなど）':{en:'! (Instagram, etc.)',fr:' ! (Instagram, etc.)',pt:'! (Instagram, etc.)'},
   'さっそく、最初の試合を入れてみましょう。':{en:'Let’s enter your first match now.',fr:'Ajoutons votre premier combat.',pt:'Vamos inserir sua primeira luta.'},
   '試合を入力する':{en:'Enter a match',fr:'Saisir un combat',pt:'Inserir uma luta'},
-  'あとで入力する':{en:'Enter later',fr:'Plus tard',pt:'Depois'}
+  'あとで入力する':{en:'Enter later',fr:'Plus tard',pt:'Depois'},
+  // v195: 初回バックアップ教育
+  '大切な記録が増えてきました':{en:'Your precious records are growing',fr:'Vos précieux souvenirs s’accumulent',pt:'Seus registros preciosos estão crescendo'},
+  'このアプリのデータは':{en:'This app’s data is stored ',fr:'Les données de cette appli sont stockées ',pt:'Os dados deste app ficam '},
+  'この端末の中だけ':{en:'only on this device',fr:'uniquement sur cet appareil',pt:'somente neste aparelho'},
+  'に保存されています。端末の故障・紛失・機種変更にそなえて、':{en:'. In case of damage, loss, or switching phones, ',fr:'. En cas de panne, perte ou changement d’appareil, ',pt:'. Em caso de dano, perda ou troca de aparelho, '},
+  'バックアップを1度とっておく':{en:'saving one backup',fr:'faire une sauvegarde',pt:'fazer um backup'},
+  'と安心です。':{en:' keeps you safe.',fr:' vous met à l’abri.',pt:' garante sua segurança.'},
+  '保存はかんたん・約10秒。iCloud Drive などに1つファイルを置くだけで、いつでもまるごと復元できます。':{en:'It’s easy — about 10 seconds. Just place one file in iCloud Drive etc., and you can fully restore anytime.',fr:'C’est simple — environ 10 secondes. Un seul fichier sur iCloud Drive, et vous pouvez tout restaurer à tout moment.',pt:'É fácil — cerca de 10 segundos. Basta um arquivo no iCloud Drive e você pode restaurar tudo a qualquer momento.'},
+  '💾 今すぐバックアップを保存（おすすめ）':{en:'💾 Save a backup now (recommended)',fr:'💾 Sauvegarder maintenant (recommandé)',pt:'💾 Salvar backup agora (recomendado)'},
+  'あとで（設定 › データ管理 からいつでも）':{en:'Later (anytime from Settings › Data)',fr:'Plus tard (Réglages › Données)',pt:'Depois (Ajustes › Dados)'}
 });
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
@@ -5579,6 +5601,7 @@ function switchTab(tab){
   document.querySelectorAll('nav.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   window.scrollTo(0,0);
   ({att:renderAtt,money:renderMoney,sched:renderSched,mates:renderMates,list:renderList,set:renderSettings,rireki:renderRireki,analysis:renderAnalysisTab,report:renderReport}[tab])();
+  if(typeof maybeBackupEdu==='function')maybeBackupEdu();   // v195: データが貯まったら一度だけバックアップ案内
 }
 /* v143/144: 表示モード（事務/個人）。個人モードは出欠・お金を隠し履歴を出す（データは保持） */
 const PERSONAL_HIDDEN=['att','money','list'];   // 個人モードで隠す（集計は分析タブに集約）
@@ -10042,6 +10065,21 @@ function delPlace(i){const nm=DB.places[i]||'この場所';askConfirm(`「${esc(
 /* バックアップ */
 function backupFilename(){return `judo_backup_${todayStr()}.json`;}
 function markBackedUp(){DB.lastBackup=todayStr();save();renderBackupStatus();showBackupReminder();}
+// ―― v195: 初回バックアップ教育（データが貯まった頃に一度だけ・丁寧に案内）――
+function backupEduCount(){
+  let n=(DB.students||[]).length + (DB.cash||[]).length + Object.keys(DB.matchResults||{}).length + (DB.schedule||[]).length;
+  Object.values(DB.milestones||{}).forEach(a=>n+=(a||[]).length);
+  return n;
+}
+function maybeBackupEdu(){
+  if(!DB||DB.backupEduShown||DB.lastBackup)return;          // 一度だけ／既にバックアップ済みなら不要
+  if(backupEduCount()<10)return;                             // 大切なデータが貯まってから
+  if(document.querySelector('.modal-bg.show'))return;        // 他の画面を邪魔しない（次の機会に）
+  if(typeof lockEnabled!=='undefined'&&lockEnabled&&lockCode&&document.getElementById('lockScreen')&&document.getElementById('lockScreen').classList.contains('show'))return;
+  DB.backupEduShown=true; save();                            // 開いた時点で「一度きり」を確定
+  openModal('backupEduModal');
+}
+function backupEduSave(){ closeModal('backupEduModal'); exportData(); }
 function downloadBackup(json,fname){
   const blob=new Blob([json],{type:'application/json'});
   const url=URL.createObjectURL(blob);const a=document.createElement('a');
@@ -10177,6 +10215,7 @@ function initUI(){
   maybeStartOnboarding(); // v176: 個人アプリの新規ユーザーに初回ナビ
   // v194: ストレージの永続化を要求（OSの自動削除=evictionからlocalStorageを守る。対応外環境では無視される）
   try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{}); }catch(_){}
+  setTimeout(()=>{ if(typeof maybeBackupEdu==='function')maybeBackupEdu(); },600);  // v195: 起動時にも一度だけ判定（オンボーディング等と重ならぬよう遅延）
 }
 load();seedIfEmpty();save();initUI();
 loadLock();
