@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v195（初回バックアップ教育：データが10件貯まった頃に一度だけ、バックアップの大切さを丁寧に案内するモーダルを表示（今すぐ保存→既存exportData／あとで）。既にバックアップ済み・表示済みなら出さない。多言語対応。星1レビュー最大要因「データが消えた」の予防策） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v196（個人アプリに「成長」タブを新設：けいこカレンダー（🔥チェックイン・自己評価100点・ひとことメモ・検索タグ・任意記入欄=体重等のカスタム項目）＋予定機能を集約（個人の予定タブは廃止・試合🥋と予定・を表示）。報告タブは予定の試合から大会名/日付を選択可。分析(Pro)に「試合/稽古/からだ」ビュー切替＝月別回数・自己評価推移・タグ検索・からだ項目の推移グラフ。道場アプリには影響なし） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -891,6 +891,32 @@
   .ra-rc b{font-size:calc(20px*var(--fs,1));font-weight:800;line-height:1;order:2;}
   .ra-rc span{font-size:calc(12px*var(--fs,1));color:var(--muted);order:1;}
   .ra-rc.w b{color:var(--green);} .ra-rc.l b{color:var(--red);} .ra-rc.d b{color:var(--muted);}
+  /* 成長タブ（けいこカレンダー） */
+  .gw-cal{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px 8px;}
+  .gw-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 2px;}
+  .gw-cal-head b{font-size:calc(16px*var(--fs,1));color:var(--navy);}
+  .gw-nav{width:42px;min-height:40px;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;font-weight:800;font-size:calc(16px*var(--fs,1));cursor:pointer;font-family:inherit;}
+  .gw-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .gw-dow{text-align:center;font-size:calc(10.5px*var(--fs,1));color:var(--muted);font-weight:700;padding:2px 0;}
+  .gw-day{min-height:calc(46px*min(var(--fs,1),1.4));border:1px solid var(--line);border-radius:8px;padding:2px 1px;font-size:calc(11px*var(--fs,1));color:var(--muted);background:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0;}
+  .gw-day.out{opacity:.35;}
+  .gw-day.today{border:2px solid var(--gold);}
+  .gw-day .dnum{font-weight:700;line-height:1.2;}
+  .gw-day .marks{display:flex;gap:1px;flex-wrap:wrap;justify-content:center;font-size:calc(12px*min(var(--fs,1),1.4));line-height:1.1;}
+  .gw-day .marks .plan{color:var(--muted);}
+  .gw-day .sc{font-size:calc(9px*min(var(--fs,1),1.4));color:#2e7d4f;font-weight:800;line-height:1.1;}
+  .gw-field-row{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--line);}
+  .gw-field-row .nm{flex:1;font-weight:700;}
+  .kk-field{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .kk-field label{flex:1;font-size:calc(14px*var(--fs,1));font-weight:700;color:var(--navy);margin:0;}
+  .kk-field input{width:110px;text-align:right;font-size:calc(16px*var(--fs,1));padding:8px;border:1.5px solid var(--line);border-radius:9px;font-family:inherit;font-variant-numeric:tabular-nums;box-sizing:border-box;}
+  .kk-field .un{color:var(--muted);font-size:calc(12px*var(--fs,1));min-width:2em;}
+  .gw-memo-item{border-bottom:1px solid var(--line);padding:9px 2px;font-size:calc(14px*var(--fs,1));}
+  .gw-memo-item:last-child{border-bottom:none;}
+  .gw-memo-item .d{color:var(--muted);font-size:calc(12px*var(--fs,1));font-variant-numeric:tabular-nums;}
+  .gw-memo-item .s{color:#2e7d4f;font-weight:800;margin-left:6px;}
+  .gw-chart{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin:10px 0;}
+  .gw-chart .t{font-size:calc(13px*var(--fs,1));font-weight:800;color:var(--navy);margin-bottom:6px;}
   /* 試合分析：狭い画面(iPhone等)のときだけ文字拡大に上限をつけ、1画面に収める（iPad等の広い画面は無制限＝スカスカにしない）。円グラフや構成は現状維持。 */
   @media (max-width:540px){
     html[data-font="large"] .ana-box{--fs:1.2;}
@@ -1453,6 +1479,7 @@ function applyUpdate(){
 <!-- 分析（個人モード） -->
 <section id="screen-analysis" class="screen">
   <div class="rk-chips" id="anaChips"></div>
+  <div id="anaViewSeg"></div>
   <div id="anaAnalysis"></div>
 </section>
 
@@ -1586,6 +1613,7 @@ function applyUpdate(){
     <h3 style="margin-top:0;color:var(--navy)">試合結果を報告</h3>
     <label class="fld">選手のなまえ</label>
     <input type="text" id="repName" placeholder="例：山本 蓮" oninput="repGen()">
+    <div id="repSchedPickWrap" style="display:none"><label class="fld">予定から選ぶ</label><div class="cat-pick" id="repSchedPick"></div></div>
     <div style="display:flex;gap:8px">
       <div style="flex:1;min-width:0"><label class="fld">大会名</label><input type="text" id="repTaikai" placeholder="例：春季市民大会" oninput="repGen()" style="width:100%;min-width:0;box-sizing:border-box"></div>
       <div style="flex:1;min-width:0"><label class="fld">日づけ</label><input type="date" id="repDate" oninput="repGen()" style="width:100%;min-width:0;box-sizing:border-box"></div>
@@ -1618,6 +1646,61 @@ function applyUpdate(){
   </div>
 </section>
 
+<section id="screen-growth" class="screen">
+  <div class="rk-chips" id="gwChips"></div>
+  <div class="ent-sumbar" id="gwSummary"></div>
+  <div class="gw-cal">
+    <div class="gw-cal-head"><button class="gw-nav" onclick="gwMove(-1)">‹</button><b id="gwMonthLbl"></b><button class="gw-nav" onclick="gwMove(1)">›</button></div>
+    <div class="gw-grid" id="gwGrid"></div>
+    <p class="hint" style="margin:8px 2px 0">🔥＝けいこ　🥋＝試合　・＝予定　（日付をタップで記録・編集）</p>
+  </div>
+  <button class="btn gold full" style="margin-top:12px" onclick="gwOpenKeiko()">🔥 今日のけいこを記録</button>
+  <div class="row" style="margin-top:10px">
+    <button class="btn ghost" onclick="openSchedModal()">📅 予定を追加</button>
+    <button class="btn ghost" onclick="gwOpenFields()">⚙️ 記録する項目</button>
+  </div>
+</section>
+
+<!-- けいこ記録モーダル -->
+<div class="modal-bg" id="keikoModal">
+  <div class="modal">
+    <h3 id="keikoTitle">🔥 けいこの記録</h3>
+    <div class="list-mini" id="kkSchedInfo" style="display:none;background:#f3f1ea;border-radius:10px;padding:8px 10px;margin-bottom:4px"></div>
+    <label class="fld" style="margin-top:6px">日付</label>
+    <input type="date" id="kkDate">
+    <label class="fld">きょうの自己評価（100点満点・任意）</label>
+    <div class="cat-pick" id="kkScoreChips"></div>
+    <input type="number" id="kkScore" inputmode="numeric" min="0" max="100" placeholder="未記入（あとからでもOK）" style="margin-top:8px">
+    <label class="fld">ひとことメモ（任意）</label>
+    <input type="text" id="kkMemo" placeholder="例：内股の入り方を直された">
+    <label class="fld">タグ（任意・あとで検索できます）</label>
+    <div class="cat-pick" id="kkTagChips"></div>
+    <input type="text" id="kkTags" placeholder="例：内股, 打ち込み（カンマ区切り）" style="margin-top:8px">
+    <div id="kkFields"></div>
+    <div class="row">
+      <button class="btn ghost" onclick="closeModal('keikoModal')">やめる</button>
+      <button class="btn gold" onclick="keikoSave()">保存する</button>
+    </div>
+    <button class="btn del-full" id="kkDelBtn" style="display:none" onclick="keikoDelete()">この記録を削除する</button>
+  </div>
+</div>
+
+<!-- 記録する項目（任意記入欄）の設定 -->
+<div class="modal-bg" id="gwFieldsModal">
+  <div class="modal">
+    <h3>⚙️ 記録する項目</h3>
+    <p class="list-mini">けいこの記録に毎回表示する入力欄を選べます（例：体重）。よく使う項目をタップするか、自由に追加してください（最大6つ）。</p>
+    <div class="cat-pick" id="gwFieldPresets"></div>
+    <div id="gwFieldList" style="margin-top:10px"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <input type="text" id="gwFieldName" placeholder="項目名（例：体重）" style="flex:1;min-width:0">
+      <input type="text" id="gwFieldUnit" placeholder="単位" style="width:90px">
+      <button class="btn gold sm" onclick="gwFieldAdd()">追加</button>
+    </div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost full" onclick="closeModal('gwFieldsModal')">とじる</button></div>
+  </div>
+</div>
+
 <!-- 初回オンボーディング（個人アプリ・新規ユーザー向け／数枚ナビ） -->
 <div class="ob-overlay" id="onboardModal">
   <div class="ob-card">
@@ -1628,6 +1711,7 @@ function applyUpdate(){
 
 <nav class="tabbar">
   <button data-tab="report" onclick="switchTab('report')" style="display:none"><span class="ico">📝</span><span class="tlbl" data-i18n="報告">報告</span></button>
+  <button data-tab="growth" onclick="switchTab('growth')" style="display:none"><span class="ico">🌱</span><span class="tlbl" data-i18n="成長">成長</span></button>
   <button data-tab="rireki" onclick="switchTab('rireki')" style="display:none"><span class="ico">📖</span><span class="tlbl" data-i18n="メモリー">メモリー</span></button>
   <button data-tab="analysis" onclick="switchTab('analysis')" style="display:none"><span class="ico">📈</span><span class="tlbl" data-i18n="分析">分析</span></button>
   <button data-tab="mates" onclick="switchTab('mates')"><span class="ico">👥</span><span class="tlbl" data-i18n="仲間">仲間</span></button>
@@ -4635,7 +4719,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v195'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v196'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5296,6 +5380,57 @@ Object.assign(DICT,{
   '💾 今すぐバックアップを保存（おすすめ）':{en:'💾 Save a backup now (recommended)',fr:'💾 Sauvegarder maintenant (recommandé)',pt:'💾 Salvar backup agora (recomendado)'},
   'あとで（設定 › データ管理 からいつでも）':{en:'Later (anytime from Settings › Data)',fr:'Plus tard (Réglages › Données)',pt:'Depois (Ajustes › Dados)'}
 });
+Object.assign(DICT,{
+  // v196: 成長タブ
+  '成長':{en:'Growth',fr:'Progrès',pt:'Evolução'},
+  '稽古':{en:'Practice',fr:'Entraînement',pt:'Treino'},
+  '試合':{en:'Matches',fr:'Combats',pt:'Lutas'},
+  'からだ':{en:'Body',fr:'Corps',pt:'Corpo'},
+  '🔥 今日のけいこを記録':{en:'🔥 Log today’s practice',fr:'🔥 Noter l’entraînement du jour',pt:'🔥 Registrar o treino de hoje'},
+  '📅 予定を追加':{en:'📅 Add event',fr:'📅 Ajouter un événement',pt:'📅 Adicionar evento'},
+  '⚙️ 記録する項目':{en:'⚙️ Tracked fields',fr:'⚙️ Champs suivis',pt:'⚙️ Campos registrados'},
+  'けいこの記録':{en:'Practice log',fr:'Journal d’entraînement',pt:'Registro de treino'},
+  '今月のけいこ':{en:'This month',fr:'Ce mois-ci',pt:'Este mês'},
+  '平均点':{en:'Avg score',fr:'Note moy.',pt:'Nota média'},
+  '連続週':{en:'Week streak',fr:'Semaines de suite',pt:'Semanas seguidas'},
+  'きょうの自己評価（100点満点・任意）':{en:'Self-score out of 100 (optional)',fr:'Auto-évaluation sur 100 (facultatif)',pt:'Autoavaliação de 0 a 100 (opcional)'},
+  'ひとことメモ（任意）':{en:'One-line memo (optional)',fr:'Mémo (facultatif)',pt:'Memo (opcional)'},
+  'タグ（任意・あとで検索できます）':{en:'Tags (optional, searchable later)',fr:'Tags (facultatif, recherchables)',pt:'Tags (opcional, pesquisáveis)'},
+  '例：内股の入り方を直された':{en:'e.g. Fixed my uchi-mata entry',fr:'ex. Corrigé l’entrée d’uchi-mata',pt:'ex. Corrigi a entrada do uchi-mata'},
+  '例：内股, 打ち込み（カンマ区切り）':{en:'e.g. uchi-mata, uchikomi (comma-separated)',fr:'ex. uchi-mata, uchikomi (séparés par des virgules)',pt:'ex. uchi-mata, uchikomi (separado por vírgulas)'},
+  '未記入（あとからでもOK）':{en:'Blank is fine',fr:'Peut rester vide',pt:'Pode deixar em branco'},
+  'この記録を削除する':{en:'Delete this log',fr:'Supprimer cette entrée',pt:'Excluir este registro'},
+  'この日のけいこ記録を削除しますか？':{en:'Delete this day’s practice log?',fr:'Supprimer l’entraînement de ce jour ?',pt:'Excluir o treino deste dia?'},
+  'けいこを記録しました':{en:'Practice logged',fr:'Entraînement noté',pt:'Treino registrado'},
+  '記録する項目':{en:'Tracked fields',fr:'Champs suivis',pt:'Campos registrados'},
+  'けいこの記録に毎回表示する入力欄を選べます（例：体重）。よく使う項目をタップするか、自由に追加してください（最大6つ）。':{en:'Choose fields shown on every practice log (e.g. weight). Tap a preset or add your own (up to 6).',fr:'Choisissez les champs affichés à chaque entraînement (ex. poids). Touchez un préréglage ou ajoutez le vôtre (6 max).',pt:'Escolha campos exibidos em cada treino (ex.: peso). Toque em um atalho ou adicione o seu (até 6).'},
+  '体重':{en:'Weight',fr:'Poids',pt:'Peso'},'体脂肪率':{en:'Body fat',fr:'Masse grasse',pt:'Gordura corporal'},'身長':{en:'Height',fr:'Taille',pt:'Altura'},'睡眠':{en:'Sleep',fr:'Sommeil',pt:'Sono'},
+  '項目名（例：体重）':{en:'Field name (e.g. Weight)',fr:'Nom du champ (ex. Poids)',pt:'Nome do campo (ex.: Peso)'},
+  '単位':{en:'Unit',fr:'Unité',pt:'Unid.'},
+  '追加':{en:'Add',fr:'Ajouter',pt:'Adicionar'},
+  '項目は6つまでです':{en:'Up to 6 fields',fr:'6 champs maximum',pt:'Máximo de 6 campos'},
+  '項目名を入れてください':{en:'Enter a field name',fr:'Saisissez un nom',pt:'Informe um nome'},
+  'まだ項目がありません':{en:'No fields yet',fr:'Aucun champ',pt:'Nenhum campo ainda'},
+  '予定から選ぶ':{en:'Pick from schedule',fr:'Choisir depuis l’agenda',pt:'Escolher da agenda'},
+  '予定から入力しました':{en:'Filled from schedule',fr:'Rempli depuis l’agenda',pt:'Preenchido pela agenda'},
+  '結果登録済み':{en:'results saved',fr:'résultats enregistrés',pt:'resultados salvos'},
+  '結果は報告タブから':{en:'report via the Report tab',fr:'à saisir via Rapport',pt:'informe pela aba Relatório'},
+  '稽古の分析':{en:'Practice analysis',fr:'Analyse des entraînements',pt:'Análise de treinos'},
+  '月別のけいこ回数':{en:'Practices per month',fr:'Entraînements par mois',pt:'Treinos por mês'},
+  '自己評価の推移（月平均）':{en:'Self-score trend (monthly avg)',fr:'Évolution de l’auto-évaluation (moy. mensuelle)',pt:'Evolução da autoavaliação (média mensal)'},
+  'タグでメモを検索':{en:'Search memos by tag',fr:'Rechercher les mémos par tag',pt:'Buscar memos por tag'},
+  '最近のメモ':{en:'Recent memos',fr:'Mémos récents',pt:'Memos recentes'},
+  'のメモ':{en:' memos',fr:' — mémos',pt:' — memos'},
+  '該当するメモがありません':{en:'No matching memos',fr:'Aucun mémo correspondant',pt:'Nenhum memo encontrado'},
+  'まだけいこの記録がありません':{en:'No practice logs yet',fr:'Pas encore d’entraînements',pt:'Ainda sem treinos'},
+  '「成長」タブから記録できます':{en:'Log them from the Growth tab',fr:'Notez-les depuis l’onglet Progrès',pt:'Registre na aba Evolução'},
+  'からだの記録':{en:'Body tracking',fr:'Suivi du corps',pt:'Registro do corpo'},
+  'まだ記録する項目がありません':{en:'No tracked fields yet',fr:'Aucun champ suivi',pt:'Nenhum campo registrado'},
+  '「成長」タブ →「⚙️記録する項目」で体重などを追加できます':{en:'Add weight etc. via Growth tab → “⚙️ Tracked fields”.',fr:'Ajoutez le poids etc. via Progrès → « ⚙️ Champs suivis ».',pt:'Adicione peso etc. em Evolução → “⚙️ Campos registrados”.'},
+  'まだ記録がありません':{en:'No entries yet',fr:'Pas encore de données',pt:'Sem dados ainda'},
+  '点':{en:' pts',fr:' pts',pt:' pts'},
+  '「仲間」から主役を登録してください':{en:'Register a star from the Members tab first',fr:'Enregistrez d’abord un profil dans Membres',pt:'Cadastre um protagonista em Membros primeiro'}
+});
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
   // v193: 試合申込・報告の数値入り表示
@@ -5533,6 +5668,8 @@ function normalizeDB(){
   if(DB.logo && DB.logo.indexOf('SUhEUgAAALQAAAC0CAIAAACyr5Fl')!==-1) DB.logo=DEFAULT_LOGO;
   if(!DB.matchResults)DB.matchResults={};
   if(!DB.entries||typeof DB.entries!=='object')DB.entries={};
+  if(!DB.keiko||typeof DB.keiko!=='object')DB.keiko={};              // v196: けいこ記録
+  if(!Array.isArray(DB.growthFields))DB.growthFields=[];             // v196: 任意記入欄の定義
   // 団体戦データの新形式(cards)への移行
   Object.keys(DB.matchResults).forEach(k=>{
     const mr=DB.matchResults[k];
@@ -5600,12 +5737,12 @@ function switchTab(tab){
   document.getElementById('screen-'+tab).classList.add('active');
   document.querySelectorAll('nav.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   window.scrollTo(0,0);
-  ({att:renderAtt,money:renderMoney,sched:renderSched,mates:renderMates,list:renderList,set:renderSettings,rireki:renderRireki,analysis:renderAnalysisTab,report:renderReport}[tab])();
+  ({att:renderAtt,money:renderMoney,sched:renderSched,mates:renderMates,list:renderList,set:renderSettings,rireki:renderRireki,analysis:renderAnalysisTab,report:renderReport,growth:renderGrowth}[tab])();
   if(typeof maybeBackupEdu==='function')maybeBackupEdu();   // v195: データが貯まったら一度だけバックアップ案内
 }
 /* v143/144: 表示モード（事務/個人）。個人モードは出欠・お金を隠し履歴を出す（データは保持） */
-const PERSONAL_HIDDEN=['att','money','list'];   // 個人モードで隠す（集計は分析タブに集約）
-const OFFICE_HIDDEN=['rireki','analysis','report'];  // 事務モードで隠す（履歴・分析・報告は個人モード専用）
+const PERSONAL_HIDDEN=['att','money','list','sched'];   // 個人モードで隠す（予定は成長タブに集約 v196）
+const OFFICE_HIDDEN=['rireki','analysis','report','growth'];  // 事務モードで隠す（履歴・分析・報告・成長は個人モード専用）
 function applyMode(){
   const personal=(DB.mode==='personal');
   const hidden=personal?PERSONAL_HIDDEN:OFFICE_HIDDEN;
@@ -6169,14 +6306,14 @@ function saveSched(){
       made++;
     });
     schedYear=schedFY(date);
-    save();closeModal('schedModal');renderSched();toast(`${made}件の予定を登録しました`);
+    save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast(`${made}件の予定を登録しました`);
     return;
   }
   // ③ 通常の単発保存
   if(editingSched){ const s=DB.schedule.find(x=>x.id===editingSched); Object.assign(s,fields); }
   else{ DB.schedule.push(Object.assign({id:uid()},fields)); }
   schedYear=schedFY(date);
-  save();closeModal('schedModal');renderSched();toast(editingSched?'予定を更新しました':'予定を追加しました');
+  save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast(editingSched?'予定を更新しました':'予定を追加しました');
 }
 function deleteSchedFromModal(){
   if(!editingSched)return;
@@ -6186,7 +6323,7 @@ function deleteSchedFromModal(){
   const id=editingSched;
   askConfirm(`「${esc(s.name)}（${s.date.replace(/-/g,'/')}）」を削除します。この操作は取り消せません。`,()=>{
     DB.schedule=DB.schedule.filter(x=>x.id!==id);
-    save();closeModal('schedModal');renderSched();toast('予定を削除しました');
+    save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast('予定を削除しました');
   });
 }
 function delSched(id){DB.schedule=DB.schedule.filter(s=>s.id!==id);save();renderSched();toast('予定を削除しました');}
@@ -7311,6 +7448,7 @@ function renderReport(){
   const dEl=document.getElementById('repDate'); if(dEl&&!dEl.value)dEl.value=todayStr();
   if(!repMatches.length)repMatches=[repNewMatch()];
   applyReportIntro();
+  if(typeof renderRepSchedPick==='function')renderRepSchedPick();   // v196: 予定の試合から大会名・日付を選べる
   const leftEl=document.getElementById('repMemLeft');
   if(leftEl){
     if(isPro()){ leftEl.textContent=''; }
@@ -8096,26 +8234,256 @@ function analysisLockHtml(){
     <p class="al-note">「報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。</p>
   </div>`;
 }
+let anaView='match';   // v196: 分析ビュー 'match'|'keiko'|'body'
+function anaSetView(v){anaView=v;renderAnalysisTab();}
 function renderAnalysisTab(){
+  const segEl=document.getElementById('anaViewSeg');
   if(!isPro()){
     const c=document.getElementById('anaChips'), b=document.getElementById('anaAnalysis');
-    if(c)c.innerHTML=''; if(b)b.innerHTML=analysisLockHtml();
+    if(c)c.innerHTML=''; if(segEl)segEl.innerHTML=''; if(b)b.innerHTML=analysisLockHtml();
     return;
   }
   const map=allBoutsBySelf();
   const withMatches=DB.students.filter(s=>map[s.id]&&map[s.id].length);
-  const selfW=withMatches.filter(s=>s.isSelf);        // v147: 主役(isSelf)が居ればそれを優先
-  const withB=selfW.length?selfW:withMatches;
+  const selfW=DB.students.filter(s=>s.isSelf);
+  const withB=selfW.length?selfW:withMatches;          // v196: 主役が居れば試合ゼロでも稽古/からだ分析を出す
   const chips=document.getElementById('anaChips'), box=document.getElementById('anaAnalysis');
-  if(!withB.length){chips.innerHTML='';box.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
+  if(!withB.length){chips.innerHTML='';if(segEl)segEl.innerHTML='';box.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
   if(!anaSelfId||!withB.some(s=>s.id===anaSelfId))anaSelfId=withB[0].id;
   chips.innerHTML=withB.map(s=>`<button class="${s.id===anaSelfId?'on':''}" onclick="anaSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join('');
+  if(segEl)segEl.innerHTML=`<div class="ana-range" style="margin:0 0 12px">`+
+    `<button class="${anaView==='match'?'on':''}" onclick="anaSetView('match')">${T('試合')}</button>`+
+    `<button class="${anaView==='keiko'?'on':''}" onclick="anaSetView('keiko')">${T('稽古')}</button>`+
+    `<button class="${anaView==='body'?'on':''}" onclick="anaSetView('body')">${T('からだ')}</button></div>`;
+  if(anaView==='keiko'){ box.innerHTML=anaKeikoHtml(); return; }
+  if(anaView==='body'){ box.innerHTML=anaBodyHtml(); return; }
+  if(!(map[anaSelfId]&&map[anaSelfId].length)){ box.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`; return; }
   matchDetailSelfId=anaSelfId;
   matchRange='all';matchGrip='all';matchRaResult='○';
   anaTargetAnalysis='anaAnalysis'; anaTargetBody='';   // 分析のみ（対戦一覧は履歴側）
   renderMatchDetail();
 }
 function anaSelect(id){anaSelfId=id;renderAnalysisTab();}
+/* ===== v196: 成長タブ（けいこカレンダー・自己評価・任意記入欄）＋分析の稽古/からだビュー ===== */
+let gwSelfId=null, gwMonth=null, kkEditKey=null, anaKeikoTag='';
+function gwStars(){ const s=DB.students.filter(x=>x.isSelf); return s.length?s:DB.students.slice(0,1); }
+function keikoOf(id){ if(!DB.keiko||typeof DB.keiko!=='object')DB.keiko={}; if(!DB.keiko[id])DB.keiko[id]={}; return DB.keiko[id]; }
+function gwFields(){ return Array.isArray(DB.growthFields)?DB.growthFields:[]; }
+function gwSchedByDate(){
+  const m={};
+  (DB.schedule||[]).forEach(s=>{ if(!s.date)return; (m[s.date]=m[s.date]||[]).push(s); });
+  return m;
+}
+function renderGrowth(){
+  const stars=gwStars();
+  const chips=document.getElementById('gwChips');
+  if(!stars.length){ chips.innerHTML=''; document.getElementById('gwGrid').innerHTML=''; document.getElementById('gwSummary').innerHTML=`<div class="ent-empty">${T('「仲間」から主役を登録してください')}</div>`; return; }
+  if(!gwSelfId||!stars.some(s=>s.id===gwSelfId))gwSelfId=stars[0].id;
+  chips.innerHTML=stars.length>1?stars.map(s=>`<button class="${s.id===gwSelfId?'on':''}" onclick="gwSelect('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join(''):'';
+  if(!gwMonth)gwMonth=thisMonthStr();
+  document.getElementById('gwMonthLbl').textContent=gwMonth.replace('-','/');
+  const K=keikoOf(gwSelfId), sched=gwSchedByDate();
+  // ―― カレンダー ――
+  const [gy,gm]=gwMonth.split('-').map(Number);
+  const first=new Date(gy,gm-1,1), start=new Date(first); start.setDate(1-first.getDay());  // 日曜はじまり
+  const daysInMonth=new Date(gy,gm,0).getDate();
+  const cells=Math.ceil((first.getDay()+daysInMonth)/7)*7;   // 必要な週数だけ（4〜6週）
+  const today=todayStr();
+  let html=['日','月','火','水','木','金','土'].map(d=>`<div class="gw-dow">${T(d)}</div>`).join('');
+  for(let i=0;i<cells;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i);
+    const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const out=(d.getMonth()!==gm-1);
+    const e=K[ds];
+    const marks=[];
+    if(e)marks.push('🔥');
+    (sched[ds]||[]).forEach(s=>{ marks.push(schedIsMatch(s)?'🥋':'<span class="plan">・</span>'); });
+    html+=`<div class="gw-day${out?' out':''}${ds===today?' today':''}" onclick="gwOpenKeiko('${ds}')">`+
+      `<span class="dnum">${d.getDate()}</span>`+
+      `<span class="marks">${marks.slice(0,3).join('')}</span>`+
+      `${(e&&e.s!=null&&e.s!=='')?`<span class="sc">${e.s}</span>`:''}</div>`;
+  }
+  document.getElementById('gwGrid').innerHTML=html;
+  // ―― サマリー（今月の回数・平均点・連続週）――
+  const monthKeys=Object.keys(K).filter(d=>d.slice(0,7)===gwMonth);
+  const scoreVals=monthKeys.map(d=>K[d].s).filter(v=>v!=null&&v!=='').map(Number).filter(v=>!isNaN(v));
+  const avg=scoreVals.length?Math.round(scoreVals.reduce((a,b)=>a+b,0)/scoreVals.length):null;
+  // 連続週：今週から遡って、けいこが1回以上ある週を数える
+  let streak=0;
+  {
+    const now=new Date(todayStr()+'T00:00');
+    const week0=new Date(now); week0.setDate(now.getDate()-now.getDay());  // 今週の日曜
+    const all=Object.keys(K);
+    for(let w=0;w<200;w++){
+      const ws=new Date(week0); ws.setDate(week0.getDate()-7*w);
+      const we=new Date(ws); we.setDate(ws.getDate()+6);
+      const has=all.some(ds=>{ const t=new Date(ds+'T00:00'); return t>=ws&&t<=we; });
+      if(has)streak++; else { if(w===0)continue; break; }  // 今週まだ0回でも連続は切らない
+    }
+  }
+  document.getElementById('gwSummary').innerHTML=
+    `<div class="ent-sum-item"><b>${monthKeys.length}</b><span>${T('今月のけいこ')}</span></div>`+
+    `<div class="ent-sum-item ok"><b>${avg!=null?avg:'—'}</b><span>${T('平均点')}</span></div>`+
+    `<div class="ent-sum-item"><b>${streak}</b><span>${T('連続週')}</span></div>`;
+}
+function gwSelect(id){gwSelfId=id;renderGrowth();}
+function gwMove(d){ let[y,m]=gwMonth.split('-').map(Number); m+=d; if(m<1){m=12;y--;} if(m>12){m=1;y++;} gwMonth=`${y}-${String(m).padStart(2,'0')}`; renderGrowth(); }
+// ―― けいこ記録モーダル ――
+function gwAllTags(){
+  const cnt={};
+  Object.values(DB.keiko||{}).forEach(byDate=>Object.values(byDate).forEach(e=>(e.t||[]).forEach(t=>cnt[t]=(cnt[t]||0)+1)));
+  return Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
+}
+function gwOpenKeiko(dateStr){
+  if(!gwSelfId){ const st=gwStars(); if(!st.length){toast(T('「仲間」から主役を登録してください'));return;} gwSelfId=st[0].id; }
+  const ds=dateStr||todayStr();
+  kkEditKey=ds;
+  const e=keikoOf(gwSelfId)[ds]||null;
+  document.getElementById('keikoTitle').textContent='🔥 '+T('けいこの記録')+'（'+ds.replace(/-/g,'/')+'）';
+  // その日の予定・試合情報
+  const sc=(gwSchedByDate()[ds]||[]);
+  const info=document.getElementById('kkSchedInfo');
+  if(sc.length){ info.style.display='block'; info.innerHTML=sc.map(s=>{ const isM=schedIsMatch(s); const done=DB.matchResults[s.id]&&((DB.matchResults[s.id].individual||[]).length||(DB.matchResults[s.id].team&&(DB.matchResults[s.id].team.cards||[]).length)); return (isM?'🥋 ':'📅 ')+esc(schedLabel(s))+(isM?(done?'（'+T('結果登録済み')+'）':'（'+T('結果は報告タブから')+'）'):''); }).join('<br>'); }
+  else { info.style.display='none'; info.innerHTML=''; }
+  document.getElementById('kkDate').value=ds;
+  document.getElementById('kkScore').value=(e&&e.s!=null)?e.s:'';
+  document.getElementById('kkMemo').value=(e&&e.m)||'';
+  document.getElementById('kkTags').value=(e&&e.t&&e.t.length)?e.t.join(', '):'';
+  document.getElementById('kkScoreChips').innerHTML=[60,70,80,90,100].map(v=>`<button onclick="document.getElementById('kkScore').value=${v}">${v}</button>`).join('');
+  const tags=gwAllTags().slice(0,10);
+  document.getElementById('kkTagChips').innerHTML=tags.map(t=>`<button onclick="kkAddTag(this.textContent)">${esc(t)}</button>`).join('');
+  const f=(e&&e.f)||{};
+  document.getElementById('kkFields').innerHTML=gwFields().map(fd=>
+    `<div class="kk-field"><label>${esc(fd.name)}</label><input type="text" inputmode="decimal" id="kkF_${fd.id}" value="${esc(f[fd.id]!=null?String(f[fd.id]):'')}" placeholder="—"><span class="un">${esc(fd.unit||'')}</span></div>`).join('');
+  document.getElementById('kkDelBtn').style.display=e?'block':'none';
+  openModal('keikoModal');
+}
+function kkAddTag(t){ const el=document.getElementById('kkTags'); const cur=el.value.trim(); const arr=cur?cur.split(/[,、]/).map(s=>s.trim()).filter(Boolean):[]; if(!arr.includes(t))arr.push(t); el.value=arr.join(', '); }
+function keikoSave(){
+  const ds=document.getElementById('kkDate').value||kkEditKey||todayStr();
+  const K=keikoOf(gwSelfId);
+  let sv=document.getElementById('kkScore').value.trim();
+  let s=sv===''?null:Math.max(0,Math.min(100,Number(sv)||0));
+  const m=document.getElementById('kkMemo').value.trim();
+  const t=document.getElementById('kkTags').value.split(/[,、]/).map(x=>x.trim()).filter(Boolean);
+  const f={};
+  gwFields().forEach(fd=>{ const el=document.getElementById('kkF_'+fd.id); if(el&&el.value.trim()!=='')f[fd.id]=el.value.trim(); });
+  if(kkEditKey&&kkEditKey!==ds)delete K[kkEditKey];    // 日付を変えた場合は移動
+  K[ds]={s,m,t,f};
+  save(); closeModal('keikoModal');
+  gwMonth=ds.slice(0,7); renderGrowth(); toast(T('けいこを記録しました')+' 🔥');
+}
+function keikoDelete(){
+  askConfirm(T('この日のけいこ記録を削除しますか？'),()=>{ const K=keikoOf(gwSelfId); delete K[kkEditKey]; save(); closeModal('keikoModal'); renderGrowth(); toast(T('削除しました')); });
+}
+// ―― 記録する項目（任意記入欄）――
+const GW_FIELD_PRESETS=[['体重','kg'],['体脂肪率','%'],['身長','cm'],['睡眠','時間']];
+function gwOpenFields(){ renderGwFields(); openModal('gwFieldsModal'); }
+function renderGwFields(){
+  const list=gwFields();
+  document.getElementById('gwFieldPresets').innerHTML=GW_FIELD_PRESETS.map(([n,u])=>
+    list.some(f=>f.name===n)?'':`<button onclick="gwFieldAddPreset('${n}','${u}')">${T(n)} (${u})</button>`).join('');
+  document.getElementById('gwFieldList').innerHTML=list.length?list.map(f=>
+    `<div class="gw-field-row"><span class="nm">${esc(f.name)}${f.unit?'（'+esc(f.unit)+'）':''}</span><button class="ent-del" onclick="gwFieldDel('${f.id}')">×</button></div>`).join('')
+    :`<p class="list-mini" style="margin:0">${T('まだ項目がありません')}</p>`;
+}
+function gwFieldAddPreset(n,u){ if(gwFields().length>=6){toast(T('項目は6つまでです'));return;} if(!Array.isArray(DB.growthFields))DB.growthFields=[]; DB.growthFields.push({id:uid(),name:n,unit:u}); save(); renderGwFields(); }
+function gwFieldAdd(){
+  const n=document.getElementById('gwFieldName').value.trim(); if(!n){toast(T('項目名を入れてください'));return;}
+  if(gwFields().length>=6){toast(T('項目は6つまでです'));return;}
+  if(!Array.isArray(DB.growthFields))DB.growthFields=[];
+  DB.growthFields.push({id:uid(),name:n,unit:document.getElementById('gwFieldUnit').value.trim()});
+  document.getElementById('gwFieldName').value=''; document.getElementById('gwFieldUnit').value='';
+  save(); renderGwFields();
+}
+function gwFieldDel(id){ DB.growthFields=gwFields().filter(f=>f.id!==id); save(); renderGwFields(); }
+// ―― 報告タブ：予定から大会を選ぶ ――
+function renderRepSchedPick(){
+  const wrap=document.getElementById('repSchedPickWrap'), box=document.getElementById('repSchedPick');
+  if(!wrap||!box)return;
+  const today=new Date(todayStr()+'T00:00');
+  const cands=(DB.schedule||[]).filter(s=>s.date&&schedIsMatch(s))
+    .map(s=>({s,diff:Math.abs((new Date(s.date+'T00:00')-today)/86400000)}))
+    .filter(x=>x.diff<=60).sort((a,b)=>a.diff-b.diff).slice(0,4);
+  if(!cands.length){ wrap.style.display='none'; box.innerHTML=''; return; }
+  wrap.style.display='block';
+  box.innerHTML=cands.map(({s})=>`<button onclick="repPickSched('${s.id}')">${(s.date||'').slice(5).replace('-','/')} ${esc((s.title||s.name||'').slice(0,12))}</button>`).join('');
+}
+function repPickSched(id){
+  const s=DB.schedule.find(x=>x.id===id); if(!s)return;
+  document.getElementById('repTaikai').value=s.title||s.name||'';
+  document.getElementById('repDate').value=s.date||'';
+  repGen(); toast(T('予定から入力しました'));
+}
+// ―― 分析：稽古ビュー（Pro）――
+function gwBarChart(pairs,color){    // pairs=[{l,v}]
+  const W=340,H=120,padL=26,padB=18,padT=8;
+  const mx=Math.max(1,...pairs.map(p=>p.v));
+  const bw=(W-padL-6)/pairs.length;
+  let bars='',labels='';
+  pairs.forEach((p,i)=>{
+    const h=(H-padT-padB)*(p.v/mx), x=padL+i*bw;
+    bars+=`<rect x="${(x+bw*0.18).toFixed(1)}" y="${(H-padB-h).toFixed(1)}" width="${(bw*0.64).toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${color}"/>`;
+    if(p.v)bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${(H-padB-h-3).toFixed(1)}" font-size="8.5" font-weight="700" fill="${color}" text-anchor="middle">${p.v}</text>`;
+    if(i%2===0)labels+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-5}" font-size="8" fill="#6b7280" text-anchor="middle">${p.l}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${bars}${labels}<line x1="${padL}" y1="${H-padB}" x2="${W-4}" y2="${H-padB}" stroke="#d8dee6"/></svg>`;
+}
+function gwLineChart(pairs,color,unit){  // pairs=[{l,v}] 時系列
+  const W=340,H=120,padL=30,padB=18,padT=10;
+  if(!pairs.length)return '';
+  const vs=pairs.map(p=>p.v), mx=Math.max(...vs), mn=Math.min(...vs);
+  const span=(mx-mn)||1;
+  const x=i=>padL+(W-padL-8)*(pairs.length===1?0.5:i/(pairs.length-1));
+  const y=v=>padT+(H-padT-padB)*(1-(v-mn)/span);
+  const pts=pairs.map((p,i)=>`${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ');
+  let dots=''; pairs.forEach((p,i)=>{ dots+=`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.6" fill="${color}"/>`; });
+  const last=pairs[pairs.length-1];
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+    <text x="2" y="${(y(mx)+3).toFixed(1)}" font-size="8" fill="#6b7280">${mx}</text>
+    <text x="2" y="${(y(mn)+3).toFixed(1)}" font-size="8" fill="#6b7280">${mn}</text>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2"/>
+    ${dots}
+    <text x="${x(pairs.length-1).toFixed(1)}" y="${(y(last.v)-6).toFixed(1)}" font-size="9" font-weight="800" fill="${color}" text-anchor="end">${last.v}${unit||''}</text>
+    <text x="${x(0).toFixed(1)}" y="${H-5}" font-size="8" fill="#6b7280">${pairs[0].l}</text>
+    <text x="${x(pairs.length-1).toFixed(1)}" y="${H-5}" font-size="8" fill="#6b7280" text-anchor="end">${last.l}</text>
+  </svg>`;
+}
+function anaSetKeikoTag(t){ anaKeikoTag=(anaKeikoTag===t)?'':t; renderAnalysisTab(); }
+function anaKeikoHtml(){
+  const K=keikoOf(anaSelfId), dates=Object.keys(K).sort();
+  if(!dates.length)return `<div class="rk-empty">${T('まだけいこの記録がありません')}<div class="list-mini" style="margin-top:6px">${T('「成長」タブから記録できます')}</div></div>`;
+  // 月別回数（直近12ヶ月）
+  const months=[]; { let[y,m]=thisMonthStr().split('-').map(Number); for(let i=11;i>=0;i--){ let mm=m-i,yy=y; while(mm<1){mm+=12;yy--;} months.push(`${yy}-${String(mm).padStart(2,'0')}`);} }
+  const cnt=months.map(mo=>({l:String(Number(mo.slice(5))) ,v:dates.filter(d=>d.slice(0,7)===mo).length}));
+  // 月平均点
+  const avg=months.map(mo=>{ const vs=dates.filter(d=>d.slice(0,7)===mo).map(d=>K[d].s).filter(v=>v!=null&&v!=='').map(Number).filter(v=>!isNaN(v)); return {l:String(Number(mo.slice(5))),v:vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null}; }).filter(p=>p.v!=null);
+  // タグ
+  const tags=gwAllTags();
+  const list=dates.slice().reverse().filter(d=>{ if(!anaKeikoTag)return true; return (K[d].t||[]).includes(anaKeikoTag); })
+    .filter(d=>K[d].m||((K[d].t||[]).length)).slice(0,50);
+  return `<div class="ana-sec">
+    <div class="ra-secttl"><span class="ra-ico">🔥</span> ${T('稽古の分析')}</div>
+    <div class="gw-chart"><div class="t">${T('月別のけいこ回数')}</div>${gwBarChart(cnt,'#2e9e5b')}</div>
+    ${avg.length?`<div class="gw-chart"><div class="t">${T('自己評価の推移（月平均）')}</div>${gwLineChart(avg,'#b8963f','')}</div>`:''}
+    ${tags.length?`<div class="gw-chart"><div class="t">${T('タグでメモを検索')}</div><div class="cat-pick">${tags.slice(0,14).map(t=>`<button class="${anaKeikoTag===t?'on':''}" onclick="anaSetKeikoTag(this.textContent)">${esc(t)}</button>`).join('')}</div></div>`:''}
+    <div class="gw-chart"><div class="t">${anaKeikoTag?esc(anaKeikoTag)+' '+T('のメモ'):T('最近のメモ')}</div>
+      ${list.length?list.map(d=>`<div class="gw-memo-item"><span class="d">${d.replace(/-/g,'/')}</span>${K[d].s!=null&&K[d].s!==''?`<span class="s">${K[d].s}${T('点')}</span>`:''}<div>${esc(K[d].m||'')}${(K[d].t||[]).length?` <span class="list-mini">#${(K[d].t||[]).map(esc).join(' #')}</span>`:''}</div></div>`).join(''):`<p class="list-mini">${T('該当するメモがありません')}</p>`}
+    </div>
+  </div>`;
+}
+function anaBodyHtml(){
+  const K=keikoOf(anaSelfId), dates=Object.keys(K).sort();
+  const fields=gwFields();
+  if(!fields.length)return `<div class="rk-empty">${T('まだ記録する項目がありません')}<div class="list-mini" style="margin-top:6px">${T('「成長」タブ →「⚙️記録する項目」で体重などを追加できます')}</div></div>`;
+  let html=`<div class="ana-sec"><div class="ra-secttl"><span class="ra-ico">💪</span> ${T('からだの記録')}</div>`;
+  fields.forEach(fd=>{
+    const pts=dates.map(d=>({l:d.slice(5).replace('-','/'),v:parseFloat((K[d].f||{})[fd.id])})).filter(p=>!isNaN(p.v)).slice(-30);
+    html+=`<div class="gw-chart"><div class="t">${esc(fd.name)}${fd.unit?'（'+esc(fd.unit)+'）':''}</div>`+
+      (pts.length?gwLineChart(pts,'#33507e',fd.unit||''):`<p class="list-mini" style="margin:0">${T('まだ記録がありません')}</p>`)+`</div>`;
+  });
+  return html+'</div>';
+}
 /* ===== v134: 試合結果 テキスト取り込み（保護者LINE記入→貼付）===== */
 let importParsed=null;
 // 取り込みモーダルの表示切替：'choice'（QR/文字の選択）→ 'text'（貼り付け）/ 'preview'（解析結果）
