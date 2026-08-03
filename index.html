@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v191（試合分析ヘッダーの微調整：v190で狭い画面の勝敗タイルが2段目に折り返す場合があったのを、上限を大=1.2/中=1.15に下げ、フィルタ/ゲージ/勝敗の各列最小幅を少し詰めて1段に収まるよう修正。事務アプリの試合結果詳細(カード内で枠がさらに狭い)でも、iPhone 360/375/390で勝敗タイルがゲージ右に横並び。iPadは無制限のまま） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v192（品質点検：文字サイズ大のiPhoneで日付入力欄(生年月日/入会日/段位取得日/予定日/お金/節目 等)が値＋カレンダーで枠から溢れて切れていたのを、狭い画面(≤540px)でのみ日付欄の文字サイズに上限(最大30px)を付けて全箇所まとめて修正。全タブ×事務/個人×iPhone/iPadを機械点検し、他のはみ出し・重なりは無しを確認。iPadは影響なし） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -894,6 +894,8 @@
   @media (max-width:540px){
     html[data-font="large"] .ana-box{--fs:1.2;}
     html[data-font="mid"]   .ana-box{--fs:1.15;}
+    /* 日付欄：文字大でも「2026/08/03」＋カレンダーが枠に収まるよう、狭い画面では文字サイズに上限 */
+    input[type="date"]{font-size:min(calc(18px*var(--fs,1)),30px)!important;}
   }
   /* v129: レーダーの勝ち/負け切替（1枚表示） */
   .ra-top{margin:2px 0 10px;}
@@ -4615,7 +4617,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v191'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v192'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
