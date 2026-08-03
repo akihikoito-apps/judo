@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v200（メモリー改善：①節目追加ボタンは全員表示でも表示し、押した時に「だれの節目？」の対象者ピッカーを挟んで追加（選んだ主役で節目モーダルへ）。②メモリーカードの勝敗数と決まり技を横一列に（縦長で右が余る印象を解消・狭い幅では自然に折返し）） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v201（報告の改善：①入力の並びを 回戦(シード時は2回戦以降からの説明付き)→結果→決まり技→内容→相手の組手→相手のなまえ→所属→備考 に変更（組手は「相手の組手」に明確化）。②入力画面の「送る内容」プレビューを撤去。③「道場に送る」モーダルを刷新＝QRコード/テキストの切替プレビュー（既定QR・タップで拡大）→送る/コピーは選択形式で動作（QR=画像共有/画像コピー、テキスト=文字共有/コピー）。旧「QRで渡す」ボタンは廃止。説明文は「道場アプリの集計›試合結果›取り込みから登録できる」に簡潔化。report.htmlも並びを統一） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -917,6 +917,7 @@
   .gwd-h{font-weight:800;color:var(--navy);font-size:calc(14px*var(--fs,1));margin-bottom:2px;}
   .gwd-sec .gw-field-row:last-child{border-bottom:none;}
   .chip-btn.gwd-att{border-color:#2e9e5b;color:#1f7a45;background:#fff;}
+  #dojoPrevQr svg{width:min(58vw,220px);height:auto;display:block;}
   .gw-field-row .nm{flex:1;font-weight:700;}
   .kk-field{display:flex;align-items:center;gap:8px;margin-top:8px;}
   .kk-field label{flex:1;font-size:calc(14px*var(--fs,1));font-weight:700;color:var(--navy);margin:0;}
@@ -1532,13 +1533,18 @@ function applyUpdate(){
 <div class="modal-bg" id="dojoSendModal">
   <div class="modal">
     <h3 style="margin-top:0">道場に送る</h3>
-    <p class="list-mini">この内容を、LINEなどで道場の担当者に送ってください。担当者はアプリの「試合結果 › 📋テキストから取り込み」に貼り付けるだけで登録できます。</p>
-    <textarea id="dojoSendText" readonly class="dojo-send-ta"></textarea>
+    <p class="list-mini">道場の担当者に送ってください。道場アプリの「集計 › 試合結果 › 📥取り込み」から、QRでもテキストでもそのまま登録できます。</p>
+    <div class="io-pick" style="margin-top:8px">
+      <button id="dojoFmtQr" class="on" onclick="dojoSetFmt('qr')">📷 QRコード</button>
+      <button id="dojoFmtTx" onclick="dojoSetFmt('text')">📝 テキスト</button>
+    </div>
+    <div id="dojoPrevQr" onclick="qrShowFromDojo()" style="display:flex;justify-content:center;align-items:center;min-height:150px;padding:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;margin-top:10px;cursor:pointer"></div>
+    <p class="list-mini" id="dojoQrHint" style="margin-top:6px">タップで大きく表示できます。会場では、この画面をそのまま読み取ってもらえます。</p>
+    <textarea id="dojoSendText" readonly class="dojo-send-ta" style="display:none;margin-top:10px"></textarea>
     <div class="row" style="margin-top:12px">
       <button class="btn ghost" onclick="closeModal('dojoSendModal')">閉じる</button>
       <button class="btn" style="background:#06C755;color:#fff" onclick="dojoSendShare()">送る</button>
     </div>
-    <button class="btn" style="background:var(--navy);color:#fff;margin-top:10px;width:100%" onclick="qrShowFromDojo()">📷 QRで渡す（会場で受け渡し）</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="dojoSendCopy()">コピーする</button>
   </div>
 </div>
@@ -1645,9 +1651,7 @@ function applyUpdate(){
   <div id="repMatches"></div>
   <button class="btn ghost full" onclick="repAddMatch()">＋ 試合をふやす</button>
   <div class="card" style="margin-top:12px">
-    <label class="fld" style="margin-top:0">送る内容（自動でできます）</label>
-    <div id="repPreview" class="dojo-send-ta" style="min-height:110px;white-space:pre-wrap"></div>
-    <button class="btn" style="background:var(--navy);color:#fff;width:100%;margin-top:12px" onclick="repToDojo()">📩 道場に送る（LINE / QR / コピー）</button>
+    <button class="btn" style="background:var(--navy);color:#fff;width:100%" onclick="repToDojo()">📩 道場に送る（QR / テキスト）</button>
   </div>
   <div class="card rep-mem">
     <h3 style="margin-top:0;color:var(--navy)">📖 自分のメモリーにも残そう</h3>
@@ -4759,7 +4763,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v200'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v201'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5500,7 +5504,18 @@ Object.assign(DICT,{
   'この予定では試合はありますか？':{en:'Will there be matches at this event?',fr:'Y aura-t-il des combats à cet événement ?',pt:'Haverá lutas neste evento?'},
   '「はい」にすると、この予定で試合結果を記録できるようになります。':{en:'Choosing “Yes” lets you record match results for this event.',fr:'« Oui » permet d’enregistrer les résultats de combats pour cet événement.',pt:'“Sim” permite registrar resultados de lutas neste evento.'},
   'くり返し登録（週次の稽古などをまとめて）':{en:'Recurring (bulk-add weekly practice etc.)',fr:'Récurrent (ajout groupé : entraînements hebdo, etc.)',pt:'Recorrente (adicionar em lote: treinos semanais etc.)'},
-  'だれの節目を追加しますか？':{en:'Whose milestone is this?',fr:'À qui appartient cette étape ?',pt:'De quem é este marco?'}
+  'だれの節目を追加しますか？':{en:'Whose milestone is this?',fr:'À qui appartient cette étape ?',pt:'De quem é este marco?'},
+  // v201
+  '相手の組手':{en:'Opponent’s grip',fr:'Garde de l’adversaire',pt:'Pegada do adversário'},
+  '1回戦がシード等の場合は、2回戦以降の報告をしてください。':{en:'If Round 1 was a bye (seed), report from Round 2 onward.',fr:'Si le 1er tour était exempté, déclarez à partir du 2e tour.',pt:'Se a 1ª fase foi bye, informe a partir da 2ª fase.'},
+  '📩 道場に送る（QR / テキスト）':{en:'📩 Send to dojo (QR / text)',fr:'📩 Envoyer au dojo (QR / texte)',pt:'📩 Enviar ao dojô (QR / texto)'},
+  '道場の担当者に送ってください。道場アプリの「集計 › 試合結果 › 📥取り込み」から、QRでもテキストでもそのまま登録できます。':{en:'Send this to your dojo staff. In the dojo app, they can register it as-is — QR or text — via “Stats › Match results › 📥 Import”.',fr:'Envoyez ceci au responsable du dojo. Dans l’appli dojo, il peut l’enregistrer tel quel — QR ou texte — via « Stats › Résultats › 📥 Importer ».',pt:'Envie ao responsável do dojô. No app do dojô, ele registra como está — QR ou texto — em “Resumo › Resultados › 📥 Importar”.'},
+  '📷 QRコード':{en:'📷 QR code',fr:'📷 QR code',pt:'📷 QR code'},
+  '📝 テキスト':{en:'📝 Text',fr:'📝 Texte',pt:'📝 Texto'},
+  'タップで大きく表示できます。会場では、この画面をそのまま読み取ってもらえます。':{en:'Tap to enlarge. At the venue, staff can scan this screen directly.',fr:'Touchez pour agrandir. Sur place, le responsable peut scanner cet écran.',pt:'Toque para ampliar. No local, o responsável pode ler esta tela.'},
+  '内容が多すぎてQRにできません。テキストでお送りください。':{en:'Too much content for a QR. Please send as text.',fr:'Contenu trop long pour un QR. Envoyez en texte.',pt:'Conteúdo grande demais para QR. Envie como texto.'},
+  'QR画像をコピーしました':{en:'QR image copied',fr:'Image QR copiée',pt:'Imagem do QR copiada'},
+  '画像コピー非対応のため表示しました。スクショで送れます。':{en:'Image copy unsupported — showing the QR (send a screenshot).',fr:'Copie d’image non prise en charge — QR affiché (envoyez une capture).',pt:'Cópia de imagem não suportada — QR exibido (envie um print).'}
 });
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
@@ -7520,19 +7535,52 @@ function rkSendToDojo(i){
   if(!(ev.bouts||[]).length){toast(T('送る試合結果がありません'));return;}
   dojoSendCache=rkDojoText(ev);
   document.getElementById('dojoSendText').value=dojoSendCache;
-  openModal('dojoSendModal');
+  openModal('dojoSendModal'); dojoSetFmt('qr');
+}
+// v201: 送る内容はQR/テキストを切り替え。既定＝QR（会場受け渡しが主）。送る/コピーは選択形式で動作
+let dojoFmt='qr';
+function dojoSetFmt(f){
+  dojoFmt=f;
+  const q=document.getElementById('dojoFmtQr'), t=document.getElementById('dojoFmtTx');
+  if(q)q.classList.toggle('on',f==='qr'); if(t)t.classList.toggle('on',f==='text');
+  const pv=document.getElementById('dojoPrevQr'), hint=document.getElementById('dojoQrHint'), ta=document.getElementById('dojoSendText');
+  if(pv)pv.style.display=(f==='qr')?'flex':'none';
+  if(hint)hint.style.display=(f==='qr')?'block':'none';
+  if(ta)ta.style.display=(f==='qr')?'none':'block';
+  if(f==='qr'&&pv){ const svg=qrMakeSvg(dojoSendCache); pv.innerHTML=svg||('<p class="list-mini" style="margin:0">'+T('内容が多すぎてQRにできません。テキストでお送りください。')+'</p>'); }
+}
+function dojoQrPngBlob(){
+  return new Promise(res=>{ try{
+    const svgEl=document.querySelector('#dojoPrevQr svg'); if(!svgEl){res(null);return;}
+    const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgEl.outerHTML);
+    const img=new Image();
+    img.onload=()=>{ const S=720,cv=document.createElement('canvas'); cv.width=S; cv.height=S; const cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,S,S); cx.drawImage(img,0,0,S,S); cv.toBlob(b=>res(b),'image/png'); };
+    img.onerror=()=>res(null); img.src=url;
+  }catch(e){res(null);} });
 }
 async function dojoSendShare(){
   const text=dojoSendCache;
+  if(dojoFmt==='qr'){
+    const b=await dojoQrPngBlob();
+    if(b){ const file=new File([b],'match-qr.png',{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file]}); return; }catch(e){ if(e&&e.name==='AbortError')return; } } }
+    dojoSendCopy(); return;
+  }
   if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
   dojoSendCopy();
 }
 async function dojoSendCopy(){
+  if(dojoFmt==='qr'){
+    if(navigator.clipboard&&window.ClipboardItem){
+      try{ const item=new ClipboardItem({'image/png':dojoQrPngBlob().then(b=>{if(!b)throw 0;return b;})}); await navigator.clipboard.write([item]); toast(T('QR画像をコピーしました')); return; }catch(e){}
+    }
+    qrShowFromDojo(); toast(T('画像コピー非対応のため表示しました。スクショで送れます。')); return;
+  }
   try{ await navigator.clipboard.writeText(dojoSendCache); toast(T('コピーしました')); return; }catch(e){}
   const ta=document.getElementById('dojoSendText');
-  try{ ta.removeAttribute('readonly'); ta.select(); document.execCommand('copy'); toast(T('コピーしました')); }
+  try{ ta.style.display='block'; ta.removeAttribute('readonly'); ta.select(); document.execCommand('copy'); toast(T('コピーしました')); }
   catch(_){ toast(T('コピーできませんでした')); }
-  ta.setAttribute('readonly','readonly');
+  ta.setAttribute('readonly','readonly'); if(dojoFmt==='qr')ta.style.display='none';
 }
 /* ===== v167: 報告タブ（無料）＝試合結果を入力→道場に送る（LINE/QR/コピー）。個人専用アプリの起動タブ ===== */
 let repMatches=[], repKind='個人', repCount=5, repRole='先鋒', repCache='';
@@ -7591,18 +7639,19 @@ function repRenderMatches(){
     const wazaLbl=m.waza?esc(m.waza):T('タップして技をえらぶ');
     return `<div class="card rep-match">
       <div class="rep-mh"><b>${i+1}${T('試合目')}</b><button class="btn ghost sm" onclick="repDel('${m.id}')">${T('削除')}</button></div>
-      <label class="fld" style="margin-top:0">${T('結果')}</label>
+      <label class="fld" style="margin-top:0">${T('回戦')}</label>
+      <div class="cat-pick">${ROUNDS.map(r=>`<button class="${m.round===r?'on':''}" onclick="repSet('${m.id}','round','${m.round===r?'':esc(r)}')">${esc(r)}</button>`).join('')}</div>
+      <p class="list-mini" style="margin:4px 2px 0">${T('1回戦がシード等の場合は、2回戦以降の報告をしてください。')}</p>
+      <label class="fld">${T('結果')}</label>
       <div class="io-pick">
         <button class="${m.res==='○'?'on':''}" onclick="repSet('${m.id}','res','○')">○ ${T('勝ち')}</button>
         <button class="${m.res==='▲'?'on':''}" onclick="repSet('${m.id}','res','▲')">▲ ${T('負け')}</button>
         <button class="${m.res==='×'?'on':''}" onclick="repSet('${m.id}','res','×')">× ${T('分け')}</button>
       </div>
       ${draw?'':`<label class="fld">${T('決まり技')}</label><button class="rep-waza" onclick="repOpenWaza('${m.id}')">${wazaLbl}</button>`}
-      <label class="fld">${T('組手')}</label>
-      <div class="io-pick"><button class="${m.grip==='右'?'on':''}" onclick="repSet('${m.id}','grip','右')">${T('右組み')}</button><button class="${m.grip==='左'?'on':''}" onclick="repSet('${m.id}','grip','左')">${T('左組み')}</button></div>
       ${draw?'':`<label class="fld">${T('内容')}</label><div class="cat-pick">${GRADE_FIXED.map(g=>`<button class="${m.grade===g?'on':''}" onclick="repSet('${m.id}','grade','${m.grade===g?'':g}')">${esc(g)}</button>`).join('')}</div>`}
-      <label class="fld">${T('回戦')}</label>
-      <div class="cat-pick">${ROUNDS.map(r=>`<button class="${m.round===r?'on':''}" onclick="repSet('${m.id}','round','${m.round===r?'':esc(r)}')">${esc(r)}</button>`).join('')}</div>
+      <label class="fld">${T('相手の組手')}</label>
+      <div class="io-pick"><button class="${m.grip==='右'?'on':''}" onclick="repSet('${m.id}','grip','右')">${T('右組み')}</button><button class="${m.grip==='左'?'on':''}" onclick="repSet('${m.id}','grip','左')">${T('左組み')}</button></div>
       <label class="fld">${T('相手のなまえ')}</label>
       <input type="text" value="${esc(m.opp)}" oninput="repSetRaw('${m.id}','opp',this.value)" placeholder="例：青葉 太郎">
       <label class="fld">${T('相手の所属')}</label>
@@ -7630,13 +7679,13 @@ function repToDojo(){
   if(!repMatches.length){ toast(T('送る試合結果がありません')); return; }
   dojoSendCache=repGen();
   document.getElementById('dojoSendText').value=dojoSendCache;
-  openModal('dojoSendModal');
+  openModal('dojoSendModal'); dojoSetFmt('qr');
 }
 // ===== 報告→メモリー登録の導線（無料）。入力中の試合を自分(主役)のメモリーに残す =====
 let repRegSig='';   // 直前に登録した内容の署名（二重登録の防止）
 function repCreateSelf(name){
   const parts=(name||'').split(/[\s　]+/).filter(Boolean);
-  const grip=(typeof repMatches!=='undefined'&&repMatches&&repMatches[0]&&repMatches[0].grip)||'右';
+  const grip='右';   // v201: 報告の組手欄は「相手の組手」のため、本人の組手既定は右のまま
   const s={id:uid(),name:name,lastName:parts[0]||name,firstName:parts.slice(1).join(' '),lastKana:'',firstKana:'',kana:'',
     role:'',category:(cats()[0]||{}).name||'',gradeBaseFY:null,gradeBaseLevel:null,gradeFixed:false,gradeTouchedFY:null,
     rank:'',rankDate:'',sex:'',grip:grip,feeReq:false,feeType:'monthly',visitBase:0,feeAmount:0,

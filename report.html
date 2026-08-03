@@ -2478,7 +2478,10 @@ function render(){
     const wazaLbl=m.waza?esc(m.waza):'<span class="ph">タップして技をえらぶ</span>';
     return `<div class="match">
       <div class="match-h"><span class="no">${i+1}試合目</span><button class="del" onclick="delMatch('${m.id}')">削除</button></div>
-      <label class="fld">結果<span class="req">必須</span></label>
+      <label class="fld">回戦</label>
+      <div class="seg">${ROUNDS.map(r=>`<button class="${m.round===r?'on':''}" onclick="setField('${m.id}','round','${m.round===r?'':r}')">${r}</button>`).join('')}</div>
+      <p class="hint" style="margin:4px 2px 0">1回戦がシード等の場合は、2回戦以降の報告をしてください。</p>
+      <label class="fld mt">結果<span class="req">必須</span></label>
       <div class="seg res">
         <button class="win ${m.res==='○'?'on':''}" onclick="setField('${m.id}','res','○')">○ 勝ち</button>
         <button class="lose ${m.res==='▲'?'on':''}" onclick="setField('${m.id}','res','▲')">▲ 負け</button>
@@ -2487,15 +2490,13 @@ function render(){
       ${isDraw?'':`
       <label class="fld mt">決まり技${m.res==='○'?'<span class="req">必須</span>':''}</label>
       <button class="wazabtn" onclick="openWaza('${m.id}')"><span>${wazaLbl}</span><span class="arw">えらぶ ▸</span></button>`}
-      <label class="fld mt">組手</label>
+      ${isDraw?'':`<label class="fld mt">内容</label>
+      <div class="seg">${GRADES.map(g=>`<button class="${m.grade===g?'on':''}" onclick="setField('${m.id}','grade','${m.grade===g?'':g}')">${g}</button>`).join('')}</div>`}
+      <label class="fld mt">相手の組手</label>
       <div class="seg">
         <button class="${m.grip==='右'?'on':''}" onclick="setField('${m.id}','grip','右')">右組み</button>
         <button class="${m.grip==='左'?'on':''}" onclick="setField('${m.id}','grip','左')">左組み</button>
       </div>
-      ${isDraw?'':`<label class="fld mt">内容</label>
-      <div class="seg">${GRADES.map(g=>`<button class="${m.grade===g?'on':''}" onclick="setField('${m.id}','grade','${m.grade===g?'':g}')">${g}</button>`).join('')}</div>`}
-      <label class="fld mt">回戦</label>
-      <div class="seg">${ROUNDS.map(r=>`<button class="${m.round===r?'on':''}" onclick="setField('${m.id}','round','${m.round===r?'':r}')">${r}</button>`).join('')}</div>
       <label class="fld mt">相手のなまえ</label>
       <input type="text" value="${esc(m.opp)}" oninput="setFieldRaw('${m.id}','opp',this.value)" placeholder="例：青葉 太郎">
       <label class="fld mt">相手の所属・ゼッケン</label>
