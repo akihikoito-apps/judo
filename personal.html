@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v204（記録の保全：大会予定を削除しても、紐づく試合記録の大会名・日付を失わないよう、削除前に結果データへ焼き付け(bakeSchedMeta)。メモリー・検索の表示は予定が無ければ焼き付け値で表示＝「(削除)」「日付なし」化を防止。単発削除・くり返し削除（この予定だけ/以降すべて）の全経路に適用。結果のない予定は焼き付け不要） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v205（カレンダー刷新＝TimeTree式：予定を種類色のカラー帯＋文字で表示（最大2件＋n）。試合がある日は赤枠・けいこの日（🔥実績または練習予定）は紺枠で印象付け。今日は日付を紺丸で反転表示。🔥は日付横に自己評価つき（全員表示は人数）。凡例更新・多言語対応） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -901,14 +901,17 @@
   .gw-nav{width:42px;min-height:40px;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;font-weight:800;font-size:calc(16px*var(--fs,1));cursor:pointer;font-family:inherit;}
   .gw-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
   .gw-dow{text-align:center;font-size:calc(10.5px*var(--fs,1));color:var(--muted);font-weight:700;padding:2px 0;}
-  .gw-day{min-height:calc(46px*min(var(--fs,1),1.4));border:1px solid var(--line);border-radius:8px;padding:2px 1px;font-size:calc(11px*var(--fs,1));color:var(--muted);background:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0;}
+  /* v205: TimeTree式＝予定はカラー帯＋文字、試合日=赤枠/けいこ日=紺枠、今日=日付反転 */
+  .gw-day{min-height:calc(54px*min(var(--fs,1),1.3));border:1px solid var(--line);border-radius:9px;padding:2px 2px 3px;font-size:calc(11px*var(--fs,1));color:var(--muted);background:#fff;cursor:pointer;display:flex;flex-direction:column;gap:2px;overflow:hidden;}
   .gw-day.out{opacity:.35;}
-  .gw-day.today{border:2px solid var(--gold);}
-  .gw-day .dnum{font-weight:700;line-height:1.2;}
-  .gw-day .marks{display:flex;gap:1px;flex-wrap:wrap;justify-content:center;font-size:calc(12px*min(var(--fs,1),1.4));line-height:1.1;}
-  .gw-day .marks .pl{font-size:calc(9px*min(var(--fs,1),1.4));vertical-align:middle;}
-  .gw-day .marks .kkn{font-size:calc(9px*min(var(--fs,1),1.4));font-weight:800;color:#c0442e;}
-  .gw-day .sc{font-size:calc(9px*min(var(--fs,1),1.4));color:#2e7d4f;font-weight:800;line-height:1.1;}
+  .gw-day.b-keiko{border:2px solid var(--navy);padding:1px 1px 2px;}
+  .gw-day.b-match{border:2px solid #d24a34;padding:1px 1px 2px;}
+  .gw-dhead{display:flex;align-items:center;justify-content:center;gap:2px;line-height:1.25;min-height:calc(15px*min(var(--fs,1),1.3));}
+  .gw-dhead .dnum{font-weight:700;font-size:calc(11px*min(var(--fs,1),1.3));}
+  .gw-dhead .dnum.tdy{background:var(--navy);color:#fff;border-radius:999px;padding:0 5px;}
+  .gw-dhead .kk{font-size:calc(9px*min(var(--fs,1),1.3));font-weight:800;color:#c0442e;white-space:nowrap;}
+  .gw-band{display:block;color:#fff;border-radius:4px;padding:0 3px;font-size:calc(8.5px*min(var(--fs,1),1.25));line-height:1.7;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}
+  .gw-more{font-size:calc(8px*min(var(--fs,1),1.25));color:var(--muted);text-align:right;padding-right:2px;line-height:1;}
   .gw-field-row{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--line);}
   /* v198: 日別モーダルのセクション分け（けいこ／予定） */
   .gwd-sec{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px 4px;margin-top:12px;background:#fff;}
@@ -1666,7 +1669,7 @@ function applyUpdate(){
   <div class="gw-cal">
     <div class="gw-cal-head"><button class="gw-nav" onclick="gwMove(-1)">‹</button><b id="gwMonthLbl"></b><button class="gw-nav" onclick="gwMove(1)">›</button></div>
     <div class="gw-grid" id="gwGrid"></div>
-    <p class="hint" style="margin:8px 2px 0">🔥＝けいこ　🥋＝試合　●＝予定（色＝種類）　日付をタップすると、その日の予定と記録が開きます</p>
+    <p class="hint" style="margin:8px 2px 0">帯＝予定（色は種類）　🔥＝けいこ（数字は自己評価）　<span style="color:#d24a34;font-weight:700">赤枠＝試合の日</span>　<span style="color:var(--navy);font-weight:700">紺枠＝けいこの日</span>　日付タップでその日を開きます</p>
   </div>
   <div class="row" style="margin-top:12px">
     <button class="btn gold" onclick="gwQuickAttend()">🔥 出席（きょう）</button>
@@ -4763,7 +4766,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v204'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v205'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5505,6 +5508,11 @@ Object.assign(DICT,{
   '「はい」にすると、この予定で試合結果を記録できるようになります。':{en:'Choosing “Yes” lets you record match results for this event.',fr:'« Oui » permet d’enregistrer les résultats de combats pour cet événement.',pt:'“Sim” permite registrar resultados de lutas neste evento.'},
   'くり返し登録（週次の稽古などをまとめて）':{en:'Recurring (bulk-add weekly practice etc.)',fr:'Récurrent (ajout groupé : entraînements hebdo, etc.)',pt:'Recorrente (adicionar em lote: treinos semanais etc.)'},
   'だれの節目を追加しますか？':{en:'Whose milestone is this?',fr:'À qui appartient cette étape ?',pt:'De quem é este marco?'},
+  // v205: カレンダー凡例
+  '帯＝予定（色は種類）　🔥＝けいこ（数字は自己評価）　':{en:'Bars = events (color = type)  🔥 = practice (number = self-score)  ',fr:'Bandes = événements (couleur = type)  🔥 = entraînement (chiffre = note)  ',pt:'Faixas = eventos (cor = tipo)  🔥 = treino (número = nota)  '},
+  '赤枠＝試合の日':{en:'Red frame = match day',fr:'Cadre rouge = jour de combat',pt:'Borda vermelha = dia de luta'},
+  '紺枠＝けいこの日':{en:'Navy frame = practice day',fr:'Cadre bleu = jour d’entraînement',pt:'Borda azul = dia de treino'},
+  '日付タップでその日を開きます':{en:'Tap a date to open that day',fr:'Touchez une date pour ouvrir le jour',pt:'Toque numa data para abrir o dia'},
   // v203: タブ名変更・文言更新
   '試合報告':{en:'Report',fr:'Rapport',pt:'Relatório'},
   '予定・記録':{en:'Planner',fr:'Agenda',pt:'Agenda'},
@@ -8481,13 +8489,17 @@ function renderGrowth(){
     const out=(d.getMonth()!==gm-1);
     const kkCount=viewStars.filter(st=>st&&keikoOf(st.id)[ds]).length;
     const e=gwAllView?null:K[ds];
-    const marks=[];
-    if(kkCount)marks.push('🔥'+(gwAllView&&kkCount>1?`<span class="kkn">${kkCount}</span>`:''));
-    gwDaySchedList(ds).forEach(s=>{ marks.push(schedIsMatch(s)?'🥋':`<span class="pl" style="color:${typeColor(s.name)}">●</span>`); });
-    html+=`<div class="gw-day${out?' out':''}${ds===today?' today':''}" onclick="gwOpenDay('${ds}')">`+
-      `<span class="dnum">${d.getDate()}</span>`+
-      `<span class="marks">${marks.slice(0,3).join('')}</span>`+
-      `${(e&&e.s!=null&&e.s!=='')?`<span class="sc">${e.s}</span>`:''}</div>`;
+    const daySched=gwDaySchedList(ds);
+    const isMatchDay=daySched.some(s=>schedIsMatch(s));
+    const isKeikoDay=kkCount>0||daySched.some(s=>!schedIsMatch(s)&&/練習|稽古/.test(s.name||''));
+    const border=isMatchDay?' b-match':(isKeikoDay?' b-keiko':'');
+    let kk='';
+    if(kkCount)kk=`<span class="kk">🔥${gwAllView?(kkCount>1?kkCount:''):((e&&e.s!=null&&e.s!=='')?e.s:'')}</span>`;
+    const bands=daySched.slice(0,2).map(s=>`<span class="gw-band" style="background:${typeColor(s.name)}">${esc(s.title||T(s.name))}</span>`).join('')+
+      (daySched.length>2?`<span class="gw-more">+${daySched.length-2}</span>`:'');
+    html+=`<div class="gw-day${out?' out':''}${border}" onclick="gwOpenDay('${ds}')">`+
+      `<div class="gw-dhead"><span class="dnum${ds===today?' tdy':''}">${d.getDate()}</span>${kk}</div>`+
+      bands+`</div>`;
   }
   document.getElementById('gwGrid').innerHTML=html;
   // ―― サマリー（今月の回数・平均点・連続週）――
