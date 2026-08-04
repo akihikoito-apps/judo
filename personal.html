@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v208（稽古まわりの整理：①日別画面の出席/メモ行は「稽古・トレーニングの予定がある日」だけ表示（昇級審査などの日に出る違和感を解消。既に🔥記録がある日は編集用に表示）。②予定の種類「練習」→「稽古」に改名＝既存データも自動移行（プリセット・色・登録済み予定）。③新種類「トレーニング」追加（紫色）＝稽古と同様に出席/メモ可で、稽古がない日も🔥を貯めて継続のやる気に） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v209（写真のぼかし機能：メモリー写真の🌫️ボタン→指でなぞる/タップでモザイク。相手の顔・ゼッケン・観客などSNS掲載前の配慮に。太さ3段階・最初からやり直し可・保存でメモリーとシェア画像の両方に反映。編集中の誤タップは確認ダイアログで保護。肖像権配慮機能のため無料） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1597,6 +1597,27 @@ function applyUpdate(){
 </div>
 
 <!-- 写真クロップ（位置調整・ズーム）モーダル -->
+<!-- 写真のぼかし（モザイク）エディタ：相手の顔・ゼッケン・観客などへの配慮用 -->
+<div class="modal-bg" id="photoBlurModal">
+  <div class="modal" style="max-width:520px">
+    <h3 style="margin-top:0">🌫️ ぼかし（モザイク）</h3>
+    <p class="list-mini">相手の顔・ゼッケン・観客など、隠したい部分を<b>指でなぞるかタップ</b>してモザイクをかけます。SNSに載せる前の配慮に。</p>
+    <canvas id="blurCv" style="width:100%;max-height:52vh;object-fit:contain;display:block;border-radius:12px;background:#0e1626;touch-action:none;margin-top:6px"></canvas>
+    <label class="fld">ぼかしの太さ</label>
+    <div class="io-pick">
+      <button id="blurS" onclick="blurSetSize('s')">小さめ</button>
+      <button id="blurM" class="on" onclick="blurSetSize('m')">ふつう</button>
+      <button id="blurL" onclick="blurSetSize('l')">大きめ</button>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost" onclick="blurReset()">最初からやり直す</button>
+      <button class="btn gold" onclick="blurSave()">この写真に保存</button>
+    </div>
+    <button class="btn ghost full" style="margin-top:10px" onclick="closeModal('photoBlurModal')">やめる</button>
+    <p class="list-mini" style="margin-top:8px">保存すると、メモリーの写真とシェア画像の両方に反映されます。保存後は元に戻せませんが、「🔄写真を変更」から元の写真をいつでも選び直せます。</p>
+  </div>
+</div>
+
 <div class="modal-bg" id="photoCropModal">
   <div class="modal" style="max-width:430px">
     <h3 style="margin-top:0">写真の位置・ズーム</h3>
@@ -4761,7 +4782,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v208'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v209'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5503,6 +5524,22 @@ Object.assign(DICT,{
   '「はい」にすると、この予定で試合結果を記録できるようになります。':{en:'Choosing “Yes” lets you record match results for this event.',fr:'« Oui » permet d’enregistrer les résultats de combats pour cet événement.',pt:'“Sim” permite registrar resultados de lutas neste evento.'},
   'くり返し登録（週次の稽古などをまとめて）':{en:'Recurring (bulk-add weekly practice etc.)',fr:'Récurrent (ajout groupé : entraînements hebdo, etc.)',pt:'Recorrente (adicionar em lote: treinos semanais etc.)'},
   'だれの節目を追加しますか？':{en:'Whose milestone is this?',fr:'À qui appartient cette étape ?',pt:'De quem é este marco?'},
+  // v209: 写真のぼかし
+  'ぼかし':{en:'Blur',fr:'Flou',pt:'Desfoque'},
+  '🌫️ ぼかし（モザイク）':{en:'🌫️ Blur (mosaic)',fr:'🌫️ Flou (mosaïque)',pt:'🌫️ Desfoque (mosaico)'},
+  '相手の顔・ゼッケン・観客など、隠したい部分を':{en:'Cover opponents’ faces, bibs, spectators, etc. — ',fr:'Masquez visages, dossards, spectateurs… ',pt:'Cubra rostos, números, espectadores etc. — '},
+  '指でなぞるかタップ':{en:'trace or tap with your finger',fr:'tracez ou touchez avec le doigt',pt:'deslize ou toque com o dedo'},
+  'してモザイクをかけます。SNSに載せる前の配慮に。':{en:' to apply a mosaic. A courtesy before posting to social media.',fr:' pour appliquer une mosaïque. Une précaution avant de publier.',pt:' para aplicar o mosaico. Uma cortesia antes de postar.'},
+  'ぼかしの太さ':{en:'Brush size',fr:'Taille du pinceau',pt:'Tamanho do pincel'},
+  '小さめ':{en:'Small',fr:'Petit',pt:'Pequeno'},
+  'ふつう':{en:'Medium',fr:'Moyen',pt:'Médio'},
+  '大きめ':{en:'Large',fr:'Grand',pt:'Grande'},
+  '最初からやり直す':{en:'Start over',fr:'Recommencer',pt:'Recomeçar'},
+  'この写真に保存':{en:'Save to this photo',fr:'Enregistrer sur la photo',pt:'Salvar nesta foto'},
+  'ぼかす場所を指でなぞってください':{en:'Trace the area you want to blur',fr:'Tracez la zone à flouter',pt:'Deslize sobre a área a desfocar'},
+  'ぼかしを保存しました':{en:'Blur saved',fr:'Flou enregistré',pt:'Desfoque salvo'},
+  '保存すると、メモリーの写真とシェア画像の両方に反映されます。保存後は元に戻せませんが、「🔄写真を変更」から元の写真をいつでも選び直せます。':{en:'Saving applies to both the memory photo and share images. It can’t be undone, but you can re-pick the original anytime via “🔄 Change photo”.',fr:'L’enregistrement s’applique à la photo du souvenir et aux images à partager. Irréversible, mais vous pouvez re-choisir l’originale via « 🔄 Changer la photo ».',pt:'Salvar aplica à foto da memória e às imagens de compartilhamento. Não dá para desfazer, mas você pode escolher a original de novo em “🔄 Trocar foto”.'},
+  '保存できませんでした':{en:'Could not save',fr:'Échec de l’enregistrement',pt:'Não foi possível salvar'},
   // v208: 種類
   'トレーニング':{en:'Training',fr:'Préparation physique',pt:'Treinamento'},
   // v207: 「稽古」表記＋カウントダウン
@@ -7515,6 +7552,7 @@ function rkPhotoAreaHtml(key,i){
   return photo
     ? `<img class="rk-img" src="${photo}" alt="">
        <div class="rk-photo-ops">
+         <button class="rk-op" title="${T('ぼかし')}" onclick="rkSetStar(${i});blurOpen(${i})">🌫️</button>
          <label class="rk-op" title="${T('写真を変更')}"><input type="file" accept="image/*" style="display:none" onchange="rkPhotoPick(event,${i})">🔄</label>
          <button class="rk-op" title="${T('写真を削除')}" onclick="rkPhotoDel(${i})">🗑️</button>
        </div>`
@@ -8026,6 +8064,67 @@ function rkPhotoPick(evt,i){
 const CROP_W=640, CROP_H=400;
 let cropImg=null, cropTargetKey=null, cropBase=1, cropScale=1, cropZoom=1, cropOffX=0, cropOffY=0;
 let cropDrag=null; const cropPointers=new Map(); let cropPinch=null;
+/* ===== v209: 写真のぼかし（モザイク）＝指でなぞって相手の顔・ゼッケン・観客を隠す ===== */
+let blurKey=null, blurImg=null, blurSizeKey='m', blurDirty=false, blurDown=false, blurBound=false;
+function blurOpen(i){
+  const ev=rkEvents[i]; if(!ev)return;
+  const key=rkNoteKey(ev);
+  const src=(DB.eventPhotos&&DB.eventPhotos[key])||''; if(!src)return;
+  blurKey=key; blurSizeKey='m';
+  const img=new Image();
+  img.onload=()=>{ blurImg=img; blurInitCanvas(); blurSetSize('m'); blurBind(); openModal('photoBlurModal'); };
+  img.onerror=()=>toast(T('画像を読めませんでした'));
+  img.src=src;
+}
+function blurInitCanvas(){
+  const cv=document.getElementById('blurCv');
+  cv.width=blurImg.naturalWidth||blurImg.width; cv.height=blurImg.naturalHeight||blurImg.height;
+  const cx=cv.getContext('2d'); cx.clearRect(0,0,cv.width,cv.height); cx.drawImage(blurImg,0,0);
+  blurDirty=false;
+}
+function blurSetSize(k){ blurSizeKey=k; [['S','s'],['M','m'],['L','l']].forEach(([id,v])=>{const b=document.getElementById('blur'+id); if(b)b.classList.toggle('on',v===k);}); }
+function blurRadius(cv){ const base=Math.max(cv.width,cv.height); return {s:base*0.04,m:base*0.07,l:base*0.11}[blurSizeKey]||base*0.07; }
+function blurStamp(x,y){
+  const cv=document.getElementById('blurCv'), cx=cv.getContext('2d');
+  const r=blurRadius(cv);
+  const px=Math.max(8,Math.round(r/3));                       // モザイクの粒サイズ
+  const sx=Math.max(0,Math.round(x-r)), sy=Math.max(0,Math.round(y-r));
+  const sw=Math.min(cv.width-sx,Math.round(r*2)), sh=Math.min(cv.height-sy,Math.round(r*2));
+  if(sw<=0||sh<=0)return;
+  const tw=Math.max(1,Math.round(sw/px)), th=Math.max(1,Math.round(sh/px));
+  const t=document.createElement('canvas'); t.width=tw; t.height=th;
+  const tc=t.getContext('2d'); tc.imageSmoothingEnabled=false;
+  tc.drawImage(cv,sx,sy,sw,sh,0,0,tw,th);
+  cx.save(); cx.beginPath(); cx.arc(x,y,r,0,6.2832); cx.clip();
+  cx.imageSmoothingEnabled=false;
+  cx.drawImage(t,0,0,tw,th,sx,sy,sw,sh);
+  cx.restore(); cx.imageSmoothingEnabled=true;
+  blurDirty=true;
+}
+function blurPos(e){ const cv=document.getElementById('blurCv'); const r=cv.getBoundingClientRect();
+  // object-fit:contain の余白を考慮して実座標へ変換
+  const scale=Math.min(r.width/cv.width, r.height/cv.height);
+  const ox=(r.width-cv.width*scale)/2, oy=(r.height-cv.height*scale)/2;
+  return { x:(e.clientX-r.left-ox)/scale, y:(e.clientY-r.top-oy)/scale };
+}
+function blurBind(){
+  if(blurBound)return; blurBound=true;
+  const cv=document.getElementById('blurCv');
+  cv.addEventListener('pointerdown',e=>{ blurDown=true; const p=blurPos(e); blurStamp(p.x,p.y); e.preventDefault(); });
+  cv.addEventListener('pointermove',e=>{ if(!blurDown)return; const p=blurPos(e); blurStamp(p.x,p.y); e.preventDefault(); });
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>cv.addEventListener(t,()=>{blurDown=false;}));
+}
+function blurReset(){ if(blurImg)blurInitCanvas(); }
+function blurSave(){
+  if(!blurDirty){ toast(T('ぼかす場所を指でなぞってください')); return; }
+  const cv=document.getElementById('blurCv');
+  try{
+    const out=cv.toDataURL('image/jpeg',0.85);
+    if(!DB.eventPhotos)DB.eventPhotos={};
+    DB.eventPhotos[blurKey]=out; save();
+    closeModal('photoBlurModal'); renderRireki(); toast(T('ぼかしを保存しました')+' 🌫️');
+  }catch(e){ toast(T('保存できませんでした')); }
+}
 function cropOpen(dataUrl,key){
   cropTargetKey=key;
   const img=new Image();
@@ -10821,6 +10920,7 @@ function openModal(id){
 function closeModal(id){document.getElementById(id).classList.remove('show');if(id==='qrScanModal'&&typeof qrStopCamera==='function')qrStopCamera();}
 // 外側タップで閉じる挙動：入力欄がある画面は誤タップでの消失を防ぐため閉じない（ボタンで閉じる）
 function modalHasEntry(bg){
+  if(bg.id==='photoBlurModal')return blurDirty;   // v209: ぼかし編集中は誤タップで消えないよう確認を挟む
   const f=bg.querySelectorAll('input:not([type=file]):not([type=hidden]):not([type=button]):not([type=submit]):not([type=reset]),textarea,select');
   for(let i=0;i<f.length;i++){ if(f[i].offsetParent!==null) return true; }  // 表示中の入力欄があるか
   return false;
