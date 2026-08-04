@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v207（予定・記録の調整：①表記を「けいこ」→「稽古」に統一。②「出席（きょう）」「メモを書く」ボタンを削除（日付タップの日別画面と重複のため）。③代わりに30日以内の試合カウントダウンを表示＝「県大会まで あと16日！！」を予定の種類色の帯で（近い順に最大3件・タップでその日を開く・対象者の絞り込みに追従・多言語対応）） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v208（稽古まわりの整理：①日別画面の出席/メモ行は「稽古・トレーニングの予定がある日」だけ表示（昇級審査などの日に出る違和感を解消。既に🔥記録がある日は編集用に表示）。②予定の種類「練習」→「稽古」に改名＝既存データも自動移行（プリセット・色・登録済み予定）。③新種類「トレーニング」追加（紫色）＝稽古と同様に出席/メモ可で、稽古がない日も🔥を貯めて継続のやる気に） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -4761,7 +4761,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v207'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v208'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5503,6 +5503,8 @@ Object.assign(DICT,{
   '「はい」にすると、この予定で試合結果を記録できるようになります。':{en:'Choosing “Yes” lets you record match results for this event.',fr:'« Oui » permet d’enregistrer les résultats de combats pour cet événement.',pt:'“Sim” permite registrar resultados de lutas neste evento.'},
   'くり返し登録（週次の稽古などをまとめて）':{en:'Recurring (bulk-add weekly practice etc.)',fr:'Récurrent (ajout groupé : entraînements hebdo, etc.)',pt:'Recorrente (adicionar em lote: treinos semanais etc.)'},
   'だれの節目を追加しますか？':{en:'Whose milestone is this?',fr:'À qui appartient cette étape ?',pt:'De quem é este marco?'},
+  // v208: 種類
+  'トレーニング':{en:'Training',fr:'Préparation physique',pt:'Treinamento'},
   // v207: 「稽古」表記＋カウントダウン
   '稽古の記録':{en:'Practice log',fr:'Journal d’entraînement',pt:'Registro de treino'},
   '稽古を記録しました':{en:'Practice logged',fr:'Entraînement noté',pt:'Treino registrado'},
@@ -5726,7 +5728,7 @@ function curInfo(){return CURRENCIES[DB.currency]||CURRENCIES.JPY;}
 function curSym(){return curInfo().sym;}
 function money(n){const c=curInfo();const v=Math.round(Number(n)||0).toLocaleString();return c.pre?c.sym+v:v+c.sym;}
 const SEX_COLOR={男性:'#2d4373',女性:'#c0392b',その他:'#7d3c98'};
-const BADGE_COLOR={練習:'#2d4373',大会:'#c0392b',イベント:'#1a8c8c',昇級審査:'#d68910',合宿:'#2e7d4f',休み:'#9aa0a6',その他:'#6b6b6b'};
+const BADGE_COLOR={稽古:'#2d4373',練習:'#2d4373',トレーニング:'#7d3c98',大会:'#c0392b',イベント:'#1a8c8c',昇級審査:'#d68910',合宿:'#2e7d4f',休み:'#9aa0a6',その他:'#6b6b6b'};
 const SCHED_COLORS=['#2d4373','#c0392b','#1a8c8c','#d68910','#2e7d4f','#7d3c98','#1a2b4a','#b8860b'];
 const SCHED_GRAY='#6b6b6b';
 // 予定の色は「種類」に紐づく。登録済みの種類はその色、未登録・自由記載はグレー
@@ -5752,8 +5754,15 @@ function load(){try{const s=localStorage.getItem(STORE_KEY);if(s)DB=Object.assig
 }
 // DBの正規化・旧形式マイグレーション（load と 復元doRestore の両方から必ず通す。v125で共通化）
 function normalizeDB(){
-  if(!DB.schedPresets)DB.schedPresets={types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['市民体育館','〇〇道場','','']};
+  if(!DB.schedPresets)DB.schedPresets={types:['稽古','大会','イベント','昇級審査','トレーニング'],times:['09:00','10:00','18:00','19:00'],places:['市民体育館','〇〇道場','','']};
   if(!DB.schedPresets.typeColors||typeof DB.schedPresets.typeColors!=='object')DB.schedPresets.typeColors={};
+  // v208: 種類「練習」→「稽古」に統一（既存データも移行）＋「トレーニング」を追加
+  if(Array.isArray(DB.schedPresets.types)){
+    DB.schedPresets.types=DB.schedPresets.types.map(t=>t==='練習'?'稽古':t);
+    if(DB.schedPresets.typeColors['練習']&&!DB.schedPresets.typeColors['稽古'])DB.schedPresets.typeColors['稽古']=DB.schedPresets.typeColors['練習'];
+    if(!DB.schedPresets.types.includes('トレーニング'))DB.schedPresets.types.push('トレーニング');
+  }
+  (DB.schedule||[]).forEach(s=>{ if(s.name==='練習')s.name='稽古'; });
   (DB.schedPresets.types||[]).forEach((n,idx)=>{ if(n&&!DB.schedPresets.typeColors[n]) DB.schedPresets.typeColors[n]=BADGE_COLOR[n]||SCHED_COLORS[idx%SCHED_COLORS.length]; });
   if(!DB.feePresets)DB.feePresets=[2000,3000,0,0];
   if(!DB.feeOverrides)DB.feeOverrides={};
@@ -8463,6 +8472,8 @@ let gwSelfId=null, gwMonth=null, kkEditKey=null, anaKeikoTag='', gwAllView=true,
 function gwStars(){ const s=DB.students.filter(x=>x.isSelf); return s.length?s:DB.students.slice(0,1); }
 function keikoOf(id){ if(!DB.keiko||typeof DB.keiko!=='object')DB.keiko={}; if(!DB.keiko[id])DB.keiko[id]={}; return DB.keiko[id]; }
 function gwFields(){ return Array.isArray(DB.growthFields)?DB.growthFields:[]; }
+// v208: 稽古系の予定か（稽古・トレーニング＝出席/メモの対象。試合は除く）
+function gwIsKeikoType(s){ return !schedIsMatch(s)&&/稽古|練習|トレーニング/.test(s.name||''); }
 function gwSchedByDate(){
   const m={};
   (DB.schedule||[]).forEach(s=>{ if(!s.date)return; (m[s.date]=m[s.date]||[]).push(s); });
@@ -8496,7 +8507,7 @@ function renderGrowth(){
     const e=gwAllView?null:K[ds];
     const daySched=gwDaySchedList(ds);
     const isMatchDay=daySched.some(s=>schedIsMatch(s));
-    const isKeikoDay=kkCount>0||daySched.some(s=>!schedIsMatch(s)&&/練習|稽古/.test(s.name||''));
+    const isKeikoDay=kkCount>0||daySched.some(s=>gwIsKeikoType(s));
     const border=isMatchDay?' b-match':(isKeikoDay?' b-keiko':'');   // ※クラスは判定用（見た目はインラインの枠色）
     // v206: 枠色＝その日の予定の種類色（けいこ実績は紺）。複数種類の日はグラデーションで組み合わせ。今日は全体を薄色反転
     const dayColors=[...new Set([...daySched.map(s=>typeColor(s.name)), ...(kkCount?['var(--navy)']:[])])];
@@ -8567,8 +8578,10 @@ function gwOpenDay(ds){
   gwDayDs=ds;
   document.getElementById('gwDayTitle').textContent='📅 '+ds.replace(/-/g,'/')+'（'+T(['日','月','火','水','木','金','土'][new Date(ds+'T00:00').getDay()])+'）';
   const stars=gwStars(), viewStars=gwAllView?stars:stars.filter(s=>s.id===gwSelfId);
-  // けいこ（主役ごとの行・[出席][メモ]の2ボタン。出席はワンタップでモーダルは開いたまま）
-  document.getElementById('gwDayKeiko').innerHTML=`<div class="gwd-sec keiko"><div class="gwd-h">🔥 ${T('稽古')}</div>`+
+  // v208: 出席/メモは「稽古・トレーニングの予定がある日」だけ表示（既に🔥記録がある日は編集用に表示）
+  const dsSched=gwDaySchedList(ds);
+  const showKeikoSec=dsSched.some(s=>gwIsKeikoType(s))||viewStars.some(st=>st&&keikoOf(st.id)[ds]);
+  document.getElementById('gwDayKeiko').innerHTML=!showKeikoSec?'':`<div class="gwd-sec keiko"><div class="gwd-h">🔥 ${T('稽古')}</div>`+
     viewStars.map(st=>{ const e=keikoOf(st.id)[ds];
       const sum=e?[(e.s!=null&&e.s!=='')?e.s+T('点'):'',e.m?esc(e.m):''].filter(Boolean).join('・')||T('出席ずみ'):T('未記録');
       const btns=e
