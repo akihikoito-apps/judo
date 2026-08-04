@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v206（カレンダー微調整：①凡例（説明書き）を削除。②枠色をその日の予定の種類色に一般化（イベント=そのイベント色。けいこ実績は紺）。複数種類がある日は各色を組み合わせたグラデーション枠。③今日は数字の丸だけでなくセル全体を薄い紺で反転表示） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v207（予定・記録の調整：①表記を「けいこ」→「稽古」に統一。②「出席（きょう）」「メモを書く」ボタンを削除（日付タップの日別画面と重複のため）。③代わりに30日以内の試合カウントダウンを表示＝「県大会まで あと16日！！」を予定の種類色の帯で（近い順に最大3件・タップでその日を開く・対象者の絞り込みに追従・多言語対応）） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -909,6 +909,7 @@
   .gw-dhead .dnum.tdy{background:var(--navy);color:#fff;border-radius:999px;padding:0 5px;}
   .gw-dhead .kk{font-size:calc(9px*min(var(--fs,1),1.3));font-weight:800;color:#c0442e;white-space:nowrap;}
   .gw-band{display:block;color:#fff;border-radius:4px;padding:0 3px;font-size:calc(8.5px*min(var(--fs,1),1.25));line-height:1.7;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}
+  .gw-cd{color:#fff;border-radius:12px;padding:11px 14px;font-weight:800;font-size:calc(15px*min(var(--fs,1),1.3));margin-top:10px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(20,30,55,.15);letter-spacing:.02em;}
   .gw-more{font-size:calc(8px*min(var(--fs,1),1.25));color:var(--muted);text-align:right;padding-right:2px;line-height:1;}
   .gw-field-row{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--line);}
   /* v198: 日別モーダルのセクション分け（けいこ／予定） */
@@ -1668,10 +1669,7 @@ function applyUpdate(){
     <div class="gw-cal-head"><button class="gw-nav" onclick="gwMove(-1)">‹</button><b id="gwMonthLbl"></b><button class="gw-nav" onclick="gwMove(1)">›</button></div>
     <div class="gw-grid" id="gwGrid"></div>
   </div>
-  <div class="row" style="margin-top:12px">
-    <button class="btn gold" onclick="gwQuickAttend()">🔥 出席（きょう）</button>
-    <button class="btn" style="background:var(--navy);color:#fff" onclick="gwQuickMemo()">📝 メモを書く</button>
-  </div>
+  <div id="gwCountdown"></div>
   <div class="row" style="margin-top:10px">
     <button class="btn ghost" onclick="openSchedModal()">📅 予定を追加</button>
     <button class="btn ghost" onclick="gwOpenFields()">⚙️ 記録する項目</button>
@@ -1703,7 +1701,7 @@ function applyUpdate(){
 <!-- けいこ記録モーダル -->
 <div class="modal-bg" id="keikoModal">
   <div class="modal">
-    <h3 id="keikoTitle">🔥 けいこの記録</h3>
+    <h3 id="keikoTitle">🔥 稽古の記録</h3>
     <div class="list-mini" id="kkSchedInfo" style="display:none;background:#f3f1ea;border-radius:10px;padding:8px 10px;margin-bottom:4px"></div>
     <label class="fld" style="margin-top:6px">日付</label>
     <input type="date" id="kkDate">
@@ -1728,7 +1726,7 @@ function applyUpdate(){
 <div class="modal-bg" id="gwFieldsModal">
   <div class="modal">
     <h3>⚙️ 記録する項目</h3>
-    <p class="list-mini">けいこの記録に毎回表示する入力欄を選べます（例：体重）。よく使う項目をタップするか、自由に追加してください（最大6つ）。</p>
+    <p class="list-mini">稽古の記録に毎回表示する入力欄を選べます（例：体重）。よく使う項目をタップするか、自由に追加してください（最大6つ）。</p>
     <div class="cat-pick" id="gwFieldPresets"></div>
     <div id="gwFieldList" style="margin-top:10px"></div>
     <div style="display:flex;gap:8px;margin-top:12px">
@@ -4763,7 +4761,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v206'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v207'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5433,8 +5431,8 @@ Object.assign(DICT,{
   '🔥 今日のけいこを記録':{en:'🔥 Log today’s practice',fr:'🔥 Noter l’entraînement du jour',pt:'🔥 Registrar o treino de hoje'},
   '📅 予定を追加':{en:'📅 Add event',fr:'📅 Ajouter un événement',pt:'📅 Adicionar evento'},
   '⚙️ 記録する項目':{en:'⚙️ Tracked fields',fr:'⚙️ Champs suivis',pt:'⚙️ Campos registrados'},
-  'けいこの記録':{en:'Practice log',fr:'Journal d’entraînement',pt:'Registro de treino'},
-  '今月のけいこ':{en:'This month',fr:'Ce mois-ci',pt:'Este mês'},
+  '稽古の記録':{en:'Practice log',fr:'Journal d’entraînement',pt:'Registro de treino'},
+  '今月の稽古':{en:'This month',fr:'Ce mois-ci',pt:'Este mês'},
   '平均点':{en:'Avg score',fr:'Note moy.',pt:'Nota média'},
   '連続週':{en:'Week streak',fr:'Semaines de suite',pt:'Semanas seguidas'},
   'きょうの自己評価（100点満点・任意）':{en:'Self-score out of 100 (optional)',fr:'Auto-évaluation sur 100 (facultatif)',pt:'Autoavaliação de 0 a 100 (opcional)'},
@@ -5444,10 +5442,10 @@ Object.assign(DICT,{
   '例：内股, 打ち込み（カンマ区切り）':{en:'e.g. uchi-mata, uchikomi (comma-separated)',fr:'ex. uchi-mata, uchikomi (séparés par des virgules)',pt:'ex. uchi-mata, uchikomi (separado por vírgulas)'},
   '未記入（あとからでもOK）':{en:'Blank is fine',fr:'Peut rester vide',pt:'Pode deixar em branco'},
   'この記録を削除する':{en:'Delete this log',fr:'Supprimer cette entrée',pt:'Excluir este registro'},
-  'この日のけいこ記録を削除しますか？':{en:'Delete this day’s practice log?',fr:'Supprimer l’entraînement de ce jour ?',pt:'Excluir o treino deste dia?'},
-  'けいこを記録しました':{en:'Practice logged',fr:'Entraînement noté',pt:'Treino registrado'},
+  'この日の稽古記録を削除しますか？':{en:'Delete this day’s practice log?',fr:'Supprimer l’entraînement de ce jour ?',pt:'Excluir o treino deste dia?'},
+  '稽古を記録しました':{en:'Practice logged',fr:'Entraînement noté',pt:'Treino registrado'},
   '記録する項目':{en:'Tracked fields',fr:'Champs suivis',pt:'Campos registrados'},
-  'けいこの記録に毎回表示する入力欄を選べます（例：体重）。よく使う項目をタップするか、自由に追加してください（最大6つ）。':{en:'Choose fields shown on every practice log (e.g. weight). Tap a preset or add your own (up to 6).',fr:'Choisissez les champs affichés à chaque entraînement (ex. poids). Touchez un préréglage ou ajoutez le vôtre (6 max).',pt:'Escolha campos exibidos em cada treino (ex.: peso). Toque em um atalho ou adicione o seu (até 6).'},
+  '稽古の記録に毎回表示する入力欄を選べます（例：体重）。よく使う項目をタップするか、自由に追加してください（最大6つ）。':{en:'Choose fields shown on every practice log (e.g. weight). Tap a preset or add your own (up to 6).',fr:'Choisissez les champs affichés à chaque entraînement (ex. poids). Touchez un préréglage ou ajoutez le vôtre (6 max).',pt:'Escolha campos exibidos em cada treino (ex.: peso). Toque em um atalho ou adicione o seu (até 6).'},
   '体重':{en:'Weight',fr:'Poids',pt:'Peso'},'体脂肪率':{en:'Body fat',fr:'Masse grasse',pt:'Gordura corporal'},'身長':{en:'Height',fr:'Taille',pt:'Altura'},'睡眠':{en:'Sleep',fr:'Sommeil',pt:'Sono'},
   '項目名（例：体重）':{en:'Field name (e.g. Weight)',fr:'Nom du champ (ex. Poids)',pt:'Nome do campo (ex.: Peso)'},
   '単位':{en:'Unit',fr:'Unité',pt:'Unid.'},
@@ -5460,13 +5458,13 @@ Object.assign(DICT,{
   '結果登録済み':{en:'results saved',fr:'résultats enregistrés',pt:'resultados salvos'},
   '結果は試合報告タブから':{en:'report via the Report tab',fr:'à saisir via Rapport',pt:'informe pela aba Relatório'},
   '稽古の分析':{en:'Practice analysis',fr:'Analyse des entraînements',pt:'Análise de treinos'},
-  '月別のけいこ回数':{en:'Practices per month',fr:'Entraînements par mois',pt:'Treinos por mês'},
+  '月別の稽古回数':{en:'Practices per month',fr:'Entraînements par mois',pt:'Treinos por mês'},
   '自己評価の推移（月平均）':{en:'Self-score trend (monthly avg)',fr:'Évolution de l’auto-évaluation (moy. mensuelle)',pt:'Evolução da autoavaliação (média mensal)'},
   'タグでメモを検索':{en:'Search memos by tag',fr:'Rechercher les mémos par tag',pt:'Buscar memos por tag'},
   '最近のメモ':{en:'Recent memos',fr:'Mémos récents',pt:'Memos recentes'},
   'のメモ':{en:' memos',fr:' — mémos',pt:' — memos'},
   '該当するメモがありません':{en:'No matching memos',fr:'Aucun mémo correspondant',pt:'Nenhum memo encontrado'},
-  'まだけいこの記録がありません':{en:'No practice logs yet',fr:'Pas encore d’entraînements',pt:'Ainda sem treinos'},
+  'まだ稽古の記録がありません':{en:'No practice logs yet',fr:'Pas encore d’entraînements',pt:'Ainda sem treinos'},
   '「予定・記録」タブから記録できます':{en:'Log them from the Growth tab',fr:'Notez-les depuis l’onglet Progrès',pt:'Registre na aba Evolução'},
   'からだの記録':{en:'Body tracking',fr:'Suivi du corps',pt:'Registro do corpo'},
   'まだ記録する項目がありません':{en:'No tracked fields yet',fr:'Aucun champ suivi',pt:'Nenhum campo registrado'},
@@ -5505,6 +5503,14 @@ Object.assign(DICT,{
   '「はい」にすると、この予定で試合結果を記録できるようになります。':{en:'Choosing “Yes” lets you record match results for this event.',fr:'« Oui » permet d’enregistrer les résultats de combats pour cet événement.',pt:'“Sim” permite registrar resultados de lutas neste evento.'},
   'くり返し登録（週次の稽古などをまとめて）':{en:'Recurring (bulk-add weekly practice etc.)',fr:'Récurrent (ajout groupé : entraînements hebdo, etc.)',pt:'Recorrente (adicionar em lote: treinos semanais etc.)'},
   'だれの節目を追加しますか？':{en:'Whose milestone is this?',fr:'À qui appartient cette étape ?',pt:'De quem é este marco?'},
+  // v207: 「稽古」表記＋カウントダウン
+  '稽古の記録':{en:'Practice log',fr:'Journal d’entraînement',pt:'Registro de treino'},
+  '稽古を記録しました':{en:'Practice logged',fr:'Entraînement noté',pt:'Treino registrado'},
+  'この日の稽古記録を削除しますか？':{en:'Delete this day’s practice log?',fr:'Supprimer l’entraînement de ce jour ?',pt:'Excluir o treino deste dia?'},
+  '今月の稽古':{en:'This month',fr:'Ce mois-ci',pt:'Este mês'},
+  '月別の稽古回数':{en:'Practices per month',fr:'Entraînements par mois',pt:'Treinos por mês'},
+  'まだ稽古の記録がありません':{en:'No practice logs yet',fr:'Pas encore d’entraînements',pt:'Ainda sem treinos'},
+  '稽古の記録に毎回表示する入力欄を選べます（例：体重）。よく使う項目をタップするか、自由に追加してください（最大6つ）。':{en:'Choose fields shown on every practice log (e.g. weight). Tap a preset or add your own (up to 6).',fr:'Choisissez les champs affichés à chaque entraînement (ex. poids). Touchez un préréglage ou ajoutez le vôtre (6 max).',pt:'Escolha campos exibidos em cada treino (ex.: peso). Toque em um atalho ou adicione o seu (até 6).'},
   // v205: カレンダー凡例
   '帯＝予定（色は種類）　🔥＝けいこ（数字は自己評価）　':{en:'Bars = events (color = type)  🔥 = practice (number = self-score)  ',fr:'Bandes = événements (couleur = type)  🔥 = entraînement (chiffre = note)  ',pt:'Faixas = eventos (cor = tipo)  🔥 = treino (número = nota)  '},
   '赤枠＝試合の日':{en:'Red frame = match day',fr:'Cadre rouge = jour de combat',pt:'Borda vermelha = dia de luta'},
@@ -5538,6 +5544,8 @@ Object.assign(DICT,{
 const PATTERNS=[
   // v193: 試合申込・報告の数値入り表示
   [/^(\d+)試合目$/, (m,L)=>({en:'Match '+m[1],fr:'Combat '+m[1],pt:'Luta '+m[1]}[L])],                     // 1試合目
+  [/^🥋 (.+)まで あと(\d+)日！！$/, (m,L)=>({en:'🥋 '+m[2]+' days until '+m[1]+'!!',fr:'🥋 J-'+m[2]+' avant '+m[1]+' !!',pt:'🥋 '+m[2]+' dias para '+m[1]+'!!'}[L])],  // カウントダウン
+  [/^🥋 (.+)は きょう！！$/, (m,L)=>({en:'🥋 Today: '+m[1]+'!!',fr:'🥋 Aujourd’hui : '+m[1]+' !!',pt:'🥋 Hoje: '+m[1]+'!!'}[L])],
   [/^集金済 ¥(.+)$/, (m,L)=>({en:'Collected ¥'+m[1],fr:'Collecté ¥'+m[1],pt:'Recolhido ¥'+m[1]}[L])],       // 集金済 ¥3,000
   [/^未集金 ¥(.+)$/, (m,L)=>({en:'Not collected ¥'+m[1],fr:'Non collecté ¥'+m[1],pt:'A recolher ¥'+m[1]}[L])],// 未集金 ¥3,000
   [/^出場(\d+)人$/, (m,L)=>({en:m[1]+' entrants',fr:m[1]+' inscrits',pt:m[1]+' inscritos'}[L])],           // 出場5人
@@ -8506,7 +8514,7 @@ function renderGrowth(){
       bands+`</div>`;
   }
   document.getElementById('gwGrid').innerHTML=html;
-  // ―― サマリー（今月の回数・平均点・連続週）――
+  renderGwCountdown();   // v207: 30日以内の試合カウントダウン
 }
 // v198: 主役ごとの稽古サマリー（今月の回数・平均点・連続週）＝分析タブ「稽古」ビューで表示
 function gwSummaryFor(selfId){
@@ -8526,22 +8534,24 @@ function gwSummaryFor(selfId){
   }
   return {count:monthDates.length,avg,streak};
 }
-// v198: ワンタップ出席／メモ（全員表示のときは日別モーダルへ）
+// v198: ワンタップ出席（日別モーダルの行ボタンから使用）
 function gwAttendFor(sid,ds){
   const K=keikoOf(sid);
   if(K[ds])return false;                       // すでに記録あり
   K[ds]={s:null,m:'',t:[],f:{}}; save(); return true;
 }
-function gwQuickAttend(){
-  if(gwAllView){ gwOpenDay(todayStr()); return; }
-  if(!gwSelfId){ const st=gwStars(); if(!st.length){toast(T('「選手」から主役を登録してください'));return;} gwSelfId=st[0].id; }
-  const t=todayStr();
-  if(gwAttendFor(gwSelfId,t)){ gwMonth=t.slice(0,7); renderGrowth(); toast(T('出席をつけました')+' 🔥'); }
-  else toast(T('きょうは出席ずみです（「📝メモ」から編集できます）'));
-}
-function gwQuickMemo(){
-  if(gwAllView){ gwOpenDay(todayStr()); return; }
-  gwOpenKeiko(todayStr());
+// v207: 30日以内の試合カウントダウン（種類色の帯で表示・近い順に最大3件）
+function renderGwCountdown(){
+  const box=document.getElementById('gwCountdown'); if(!box)return;
+  const nowD=new Date(todayStr()+'T00:00');
+  const ups=(DB.schedule||[]).filter(s=>s.date&&schedIsMatch(s)&&(gwAllView||!s.forId||s.forId===gwSelfId))
+    .map(s=>({s,days:Math.round((new Date(s.date+'T00:00')-nowD)/86400000)}))
+    .filter(x=>x.days>=0&&x.days<=30).sort((a,b)=>a.days-b.days).slice(0,3);
+  box.innerHTML=ups.map(({s,days})=>{
+    const nm=esc(s.title||T(s.name));
+    const txt=(days===0)?`${nm}は きょう！！`:`${nm}まで あと${days}日！！`;
+    return `<div class="gw-cd" style="background:${typeColor(s.name)}" onclick="gwOpenDay('${s.date}')">🥋 ${txt}</div>`;
+  }).join('');
 }
 function gwSelect(id){gwSelfId=id;gwAllView=false;renderGrowth();}
 function gwSelectAll(){gwAllView=true;renderGrowth();}
@@ -8558,7 +8568,7 @@ function gwOpenDay(ds){
   document.getElementById('gwDayTitle').textContent='📅 '+ds.replace(/-/g,'/')+'（'+T(['日','月','火','水','木','金','土'][new Date(ds+'T00:00').getDay()])+'）';
   const stars=gwStars(), viewStars=gwAllView?stars:stars.filter(s=>s.id===gwSelfId);
   // けいこ（主役ごとの行・[出席][メモ]の2ボタン。出席はワンタップでモーダルは開いたまま）
-  document.getElementById('gwDayKeiko').innerHTML=`<div class="gwd-sec keiko"><div class="gwd-h">🔥 ${T('けいこ')}</div>`+
+  document.getElementById('gwDayKeiko').innerHTML=`<div class="gwd-sec keiko"><div class="gwd-h">🔥 ${T('稽古')}</div>`+
     viewStars.map(st=>{ const e=keikoOf(st.id)[ds];
       const sum=e?[(e.s!=null&&e.s!=='')?e.s+T('点'):'',e.m?esc(e.m):''].filter(Boolean).join('・')||T('出席ずみ'):T('未記録');
       const btns=e
@@ -8595,7 +8605,7 @@ function gwOpenKeiko(dateStr,starId){
   const ds=dateStr||todayStr();
   kkEditKey=ds;
   const e=keikoOf(gwSelfId)[ds]||null;
-  document.getElementById('keikoTitle').textContent='🔥 '+T('けいこの記録')+'（'+ds.replace(/-/g,'/')+'）';
+  document.getElementById('keikoTitle').textContent='🔥 '+T('稽古の記録')+'（'+ds.replace(/-/g,'/')+'）';
   // その日の予定・試合情報
   const sc=(gwSchedByDate()[ds]||[]);
   const info=document.getElementById('kkSchedInfo');
@@ -8627,10 +8637,10 @@ function keikoSave(){
   if(kkEditKey&&kkEditKey!==ds)delete K[kkEditKey];    // 日付を変えた場合は移動
   K[ds]={s,m,t,f};
   save(); closeModal('keikoModal');
-  gwMonth=ds.slice(0,7); renderGrowth(); toast(T('けいこを記録しました')+' 🔥');
+  gwMonth=ds.slice(0,7); renderGrowth(); toast(T('稽古を記録しました')+' 🔥');
 }
 function keikoDelete(){
-  askConfirm(T('この日のけいこ記録を削除しますか？'),()=>{ const K=keikoOf(gwSelfId); delete K[kkEditKey]; save(); closeModal('keikoModal'); renderGrowth(); toast(T('削除しました')); });
+  askConfirm(T('この日の稽古記録を削除しますか？'),()=>{ const K=keikoOf(gwSelfId); delete K[kkEditKey]; save(); closeModal('keikoModal'); renderGrowth(); toast(T('削除しました')); });
 }
 // ―― 記録する項目（任意記入欄）――
 const GW_FIELD_PRESETS=[['体重','kg'],['体脂肪率','%'],['身長','cm'],['睡眠','時間']];
@@ -8708,7 +8718,7 @@ function gwLineChart(pairs,color,unit){  // pairs=[{l,v}] 時系列
 function anaSetKeikoTag(t){ anaKeikoTag=(anaKeikoTag===t)?'':t; renderAnalysisTab(); }
 function anaKeikoHtml(){
   const K=keikoOf(anaSelfId), dates=Object.keys(K).sort();
-  if(!dates.length)return `<div class="rk-empty">${T('まだけいこの記録がありません')}<div class="list-mini" style="margin-top:6px">${T('「予定・記録」タブから記録できます')}</div></div>`;
+  if(!dates.length)return `<div class="rk-empty">${T('まだ稽古の記録がありません')}<div class="list-mini" style="margin-top:6px">${T('「予定・記録」タブから記録できます')}</div></div>`;
   // 月別回数（直近12ヶ月）
   const months=[]; { let[y,m]=thisMonthStr().split('-').map(Number); for(let i=11;i>=0;i--){ let mm=m-i,yy=y; while(mm<1){mm+=12;yy--;} months.push(`${yy}-${String(mm).padStart(2,'0')}`);} }
   const cnt=months.map(mo=>({l:String(Number(mo.slice(5))) ,v:dates.filter(d=>d.slice(0,7)===mo).length}));
@@ -8722,11 +8732,11 @@ function anaKeikoHtml(){
   return `<div class="ana-sec">
     <div class="ra-secttl"><span class="ra-ico">🔥</span> ${T('稽古の分析')}</div>
     <div class="ent-sumbar" style="margin:4px 0 10px">
-      <div class="ent-sum-item"><b>${sm.count}</b><span>${T('今月のけいこ')}</span></div>
+      <div class="ent-sum-item"><b>${sm.count}</b><span>${T('今月の稽古')}</span></div>
       <div class="ent-sum-item ok"><b>${sm.avg!=null?sm.avg:'—'}</b><span>${T('平均点')}</span></div>
       <div class="ent-sum-item"><b>${sm.streak}</b><span>${T('連続週')}</span></div>
     </div>
-    <div class="gw-chart"><div class="t">${T('月別のけいこ回数')}</div>${gwBarChart(cnt,'#2e9e5b')}</div>
+    <div class="gw-chart"><div class="t">${T('月別の稽古回数')}</div>${gwBarChart(cnt,'#2e9e5b')}</div>
     ${avg.length?`<div class="gw-chart"><div class="t">${T('自己評価の推移（月平均）')}</div>${gwLineChart(avg,'#b8963f','')}</div>`:''}
     ${tags.length?`<div class="gw-chart"><div class="t">${T('タグでメモを検索')}</div><div class="cat-pick">${tags.slice(0,14).map(t=>`<button class="${anaKeikoTag===t?'on':''}" onclick="anaSetKeikoTag(this.textContent)">${esc(t)}</button>`).join('')}</div></div>`:''}
     <div class="gw-chart"><div class="t">${anaKeikoTag?esc(anaKeikoTag)+' '+T('のメモ'):T('最近のメモ')}</div>
