@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v214（事務予定タブ：リスト表示とすべて表示/試合のみフィルタを休止（コードは温存・display:noneと1行で復活可）。日別モーダルにメモ表示を追加。予定作成の種類「その他（自由記載）」欄を廃止＝イベント名の誤入力防止、種類追加はよく使う設定から） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v215（個人用の予定・記録タブに「よく使う設定」ボタンを設置：種類・開始時間・場所のプリセットを個人でも編集可能に。その他欄廃止に伴う種類追加手段の提供。プリセット説明文の旧「その他（自由記載）」注記も削除） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1708,6 +1708,9 @@ function applyUpdate(){
     <button class="btn ghost" onclick="openSchedModal()">📅 予定を追加</button>
     <button class="btn ghost" onclick="gwOpenFields()">⚙️ 記録する項目</button>
   </div>
+  <div class="row" style="margin-top:8px">
+    <button class="btn ghost" onclick="openPresetModal()">よく使う設定</button>
+  </div>
 </section>
 
 <!-- 事務：カレンダーの日別モーダル（予定一覧＋編集/試合結果/申込へ） -->
@@ -2177,7 +2180,7 @@ function applyUpdate(){
           <div class="set-sec-title">種類</div>
           <div id="presetTypes"></div>
           <button class="btn ghost full" style="margin-top:4px" onclick="presetAdd('types')">＋ 追加</button>
-          <p class="set-note">予定を追加するときにボタンで選べる候補です。種類ごとに色を設定でき、予定はその色で表示されます。いくつでも登録できます。<br>※「その他（自由記載）」で入力した予定は<b>グレー</b>で表示されます。</p>
+          <p class="set-note">予定を追加するときにボタンで選べる候補です。種類ごとに色を設定でき、予定はその色で表示されます。いくつでも登録できます。</p>
         </div>
       </div>
       <div id="psPaneTime" style="display:none">
@@ -4808,7 +4811,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v214'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v215'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
