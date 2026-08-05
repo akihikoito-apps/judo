@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v216（月謝の都度払いに受領履歴：▲を押すとその日の日付＋金額を自動記録、金額タップで月別履歴モーダル（日付・曜日・金額・行削除・合計）。▼は直近の記録を取り消し。回数バッジ表示。旧データは「履歴のない受領分」として注記） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v217（都度払い：▼ボタンを廃止し「🗓 履歴」ボタンに置き換え（社長提案）。取り消しは履歴モーダルの行削除で。履歴のない旧受領分にも取り消しボタンを追加） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -310,6 +310,7 @@
   .visit-base-inp{flex:1;min-width:0;text-align:right;font-size:calc(14px*var(--fs,1));padding:7px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;}
   .visit-btn{width:46px;height:40px;border:2px solid var(--line);border-radius:10px;background:#fff;font-size:calc(16px*var(--fs,1));font-weight:700;color:var(--navy);cursor:pointer;font-family:inherit;line-height:1;flex-shrink:0;padding:0;}
   .visit-btn.plus{border-color:var(--green);color:var(--green);}
+  .visit-btn.hist{width:auto;padding:0 10px;font-size:calc(13px*var(--fs,1));white-space:nowrap;}
   .visit-btn.minus{border-color:var(--red);color:var(--red);}
   html[data-shape="sharp"] .visit-btn{border-radius:5px !important;}
   html[data-shape="pop"] .visit-btn{border-radius:999px !important;}
@@ -4825,7 +4826,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v216'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v217'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5366,6 +5367,7 @@ Object.assign(DICT,{
   '申込管理':{en:'Entry admin',fr:'Gestion inscriptions',pt:'Gestão de inscrições'},
   '🗓 都度払いの履歴':{en:'🗓 Per-visit payment history',fr:'🗓 Historique des paiements par séance',pt:'🗓 Histórico de pagamentos por sessão'},
   '履歴はまだありません':{en:'No history yet',fr:'Aucun historique',pt:'Sem histórico ainda'},
+  '取り消し':{en:'Remove',fr:'Annuler',pt:'Remover'},
   '「▲」で受領を記録すると、その日の日付が自動で残ります。':{en:'Tap “▲” to record a payment — the date is saved automatically.',fr:'Touchez « ▲ » pour enregistrer un paiement — la date est conservée automatiquement.',pt:'Toque em “▲” para registrar um pagamento — a data fica salva automaticamente.'},
   '申込締切':{en:'Entry deadline',fr:'Date limite d’inscription',pt:'Prazo de inscrição'},
   'エントリー費（1人）':{en:'Entry fee (per person)',fr:'Frais d’inscription (par personne)',pt:'Taxa de inscrição (por pessoa)'},
@@ -6066,7 +6068,7 @@ function renderFee(){
         <div class="visit-ctrl">
           <span class="visit-base-lbl">${T('基本')}</span>
           <input type="number" inputmode="numeric" class="visit-base-inp" id="vbase_${s.id}" value="${base||''}" placeholder="0" onchange="visitBaseSet('${s.id}',this.value)">
-          <button class="visit-btn minus" onclick="visitBumpBy('${s.id}',-1)">▼</button>
+          <button class="visit-btn hist" onclick="openVisitLog('${s.id}')">🗓 ${T('履歴')}</button>
           <button class="visit-btn plus" onclick="visitBumpBy('${s.id}',1)">▲</button>
         </div></div>`;
     }
@@ -6134,9 +6136,17 @@ function renderVisitLog(){
     const d=new Date(e.d+'T00:00');
     return `<div class="gw-field-row"><span class="nm">${e.d.slice(5).replace('-','/')}（${T(['日','月','火','水','木','金','土'][d.getDay()])}）</span><span style="font-weight:800;margin-left:auto">${money(e.a)}</span><button class="chip-btn" style="margin-left:10px" onclick="visitLogDel(${i})">${T('削除')}</button></div>`;
   }).join('');
-  const extra=(total>sum)?`<p class="list-mini" style="margin-top:6px">※履歴のない受領分 ${money(total-sum)} を含みます</p>`:'';
+  const extra=(total>sum)?`<div class="gw-field-row" style="border-bottom:none"><span class="nm list-mini">※履歴のない受領分 ${money(total-sum)} を含みます</span><button class="chip-btn" style="margin-left:auto" onclick="visitLegacyClear()">${T('取り消し')}</button></div>`:'';
   document.getElementById('vlList').innerHTML=(rows||`<p class="list-mini" style="margin:4px 0">${T('履歴はまだありません')}</p>`)+
     `<div class="gw-field-row" style="border-bottom:none"><span class="nm" style="font-weight:800">${T('合計')}</span><span style="font-weight:800;margin-left:auto">${money(total)}</span></div>`+extra;
+}
+function visitLegacyClear(){
+  // 履歴のない受領分（v215以前の▲累計）を取り消し＝合計を履歴の合計に合わせる
+  const log=visitLogOf(vlSid,feeMonth);
+  const sum=log.reduce((a,e)=>a+(e.a||0),0);
+  const m=feeMonth; if(!DB.visitFees[m])DB.visitFees[m]={};
+  if(sum<=0)delete DB.visitFees[m][vlSid]; else DB.visitFees[m][vlSid]=sum;
+  save(); renderVisitLog(); renderFee();
 }
 function visitLogDel(i){
   const log=visitLogOf(vlSid,feeMonth);
