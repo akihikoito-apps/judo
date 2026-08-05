@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v213（事務カレンダー：ボタン文言を「申込」→「申込管理」に変更。個人用と同様の試合カウントダウン（30日以内「〇〇まで あと N日！！」最大3件・タップで日別を開く）を追加） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v214（事務予定タブ：リスト表示とすべて表示/試合のみフィルタを休止（コードは温存・display:noneと1行で復活可）。日別モーダルにメモ表示を追加。予定作成の種類「その他（自由記載）」欄を廃止＝イベント名の誤入力防止、種類追加はよく使う設定から） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1102,7 +1102,8 @@ function applyUpdate(){
     <button class="chip-btn" onclick="openPresetModal()">よく使う設定</button>
     <button class="btn gold sm" onclick="openSchedModal()">＋ 予定を追加</button>
   </div>
-  <div class="view-toggle" style="margin-bottom:12px" id="schedViewSeg">
+  <!-- v214: リスト表示は休止中（復活時は下2つの display:none を外し、renderSched の calMode 判定を旧式に戻す） -->
+  <div class="view-toggle" style="margin-bottom:12px;display:none" id="schedViewSeg">
     <button id="schedViewCalB" class="on" onclick="setSchedView('cal')">📅 カレンダー</button>
     <button id="schedViewListB" onclick="setSchedView('list')">📋 リスト</button>
   </div>
@@ -1111,7 +1112,7 @@ function applyUpdate(){
     <div class="lbl" id="schedYearLbl"></div>
     <button onclick="changeSchedYear(1)">›</button>
   </div>
-  <div class="view-toggle" style="margin-bottom:12px">
+  <div class="view-toggle" style="margin-bottom:12px;display:none" id="schedFilterSeg">
     <button id="schedFilterAllB" class="on" onclick="setSchedFilter('all')">すべて表示</button>
     <button id="schedFilterMatchB" onclick="setSchedFilter('match')"><span>🥋</span> 試合のみ</button>
   </div>
@@ -2079,7 +2080,8 @@ function applyUpdate(){
     </div>
     <label class="fld">種類</label>
     <div class="cat-pick" id="schTypePick"></div>
-    <input type="text" id="schTypeFree" placeholder="その他（自由記載）" style="margin-top:8px">
+    <!-- v214: 種類の自由記載欄は廃止（イベント名の誤入力防止）。種類の追加は「よく使う設定」から。復活時は display:none を外す -->
+    <input type="text" id="schTypeFree" placeholder="その他（自由記載）" style="margin-top:8px;display:none">
     <label class="fld">イベント名（任意）</label>
     <input type="text" id="schTitle" placeholder="例：中学生総合体育大会／夏季バーベキュー">
     <div id="schForRow" style="display:none">
@@ -4806,7 +4808,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v213'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v214'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -9630,6 +9632,7 @@ function ofOpenDay(ds){
     return `<div class="gw-field-row" style="display:block;cursor:pointer" onclick="ofDayEdit('${s.id}')">`+
       `<div class="nm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}</div>`+
       (sub?`<div class="list-mini" style="margin-top:2px">${sub}</div>`:'')+
+      (s.note?`<div class="list-mini" style="margin-top:2px">📝 ${esc(s.note)}</div>`:'')+
       entMeta+
       `<div style="display:flex;gap:6px;margin-top:6px">${btns}</div></div>`;
   }).join(''):`<p class="list-mini" style="margin:4px 0">${T('この日の予定はありません')}</p>`;
@@ -9645,7 +9648,10 @@ function ofDayAddSched(){
 }
 function renderSched(){
   // v210: 事務モードはカレンダー/リストを切替（既定＝カレンダー）
-  const calMode=(DB.mode!=='personal')&&((DB.schedView||'cal')==='cal');
+  // v214: リスト表示は休止中＝常にカレンダー。復活時は次行を
+  //   const calMode=(DB.mode!=='personal')&&((DB.schedView||'cal')==='cal');
+  // に戻し、#schedViewSeg / #schedFilterSeg の display:none を外す
+  const calMode=(DB.mode!=='personal');
   const fyWrap=document.getElementById('schedFYWrap'), calWrap=document.getElementById('schedCalWrap'), listEl=document.getElementById('schedList');
   const bC=document.getElementById('schedViewCalB'), bL=document.getElementById('schedViewListB');
   if(bC)bC.classList.toggle('on',calMode); if(bL)bL.classList.toggle('on',!calMode);
