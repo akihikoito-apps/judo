@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v211（事務カレンダーの日別モーダル：🥋・🏷の記号だけだった操作ボタンに「試合結果」「申込」の文字を追記） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v212（事務カレンダーの日別モーダルを縦積みレイアウトに：予定名・時刻/場所・申込情報を各1行で表示し、その下に編集/試合結果/申込ボタンを1列配置。過度な折り返しを解消） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -368,6 +368,7 @@
   /* 試合申込・エントリー管理 */
   .entry-btn{border-color:var(--navy);color:var(--navy);margin-left:8px;}
   .ent-cardmeta{margin-top:4px;}
+  #ofDayList .ent-cardmeta{font-size:calc(13px*var(--fs,1));color:var(--muted);}
   .ent-grid{display:flex;gap:10px;flex-wrap:wrap;}
   .ent-grid>div{flex:1 1 190px;min-width:190px;}   /* 狭い画面では縦積み＝日付が全幅で収まる */
   .ent-grid input{width:100%;box-sizing:border-box;}
@@ -4802,7 +4803,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v211'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v212'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -9609,9 +9610,12 @@ function ofOpenDay(ds){
     const entMeta=(isM&&typeof entryCardMetaHtml==='function')?entryCardMetaHtml(s.id):'';
     const btns=`<button class="chip-btn" onclick="event.stopPropagation();ofDayEdit('${s.id}')">${T('編集')}</button>`+
       (isM?`<button class="chip-btn" onclick="event.stopPropagation();ofDayResult('${s.id}')">🥋 ${T('試合結果')}${hasResult?'✓':''}</button><button class="chip-btn" onclick="event.stopPropagation();ofDayEntry('${s.id}')">🏷️ ${T('申込')}</button>`:'');
-    return `<div class="gw-field-row" style="cursor:pointer" onclick="ofDayEdit('${s.id}')">`+
-      `<span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${s.place?' <span class="list-mini">'+esc(s.place)+'</span>':''}${entMeta}</span>`+
-      `<span style="display:flex;gap:6px;flex-shrink:0">${btns}</span></div>`;
+    const sub=[s.time?esc(s.time):'',s.place?esc(s.place):''].filter(Boolean).join('・');
+    return `<div class="gw-field-row" style="display:block;cursor:pointer" onclick="ofDayEdit('${s.id}')">`+
+      `<div class="nm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}</div>`+
+      (sub?`<div class="list-mini" style="margin-top:2px">${sub}</div>`:'')+
+      entMeta+
+      `<div style="display:flex;gap:6px;margin-top:6px">${btns}</div></div>`;
   }).join(''):`<p class="list-mini" style="margin:4px 0">${T('この日の予定はありません')}</p>`;
   openModal('ofDayModal');
 }
