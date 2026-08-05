@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v215（個人用の予定・記録タブに「よく使う設定」ボタンを設置：種類・開始時間・場所のプリセットを個人でも編集可能に。その他欄廃止に伴う種類追加手段の提供。プリセット説明文の旧「その他（自由記載）」注記も削除） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v216（月謝の都度払いに受領履歴：▲を押すとその日の日付＋金額を自動記録、金額タップで月別履歴モーダル（日付・曜日・金額・行削除・合計）。▼は直近の記録を取り消し。回数バッジ表示。旧データは「履歴のない受領分」として注記） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -304,6 +304,7 @@
   .fee-amt-btn{font-size:calc(16px*var(--fs,1));font-weight:700;color:var(--navy);white-space:nowrap;background:#fff;border:2px solid var(--line);border-radius:10px;padding:6px 10px;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
   .fee-row{flex-wrap:wrap;}
   .visit-total{font-weight:800;color:var(--navy);font-size:calc(18px*var(--fs,1));white-space:nowrap;margin-left:auto;align-self:center;}
+  .visit-cnt{font-size:calc(11px*var(--fs,1));color:var(--muted);font-weight:700;margin-left:5px;vertical-align:2px;}
   .visit-ctrl{width:100%;display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);}
   .visit-base-lbl{font-size:calc(12px*var(--fs,1));color:var(--muted);white-space:nowrap;font-weight:600;}
   .visit-base-inp{flex:1;min-width:0;text-align:right;font-size:calc(14px*var(--fs,1));padding:7px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;}
@@ -1712,6 +1713,19 @@ function applyUpdate(){
     <button class="btn ghost" onclick="openPresetModal()">よく使う設定</button>
   </div>
 </section>
+
+<!-- v216: 都度払いの受領履歴モーダル -->
+<div class="modal-bg" id="visitLogModal">
+  <div class="modal">
+    <h3>🗓 都度払いの履歴</h3>
+    <p class="list-mini" id="vlSub" style="margin:2px 0 8px"></p>
+    <div id="vlList"></div>
+    <p class="set-note" style="margin-top:10px">「▲」で受領を記録すると、その日の日付が自動で残ります。</p>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost" onclick="closeModal('visitLogModal')">とじる</button>
+    </div>
+  </div>
+</div>
 
 <!-- 事務：カレンダーの日別モーダル（予定一覧＋編集/試合結果/申込へ） -->
 <div class="modal-bg" id="ofDayModal">
@@ -4811,7 +4825,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v215'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v216'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5350,6 +5364,9 @@ Object.assign(DICT,{
   'この大会の申込情報を管理します（会計とは別＝道場が参加者から預かって主催者へ渡す“手続き”の記録です）。':{en:'Manage this tournament’s entry info (separate from accounting — a record of the dojo collecting fees from participants and passing them to the organizer).',fr:'Gérez les informations d’inscription de ce tournoi (distinct de la comptabilité — le dojo collecte les frais des participants et les remet à l’organisateur).',pt:'Gerencie as informações de inscrição deste torneio (separado da contabilidade — o dojô recolhe as taxas dos participantes e repassa ao organizador).'},
   '申込':{en:'Entry',fr:'Inscription',pt:'Inscrição'},
   '申込管理':{en:'Entry admin',fr:'Gestion inscriptions',pt:'Gestão de inscrições'},
+  '🗓 都度払いの履歴':{en:'🗓 Per-visit payment history',fr:'🗓 Historique des paiements par séance',pt:'🗓 Histórico de pagamentos por sessão'},
+  '履歴はまだありません':{en:'No history yet',fr:'Aucun historique',pt:'Sem histórico ainda'},
+  '「▲」で受領を記録すると、その日の日付が自動で残ります。':{en:'Tap “▲” to record a payment — the date is saved automatically.',fr:'Touchez « ▲ » pour enregistrer un paiement — la date est conservée automatiquement.',pt:'Toque em “▲” para registrar um pagamento — a data fica salva automaticamente.'},
   '申込締切':{en:'Entry deadline',fr:'Date limite d’inscription',pt:'Prazo de inscrição'},
   'エントリー費（1人）':{en:'Entry fee (per person)',fr:'Frais d’inscription (par personne)',pt:'Taxa de inscrição (por pessoa)'},
   '↧ この金額を出場者全員に反映':{en:'↧ Apply this amount to all entrants',fr:'↧ Appliquer ce montant à tous les inscrits',pt:'↧ Aplicar este valor a todos os inscritos'},
@@ -5627,6 +5644,8 @@ const PATTERNS=[
   [/^締切超過\((.+)\)$/, (m,L)=>({en:'Overdue ('+m[1]+')',fr:'Dépassé ('+m[1]+')',pt:'Vencido ('+m[1]+')'}[L])], // 締切超過(8/10)
   [/^締切 (.+)$/, (m,L)=>({en:'Deadline '+m[1],fr:'Clôture '+m[1],pt:'Prazo '+m[1]}[L])],                  // 締切 8/10
   [/^本日締切$/, (m,L)=>({en:'Due today',fr:'Aujourd’hui',pt:'Vence hoje'}[L])],                            // 本日締切
+  [/^(\d+)回$/, (m,L)=>({en:m[1]+'×',fr:m[1]+'×',pt:m[1]+'×'}[L])],                                        // v216: 都度払いの回数バッジ
+  [/^※履歴のない受領分 (.+) を含みます$/, (m,L)=>({en:'※Includes '+m[1]+' received without a dated entry',fr:'※Inclut '+m[1]+' reçus sans date enregistrée',pt:'※Inclui '+m[1]+' recebidos sem data registrada'}[L])],
   [/^✅ 申込完了$/, (m,L)=>({en:'✅ Entry complete',fr:'✅ Inscription terminée',pt:'✅ Inscrição concluída'}[L])], // ✅ 申込完了
   [/^⚠ 締切が近い申込 (\d+)件$/, (m,L)=>({en:'⚠ '+m[1]+' entries near deadline',fr:'⚠ '+m[1]+' inscription(s) à échéance',pt:'⚠ '+m[1]+' inscrições perto do prazo'}[L])], // ⚠ 締切が近い申込 2件
   [/^あと(\d+)日$/, (m,L)=>({en:m[1]+'d left',fr:'J-'+m[1],pt:m[1]+'d'}[L])],                              // あと3日 (バナーのタグ)
@@ -5747,7 +5766,7 @@ let DB={
   schedPresets:{types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['','','','']},
   feePresets:[2000,3000,0,0],
   feeOverrides:{},
-  perVisitFee:0, visitFees:{},
+  perVisitFee:0, visitFees:{}, visitLog:{},
   matchPresets:{rounds:['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'],grades:['一本','技あり','有効','指導差','判定']},
   themeColor:'indigo',
   themeShape:'round',
@@ -5839,6 +5858,7 @@ function normalizeDB(){
   if(!DB.feeOverrides)DB.feeOverrides={};
   if(typeof DB.perVisitFee!=='number'||DB.perVisitFee<0)DB.perVisitFee=0;
   if(!DB.visitFees||typeof DB.visitFees!=='object')DB.visitFees={};
+  if(!DB.visitLog||typeof DB.visitLog!=='object')DB.visitLog={};   // v216: 都度払いの受領履歴 {月:{sid:[{d,a}]}}
   if(!DB.themeColor)DB.themeColor='indigo';
   if(!DB.fontScale)DB.fontScale='small';
   if(!DB.cashCats||!Array.isArray(DB.cashCats.in)||!Array.isArray(DB.cashCats.out))DB.cashCats={in:['寄付','参加費徴収','物販収入','補助金','その他収入'],out:['用具購入','会場費','遠征費','審査料','その他支出']};
@@ -6040,8 +6060,9 @@ function renderFee(){
     if(isPerVisit(s)){
       const total=visitTotal(s.id,feeMonth);
       const base=visitBaseOf(s);
+      const vlog=(DB.visitLog[feeMonth]&&DB.visitLog[feeMonth][s.id])||[];
       return `<div class="fee-row"><div class="att-person">${nameWithTags(s)}</div>
-        <div class="visit-total">${money(total)}</div>
+        <div class="visit-total" style="cursor:pointer" onclick="openVisitLog('${s.id}')">${money(total)}${vlog.length?`<span class="visit-cnt">${vlog.length}回</span>`:''}</div>
         <div class="visit-ctrl">
           <span class="visit-base-lbl">${T('基本')}</span>
           <input type="number" inputmode="numeric" class="visit-base-inp" id="vbase_${s.id}" value="${base||''}" placeholder="0" onchange="visitBaseSet('${s.id}',this.value)">
@@ -6085,13 +6106,46 @@ function visitBaseOf(s){return (s && s.visitBase!=null && s.visitBase>0)?s.visit
 function visitTotal(sid,m){return (DB.visitFees[m]&&DB.visitFees[m][sid])||0;}
 function visitBaseSet(sid,val){const s=DB.students.find(x=>x.id===sid);if(s){s.visitBase=Math.max(0,Number(val)||0);save();}}
 function visitBumpBy(sid,dir){
+  const s=DB.students.find(x=>x.id===sid);
   const inp=document.getElementById('vbase_'+sid);
-  const base=Math.max(0,Number(inp?inp.value:0)||0);
-  const s=DB.students.find(x=>x.id===sid);if(s)s.visitBase=base;
+  const base=Math.max(0,Number(inp?inp.value:(s?visitBaseOf(s):0))||0);
+  if(s)s.visitBase=base;
   const m=feeMonth;if(!DB.visitFees[m])DB.visitFees[m]={};
-  const t=Math.max(0,(DB.visitFees[m][sid]||0)+dir*base);
+  // v216: 受領履歴に日付を記録（▲＝今日の受領を追加／▼＝直近の記録を取り消し）
+  let delta=base;
+  if(dir>0){ if(base>0)visitLogOf(sid,m).push({d:todayStr(),a:base}); }
+  else{ const lg=visitLogOf(sid,m); if(lg.length){ delta=lg[lg.length-1].a||base; lg.pop(); } }
+  const t=Math.max(0,(DB.visitFees[m][sid]||0)+dir*delta);
   if(t<=0)delete DB.visitFees[m][sid]; else DB.visitFees[m][sid]=t;
   save();renderFee();
+}
+/* ===== v216: 都度払いの受領履歴 ===== */
+let vlSid=null;
+function visitLogOf(sid,m){ if(!DB.visitLog)DB.visitLog={}; if(!DB.visitLog[m])DB.visitLog[m]={}; if(!DB.visitLog[m][sid])DB.visitLog[m][sid]=[]; return DB.visitLog[m][sid]; }
+function openVisitLog(sid){ vlSid=sid; renderVisitLog(); openModal('visitLogModal'); }
+function renderVisitLog(){
+  const s=DB.students.find(x=>x.id===vlSid); if(!s)return;
+  const [y,mm]=feeMonth.split('-');
+  document.getElementById('vlSub').textContent=`${s.name}・${y}${T('年')} ${Number(mm)}${T('月')}`;
+  const log=visitLogOf(vlSid,feeMonth);
+  const total=visitTotal(vlSid,feeMonth);
+  const sum=log.reduce((a,e)=>a+(e.a||0),0);
+  const rows=log.map((e,i)=>{
+    const d=new Date(e.d+'T00:00');
+    return `<div class="gw-field-row"><span class="nm">${e.d.slice(5).replace('-','/')}（${T(['日','月','火','水','木','金','土'][d.getDay()])}）</span><span style="font-weight:800;margin-left:auto">${money(e.a)}</span><button class="chip-btn" style="margin-left:10px" onclick="visitLogDel(${i})">${T('削除')}</button></div>`;
+  }).join('');
+  const extra=(total>sum)?`<p class="list-mini" style="margin-top:6px">※履歴のない受領分 ${money(total-sum)} を含みます</p>`:'';
+  document.getElementById('vlList').innerHTML=(rows||`<p class="list-mini" style="margin:4px 0">${T('履歴はまだありません')}</p>`)+
+    `<div class="gw-field-row" style="border-bottom:none"><span class="nm" style="font-weight:800">${T('合計')}</span><span style="font-weight:800;margin-left:auto">${money(total)}</span></div>`+extra;
+}
+function visitLogDel(i){
+  const log=visitLogOf(vlSid,feeMonth);
+  const e=log[i]; if(!e)return;
+  log.splice(i,1);
+  const m=feeMonth; if(!DB.visitFees[m])DB.visitFees[m]={};
+  const t=Math.max(0,(DB.visitFees[m][vlSid]||0)-(e.a||0));
+  if(t<=0)delete DB.visitFees[m][vlSid]; else DB.visitFees[m][vlSid]=t;
+  save(); renderVisitLog(); renderFee();
 }
 function toggleFee(sid){
   if(!DB.fees[feeMonth])DB.fees[feeMonth]={};
@@ -10118,7 +10172,7 @@ function doArchiveYear(){
     // ② 該当年度の予定ID（試合結果の紐づけ用）を先に把握
     const evIds=new Set((DB.schedule||[]).filter(e=>inFY(e.date)).map(e=>e.id));
     // ③ 年度データを本体から除去（名簿・設定は保持）
-    ['attendance','fees','visitFees','feeOverrides'].forEach(k=>{
+    ['attendance','fees','visitFees','visitLog','feeOverrides'].forEach(k=>{
       if(DB[k]&&typeof DB[k]==='object'){ Object.keys(DB[k]).forEach(key=>{ const m=(key.match(/\d{4}-\d{2}/)||[])[0]; if(m&&inFY(m)) delete DB[k][key]; }); }
     });
     if(Array.isArray(DB.schedule)) DB.schedule=DB.schedule.filter(e=>!inFY(e.date));
