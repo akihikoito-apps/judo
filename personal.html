@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v210（事務の予定タブをカレンダー形式に：📅カレンダー/📋リスト切替・既定はカレンダー・リストは従来のまま維持。TimeTree式の帯＋種類色枠＋今日反転、申込要対応⚠、日付タップで編集/試合結果/申込/この日に予定を追加。稽古の出席・点数は事務では非表示） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v211（事務カレンダーの日別モーダル：🥋・🏷の記号だけだった操作ボタンに「試合結果」「申込」の文字を追記） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -4802,7 +4802,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v210'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v211'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5339,6 +5339,7 @@ Object.assign(DICT,{
   '🏷️ 試合申込':{en:'🏷️ Tournament entry',fr:'🏷️ Inscription au tournoi',pt:'🏷️ Inscrição no torneio'},
   '🏷️ 試合申込・エントリー':{en:'🏷️ Tournament entry',fr:'🏷️ Inscription au tournoi',pt:'🏷️ Inscrição no torneio'},
   'この大会の申込情報を管理します（会計とは別＝道場が参加者から預かって主催者へ渡す“手続き”の記録です）。':{en:'Manage this tournament’s entry info (separate from accounting — a record of the dojo collecting fees from participants and passing them to the organizer).',fr:'Gérez les informations d’inscription de ce tournoi (distinct de la comptabilité — le dojo collecte les frais des participants et les remet à l’organisateur).',pt:'Gerencie as informações de inscrição deste torneio (separado da contabilidade — o dojô recolhe as taxas dos participantes e repassa ao organizador).'},
+  '申込':{en:'Entry',fr:'Inscription',pt:'Inscrição'},
   '申込締切':{en:'Entry deadline',fr:'Date limite d’inscription',pt:'Prazo de inscrição'},
   'エントリー費（1人）':{en:'Entry fee (per person)',fr:'Frais d’inscription (par personne)',pt:'Taxa de inscrição (por pessoa)'},
   '↧ この金額を出場者全員に反映':{en:'↧ Apply this amount to all entrants',fr:'↧ Appliquer ce montant à tous les inscrits',pt:'↧ Aplicar este valor a todos os inscritos'},
@@ -9607,7 +9608,7 @@ function ofOpenDay(ds){
     const hasResult=DB.matchResults[s.id]&&((DB.matchResults[s.id].individual||[]).length||(DB.matchResults[s.id].team&&(DB.matchResults[s.id].team.cards||[]).length));
     const entMeta=(isM&&typeof entryCardMetaHtml==='function')?entryCardMetaHtml(s.id):'';
     const btns=`<button class="chip-btn" onclick="event.stopPropagation();ofDayEdit('${s.id}')">${T('編集')}</button>`+
-      (isM?`<button class="chip-btn" onclick="event.stopPropagation();ofDayResult('${s.id}')">🥋${hasResult?'✓':''}</button><button class="chip-btn" onclick="event.stopPropagation();ofDayEntry('${s.id}')">🏷️</button>`:'');
+      (isM?`<button class="chip-btn" onclick="event.stopPropagation();ofDayResult('${s.id}')">🥋 ${T('試合結果')}${hasResult?'✓':''}</button><button class="chip-btn" onclick="event.stopPropagation();ofDayEntry('${s.id}')">🏷️ ${T('申込')}</button>`:'');
     return `<div class="gw-field-row" style="cursor:pointer" onclick="ofDayEdit('${s.id}')">`+
       `<span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${s.place?' <span class="list-mini">'+esc(s.place)+'</span>':''}${entMeta}</span>`+
       `<span style="display:flex;gap:6px;flex-shrink:0">${btns}</span></div>`;
