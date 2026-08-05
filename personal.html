@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v212（事務カレンダーの日別モーダルを縦積みレイアウトに：予定名・時刻/場所・申込情報を各1行で表示し、その下に編集/試合結果/申込ボタンを1列配置。過度な折り返しを解消） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v213（事務カレンダー：ボタン文言を「申込」→「申込管理」に変更。個人用と同様の試合カウントダウン（30日以内「〇〇まで あと N日！！」最大3件・タップで日別を開く）を追加） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -404,6 +404,8 @@
   .ent-done-note{background:#eafaf0;border:1px solid #b8e6c8;border-radius:10px;padding:10px 12px;font-size:calc(13px*var(--fs,1));color:#1f7a45;line-height:1.6;}
   /* ③要対応：バナー・カード強調・タブ赤バッジ */
   #schedAlertBanner:empty{display:none;}
+  #schedCountdown:empty{display:none;}
+  #schedCountdown{margin-bottom:12px;}
   .sched-alert{background:#fff4f1;border:1.5px solid #f0c0b5;border-radius:14px;padding:12px 12px 11px;margin-bottom:12px;}
   .sa-head{font-weight:800;color:#c0392b;font-size:calc(15px*var(--fs,1));margin-bottom:9px;}
   .sa-list{display:flex;flex-direction:column;gap:7px;}
@@ -1114,6 +1116,7 @@ function applyUpdate(){
     <button id="schedFilterMatchB" onclick="setSchedFilter('match')"><span>🥋</span> 試合のみ</button>
   </div>
   <div id="schedAlertBanner"></div>
+  <div id="schedCountdown"></div>
   <div class="gw-cal" id="schedCalWrap" style="display:none">
     <div class="gw-cal-head"><button class="gw-nav" onclick="ofCalMove(-1)">‹</button><b id="schedCalLbl"></b><button class="gw-nav" onclick="ofCalMove(1)">›</button></div>
     <div class="gw-grid" id="schedCalGrid"></div>
@@ -4803,7 +4806,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v212'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v213'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5341,6 +5344,7 @@ Object.assign(DICT,{
   '🏷️ 試合申込・エントリー':{en:'🏷️ Tournament entry',fr:'🏷️ Inscription au tournoi',pt:'🏷️ Inscrição no torneio'},
   'この大会の申込情報を管理します（会計とは別＝道場が参加者から預かって主催者へ渡す“手続き”の記録です）。':{en:'Manage this tournament’s entry info (separate from accounting — a record of the dojo collecting fees from participants and passing them to the organizer).',fr:'Gérez les informations d’inscription de ce tournoi (distinct de la comptabilité — le dojo collecte les frais des participants et les remet à l’organisateur).',pt:'Gerencie as informações de inscrição deste torneio (separado da contabilidade — o dojô recolhe as taxas dos participantes e repassa ao organizador).'},
   '申込':{en:'Entry',fr:'Inscription',pt:'Inscrição'},
+  '申込管理':{en:'Entry admin',fr:'Gestion inscriptions',pt:'Gestão de inscrições'},
   '申込締切':{en:'Entry deadline',fr:'Date limite d’inscription',pt:'Prazo de inscrição'},
   'エントリー費（1人）':{en:'Entry fee (per person)',fr:'Frais d’inscription (par personne)',pt:'Taxa de inscrição (por pessoa)'},
   '↧ この金額を出場者全員に反映':{en:'↧ Apply this amount to all entrants',fr:'↧ Appliquer ce montant à tous les inscrits',pt:'↧ Aplicar este valor a todos os inscritos'},
@@ -9600,6 +9604,18 @@ function renderSchedCal(){
   }
   document.getElementById('schedCalGrid').innerHTML=html;
 }
+function renderSchedCountdown(){
+  const box=document.getElementById('schedCountdown'); if(!box)return;
+  const nowD=new Date(todayStr()+'T00:00');
+  const ups=(DB.schedule||[]).filter(s=>s.date&&schedIsMatch(s))
+    .map(s=>({s,days:Math.round((new Date(s.date+'T00:00')-nowD)/86400000)}))
+    .filter(x=>x.days>=0&&x.days<=30).sort((a,b)=>a.days-b.days).slice(0,3);
+  box.innerHTML=ups.map(({s,days})=>{
+    const nm=esc(s.title||T(s.name));
+    const txt=(days===0)?`${nm}は きょう！！`:`${nm}まで あと${days}日！！`;
+    return `<div class="gw-cd" style="background:${typeColor(s.name)}" onclick="ofOpenDay('${s.date}')">🥋 ${txt}</div>`;
+  }).join('');
+}
 function ofOpenDay(ds){
   ofDayDs=ds;
   document.getElementById('ofDayTitle').textContent='📅 '+ds.replace(/-/g,'/')+'（'+T(['日','月','火','水','木','金','土'][new Date(ds+'T00:00').getDay()])+'）';
@@ -9609,7 +9625,7 @@ function ofOpenDay(ds){
     const hasResult=DB.matchResults[s.id]&&((DB.matchResults[s.id].individual||[]).length||(DB.matchResults[s.id].team&&(DB.matchResults[s.id].team.cards||[]).length));
     const entMeta=(isM&&typeof entryCardMetaHtml==='function')?entryCardMetaHtml(s.id):'';
     const btns=`<button class="chip-btn" onclick="event.stopPropagation();ofDayEdit('${s.id}')">${T('編集')}</button>`+
-      (isM?`<button class="chip-btn" onclick="event.stopPropagation();ofDayResult('${s.id}')">🥋 ${T('試合結果')}${hasResult?'✓':''}</button><button class="chip-btn" onclick="event.stopPropagation();ofDayEntry('${s.id}')">🏷️ ${T('申込')}</button>`:'');
+      (isM?`<button class="chip-btn" onclick="event.stopPropagation();ofDayResult('${s.id}')">🥋 ${T('試合結果')}${hasResult?'✓':''}</button><button class="chip-btn" onclick="event.stopPropagation();ofDayEntry('${s.id}')">🏷️ ${T('申込管理')}</button>`:'');
     const sub=[s.time?esc(s.time):'',s.place?esc(s.place):''].filter(Boolean).join('・');
     return `<div class="gw-field-row" style="display:block;cursor:pointer" onclick="ofDayEdit('${s.id}')">`+
       `<div class="nm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}</div>`+
@@ -9636,7 +9652,8 @@ function renderSched(){
   if(fyWrap)fyWrap.style.display=calMode?'none':'';
   if(calWrap)calWrap.style.display=calMode?'':'none';
   if(listEl)listEl.style.display=calMode?'none':'';
-  if(calMode){ renderSchedCal(); renderSchedAlert(); updateSchedTabBadge(); return; }
+  if(calMode){ renderSchedCal(); renderSchedCountdown(); renderSchedAlert(); updateSchedTabBadge(); return; }
+  const cdBox=document.getElementById('schedCountdown'); if(cdBox)cdBox.innerHTML='';
   const fy=schedYear;
   if(!schedMonthOpen)schedMonthOpen=new Set([thisMonthStr()]);   // 当月を開いた状態でスタート
   document.getElementById('schedYearLbl').innerHTML=`<span class="fy-main">${fy}年度</span><span class="fy-sub">${fyRangeLabel(fy)}</span>`;
