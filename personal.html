@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v209（写真のぼかし機能：メモリー写真の🌫️ボタン→指でなぞる/タップでモザイク。相手の顔・ゼッケン・観客などSNS掲載前の配慮に。太さ3段階・最初からやり直し可・保存でメモリーとシェア画像の両方に反映。編集中の誤タップは確認ダイアログで保護。肖像権配慮機能のため無料） -->
+<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v210（事務の予定タブをカレンダー形式に：📅カレンダー/📋リスト切替・既定はカレンダー・リストは従来のまま維持。TimeTree式の帯＋種類色枠＋今日反転、申込要対応⚠、日付タップで編集/試合結果/申込/この日に予定を追加。稽古の出席・点数は事務では非表示） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1099,7 +1099,11 @@ function applyUpdate(){
     <button class="chip-btn" onclick="openPresetModal()">よく使う設定</button>
     <button class="btn gold sm" onclick="openSchedModal()">＋ 予定を追加</button>
   </div>
-  <div class="month-nav">
+  <div class="view-toggle" style="margin-bottom:12px" id="schedViewSeg">
+    <button id="schedViewCalB" class="on" onclick="setSchedView('cal')">📅 カレンダー</button>
+    <button id="schedViewListB" onclick="setSchedView('list')">📋 リスト</button>
+  </div>
+  <div class="month-nav" id="schedFYWrap">
     <button onclick="changeSchedYear(-1)">‹</button>
     <div class="lbl" id="schedYearLbl"></div>
     <button onclick="changeSchedYear(1)">›</button>
@@ -1109,6 +1113,10 @@ function applyUpdate(){
     <button id="schedFilterMatchB" onclick="setSchedFilter('match')"><span>🥋</span> 試合のみ</button>
   </div>
   <div id="schedAlertBanner"></div>
+  <div class="gw-cal" id="schedCalWrap" style="display:none">
+    <div class="gw-cal-head"><button class="gw-nav" onclick="ofCalMove(-1)">‹</button><b id="schedCalLbl"></b><button class="gw-nav" onclick="ofCalMove(1)">›</button></div>
+    <div class="gw-grid" id="schedCalGrid"></div>
+  </div>
   <div class="card" id="schedList"></div>
 </section>
 
@@ -1696,6 +1704,18 @@ function applyUpdate(){
     <button class="btn ghost" onclick="gwOpenFields()">⚙️ 記録する項目</button>
   </div>
 </section>
+
+<!-- 事務：カレンダーの日別モーダル（予定一覧＋編集/試合結果/申込へ） -->
+<div class="modal-bg" id="ofDayModal">
+  <div class="modal">
+    <h3 id="ofDayTitle"></h3>
+    <div id="ofDayList" style="margin-top:6px"></div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn ghost" onclick="closeModal('ofDayModal')">とじる</button>
+      <button class="btn gold" onclick="ofDayAddSched()">📅 この日に予定を追加</button>
+    </div>
+  </div>
+</div>
 
 <!-- 節目の対象者を選ぶ（全員表示からの追加時） -->
 <div class="modal-bg" id="mileStarModal">
@@ -4782,7 +4802,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v209'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v210'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5524,6 +5544,9 @@ Object.assign(DICT,{
   '「はい」にすると、この予定で試合結果を記録できるようになります。':{en:'Choosing “Yes” lets you record match results for this event.',fr:'« Oui » permet d’enregistrer les résultats de combats pour cet événement.',pt:'“Sim” permite registrar resultados de lutas neste evento.'},
   'くり返し登録（週次の稽古などをまとめて）':{en:'Recurring (bulk-add weekly practice etc.)',fr:'Récurrent (ajout groupé : entraînements hebdo, etc.)',pt:'Recorrente (adicionar em lote: treinos semanais etc.)'},
   'だれの節目を追加しますか？':{en:'Whose milestone is this?',fr:'À qui appartient cette étape ?',pt:'De quem é este marco?'},
+  // v210: 事務カレンダー
+  '📅 カレンダー':{en:'📅 Calendar',fr:'📅 Calendrier',pt:'📅 Calendário'},
+  '📋 リスト':{en:'📋 List',fr:'📋 Liste',pt:'📋 Lista'},
   // v209: 写真のぼかし
   'ぼかし':{en:'Blur',fr:'Flou',pt:'Desfoque'},
   '🌫️ ぼかし（モザイク）':{en:'🌫️ Blur (mosaic)',fr:'🌫️ Flou (mosaïque)',pt:'🌫️ Desfoque (mosaico)'},
@@ -9536,7 +9559,79 @@ function schedMonthGroupsHtml(items){
   });
   return html;
 }
+/* ===== v210: 事務の予定タブ＝カレンダー/リスト切替（カレンダーが既定・リストは従来のまま） ===== */
+let schedCalMonth=null;
+function setSchedView(v){ DB.schedView=v; save(); renderSched(); }
+function ofCalMove(d){ let[y,m]=(schedCalMonth||thisMonthStr()).split('-').map(Number); m+=d; if(m<1){m=12;y--;} if(m>12){m=1;y++;} schedCalMonth=`${y}-${String(m).padStart(2,'0')}`; renderSched(); }
+function ofDaySchedList(ds){
+  let list=(DB.schedule||[]).filter(s=>s.date===ds);
+  if(schedFilter==='match')list=list.filter(schedIsMatch);
+  return list.sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+}
+function renderSchedCal(){
+  if(!schedCalMonth)schedCalMonth=thisMonthStr();
+  document.getElementById('schedCalLbl').textContent=schedCalMonth.replace('-','/');
+  const [gy,gm]=schedCalMonth.split('-').map(Number);
+  const first=new Date(gy,gm-1,1), start=new Date(first); start.setDate(1-first.getDay());
+  const daysInMonth=new Date(gy,gm,0).getDate();
+  const cells=Math.ceil((first.getDay()+daysInMonth)/7)*7;
+  const today=todayStr();
+  let html=['日','月','火','水','木','金','土'].map(d=>`<div class="gw-dow">${T(d)}</div>`).join('');
+  for(let i=0;i<cells;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i);
+    const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const out=(d.getMonth()!==gm-1);
+    const daySched=ofDaySchedList(ds);
+    const dayColors=[...new Set(daySched.map(s=>typeColor(s.name)))];
+    const bg=(ds===today)?'#e9edf8':'#fff';
+    let styl='';
+    if(!dayColors.length){ styl=`background:${bg};`; }
+    else if(dayColors.length===1){ styl=`border:2px solid ${dayColors[0]};padding:1px 1px 2px;background:${bg};`; }
+    else { const n=dayColors.length; const stops=dayColors.map((c,j)=>`${c} ${Math.round(100*j/n)}% ${Math.round(100*(j+1)/n)}%`).join(','); styl=`border:2px solid transparent;padding:1px 1px 2px;background:linear-gradient(${bg},${bg}) padding-box,linear-gradient(135deg,${stops}) border-box;`; }
+    // 申込の要対応（締切7日以内・未完了）は⚠を出す
+    const attn=daySched.some(s=>typeof entryNeedsAttention==='function'&&entryNeedsAttention(s.id));
+    const bands=daySched.slice(0,2).map(s=>`<span class="gw-band" style="background:${typeColor(s.name)}">${esc(s.title||T(s.name))}</span>`).join('')+
+      (daySched.length>2?`<span class="gw-more">+${daySched.length-2}</span>`:'');
+    html+=`<div class="gw-day${out?' out':''}" style="${styl}" onclick="ofOpenDay('${ds}')">`+
+      `<div class="gw-dhead"><span class="dnum${ds===today?' tdy':''}">${d.getDate()}</span>${attn?'<span class="kk">⚠</span>':''}</div>`+
+      bands+`</div>`;
+  }
+  document.getElementById('schedCalGrid').innerHTML=html;
+}
+function ofOpenDay(ds){
+  ofDayDs=ds;
+  document.getElementById('ofDayTitle').textContent='📅 '+ds.replace(/-/g,'/')+'（'+T(['日','月','火','水','木','金','土'][new Date(ds+'T00:00').getDay()])+'）';
+  const sc=ofDaySchedList(ds);
+  document.getElementById('ofDayList').innerHTML=sc.length?sc.map(s=>{
+    const isM=schedIsMatch(s);
+    const hasResult=DB.matchResults[s.id]&&((DB.matchResults[s.id].individual||[]).length||(DB.matchResults[s.id].team&&(DB.matchResults[s.id].team.cards||[]).length));
+    const entMeta=(isM&&typeof entryCardMetaHtml==='function')?entryCardMetaHtml(s.id):'';
+    const btns=`<button class="chip-btn" onclick="event.stopPropagation();ofDayEdit('${s.id}')">${T('編集')}</button>`+
+      (isM?`<button class="chip-btn" onclick="event.stopPropagation();ofDayResult('${s.id}')">🥋${hasResult?'✓':''}</button><button class="chip-btn" onclick="event.stopPropagation();ofDayEntry('${s.id}')">🏷️</button>`:'');
+    return `<div class="gw-field-row" style="cursor:pointer" onclick="ofDayEdit('${s.id}')">`+
+      `<span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${s.place?' <span class="list-mini">'+esc(s.place)+'</span>':''}${entMeta}</span>`+
+      `<span style="display:flex;gap:6px;flex-shrink:0">${btns}</span></div>`;
+  }).join(''):`<p class="list-mini" style="margin:4px 0">${T('この日の予定はありません')}</p>`;
+  openModal('ofDayModal');
+}
+let ofDayDs=null;
+function ofDayEdit(id){ closeModal('ofDayModal'); openSchedModal(id); }
+function ofDayResult(id){ closeModal('ofDayModal'); openMatchModal(id); }
+function ofDayEntry(id){ closeModal('ofDayModal'); openEntryModal(id); }
+function ofDayAddSched(){
+  closeModal('ofDayModal'); openSchedModal();
+  const el=document.getElementById('schDate'); if(el&&ofDayDs){ el.value=ofDayDs; if(typeof updateSchedWeek==='function')updateSchedWeek(); }
+}
 function renderSched(){
+  // v210: 事務モードはカレンダー/リストを切替（既定＝カレンダー）
+  const calMode=(DB.mode!=='personal')&&((DB.schedView||'cal')==='cal');
+  const fyWrap=document.getElementById('schedFYWrap'), calWrap=document.getElementById('schedCalWrap'), listEl=document.getElementById('schedList');
+  const bC=document.getElementById('schedViewCalB'), bL=document.getElementById('schedViewListB');
+  if(bC)bC.classList.toggle('on',calMode); if(bL)bL.classList.toggle('on',!calMode);
+  if(fyWrap)fyWrap.style.display=calMode?'none':'';
+  if(calWrap)calWrap.style.display=calMode?'':'none';
+  if(listEl)listEl.style.display=calMode?'none':'';
+  if(calMode){ renderSchedCal(); renderSchedAlert(); updateSchedTabBadge(); return; }
   const fy=schedYear;
   if(!schedMonthOpen)schedMonthOpen=new Set([thisMonthStr()]);   // 当月を開いた状態でスタート
   document.getElementById('schedYearLbl').innerHTML=`<span class="fy-main">${fy}年度</span><span class="fy-sub">${fyRangeLabel(fy)}</span>`;
