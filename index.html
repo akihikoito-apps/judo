@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v221（①予定共有のQRボタンをトグル化＝表示中は「QRコードを閉じる」・月変更で自動的に畳む ②集計出欠「月別の出席数」→「仲間別の出席数」に改称し、名前タップでその仲間の年度内の出席日一覧モーダル（月見出し＋日付チップ・出席のみ）を表示） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v222（設定＞データ管理の「バックアップを保存」ボタンを縦積みに＝主文と（クラウド/ファイルへ）を1行ずつ表示・横並び折り返しの不格好さを解消） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -628,6 +628,7 @@
   .bk-status.ok{background:#eef4ee;color:#2e6b45;border:1px solid #cfe3d4;}
   .bk-status.warn{background:#fbf0e6;color:#8a5a1e;border:1px solid #ecd3b0;}
   .bk-btn-sub{display:block;font-size:.82em;font-weight:700;opacity:.92;margin-top:2px;}
+  .bk-stack{flex-direction:column;gap:1px;padding-top:8px;padding-bottom:9px;}   /* v222: 主文＋補足を1行ずつ縦に */
   /* v144: 履歴タブ */
   .rk-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;}
   .rk-chips button{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:#fff;color:var(--navy);border-radius:22px;padding:7px 14px 7px 9px;font-family:inherit;font-weight:700;font-size:calc(14px*var(--fs,1));cursor:pointer;}
@@ -1378,7 +1379,7 @@ function applyUpdate(){
       <h3 style="margin-top:0;color:var(--navy)">データの保存・共有</h3>
       <div id="backupStatus" style="margin-bottom:10px"></div>
       <p class="list-mini">バックアップは、お使いのiCloud Drive・Googleドライブ・「ファイル」に保存できます（端末の外に保管＝機種変更や紛失でも安心）。仲間への共有もこのファイルで行えます。</p>
-      <button class="btn gold full" style="margin-top:10px" onclick="exportData()">💾 バックアップを保存<span class="bk-btn-sub">（クラウド/ファイルへ）</span></button>
+      <button class="btn gold full bk-stack" style="margin-top:10px" onclick="exportData()"><span>💾 バックアップを保存</span><span class="bk-btn-sub">（クラウド/ファイルへ）</span></button>
       <label class="btn full ghost" style="margin-top:10px;cursor:pointer">📂 バックアップから復元
         <input type="file" accept=".json" style="display:none" onchange="importData(event)">
       </label>
@@ -4903,7 +4904,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v221'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v222'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
