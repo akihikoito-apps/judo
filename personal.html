@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v220（①予定取り込みに対象者選択＝兄は部活・弟は道場を別々に紐づけ可（置き換えは送り主×月×対象単位）②ボタン名を「予定の取り込み」に（部活対応）③出席・調子は自分に紐づく稽古の日のみ表示④自己評価を100点→顔の5段階に刷新（旧データ自動変換・平均は顔+小数1桁・内訳グラフ追加）） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v221（①予定共有のQRボタンをトグル化＝表示中は「QRコードを閉じる」・月変更で自動的に畳む ②集計出欠「月別の出席数」→「仲間別の出席数」に改称し、名前タップでその仲間の年度内の出席日一覧モーダル（月見出し＋日付チップ・出席のみ）を表示） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -308,6 +308,10 @@
   .kk-facepick{display:flex;gap:8px;justify-content:space-between;}
   .kk-facepick button{flex:1;font-size:28px;line-height:1;padding:9px 0;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;filter:grayscale(60%);opacity:.75;}
   .kk-facepick button.on{border-color:var(--gold);background:#fdf7e6;filter:none;opacity:1;transform:scale(1.06);}
+  .ad-month{margin-bottom:10px;}
+  .ad-mh{font-weight:800;color:var(--navy);margin:6px 0 5px;font-size:calc(14px*var(--fs,1));}
+  .ad-chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .ad-chip{border:1.5px solid var(--line);border-radius:999px;padding:2px 10px;font-size:calc(13px*var(--fs,1));background:#fff;white-space:nowrap;}
   .visit-ctrl{width:100%;display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);}
   .visit-base-lbl{font-size:calc(12px*var(--fs,1));color:var(--muted);white-space:nowrap;font-weight:600;}
   .visit-base-inp{flex:1;min-width:0;text-align:right;font-size:calc(14px*var(--fs,1));padding:7px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;}
@@ -1161,12 +1165,12 @@ function applyUpdate(){
       <button onclick="changeFiscalYear(1)">›</button>
     </div>
     <div class="view-toggle" style="margin-bottom:12px">
-      <button id="attSubMonthB" class="on" onclick="setAttSubView('month')">月別の出席数</button>
+      <button id="attSubMonthB" class="on" onclick="setAttSubView('month')">仲間別の出席数</button>
       <button id="attSubDailyB" onclick="setAttSubView('daily')">日別の詳細</button>
     </div>
     <div class="card" id="attMonthCard">
-      <h3 style="margin:0 0 6px;color:var(--navy);font-size:calc(18px*var(--fs,1))">月別の出席数（仲間ごと）</h3>
-      <p class="list-mini" style="margin:0 0 10px">属性の行をタップすると、その中の仲間ごとの数字が開きます。数字は各月の出席回数、右端は年度合計。横にスクロールできます。</p>
+      <h3 style="margin:0 0 6px;color:var(--navy);font-size:calc(18px*var(--fs,1))">仲間別の出席数</h3>
+      <p class="list-mini" style="margin:0 0 10px">属性の行をタップすると、その中の仲間ごとの数字が開きます。数字は各月の出席回数、右端は年度合計。名前をタップすると、出席した日の一覧が見られます。</p>
       <div class="matrix-wrap" id="attYearMatrix"></div>
     </div>
     <div class="card" id="attDailyCard" style="display:none">
@@ -1740,6 +1744,16 @@ function applyUpdate(){
   </div>
 </section>
 
+<!-- v221: 仲間別の出席日一覧モーダル -->
+<div class="modal-bg" id="attDatesModal">
+  <div class="modal">
+    <h3>🗓 出席した日</h3>
+    <p class="list-mini" id="adSub" style="margin:2px 0 8px;font-weight:800;color:var(--navy)"></p>
+    <div id="adList"></div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost full" onclick="closeModal('attDatesModal')">とじる</button></div>
+  </div>
+</div>
+
 <!-- v219: 予定の共有（事務→選手）：送る側モーダル -->
 <div class="modal-bg" id="schedShareModal">
   <div class="modal">
@@ -1753,7 +1767,7 @@ function applyUpdate(){
     <p class="list-mini" id="ssCount" style="margin:8px 0 4px;font-weight:800;color:var(--navy)"></p>
     <textarea id="ssPreview" rows="6" readonly style="width:100%;font-size:13px;font-family:inherit;padding:10px 11px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical;color:var(--muted)"></textarea>
     <button class="btn gold full" style="margin-top:12px" onclick="ssSend()">📩 LINE等で送る</button>
-    <button class="btn ghost full" style="margin-top:10px" onclick="ssShowQr()">📷 QRコードを表示</button>
+    <button class="btn ghost full" style="margin-top:10px" id="ssQrBtn" onclick="ssShowQr()">📷 QRコードを表示</button>
     <div id="ssQrBox" style="margin-top:10px;text-align:center"></div>
     <div class="row" style="margin-top:12px"><button class="btn ghost full" onclick="closeModal('schedShareModal')">とじる</button></div>
   </div>
@@ -4889,7 +4903,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v220'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v221'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5478,6 +5492,12 @@ Object.assign(DICT,{
   '平均の調子':{en:'Avg. mood',fr:'Forme moy.',pt:'Média'},
   '調子の推移（月平均・5段階）':{en:'Mood trend (monthly avg, 1–5)',fr:'Évolution de la forme (moy. mensuelle, 1–5)',pt:'Evolução do ânimo (média mensal, 1–5)'},
   '調子の内訳':{en:'Mood breakdown',fr:'Répartition de la forme',pt:'Distribuição do ânimo'},
+  // v221: 仲間別の出席数・QRトグル
+  '仲間別の出席数':{en:'By member',fr:'Par membre',pt:'Por membro'},
+  '属性の行をタップすると、その中の仲間ごとの数字が開きます。数字は各月の出席回数、右端は年度合計。名前をタップすると、出席した日の一覧が見られます。':{en:'Tap a group row to expand its members. Numbers are monthly attendance counts; the right end is the yearly total. Tap a name to see the list of attended dates.',fr:'Touchez une ligne de groupe pour afficher ses membres. Les chiffres sont les présences mensuelles ; à droite, le total annuel. Touchez un nom pour voir les dates de présence.',pt:'Toque numa linha de grupo para expandir os membros. Os números são presenças mensais; à direita, o total anual. Toque num nome para ver as datas de presença.'},
+  '🗓 出席した日':{en:'🗓 Attended dates',fr:'🗓 Jours de présence',pt:'🗓 Datas de presença'},
+  'この年度の出席記録はありません':{en:'No attendance records this year',fr:'Aucune présence cette année',pt:'Sem presenças neste ano'},
+  'QRコードを閉じる':{en:'Close QR code',fr:'Fermer le code QR',pt:'Fechar código QR'},
   '道場':{en:'Dojo',fr:'Dojo',pt:'Dojô'},
   '「▲」で受領を記録すると、その日の日付が自動で残ります。':{en:'Tap “▲” to record a payment — the date is saved automatically.',fr:'Touchez « ▲ » pour enregistrer un paiement — la date est conservée automatiquement.',pt:'Toque em “▲” para registrar um pagamento — a data fica salva automaticamente.'},
   '申込締切':{en:'Entry deadline',fr:'Date limite d’inscription',pt:'Prazo de inscrição'},
@@ -9908,6 +9928,7 @@ function renderSchedShare(){
   document.getElementById('ssCount').textContent=r.count?`${r.count}${T('件の予定を送ります')}`:T('この月に予定はありません');
   document.getElementById('ssPreview').value=r.text;
   document.getElementById('ssQrBox').innerHTML='';
+  const qb=document.getElementById('ssQrBtn'); if(qb)qb.textContent=T('📷 QRコードを表示');   // v221: 月を変えたらQRを畳んでボタンも戻す
 }
 async function ssSend(){
   const r=schedShareText(ssMonth); if(!r.count){ toast(T('この月に予定はありません')); return; }
@@ -9916,9 +9937,11 @@ async function ssSend(){
   catch(e){ toast(T('コピーできませんでした')); }
 }
 function ssShowQr(){
+  const box=document.getElementById('ssQrBox'), qb=document.getElementById('ssQrBtn');
+  if(box.innerHTML){ box.innerHTML=''; if(qb)qb.textContent=T('📷 QRコードを表示'); return; }   // v221: 表示中はトグルで閉じる
   const r=schedShareText(ssMonth); if(!r.count){ toast(T('この月に予定はありません')); return; }
+  if(qb)qb.textContent=T('QRコードを閉じる');
   const parts=schedShareParts(r.text);
-  const box=document.getElementById('ssQrBox');
   box.innerHTML=parts.map((p,i)=>{
     const svg=qrMakeSvg(p);
     const lbl=parts.length>1?`<div class="list-mini" style="font-weight:800;margin:8px 0 2px">QR ${i+1} / ${parts.length}</div>`:'';
@@ -10078,6 +10101,20 @@ function setAcctMonthRange(v){
 }
 // 年度内の YYYY-MM 一覧（4月〜翌3月）
 function fiscalMonths(fy){const s=fyStart();const arr=[];for(let i=0;i<12;i++){const mo0=(s-1)+i;const y=fy+Math.floor(mo0/12);const mm=(mo0%12)+1;arr.push(`${y}-${String(mm).padStart(2,'0')}`);}return arr;}
+/* v221: 仲間別の出席日一覧（年度内・名前タップで表示） */
+function openAttDates(sid){
+  const s=DB.students.find(x=>x.id===sid); if(!s)return;
+  const fy=fiscalYear, months=fiscalMonths(fy);
+  const dates=Object.keys(DB.attendance||{}).filter(dt=>months.includes(dt.slice(0,7))&&(DB.attendance[dt]||{})[sid]==='present').sort();
+  document.getElementById('adSub').textContent=`${s.name}・${fy}${T('年度')}・${T('出席')} ${dates.length}${T('回')}`;
+  const byM={}; dates.forEach(dt=>{(byM[dt.slice(0,7)]=byM[dt.slice(0,7)]||[]).push(dt);});
+  document.getElementById('adList').innerHTML=dates.length?Object.keys(byM).sort().map(ym=>{
+    const chips=byM[ym].map(dt=>{const d=new Date(dt+'T00:00');
+      return `<span class="ad-chip">${dt.slice(5).replace('-','/')}（${T(['日','月','火','水','木','金','土'][d.getDay()])}）</span>`;}).join('');
+    return `<div class="ad-month"><div class="ad-mh">${Number(ym.slice(5))}${T('月')}<span class="list-mini">・${byM[ym].length}${T('回')}</span></div><div class="ad-chips">${chips}</div></div>`;
+  }).join(''):`<p class="list-mini" style="margin:4px 0">${T('この年度の出席記録はありません')}</p>`;
+  openModal('attDatesModal');
+}
 function renderList(){
   if(listView==='account'){renderAccountView();return;}
   if(listView==='member'){renderMember();return;}
@@ -10116,7 +10153,7 @@ function renderAttView(){
     const memberRow=(s,gkey)=>{
       let total=0;
       const cells=months.map(ym=>{const p=cntOf(s.id,ym);total+=p;return `<td>${p||'-'}</td>`;}).join('');
-      return `<tr class="att-mrow"><td class="namecell">${esc(s.name)}</td>${cells}<td class="cell-total">${total}</td></tr>`;
+      return `<tr class="att-mrow"><td class="namecell" style="cursor:pointer" onclick="openAttDates('${s.id}')">${esc(s.name)} <span style="color:var(--muted);font-size:11px">›</span></td>${cells}<td class="cell-total">${total}</td></tr>`;
     };
     const body=groups.map((g,gi)=>{
       const gkey='g'+gi;
