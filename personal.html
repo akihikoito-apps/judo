@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My道場(柔道) / 内部名 MyDojo  ・ アプリ版 v217（都度払い：▼ボタンを廃止し「🗓 履歴」ボタンに置き換え（社長提案）。取り消しは履歴モーダルの行削除で。履歴のない旧受領分にも取り消しボタンを追加） -->
+<!-- My柔道（旧My道場） / 内部名 MyDojo ・ アプリ版 v218（正式名称決定＝My柔道(事務)/My柔道(選手)：ブランド一括改名（シェア署名・報告ヘッダー・manifest等、旧【My道場 試合きろく】は取り込み互換維持）。build.jsにoffice.htmlビルド追加。事務アプリの購読ゲート実装＝未加入は起動時ハードペイウォール（¥4,800/年・1ヶ月無料・自動更新表示・規約/ポリシーリンク・外側タップで閉じない）。個人ペイウォールに¥1,480価格・自動更新・法定リンク追加） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1605,9 +1605,29 @@ function applyUpdate(){
       <div class="list-mini">・複数の主役（家族）を登録</div>
     </div>
     <p class="list-mini" style="margin-top:12px">「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。</p>
-    <button class="btn gold full" style="margin-top:14px" id="paywallBuyBtn" onclick="purchasePro()">⭐ Proにする（年額）</button>
+    <p class="list-mini" id="paywallPrice" style="margin-top:12px;font-weight:800;color:var(--navy)">Pro 年額 ¥1,480</p>
+    <p class="list-mini">サブスクリプションは年ごとに自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。</p>
+    <button class="btn gold full" style="margin-top:10px" id="paywallBuyBtn" onclick="purchasePro()">⭐ Proにする（年額）</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="restorePro()">購入を復元する</button>
-    <div class="row" style="margin-top:10px"><button class="btn ghost full" onclick="closeModal('paywallModal')">とじる</button></div>
+    <p class="list-mini" style="margin-top:10px"><a href="https://akihikoito-apps.github.io/judo/terms.html" target="_blank" rel="noopener">利用規約</a>　<a href="https://akihikoito-apps.github.io/judo/privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a></p>
+    <div class="row" style="margin-top:8px"><button class="btn ghost full" onclick="closeModal('paywallModal')">とじる</button></div>
+  </div>
+</div>
+
+<!-- v218: 事務アプリ「My柔道(事務)」の購読ゲート（未加入時に起動時表示・外側タップでは閉じない） -->
+<div class="modal-bg" id="officePaywallModal">
+  <div class="modal" style="max-width:420px;text-align:center">
+    <div style="font-size:38px">🥋</div>
+    <h3 style="margin:6px 0 4px">My柔道(事務)</h3>
+    <p class="list-mini">道場・部活の事務管理と試合分析の、すべての機能をご利用いただけます。</p>
+    <div style="text-align:left;background:#faf7ef;border:1px solid #eadcb0;border-radius:12px;padding:12px 14px;margin-top:12px">
+      <div class="list-mini" style="font-weight:800;color:var(--navy);margin-bottom:6px">年額プラン</div>
+      <div class="list-mini" id="officePayPrice" style="font-weight:800">年額 ¥4,800（最初の1ヶ月は無料）</div>
+      <div class="list-mini" style="margin-top:6px">無料期間の終了後は年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。</div>
+    </div>
+    <button class="btn gold full" style="margin-top:14px" onclick="purchaseOffice()">1ヶ月無料ではじめる</button>
+    <button class="btn ghost full" style="margin-top:10px" onclick="restoreOffice()">購入を復元する</button>
+    <p class="list-mini" style="margin-top:10px"><a href="https://akihikoito-apps.github.io/judo/terms.html" target="_blank" rel="noopener">利用規約</a>　<a href="https://akihikoito-apps.github.io/judo/privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a></p>
   </div>
 </div>
 
@@ -2346,7 +2366,7 @@ function applyUpdate(){
     </div>
     <div id="importStep1" style="display:none">
       <p class="list-mini" style="margin:0 0 8px">保護者からLINEで届いた「試合きろく」のテキストを、<b>まるごと貼り付け</b>て「解析する」を押してください。</p>
-      <textarea id="importText" rows="7" placeholder="【My道場 試合きろく】…をここに貼り付け" style="width:100%;font-size:15px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical"></textarea>
+      <textarea id="importText" rows="7" placeholder="【My柔道 試合きろく】…をここに貼り付け" style="width:100%;font-size:15px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical"></textarea>
       <div class="row" style="margin-top:12px">
         <button class="btn ghost" onclick="importShow('choice')">← もどる</button>
         <button class="btn gold" onclick="analyzeImport()">解析する</button>
@@ -4826,7 +4846,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v217'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v218'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5368,6 +5388,14 @@ Object.assign(DICT,{
   '🗓 都度払いの履歴':{en:'🗓 Per-visit payment history',fr:'🗓 Historique des paiements par séance',pt:'🗓 Histórico de pagamentos por sessão'},
   '履歴はまだありません':{en:'No history yet',fr:'Aucun historique',pt:'Sem histórico ainda'},
   '取り消し':{en:'Remove',fr:'Annuler',pt:'Remover'},
+  '道場・部活の事務管理と試合分析の、すべての機能をご利用いただけます。':{en:'Full access to dojo/club administration and match analysis.',fr:'Accès complet à la gestion du dojo/club et à l’analyse des combats.',pt:'Acesso completo à administração do dojô/clube e à análise de lutas.'},
+  '年額プラン':{en:'Annual plan',fr:'Formule annuelle',pt:'Plano anual'},
+  '年額 ¥4,800（最初の1ヶ月は無料）':{en:'¥4,800 / year (first month free)',fr:'4 800 ¥ / an (1er mois gratuit)',pt:'¥4.800 / ano (1º mês grátis)'},
+  '無料期間の終了後は年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'After the free period, the subscription auto-renews at the annual price. Cancel anytime in iPhone Settings › Subscriptions.',fr:'Après la période gratuite, l’abonnement se renouvelle automatiquement au tarif annuel. Résiliable à tout moment dans Réglages › Abonnements.',pt:'Após o período grátis, a assinatura é renovada automaticamente pelo preço anual. Cancele quando quiser em Ajustes › Assinaturas.'},
+  '1ヶ月無料ではじめる':{en:'Start 1 month free',fr:'Commencer 1 mois gratuit',pt:'Começar 1 mês grátis'},
+  'Pro 年額 ¥1,480':{en:'Pro: ¥1,480 / year',fr:'Pro : 1 480 ¥ / an',pt:'Pro: ¥1.480 / ano'},
+  'サブスクリプションは年ごとに自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'The subscription auto-renews yearly. Cancel anytime in iPhone Settings › Subscriptions.',fr:'L’abonnement se renouvelle automatiquement chaque année. Résiliable à tout moment dans Réglages › Abonnements.',pt:'A assinatura é renovada automaticamente a cada ano. Cancele quando quiser em Ajustes › Assinaturas.'},
+  'ご利用ありがとうございます！':{en:'Thank you!',fr:'Merci !',pt:'Obrigado!'},
   '「▲」で受領を記録すると、その日の日付が自動で残ります。':{en:'Tap “▲” to record a payment — the date is saved automatically.',fr:'Touchez « ▲ » pour enregistrer un paiement — la date est conservée automatiquement.',pt:'Toque em “▲” para registrar um pagamento — a data fica salva automaticamente.'},
   '申込締切':{en:'Entry deadline',fr:'Date limite d’inscription',pt:'Prazo de inscrição'},
   'エントリー費（1人）':{en:'Entry fee (per person)',fr:'Frais d’inscription (par personne)',pt:'Taxa de inscrição (por pessoa)'},
@@ -5419,7 +5447,7 @@ Object.assign(DICT,{
   // プレースホルダ（記入例）
   '例：主将・キャプテン':{en:'e.g. Captain',fr:'ex. Capitaine',pt:'ex. Capitão'},
   '例：3000':{en:'e.g. 3000',fr:'ex. 3000',pt:'ex. 3000'},
-  '【My道場 試合きろく】…をここに貼り付け':{en:'Paste “【My道場 試合きろく】…” here',fr:'Collez ici « 【My道場 試合きろく】… »',pt:'Cole aqui “【My道場 試合きろく】…”'},
+  '【My柔道 試合きろく】…をここに貼り付け':{en:'Paste “【My柔道 試合きろく】…” here',fr:'Collez ici « 【My柔道 試合きろく】… »',pt:'Cole aqui “【My柔道 試合きろく】…”'},
   '例：55kg級／申請体重 54.2kg':{en:'e.g. -55kg / declared 54.2kg',fr:'ex. -55 kg / pesée 54,2 kg',pt:'ex. -55kg / peso 54,2kg'},
   '例：個人戦 55kg級／団体戦Aチーム／申込は〇〇連盟サイト・〆切厳守':{en:'e.g. Individual -55kg / Team A / apply on the 〇〇 federation site — strict deadline',fr:'ex. Individuel -55 kg / Équipe A / inscription sur le site de la fédération 〇〇 — délai strict',pt:'ex. Individual -55kg / Equipe A / inscrição no site da federação 〇〇 — prazo rígido'},
   '例：山本 蓮':{en:'e.g. Ren Yamamoto',fr:'ex. Ren Yamamoto',pt:'ex. Ren Yamamoto'},
@@ -7702,7 +7730,7 @@ function rkDojoText(ev){
   const s=DB.students.find(x=>x.id===rkSelfId)||{name:''};
   const ti=rkTypeInfo(ev);
   const L=[];
-  L.push('【My道場 試合きろく】');
+  L.push('【My柔道 試合きろく】');
   L.push('選手｜'+(s.name||''));
   L.push('大会｜'+(ti.title||ev.name||''));
   L.push('日付｜'+((ev.date||'').replace(/-/g,'/')));
@@ -7851,7 +7879,7 @@ function repGen(){
   const name=(document.getElementById('repName').value||'').trim();
   const tk=(document.getElementById('repTaikai').value||'').trim();
   const hd=(document.getElementById('repDate').value||'').trim();
-  const L=['【My道場 試合きろく】','選手｜'+name,'大会｜'+tk,'日付｜'+hd.replace(/-/g,'/'),'種別｜'+repKind];
+  const L=['【My柔道 試合きろく】','選手｜'+name,'大会｜'+tk,'日付｜'+hd.replace(/-/g,'/'),'種別｜'+repKind];
   if(repKind==='団体'){L.push('人数｜'+repCount);L.push('役割｜'+repRole);}
   L.push('--- 試合 ---');
   repMatches.forEach(m=>{ const f=[m.res,(m.res==='×'?'':m.waza),m.grip,(m.res==='×'?'':m.grade),m.opp,m.affil,m.round,m.note]; L.push(f.join('｜')); });
@@ -8028,6 +8056,31 @@ async function purchasePro(){
 async function restorePro(){
   if(window.__iap&&window.__iap.restore){
     try{ const ok=await window.__iap.restore(); if(ok){setPro(true);toast(T('購入を復元しました'));} else toast(T('復元できる購入がありませんでした')); }
+    catch(e){ toast(T('復元できませんでした')); }
+    return;
+  }
+  toast(T('購入はApp Store版アプリでご利用いただけます'));
+}
+/* ===== v218: 事務アプリ「My柔道(事務)」の購読ゲート（起動時・未加入ならハードペイウォール） ===== */
+function officeEntitled(){ return !!DB.officePro; }
+function officeGateCheck(){
+  if(APP_EDITION!=='office')return;
+  if(officeEntitled())return;
+  // ネイティブ層は起動時に window.__iap.entitled?.() で再検証し、失効なら DB.officePro=false にできる
+  openModal('officePaywallModal');
+}
+function officeUnlocked(){ DB.officePro=true; save(); closeModal('officePaywallModal'); toast(T('ご利用ありがとうございます！')); }
+async function purchaseOffice(){
+  if(window.__iap&&window.__iap.buy){
+    try{ const ok=await window.__iap.buy(); if(ok)officeUnlocked(); else toast(T('購入は完了しませんでした')); }
+    catch(e){ toast(T('購入は完了しませんでした')); }
+    return;
+  }
+  toast(T('購入はApp Store版アプリでご利用いただけます'));
+}
+async function restoreOffice(){
+  if(window.__iap&&window.__iap.restore){
+    try{ const ok=await window.__iap.restore(); if(ok)officeUnlocked(); else toast(T('復元できる購入がありませんでした')); }
     catch(e){ toast(T('復元できませんでした')); }
     return;
   }
@@ -8538,7 +8591,7 @@ function shareSignature(ctx,st,name){
   shareLS(ctx,0); ctx.textAlign='right'; ctx.textBaseline='alphabetic';
   ctx.fillStyle=st.ink;   ctx.font=fp.tw+' 40px '+fp.fam; ctx.fillText(name||'', rx, 1206);
   ctx.fillStyle=st.sub;   ctx.font=fp.bw+' 27px '+fp.fam; ctx.fillText(shareIdentity(), rx, 1250);
-  ctx.fillStyle=st.accent;ctx.font=fp.tw+' 28px '+fp.fam; ctx.fillText('My道場  ·  柔道', rx, 1298);
+  ctx.fillStyle=st.accent;ctx.font=fp.tw+' 28px '+fp.fam; ctx.fillText('My柔道', rx, 1298);
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
 function drawRkShare(ev){
@@ -8616,7 +8669,7 @@ function _drawRkShare(ev,heroImg){
 }
 function shareFileName(){ const ev=rkShareEv||{}; return (ev.title||ev.name||'memory')+'.png'; }
 function rkSaveShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=shareFileName();a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
-function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=>{const file=new File([b],'card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:'#柔道 #My道場'});}catch(e){}}else{rkSaveShare();alert(T('この端末は直接シェア非対応のため画像を保存しました。'));}},'image/png');}
+function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=>{const file=new File([b],'card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:'#柔道 #My柔道'});}catch(e){}}else{rkSaveShare();alert(T('この端末は直接シェア非対応のため画像を保存しました。'));}},'image/png');}
 /* ===== v146: 分析タブ（個人モード）＝選手の試合分析（既存の決まり技レーダー等を再利用） ===== */
 let anaSelfId=null;
 // 個人アプリの無料ユーザーには分析をゲート（A案：タブは見せて、中身は「有料版で使えます」）
@@ -11036,7 +11089,7 @@ async function exportData(){
     const file=new File([json],fname,{type:'application/json'});
     if(navigator.canShare&&navigator.canShare({files:[file]})){
       try{
-        await navigator.share({files:[file],title:'My道場 バックアップ'});
+        await navigator.share({files:[file],title:'My柔道 バックアップ'});
         markBackedUp();toast(T('バックアップを保存しました'));
       }catch(e){
         if(e&&e.name==='AbortError')return;   // ユーザーがキャンセル＝保存扱いにしない
@@ -11120,6 +11173,7 @@ document.querySelectorAll('.modal-bg').forEach(bg=>{
   bg.addEventListener('pointerdown',e=>{ mdDownTarget=e.target; });
   bg.addEventListener('click',e=>{
     if(e.target!==bg) return;                          // 中身のタップは無視
+    if(bg.id==='officePaywallModal') return;           // v218: 購読ゲートは外側タップで閉じない
     if(bg.id==='closeConfirmModal'){ closeConfirmStay(); return; }  // 確認の外側タップ＝入力を続ける（確認だけ閉じる）
     if(mdDownTarget&&mdDownTarget!==bg) return;        // 中からドラッグして外で離した誤操作では閉じない
     if(modalHasEntry(bg)){ askCloseConfirm(bg.id); return; }  // 入力欄あり＝閉じるか確認する
@@ -11137,6 +11191,7 @@ function toast(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 function initUI(){
   LANG=DB.lang||'ja';
   applyEdition();                                // v166: 専用ビルドはモード固定＋切替UI非表示
+  officeGateCheck();                             // v218: 事務アプリは未加入ならハードペイウォール
   applyTheme();applyFont();
   updateHeaderIdentity();
   document.getElementById('attDate').value=todayStr();
@@ -11168,10 +11223,10 @@ if(lockEnabled&&lockCode){showLockScreen('unlock');}
   try{
     const personalEd=(APP_EDITION==='personal');
     const icon=(personalEd?(DB.storyLogo||DB.logo):DB.logo)||DEFAULT_LOGO;
-    const appName=personalEd?(DB.storyName||'My柔道ヒストリー'):(DB.team||'柔道チーム管理');
+    const appName=personalEd?(DB.storyName||'My柔道(選手)'):(DB.team||'My柔道(事務)');
     const manifest={
       name:appName,
-      short_name:personalEd?(DB.storyName||'柔道ヒストリー'):(DB.team||'柔道管理'),
+      short_name:personalEd?(DB.storyName||'My柔道'):(DB.team||'My柔道'),
       start_url:location.pathname,
       display:'standalone',
       background_color:'#f5f2ea',

@@ -22,5 +22,7 @@ function build(edition, outFile, opts) {
 
 // 個人専用アプリ（Webプレビュー：SWは無効化してマスターと干渉させない）
 build('personal', 'personal.html', { disableSW: true });
+// 事務専用アプリ「My柔道(事務)」（App Store用の中身。Webプレビュー時もSW無効）
+build('office', 'office.html', { disableSW: true });
 
 console.log('done. suite=index.html はマスター（APP_EDITION=suite のまま）。');
