@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v225（パスコードは事務のみに限定＝選手アプリでは非表示&自動解除。事務は「必ずメモして保管」「忘れたら削除→再インストール→バックアップ復元でしか戻せない」警告＋バックアップ未保存では設定不可＋設定直後に番号を表示。バックアップ導線強化＝削除でデータ消失を明記・リマインド間隔を14/30/90/オフから選択） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v226（バックアップ保存先の助言を追加：なぜ端末内ではダメか（端末と一緒に失われる）を理由つきで説明しiCloud Drive等を推奨。データ管理・初回教育モーダルに青い案内ボックス、保存直後にも保存先を確認するモーダル） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -631,6 +631,9 @@
   .lock-warn{background:#fdf6e3;border:1.5px solid #e6d08a;border-radius:12px;padding:11px 13px;margin:10px 0 4px;font-size:calc(13px*var(--fs,1));line-height:1.65;}
   .lock-warn b{color:#8a6d1f;}
   .lock-warn div{margin-top:5px;}
+  .bk-where{background:#eef4fb;border:1.5px solid #b9d3ef;border-radius:12px;padding:11px 13px;margin:10px 0;font-size:calc(13px*var(--fs,1));line-height:1.65;}
+  .bk-where b{color:#1a4b86;}
+  .bk-where div{margin-top:5px;}
   .bk-stack{flex-direction:column;gap:1px;padding-top:8px;padding-bottom:9px;}   /* v222: 主文＋補足を1行ずつ縦に */
   /* v144: 履歴タブ */
   .rk-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;}
@@ -1381,7 +1384,12 @@ function applyUpdate(){
     <div class="card">
       <h3 style="margin-top:0;color:var(--navy)">データの保存・共有</h3>
       <div id="backupStatus" style="margin-bottom:10px"></div>
-      <p class="list-mini">バックアップは、お使いのiCloud Drive・Googleドライブ・「ファイル」に保存できます（端末の外に保管＝機種変更や紛失でも安心）。仲間への共有もこのファイルで行えます。</p>
+      <p class="list-mini">保存を押すと共有メニューが開きます。仲間への共有もこのファイルで行えます。</p>
+      <div class="bk-where">
+        <b>📍 保存先は「iCloud Drive」がおすすめです</b>
+        <div>バックアップは<b>端末が壊れた・なくした時に備えるもの</b>です。「このiPhone内」に保存すると、端末と一緒にバックアップも失われるため意味がありません。</div>
+        <div><b>おすすめ：</b>共有メニューで「ファイルに保存」→ <b>iCloud Drive</b>（またはGoogleドライブ・Dropbox）を選ぶ。端末の外に残るので、機種変更・故障・紛失でも復元できます。</div>
+      </div>
       <p class="list-mini" style="color:#8a6d1f;font-weight:700">※ アプリを削除すると、バックアップがない限りデータは元に戻せません。</p>
       <button class="btn gold full bk-stack" style="margin-top:10px" onclick="exportData()"><span>💾 バックアップを保存</span><span class="bk-btn-sub">（クラウド/ファイルへ）</span></button>
       <label class="btn full ghost" style="margin-top:10px;cursor:pointer">📂 バックアップから復元
@@ -2060,7 +2068,11 @@ function applyUpdate(){
     <div style="font-size:40px">💾</div>
     <h3 style="margin:8px 0 6px;color:var(--navy)">大切な記録が増えてきました</h3>
     <p class="list-mini" style="text-align:left;line-height:1.7;margin:10px 0 4px">このアプリのデータは<b>この端末の中だけ</b>に保存されています。<b>アプリを削除すると、バックアップがない限りデータは元に戻せません</b>（端末の故障・紛失・機種変更も同じです）。</p>
-    <p class="list-mini" style="text-align:left;line-height:1.7;margin:6px 0 14px">保存はかんたん・約10秒。iCloud Drive などに1つファイルを置くだけで、いつでもまるごと復元できます。</p>
+    <p class="list-mini" style="text-align:left;line-height:1.7;margin:6px 0 10px">保存はかんたん・約10秒。ファイルを1つ置くだけで、いつでもまるごと復元できます。</p>
+    <div class="bk-where" style="text-align:left">
+      <b>📍 保存先は「iCloud Drive」を選んでください</b>
+      <div>「このiPhone内」に保存すると、端末が壊れた時にバックアップも一緒に失われます。端末の外（iCloud Driveなど）に置くことが大切です。</div>
+    </div>
     <button class="btn gold full" onclick="backupEduSave()">💾 今すぐバックアップを保存（おすすめ）</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="closeModal('backupEduModal')">あとで（設定 › データ管理 からいつでも）</button>
   </div>
@@ -4922,7 +4934,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v225'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v226'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5476,6 +5488,17 @@ Object.assign(DICT,{
   'お知らせしない':{en:'Off',fr:'Désactivé',pt:'Desativado'},
   '前回の保存から選んだ日数が過ぎると、画面上部でお知らせします。':{en:'You’ll see a banner when this many days have passed since your last backup.',fr:'Une bannière apparaît lorsque ce nombre de jours s’est écoulé depuis la dernière sauvegarde.',pt:'Um aviso aparece quando esse número de dias passar desde o último backup.'},
   '※ アプリを削除すると、バックアップがない限りデータは元に戻せません。':{en:'※ If you delete the app, data cannot be recovered without a backup.',fr:'※ Si vous supprimez l’app, les données sont irrécupérables sans sauvegarde.',pt:'※ Se você excluir o app, os dados não podem ser recuperados sem backup.'},
+  // v226: 保存先の助言
+  '📍 保存先は「iCloud Drive」がおすすめです':{en:'📍 Save to iCloud Drive (recommended)',fr:'📍 Enregistrez sur iCloud Drive (recommandé)',pt:'📍 Salve no iCloud Drive (recomendado)'},
+  '📍 保存先は「iCloud Drive」を選んでください':{en:'📍 Please choose iCloud Drive as the destination',fr:'📍 Choisissez iCloud Drive comme destination',pt:'📍 Escolha o iCloud Drive como destino'},
+  'バックアップは端末が壊れた・なくした時に備えるものです。「このiPhone内」に保存すると、端末と一緒にバックアップも失われるため意味がありません。':{en:'A backup exists for when your device breaks or is lost. Saving it “On My iPhone” means it is lost together with the device.',fr:'Une sauvegarde sert en cas de panne ou de perte de l’appareil. L’enregistrer « Sur mon iPhone » la fait disparaître avec l’appareil.',pt:'O backup serve para quando o aparelho quebra ou é perdido. Salvá-lo “No meu iPhone” faz com que ele se perca junto com o aparelho.'},
+  '「このiPhone内」に保存すると、端末が壊れた時にバックアップも一緒に失われます。端末の外（iCloud Driveなど）に置くことが大切です。':{en:'If you save it “On My iPhone”, the backup is lost with the device. Keep it outside the device (iCloud Drive etc.).',fr:'Enregistré « Sur mon iPhone », la sauvegarde disparaît avec l’appareil. Conservez-la hors de l’appareil (iCloud Drive, etc.).',pt:'Se salvar “No meu iPhone”, o backup se perde com o aparelho. Guarde-o fora do aparelho (iCloud Drive etc.).'},
+  '保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。':{en:'Did you save it outside the device (e.g. iCloud Drive)? If it is “On My iPhone”, the backup is lost together with the device.',fr:'L’avez-vous enregistrée hors de l’appareil (iCloud Drive) ? « Sur mon iPhone », elle disparaîtrait avec l’appareil.',pt:'Você salvou fora do aparelho (iCloud Drive)? Se for “No meu iPhone”, o backup se perde junto com o aparelho.'},
+  '確認しました':{en:'Got it',fr:'Compris',pt:'Entendi'},
+  'おすすめ：':{en:'Recommended: ',fr:'Recommandé : ',pt:'Recomendado: '},
+  '共有メニューで「ファイルに保存」→ ':{en:'In the share menu choose “Save to Files” → ',fr:'Dans le menu de partage, « Enregistrer dans Fichiers » → ',pt:'No menu de compartilhamento, “Salvar em Arquivos” → '},
+  '（またはGoogleドライブ・Dropbox）を選ぶ。端末の外に残るので、機種変更・故障・紛失でも復元できます。':{en:' (or Google Drive / Dropbox). It stays outside the device, so you can restore after a new phone, breakage or loss.',fr:' (ou Google Drive / Dropbox). Elle reste hors de l’appareil : restauration possible après changement, panne ou perte.',pt:' (ou Google Drive / Dropbox). Fica fora do aparelho, permitindo restaurar após troca, quebra ou perda.'},
+  '保存を押すと共有メニューが開きます。仲間への共有もこのファイルで行えます。':{en:'Tapping Save opens the share menu. You can also share this file with members.',fr:'Toucher Enregistrer ouvre le menu de partage. Ce fichier peut aussi être partagé aux membres.',pt:'Tocar em Salvar abre o menu de compartilhamento. Você também pode compartilhar este arquivo.'},
   '📝 メモも送る':{en:'📝 Include notes',fr:'📝 Inclure les mémos',pt:'📝 Incluir memos'},
   '送られるのは下の内容だけです。メモに個人名などが入っていないかご確認ください。':{en:'Only the text below is sent. Please check that notes contain no personal names.',fr:'Seul le texte ci-dessous est envoyé. Vérifiez que les mémos ne contiennent pas de noms.',pt:'Apenas o texto abaixo é enviado. Verifique se os memos não contêm nomes.'},
   '道場・部活の事務管理と試合分析の、すべての機能をご利用いただけます。':{en:'Full access to dojo/club administration and match analysis.',fr:'Accès complet à la gestion du dojo/club et à l’analyse des combats.',pt:'Acesso completo à administração do dojô/clube e à análise de lutas.'},
@@ -11431,7 +11454,9 @@ async function exportData(){
     if(navigator.canShare&&navigator.canShare({files:[file]})){
       try{
         await navigator.share({files:[file],title:'My柔道 バックアップ'});
-        markBackedUp();toast(T('バックアップを保存しました'));
+        markBackedUp();
+        // v226: 「このiPhone内」に保存すると端末故障時に一緒に失われるため、保存先を確認してもらう
+        askConfirm(`${T('バックアップを保存しました')}<br><br>${T('保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。')}`,()=>{},T('確認しました'));
       }catch(e){
         if(e&&e.name==='AbortError')return;   // ユーザーがキャンセル＝保存扱いにしない
         downloadBackup(json,fname);            // 共有失敗時はダウンロードで保存
