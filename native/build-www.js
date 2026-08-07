@@ -26,8 +26,8 @@ fs.writeFileSync(path.join(wwwDir, 'index.html'), html, 'utf8');
    アプリ側(index.html)は window.__iap = {buy, restore} を呼ぶだけの設計（v169/v218）。
    RevenueCatの設定が済んだら、下の API_KEY を各アプリのiOS用 Public API Key に置き換える。 */
 const CFG = {
-  office: { API_KEY: 'REVENUECAT_IOS_API_KEY_OFFICE', ENTITLEMENT: 'pro', LABEL: 'My柔道(事務)' },
-  player: { API_KEY: 'REVENUECAT_IOS_API_KEY_PLAYER', ENTITLEMENT: 'pro', LABEL: 'My柔道(選手)' },
+  office: { API_KEY: 'appl_cqqKOnaJkUfzDJQbkLpNoqCfjJL', ENTITLEMENT: 'pro', LABEL: 'My柔道(事務)' },
+  player: { API_KEY: 'appl_jmVKkdIbocWpbZExUKwhDgBEYBm', ENTITLEMENT: 'pro', LABEL: 'My柔道(選手)' },
 }[app];
 
 const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: build-www.js） */

@@ -1,6 +1,6 @@
 /* My柔道(事務) — RevenueCat課金ブリッジ（自動生成: build-www.js） */
 (function(){
-  var API_KEY='REVENUECAT_IOS_API_KEY_OFFICE';
+  var API_KEY='appl_cqqKOnaJkUfzDJQbkLpNoqCfjJL';
   var ENTITLEMENT='pro';
   function plugin(){ return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Purchases) || null; }
   var ready=null;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道（旧My道場） / 内部名 MyDojo ・ アプリ版 v218（正式名称決定＝My柔道(事務)/My柔道(選手)：ブランド一括改名（シェア署名・報告ヘッダー・manifest等、旧【My道場 試合きろく】は取り込み互換維持）。build.jsにoffice.htmlビルド追加。事務アプリの購読ゲート実装＝未加入は起動時ハードペイウォール（¥4,800/年・1ヶ月無料・自動更新表示・規約/ポリシーリンク・外側タップで閉じない）。個人ペイウォールに¥1,480価格・自動更新・法定リンク追加） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v222（設定＞データ管理の「バックアップを保存」ボタンを縦積みに＝主文と（クラウド/ファイルへ）を1行ずつ表示・横並び折り返しの不格好さを解消） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -305,6 +305,13 @@
   .fee-row{flex-wrap:wrap;}
   .visit-total{font-weight:800;color:var(--navy);font-size:calc(18px*var(--fs,1));white-space:nowrap;margin-left:auto;align-self:center;}
   .visit-cnt{font-size:calc(11px*var(--fs,1));color:var(--muted);font-weight:700;margin-left:5px;vertical-align:2px;}
+  .kk-facepick{display:flex;gap:8px;justify-content:space-between;}
+  .kk-facepick button{flex:1;font-size:28px;line-height:1;padding:9px 0;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;filter:grayscale(60%);opacity:.75;}
+  .kk-facepick button.on{border-color:var(--gold);background:#fdf7e6;filter:none;opacity:1;transform:scale(1.06);}
+  .ad-month{margin-bottom:10px;}
+  .ad-mh{font-weight:800;color:var(--navy);margin:6px 0 5px;font-size:calc(14px*var(--fs,1));}
+  .ad-chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .ad-chip{border:1.5px solid var(--line);border-radius:999px;padding:2px 10px;font-size:calc(13px*var(--fs,1));background:#fff;white-space:nowrap;}
   .visit-ctrl{width:100%;display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);}
   .visit-base-lbl{font-size:calc(12px*var(--fs,1));color:var(--muted);white-space:nowrap;font-weight:600;}
   .visit-base-inp{flex:1;min-width:0;text-align:right;font-size:calc(14px*var(--fs,1));padding:7px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;}
@@ -621,6 +628,7 @@
   .bk-status.ok{background:#eef4ee;color:#2e6b45;border:1px solid #cfe3d4;}
   .bk-status.warn{background:#fbf0e6;color:#8a5a1e;border:1px solid #ecd3b0;}
   .bk-btn-sub{display:block;font-size:.82em;font-weight:700;opacity:.92;margin-top:2px;}
+  .bk-stack{flex-direction:column;gap:1px;padding-top:8px;padding-bottom:9px;}   /* v222: 主文＋補足を1行ずつ縦に */
   /* v144: 履歴タブ */
   .rk-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;}
   .rk-chips button{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:#fff;color:var(--navy);border-radius:22px;padding:7px 14px 7px 9px;font-family:inherit;font-weight:700;font-size:calc(14px*var(--fs,1));cursor:pointer;}
@@ -1101,6 +1109,7 @@ function applyUpdate(){
 <!-- スケジュール -->
 <section id="screen-sched" class="screen">
   <div class="section-head" style="justify-content:flex-end">
+    <button class="chip-btn" onclick="openSchedShare()">📤 予定を共有</button>
     <button class="chip-btn" onclick="openPresetModal()">よく使う設定</button>
     <button class="btn gold sm" onclick="openSchedModal()">＋ 予定を追加</button>
   </div>
@@ -1157,12 +1166,12 @@ function applyUpdate(){
       <button onclick="changeFiscalYear(1)">›</button>
     </div>
     <div class="view-toggle" style="margin-bottom:12px">
-      <button id="attSubMonthB" class="on" onclick="setAttSubView('month')">月別の出席数</button>
+      <button id="attSubMonthB" class="on" onclick="setAttSubView('month')">仲間別の出席数</button>
       <button id="attSubDailyB" onclick="setAttSubView('daily')">日別の詳細</button>
     </div>
     <div class="card" id="attMonthCard">
-      <h3 style="margin:0 0 6px;color:var(--navy);font-size:calc(18px*var(--fs,1))">月別の出席数（仲間ごと）</h3>
-      <p class="list-mini" style="margin:0 0 10px">属性の行をタップすると、その中の仲間ごとの数字が開きます。数字は各月の出席回数、右端は年度合計。横にスクロールできます。</p>
+      <h3 style="margin:0 0 6px;color:var(--navy);font-size:calc(18px*var(--fs,1))">仲間別の出席数</h3>
+      <p class="list-mini" style="margin:0 0 10px">属性の行をタップすると、その中の仲間ごとの数字が開きます。数字は各月の出席回数、右端は年度合計。名前をタップすると、出席した日の一覧が見られます。</p>
       <div class="matrix-wrap" id="attYearMatrix"></div>
     </div>
     <div class="card" id="attDailyCard" style="display:none">
@@ -1370,7 +1379,7 @@ function applyUpdate(){
       <h3 style="margin-top:0;color:var(--navy)">データの保存・共有</h3>
       <div id="backupStatus" style="margin-bottom:10px"></div>
       <p class="list-mini">バックアップは、お使いのiCloud Drive・Googleドライブ・「ファイル」に保存できます（端末の外に保管＝機種変更や紛失でも安心）。仲間への共有もこのファイルで行えます。</p>
-      <button class="btn gold full" style="margin-top:10px" onclick="exportData()">💾 バックアップを保存<span class="bk-btn-sub">（クラウド/ファイルへ）</span></button>
+      <button class="btn gold full bk-stack" style="margin-top:10px" onclick="exportData()"><span>💾 バックアップを保存</span><span class="bk-btn-sub">（クラウド/ファイルへ）</span></button>
       <label class="btn full ghost" style="margin-top:10px;cursor:pointer">📂 バックアップから復元
         <input type="file" accept=".json" style="display:none" onchange="importData(event)">
       </label>
@@ -1732,8 +1741,58 @@ function applyUpdate(){
   </div>
   <div class="row" style="margin-top:8px">
     <button class="btn ghost" onclick="openPresetModal()">よく使う設定</button>
+    <button class="btn ghost" onclick="openSchedRecv()">📥 予定の取り込み</button>
   </div>
 </section>
+
+<!-- v221: 仲間別の出席日一覧モーダル -->
+<div class="modal-bg" id="attDatesModal">
+  <div class="modal">
+    <h3>🗓 出席した日</h3>
+    <p class="list-mini" id="adSub" style="margin:2px 0 8px;font-weight:800;color:var(--navy)"></p>
+    <div id="adList"></div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost full" onclick="closeModal('attDatesModal')">とじる</button></div>
+  </div>
+</div>
+
+<!-- v219: 予定の共有（事務→選手）：送る側モーダル -->
+<div class="modal-bg" id="schedShareModal">
+  <div class="modal">
+    <h3>📤 予定をLINEで送る</h3>
+    <p class="list-mini">選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 📥 予定の取り込み」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。</p>
+    <div class="month-nav" style="margin-top:10px">
+      <button onclick="ssMove(-1)">‹</button>
+      <div class="lbl" id="ssMonthLbl"></div>
+      <button onclick="ssMove(1)">›</button>
+    </div>
+    <p class="list-mini" id="ssCount" style="margin:8px 0 4px;font-weight:800;color:var(--navy)"></p>
+    <textarea id="ssPreview" rows="6" readonly style="width:100%;font-size:13px;font-family:inherit;padding:10px 11px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical;color:var(--muted)"></textarea>
+    <button class="btn gold full" style="margin-top:12px" onclick="ssSend()">📩 LINE等で送る</button>
+    <button class="btn ghost full" style="margin-top:10px" id="ssQrBtn" onclick="ssShowQr()">📷 QRコードを表示</button>
+    <div id="ssQrBox" style="margin-top:10px;text-align:center"></div>
+    <div class="row" style="margin-top:12px"><button class="btn ghost full" onclick="closeModal('schedShareModal')">とじる</button></div>
+  </div>
+</div>
+
+<!-- v219: 予定の共有：受け取る側（選手）モーダル -->
+<div class="modal-bg" id="schedRecvModal">
+  <div class="modal">
+    <h3>📥 予定を取り込む</h3>
+    <p class="list-mini">道場や部活から届いた「予定表」のテキストを貼り付けるか、QRを読み取ってください。取り込んだ予定には送り主名が付き、自分で登録した予定とは別に管理されます。</p>
+    <textarea id="srText" rows="6" placeholder="【My柔道 予定表】…をここに貼り付け" style="width:100%;font-size:14px;font-family:inherit;padding:10px 11px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical" oninput="schedRecvAnalyze()"></textarea>
+    <div class="row" style="margin-top:8px">
+      <button class="btn ghost" onclick="openQrScan('sched')">📷 QRで読み取る</button>
+    </div>
+    <div id="srForRow" style="display:none">
+      <label class="fld">この予定はだれのもの？</label>
+      <div class="cat-pick" id="srForPick"></div>
+    </div>
+    <div id="srPreview" style="margin-top:8px"></div>
+    <button class="btn gold full" id="srApplyBtn" style="margin-top:10px;display:none" onclick="schedRecvApply()">📥 取り込む</button>
+    <div id="srSenders" style="margin-top:12px"></div>
+    <div class="row" style="margin-top:12px"><button class="btn ghost full" onclick="closeModal('schedRecvModal')">とじる</button></div>
+  </div>
+</div>
 
 <!-- v216: 都度払いの受領履歴モーダル -->
 <div class="modal-bg" id="visitLogModal">
@@ -1789,9 +1848,8 @@ function applyUpdate(){
     <div class="list-mini" id="kkSchedInfo" style="display:none;background:#f3f1ea;border-radius:10px;padding:8px 10px;margin-bottom:4px"></div>
     <label class="fld" style="margin-top:6px">日付</label>
     <input type="date" id="kkDate">
-    <label class="fld">きょうの自己評価（100点満点・任意）</label>
-    <div class="cat-pick" id="kkScoreChips"></div>
-    <input type="number" id="kkScore" inputmode="numeric" min="0" max="100" placeholder="未記入（あとからでもOK）" style="margin-top:8px">
+    <label class="fld">きょうの調子（タップで5段階・任意）</label>
+    <div class="kk-facepick" id="kkFacePick"></div>
     <label class="fld">ひとことメモ（任意）</label>
     <input type="text" id="kkMemo" placeholder="例：内股の入り方を直された">
     <label class="fld">タグ（任意・あとで検索できます）</label>
@@ -4846,7 +4904,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v218'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v222'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -5396,6 +5454,52 @@ Object.assign(DICT,{
   'Pro 年額 ¥1,480':{en:'Pro: ¥1,480 / year',fr:'Pro : 1 480 ¥ / an',pt:'Pro: ¥1.480 / ano'},
   'サブスクリプションは年ごとに自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'The subscription auto-renews yearly. Cancel anytime in iPhone Settings › Subscriptions.',fr:'L’abonnement se renouvelle automatiquement chaque année. Résiliable à tout moment dans Réglages › Abonnements.',pt:'A assinatura é renovada automaticamente a cada ano. Cancele quando quiser em Ajustes › Assinaturas.'},
   'ご利用ありがとうございます！':{en:'Thank you!',fr:'Merci !',pt:'Obrigado!'},
+  // v219: 予定の共有（事務→選手）
+  '📤 予定を共有':{en:'📤 Share schedule',fr:'📤 Partager le planning',pt:'📤 Compartilhar agenda'},
+  '📥 道場の予定':{en:'📥 Dojo schedule',fr:'📥 Planning du dojo',pt:'📥 Agenda do dojô'},
+  '📤 予定をLINEで送る':{en:'📤 Send schedule via LINE',fr:'📤 Envoyer le planning via LINE',pt:'📤 Enviar agenda pelo LINE'},
+  '選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 📥 道場の予定」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。':{en:'Send the selected month’s schedule to athletes and parents. They import it in the athlete app via “Plans & Records › 📥 Dojo schedule”. Re-sending the same month replaces it on their side.',fr:'Envoyez le planning du mois choisi aux athlètes et parents. Ils l’importent dans l’appli athlète via « Agenda & Notes › 📥 Planning du dojo ». Renvoyer le même mois le remplace chez eux.',pt:'Envie a agenda do mês escolhido para atletas e responsáveis. Eles importam no app do atleta em “Agenda e Registros › 📥 Agenda do dojô”. Reenviar o mesmo mês substitui a versão deles.'},
+  '📩 LINE等で送る':{en:'📩 Send via LINE etc.',fr:'📩 Envoyer via LINE, etc.',pt:'📩 Enviar pelo LINE etc.'},
+  '📷 QRコードを表示':{en:'📷 Show QR code',fr:'📷 Afficher le code QR',pt:'📷 Mostrar código QR'},
+  '件の予定を送ります':{en:' events will be sent',fr:' événements seront envoyés',pt:' eventos serão enviados'},
+  'この月に予定はありません':{en:'No events in this month',fr:'Aucun événement ce mois-ci',pt:'Sem eventos neste mês'},
+  '受け取る側は、順番に全部のQRを読み取ってください。':{en:'The receiver should scan all QR codes in order.',fr:'Le destinataire doit scanner tous les codes QR dans l’ordre.',pt:'O destinatário deve ler todos os códigos QR em ordem.'},
+  'QRを作成できませんでした':{en:'Could not create QR',fr:'Impossible de créer le QR',pt:'Não foi possível criar o QR'},
+  '📥 道場の予定を取り込む':{en:'📥 Import dojo schedule',fr:'📥 Importer le planning du dojo',pt:'📥 Importar agenda do dojô'},
+  '道場から届いた「予定表」のテキストを貼り付けるか、QRを読み取ってください。取り込んだ予定には送り主名が付き、自分で登録した予定とは別に管理されます。':{en:'Paste the “schedule” text from your dojo, or scan the QR. Imported events are tagged with the sender’s name and kept separate from your own events.',fr:'Collez le texte « planning » reçu du dojo, ou scannez le QR. Les événements importés portent le nom de l’expéditeur et restent séparés des vôtres.',pt:'Cole o texto de “agenda” recebido do dojô ou leia o QR. Os eventos importados recebem o nome do remetente e ficam separados dos seus.'},
+  '【My柔道 予定表】…をここに貼り付け':{en:'Paste “【My柔道 予定表】…” here',fr:'Collez ici « 【My柔道 予定表】… »',pt:'Cole aqui “【My柔道 予定表】…”'},
+  '📷 QRで読み取る':{en:'📷 Scan QR',fr:'📷 Scanner le QR',pt:'📷 Ler QR'},
+  '📥 取り込む':{en:'📥 Import',fr:'📥 Importer',pt:'📥 Importar'},
+  '取り込み済みの送り主':{en:'Imported senders',fr:'Expéditeurs importés',pt:'Remetentes importados'},
+  'この送り主のこの月の予定':{en:'This sender’s events for this month: ',fr:'Événements de cet expéditeur pour ce mois : ',pt:'Eventos deste remetente neste mês: '},
+  '件を置き換えます':{en:' will be replaced',fr:' seront remplacés',pt:' serão substituídos'},
+  'の予定':{en:' schedule:',fr:' planning :',pt:' agenda:'},
+  '件を取り込みました':{en:' events imported',fr:' événements importés',pt:' eventos importados'},
+  'の予定をすべて削除しますか？（自分で登録した予定は消えません）':{en:': delete all imported events from this sender? (Your own events are kept.)',fr:' : supprimer tous les événements importés de cet expéditeur ? (Vos propres événements sont conservés.)',pt:': excluir todos os eventos importados deste remetente? (Seus próprios eventos são mantidos.)'},
+  '削除しました':{en:'Deleted',fr:'Supprimé',pt:'Excluído'},
+  '予定表を読み取れませんでした':{en:'Could not read the schedule',fr:'Impossible de lire le planning',pt:'Não foi possível ler a agenda'},
+  '予定表のQRではありませんでした':{en:'Not a schedule QR',fr:'Ce n’est pas un QR de planning',pt:'Não é um QR de agenda'},
+  '読み取りました。次のQRをかざしてください':{en:'scanned. Show the next QR',fr:'scanné. Présentez le QR suivant',pt:'lido. Mostre o próximo QR'},
+  'コピーしました。LINE等に貼り付けて送ってください':{en:'Copied. Paste it into LINE etc. to send',fr:'Copié. Collez-le dans LINE, etc.',pt:'Copiado. Cole no LINE etc. para enviar'},
+  'コピーできませんでした':{en:'Could not copy',fr:'Copie impossible',pt:'Não foi possível copiar'},
+  '件':{en:' items',fr:' élém.',pt:' itens'},
+  // v220: 取り込みの対象者・文言変更・顔5段階
+  '📥 予定の取り込み':{en:'📥 Import schedule',fr:'📥 Importer un planning',pt:'📥 Importar agenda'},
+  '📥 予定を取り込む':{en:'📥 Import schedule',fr:'📥 Importer un planning',pt:'📥 Importar agenda'},
+  '道場や部活から届いた「予定表」のテキストを貼り付けるか、QRを読み取ってください。取り込んだ予定には送り主名が付き、自分で登録した予定とは別に管理されます。':{en:'Paste the “schedule” text from your dojo or school club, or scan the QR. Imported events are tagged with the sender’s name and kept separate from your own events.',fr:'Collez le texte « planning » reçu du dojo ou du club, ou scannez le QR. Les événements importés portent le nom de l’expéditeur et restent séparés des vôtres.',pt:'Cole o texto de “agenda” do dojô ou do clube, ou leia o QR. Os eventos importados recebem o nome do remetente e ficam separados dos seus.'},
+  '選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 📥 予定の取り込み」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。':{en:'Send the selected month’s schedule to athletes and parents. They import it in the athlete app via “Plans & Records › 📥 Import schedule”. Re-sending the same month replaces it on their side.',fr:'Envoyez le planning du mois choisi aux athlètes et parents. Ils l’importent dans l’appli athlète via « Agenda & Notes › 📥 Importer un planning ». Renvoyer le même mois le remplace chez eux.',pt:'Envie a agenda do mês escolhido para atletas e responsáveis. Eles importam no app do atleta em “Agenda e Registros › 📥 Importar agenda”. Reenviar o mesmo mês substitui a versão deles.'},
+  'この予定はだれのもの？':{en:'Whose schedule is this?',fr:'À qui est ce planning ?',pt:'De quem é esta agenda?'},
+  'きょうの調子（タップで5段階・任意）':{en:'How was today? (tap a face, optional)',fr:'La forme du jour ? (touchez un visage, facultatif)',pt:'Como foi hoje? (toque um rosto, opcional)'},
+  '平均の調子':{en:'Avg. mood',fr:'Forme moy.',pt:'Média'},
+  '調子の推移（月平均・5段階）':{en:'Mood trend (monthly avg, 1–5)',fr:'Évolution de la forme (moy. mensuelle, 1–5)',pt:'Evolução do ânimo (média mensal, 1–5)'},
+  '調子の内訳':{en:'Mood breakdown',fr:'Répartition de la forme',pt:'Distribuição do ânimo'},
+  // v221: 仲間別の出席数・QRトグル
+  '仲間別の出席数':{en:'By member',fr:'Par membre',pt:'Por membro'},
+  '属性の行をタップすると、その中の仲間ごとの数字が開きます。数字は各月の出席回数、右端は年度合計。名前をタップすると、出席した日の一覧が見られます。':{en:'Tap a group row to expand its members. Numbers are monthly attendance counts; the right end is the yearly total. Tap a name to see the list of attended dates.',fr:'Touchez une ligne de groupe pour afficher ses membres. Les chiffres sont les présences mensuelles ; à droite, le total annuel. Touchez un nom pour voir les dates de présence.',pt:'Toque numa linha de grupo para expandir os membros. Os números são presenças mensais; à direita, o total anual. Toque num nome para ver as datas de presença.'},
+  '🗓 出席した日':{en:'🗓 Attended dates',fr:'🗓 Jours de présence',pt:'🗓 Datas de presença'},
+  'この年度の出席記録はありません':{en:'No attendance records this year',fr:'Aucune présence cette année',pt:'Sem presenças neste ano'},
+  'QRコードを閉じる':{en:'Close QR code',fr:'Fermer le code QR',pt:'Fechar código QR'},
+  '道場':{en:'Dojo',fr:'Dojo',pt:'Dojô'},
   '「▲」で受領を記録すると、その日の日付が自動で残ります。':{en:'Tap “▲” to record a payment — the date is saved automatically.',fr:'Touchez « ▲ » pour enregistrer un paiement — la date est conservée automatiquement.',pt:'Toque em “▲” para registrar um pagamento — a data fica salva automaticamente.'},
   '申込締切':{en:'Entry deadline',fr:'Date limite d’inscription',pt:'Prazo de inscrição'},
   'エントリー費（1人）':{en:'Entry fee (per person)',fr:'Frais d’inscription (par personne)',pt:'Taxa de inscrição (por pessoa)'},
@@ -5910,6 +6014,8 @@ function normalizeDB(){
   if(!DB.matchResults)DB.matchResults={};
   if(!DB.entries||typeof DB.entries!=='object')DB.entries={};
   if(!DB.keiko||typeof DB.keiko!=='object')DB.keiko={};              // v196: けいこ記録
+  // v220: 自己評価を100点満点→5段階（顔）へ移行（6以上の旧データを1〜5に変換）
+  Object.values(DB.keiko).forEach(byDate=>{ if(byDate&&typeof byDate==='object')Object.values(byDate).forEach(e=>{ if(e&&e.s!=null&&e.s!==''){ const n=Number(e.s); if(!isNaN(n)&&n>5)e.s=Math.max(1,Math.min(5,Math.round(n/20))); } }); });
   if(!Array.isArray(DB.growthFields))DB.growthFields=[];             // v196: 任意記入欄の定義
   // 団体戦データの新形式(cards)への移行
   Object.keys(DB.matchResults).forEach(k=>{
@@ -8108,8 +8214,10 @@ function qrShow(text){
 function qrShowFromDojo(){ if(dojoSendCache)qrShow(dojoSendCache); }
 /* 受け取る側 */
 let qrStream=null, qrRAF=0, qrScanning=false;
-function openQrScan(){
-  closeModal('importModal');   // v170: 取り込みモーダルを閉じてから開く（重なり防止）
+let qrScanMode='result', qrPartsBuf=null;   // v219: 'result'=試合結果 / 'sched'=予定表（複数QR対応）
+function openQrScan(mode){
+  qrScanMode=(mode==='sched')?'sched':'result'; qrPartsBuf=null;
+  closeModal(qrScanMode==='sched'?'schedRecvModal':'importModal');   // v170: 取り込みモーダルを閉じてから開く（重なり防止）
   const st=document.getElementById('qrScanStatus'); st.className='qr-status'; st.textContent=T('カメラを起動しています…');
   openModal('qrScanModal');
   qrStartCamera();
@@ -8148,7 +8256,7 @@ function qrStopCamera(){
   if(qrStream){ try{ qrStream.getTracks().forEach(t=>t.stop()); }catch(_){} qrStream=null; }
   const video=document.getElementById('qrVideo'); if(video)video.srcObject=null;
 }
-function closeQrScan(){ qrStopCamera(); closeModal('qrScanModal'); openImportModal(); }  // v170: 取り込みへ戻す（貼り付けに切替可）
+function closeQrScan(){ qrStopCamera(); closeModal('qrScanModal'); if(qrScanMode==='sched')openModal('schedRecvModal'); else openImportModal(); }  // v170: 取り込みへ戻す（貼り付けに切替可）
 function qrScanFromFile(evt){
   const file=evt.target&&evt.target.files&&evt.target.files[0]; if(evt.target)evt.target.value='';
   if(!file)return;
@@ -8170,7 +8278,27 @@ function qrScanFromFile(evt){
   };
   reader.readAsDataURL(file);
 }
+/* v219: 予定表QR（複数分割対応）。カメラは止めずに次のQRを続けて読める */
+function qrSchedDecoded(text){
+  const m=text.match(/^【My柔道 予定表(?: (\d+)\/(\d+))?】/);
+  if(!m){ qrSetStatus(T('予定表のQRではありませんでした'),'err'); qrResume(); return; }
+  if(!m[1]){ qrSchedComplete(text); return; }                       // 1枚で完結
+  const i=+m[1], n=+m[2];
+  if(!qrPartsBuf||qrPartsBuf.n!==n)qrPartsBuf={n:n,parts:{}};
+  qrPartsBuf.parts[i]=text.replace(/^【[^】]*】\n?/,'');
+  const got=Object.keys(qrPartsBuf.parts).length;
+  if(got<n){ qrSetStatus(`${got} / ${n} ${T('読み取りました。次のQRをかざしてください')}`); qrResume(); return; }
+  qrSchedComplete(Array.from({length:n},(_,k)=>qrPartsBuf.parts[k+1]).join('\n'));
+}
+function qrResume(){ if(qrScanning)setTimeout(()=>{ if(qrScanning)qrTick(); },900); else qrScanning=false; }
+function qrSchedComplete(fullText){
+  qrStopCamera(); closeModal('qrScanModal'); qrPartsBuf=null;
+  openModal('schedRecvModal');
+  document.getElementById('srText').value=fullText;
+  schedRecvAnalyze(); renderSrSenders();
+}
 function qrOnDecoded(text){
+  if(qrScanMode==='sched'){ qrSchedDecoded(text); return; }
   qrStopCamera(); closeModal('qrScanModal');
   if(!/試合きろく|選手｜|--- 試合 ---/.test(text)){ toast(T('試合結果のQRではありませんでした')); return; }
   openImportModal();
@@ -8767,7 +8895,7 @@ function renderGrowth(){
     else if(dayColors.length===1){ styl=`border:2px solid ${dayColors[0]};padding:1px 1px 2px;background:${bg};`; }
     else { const n=dayColors.length; const stops=dayColors.map((c,i)=>`${c} ${Math.round(100*i/n)}% ${Math.round(100*(i+1)/n)}%`).join(','); styl=`border:2px solid transparent;padding:1px 1px 2px;background:linear-gradient(${bg},${bg}) padding-box,linear-gradient(135deg,${stops}) border-box;`; }
     let kk='';
-    if(kkCount)kk=`<span class="kk">🔥${gwAllView?(kkCount>1?kkCount:''):((e&&e.s!=null&&e.s!=='')?e.s:'')}</span>`;
+    if(kkCount)kk=`<span class="kk">🔥${gwAllView?(kkCount>1?kkCount:''):(e?kkFace(e.s):'')}</span>`;
     const bands=daySched.slice(0,2).map(s=>`<span class="gw-band" style="background:${typeColor(s.name)}">${esc(s.title||T(s.name))}</span>`).join('')+
       (daySched.length>2?`<span class="gw-more">+${daySched.length-2}</span>`:'');
     html+=`<div class="gw-day${out?' out':''}${border}" style="${styl}" onclick="gwOpenDay('${ds}')">`+
@@ -8781,8 +8909,8 @@ function renderGrowth(){
 function gwSummaryFor(selfId){
   const K=keikoOf(selfId), mo=thisMonthStr();
   const monthDates=Object.keys(K).filter(d=>d.slice(0,7)===mo);
-  const vals=monthDates.map(d=>K[d].s).filter(v=>v!=null&&v!=='').map(Number).filter(v=>!isNaN(v));
-  const avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
+  const vals=monthDates.map(d=>kkNorm(K[d].s)).filter(v=>v!=null);
+  const avg=vals.length?Math.round(10*vals.reduce((a,b)=>a+b,0)/vals.length)/10:null;   // v220: 5段階平均（小数1桁）
   let streak=0;
   const now=new Date(todayStr()+'T00:00');
   const week0=new Date(now); week0.setDate(now.getDate()-now.getDay());
@@ -8830,10 +8958,13 @@ function gwOpenDay(ds){
   const stars=gwStars(), viewStars=gwAllView?stars:stars.filter(s=>s.id===gwSelfId);
   // v208: 出席/メモは「稽古・トレーニングの予定がある日」だけ表示（既に🔥記録がある日は編集用に表示）
   const dsSched=gwDaySchedList(ds);
-  const showKeikoSec=dsSched.some(s=>gwIsKeikoType(s))||viewStars.some(st=>st&&keikoOf(st.id)[ds]);
+  // v220: 出席・調子は「その主役に紐づく稽古（対象＝全員 or 本人）がある日」のみ表示（記録済みの日は編集用に表示）
+  const keikoForStar=sid=>dsSched.some(s=>gwIsKeikoType(s)&&(!s.forId||s.forId===sid));
+  const kkStars=viewStars.filter(st=>st&&(keikoForStar(st.id)||keikoOf(st.id)[ds]));
+  const showKeikoSec=kkStars.length>0;
   document.getElementById('gwDayKeiko').innerHTML=!showKeikoSec?'':`<div class="gwd-sec keiko"><div class="gwd-h">🔥 ${T('稽古')}</div>`+
-    viewStars.map(st=>{ const e=keikoOf(st.id)[ds];
-      const sum=e?[(e.s!=null&&e.s!=='')?e.s+T('点'):'',e.m?esc(e.m):''].filter(Boolean).join('・')||T('出席ずみ'):T('未記録');
+    kkStars.map(st=>{ const e=keikoOf(st.id)[ds];
+      const sum=e?[kkFace(e.s),e.m?esc(e.m):''].filter(Boolean).join('・')||T('出席ずみ'):T('未記録');
       const btns=e
         ?`<button class="chip-btn" onclick="event.stopPropagation();gwDayKeikoOpen('${st.id}')">📝 ${T('メモ')}</button>`
         :`<button class="chip-btn gwd-att" onclick="event.stopPropagation();gwDayAttend('${st.id}')">🔥 ${T('出席')}</button><button class="chip-btn" onclick="event.stopPropagation();gwDayKeikoOpen('${st.id}')">📝 ${T('メモ')}</button>`;
@@ -8843,7 +8974,8 @@ function gwOpenDay(ds){
   document.getElementById('gwDaySched').innerHTML=`<div class="gwd-sec sched"><div class="gwd-h">📅 ${T('予定')}</div>`+
     (sc.length?sc.map(s=>{ const isM=schedIsMatch(s);
       const tgt=(many&&s.forId)?`<span class="mate-tag" style="background:#33507e">${esc(studentName(s.forId))}</span>`:'';
-      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayEditSched('${s.id}')"><span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${tgt}</span><button class="chip-btn" onclick="event.stopPropagation();gwDayEditSched('${s.id}')">${T('編集')}</button></div>`; }).join('')
+      const srcTag=s.src?`<span class="mate-tag" style="background:#7d6a2e">${esc(s.src)}</span>`:'';
+      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayEditSched('${s.id}')"><span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${tgt}${srcTag}</span><button class="chip-btn" onclick="event.stopPropagation();gwDayEditSched('${s.id}')">${T('編集')}</button></div>`; }).join('')
     :`<p class="list-mini" style="margin:4px 0">${T('この日の予定はありません')}</p>`)+`</div>`;
   openModal('gwDayModal');
 }
@@ -8862,6 +8994,13 @@ function gwAllTags(){
   Object.values(DB.keiko||{}).forEach(byDate=>Object.values(byDate).forEach(e=>(e.t||[]).forEach(t=>cnt[t]=(cnt[t]||0)+1)));
   return Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
 }
+/* v220: 自己評価＝顔の5段階 */
+const KK_FACES=['😖','😕','🙂','😊','🤩'];
+function kkNorm(s){ if(s==null||s==='')return null; let n=Number(s); if(isNaN(n))return null; if(n>5)n=Math.round(n/20); return Math.max(1,Math.min(5,n)); }
+function kkFace(s){ const n=kkNorm(s); return n?KK_FACES[n-1]:''; }
+let pickedKkScore=null;
+function renderKkFaces(){ const el=document.getElementById('kkFacePick'); if(el)el.innerHTML=KK_FACES.map((f,i)=>`<button class="${pickedKkScore===i+1?'on':''}" onclick="kkPickFace(${i+1})">${f}</button>`).join(''); }
+function kkPickFace(n){ pickedKkScore=(pickedKkScore===n)?null:n; renderKkFaces(); }
 function gwOpenKeiko(dateStr,starId){
   if(starId)gwSelfId=starId;   // 日別モーダル/全員表示からの指定
   if(!gwSelfId){ const st=gwStars(); if(!st.length){toast(T('「選手」から主役を登録してください'));return;} gwSelfId=st[0].id; }
@@ -8875,10 +9014,9 @@ function gwOpenKeiko(dateStr,starId){
   if(sc.length){ info.style.display='block'; info.innerHTML=sc.map(s=>{ const isM=schedIsMatch(s); const done=DB.matchResults[s.id]&&((DB.matchResults[s.id].individual||[]).length||(DB.matchResults[s.id].team&&(DB.matchResults[s.id].team.cards||[]).length)); return (isM?'🥋 ':'📅 ')+esc(schedLabel(s))+(isM?(done?'（'+T('結果登録済み')+'）':'（'+T('結果は試合報告タブから')+'）'):''); }).join('<br>'); }
   else { info.style.display='none'; info.innerHTML=''; }
   document.getElementById('kkDate').value=ds;
-  document.getElementById('kkScore').value=(e&&e.s!=null)?e.s:'';
+  pickedKkScore=kkNorm(e&&e.s); renderKkFaces();
   document.getElementById('kkMemo').value=(e&&e.m)||'';
   document.getElementById('kkTags').value=(e&&e.t&&e.t.length)?e.t.join(', '):'';
-  document.getElementById('kkScoreChips').innerHTML=[60,70,80,90,100].map(v=>`<button onclick="document.getElementById('kkScore').value=${v}">${v}</button>`).join('');
   const tags=gwAllTags().slice(0,10);
   document.getElementById('kkTagChips').innerHTML=tags.map(t=>`<button onclick="kkAddTag(this.textContent)">${esc(t)}</button>`).join('');
   const f=(e&&e.f)||{};
@@ -8891,8 +9029,7 @@ function kkAddTag(t){ const el=document.getElementById('kkTags'); const cur=el.v
 function keikoSave(){
   const ds=document.getElementById('kkDate').value||kkEditKey||todayStr();
   const K=keikoOf(gwSelfId);
-  let sv=document.getElementById('kkScore').value.trim();
-  let s=sv===''?null:Math.max(0,Math.min(100,Number(sv)||0));
+  const s=pickedKkScore;                       // v220: 顔の5段階（null=未記入）
   const m=document.getElementById('kkMemo').value.trim();
   const t=document.getElementById('kkTags').value.split(/[,、\s　]+/).map(x=>x.trim()).filter(Boolean);
   const f={};
@@ -8985,8 +9122,11 @@ function anaKeikoHtml(){
   // 月別回数（直近12ヶ月）
   const months=[]; { let[y,m]=thisMonthStr().split('-').map(Number); for(let i=11;i>=0;i--){ let mm=m-i,yy=y; while(mm<1){mm+=12;yy--;} months.push(`${yy}-${String(mm).padStart(2,'0')}`);} }
   const cnt=months.map(mo=>({l:String(Number(mo.slice(5))) ,v:dates.filter(d=>d.slice(0,7)===mo).length}));
-  // 月平均点
-  const avg=months.map(mo=>{ const vs=dates.filter(d=>d.slice(0,7)===mo).map(d=>K[d].s).filter(v=>v!=null&&v!=='').map(Number).filter(v=>!isNaN(v)); return {l:String(Number(mo.slice(5))),v:vs.length?Math.round(vs.reduce((a,b)=>a+b,0)/vs.length):null}; }).filter(p=>p.v!=null);
+  // 月平均の調子（5段階・小数1桁）
+  const avg=months.map(mo=>{ const vs=dates.filter(d=>d.slice(0,7)===mo).map(d=>kkNorm(K[d].s)).filter(v=>v!=null); return {l:String(Number(mo.slice(5))),v:vs.length?Math.round(10*vs.reduce((a,b)=>a+b,0)/vs.length)/10:null}; }).filter(p=>p.v!=null);
+  // 調子の内訳（顔ごとの回数）
+  const dist=KK_FACES.map((f,i)=>({l:f,v:dates.filter(d=>kkNorm(K[d].s)===i+1).length}));
+  const hasDist=dist.some(p=>p.v>0);
   // タグ
   const tags=gwAllTags();
   const list=dates.slice().reverse().filter(d=>{ if(!anaKeikoTag)return true; return (K[d].t||[]).includes(anaKeikoTag); })
@@ -8996,14 +9136,15 @@ function anaKeikoHtml(){
     <div class="ra-secttl"><span class="ra-ico">🔥</span> ${T('稽古の分析')}</div>
     <div class="ent-sumbar" style="margin:4px 0 10px">
       <div class="ent-sum-item"><b>${sm.count}</b><span>${T('今月の稽古')}</span></div>
-      <div class="ent-sum-item ok"><b>${sm.avg!=null?sm.avg:'—'}</b><span>${T('平均点')}</span></div>
+      <div class="ent-sum-item ok"><b>${sm.avg!=null?kkFace(Math.round(sm.avg))+' '+sm.avg:'—'}</b><span>${T('平均の調子')}</span></div>
       <div class="ent-sum-item"><b>${sm.streak}</b><span>${T('連続週')}</span></div>
     </div>
     <div class="gw-chart"><div class="t">${T('月別の稽古回数')}</div>${gwBarChart(cnt,'#2e9e5b')}</div>
-    ${avg.length?`<div class="gw-chart"><div class="t">${T('自己評価の推移（月平均）')}</div>${gwLineChart(avg,'#b8963f','')}</div>`:''}
+    ${avg.length?`<div class="gw-chart"><div class="t">${T('調子の推移（月平均・5段階）')}</div>${gwLineChart(avg,'#b8963f','')}</div>`:''}
+    ${hasDist?`<div class="gw-chart"><div class="t">${T('調子の内訳')}</div>${gwBarChart(dist,'#b8963f')}</div>`:''}
     ${tags.length?`<div class="gw-chart"><div class="t">${T('タグでメモを検索')}</div><div class="cat-pick">${tags.slice(0,14).map(t=>`<button class="${anaKeikoTag===t?'on':''}" onclick="anaSetKeikoTag(this.textContent)">${esc(t)}</button>`).join('')}</div></div>`:''}
     <div class="gw-chart"><div class="t">${anaKeikoTag?esc(anaKeikoTag)+' '+T('のメモ'):T('最近のメモ')}</div>
-      ${list.length?list.map(d=>`<div class="gw-memo-item"><span class="d">${d.replace(/-/g,'/')}</span>${K[d].s!=null&&K[d].s!==''?`<span class="s">${K[d].s}${T('点')}</span>`:''}<div>${esc(K[d].m||'')}${(K[d].t||[]).length?` <span class="list-mini">#${(K[d].t||[]).map(esc).join(' #')}</span>`:''}</div></div>`).join(''):`<p class="list-mini">${T('該当するメモがありません')}</p>`}
+      ${list.length?list.map(d=>`<div class="gw-memo-item"><span class="d">${d.replace(/-/g,'/')}</span>${kkFace(K[d].s)?`<span class="s">${kkFace(K[d].s)}</span>`:''}<div>${esc(K[d].m||'')}${(K[d].t||[]).length?` <span class="list-mini">#${(K[d].t||[]).map(esc).join(' #')}</span>`:''}</div></div>`).join(''):`<p class="list-mini">${T('該当するメモがありません')}</p>`}
     </div>
   </div>`;
 }
@@ -9726,6 +9867,139 @@ function renderSchedCal(){
   }
   document.getElementById('schedCalGrid').innerHTML=html;
 }
+/* ===== v219: 予定の共有（事務→選手）。テキスト主・QR副（長い月は自動で複数QRに分割） ===== */
+function schedShareText(ym){
+  const sender=(DB.team||'').trim()||T('道場');
+  const items=(DB.schedule||[]).filter(s=>s.date&&s.date.slice(0,7)===ym)
+    .sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
+  const L=['【My柔道 予定表】','送り主｜'+sender,'月｜'+ym,'--- 予定 ---'];
+  items.forEach(s=>{
+    const inferred=/試合|大会/.test(s.name||'');
+    const flag=(s.showMatch===true&&!inferred)?'M':((s.showMatch===false&&inferred)?'x':'');
+    L.push([s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',(s.note||'').replace(/[\n｜]/g,' '),flag].join('｜').replace(/｜+$/,''));
+  });
+  return {text:L.join('\n'), count:items.length, sender, ym};
+}
+function schedShareParts(text){
+  const MAX=700;                                           // 1枚あたり約700byte＝画面越しでも読み取りやすいサイズ
+  const bl=s=>{ try{return unescape(encodeURIComponent(s)).length;}catch(e){return s.length*3;} };
+  if(bl(text)<=MAX) return [text];
+  const lines=text.split('\n'), chunks=[]; let cur=[];
+  lines.forEach(l=>{ cur.push(l); if(bl(cur.join('\n'))>MAX-40){ cur.pop(); if(cur.length)chunks.push(cur.join('\n')); cur=[l]; } });
+  if(cur.length)chunks.push(cur.join('\n'));
+  const n=chunks.length;
+  return chunks.map((c,i)=>'【My柔道 予定表 '+(i+1)+'/'+n+'】\n'+c);
+}
+function schedShareParse(raw){
+  const lines=(raw||'').replace(/\r/g,'').split('\n').map(l=>l.trim()).filter(Boolean);
+  let sender='',ym='',inBody=false; const items=[];
+  lines.forEach(line=>{
+    if(/^【.*】$/.test(line))return;
+    if(/^[-—―]+\s*予定\s*[-—―]+$/.test(line)){inBody=true;return;}
+    if(line.startsWith('送り主｜')){sender=line.slice(4).trim();return;}
+    if(line.startsWith('月｜')){ym=line.slice(2).trim();return;}
+    if(!inBody)return;
+    const p=line.split('｜'); const dd=(p[0]||'').trim();
+    if(!/^\d{1,2}$/.test(dd))return;
+    items.push({dd:dd.padStart(2,'0'),name:(p[1]||'').trim(),title:(p[2]||'').trim(),time:(p[3]||'').trim(),place:(p[4]||'').trim(),note:(p[5]||'').trim(),flag:(p[6]||'').trim()});
+  });
+  return {sender,ym,items};
+}
+function schedShareApply(parsed,forId){
+  const {sender,ym,items}=parsed; forId=forId||'';
+  if(!sender||!/^\d{4}-\d{2}$/.test(ym))return -1;
+  // v220: 置き換えは「同送り主×同月×同対象」単位（兄=部活・弟=道場のように同送り主でも対象別に共存できる）
+  DB.schedule=(DB.schedule||[]).filter(s=>!(s.src===sender&&(s.date||'').slice(0,7)===ym&&(s.forId||'')===forId));
+  items.forEach(it=>{
+    const inferred=/試合|大会/.test(it.name||'');
+    const showMatch=it.flag==='M'?true:(it.flag==='x'?false:inferred);
+    DB.schedule.push({id:'ss'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),
+      name:it.name||T('予定'),title:it.title,date:ym+'-'+it.dd,time:it.time,place:it.place,note:it.note,showMatch:showMatch,src:sender,forId:forId});
+  });
+  save(); return items.length;
+}
+/* --- 送る側（事務） --- */
+let ssMonth=null;
+function openSchedShare(){ ssMonth=schedCalMonth||thisMonthStr(); renderSchedShare(); openModal('schedShareModal'); }
+function ssMove(d){ let[y,m]=ssMonth.split('-').map(Number); m+=d; if(m<1){m=12;y--;} if(m>12){m=1;y++;} ssMonth=`${y}-${String(m).padStart(2,'0')}`; renderSchedShare(); }
+function renderSchedShare(){
+  const [y,m]=ssMonth.split('-');
+  document.getElementById('ssMonthLbl').textContent=`${y}${T('年')} ${Number(m)}${T('月')}`;
+  const r=schedShareText(ssMonth);
+  document.getElementById('ssCount').textContent=r.count?`${r.count}${T('件の予定を送ります')}`:T('この月に予定はありません');
+  document.getElementById('ssPreview').value=r.text;
+  document.getElementById('ssQrBox').innerHTML='';
+  const qb=document.getElementById('ssQrBtn'); if(qb)qb.textContent=T('📷 QRコードを表示');   // v221: 月を変えたらQRを畳んでボタンも戻す
+}
+async function ssSend(){
+  const r=schedShareText(ssMonth); if(!r.count){ toast(T('この月に予定はありません')); return; }
+  if(navigator.share){ try{ await navigator.share({text:r.text}); return; }catch(e){} }
+  try{ await navigator.clipboard.writeText(r.text); toast(T('コピーしました。LINE等に貼り付けて送ってください')); }
+  catch(e){ toast(T('コピーできませんでした')); }
+}
+function ssShowQr(){
+  const box=document.getElementById('ssQrBox'), qb=document.getElementById('ssQrBtn');
+  if(box.innerHTML){ box.innerHTML=''; if(qb)qb.textContent=T('📷 QRコードを表示'); return; }   // v221: 表示中はトグルで閉じる
+  const r=schedShareText(ssMonth); if(!r.count){ toast(T('この月に予定はありません')); return; }
+  if(qb)qb.textContent=T('QRコードを閉じる');
+  const parts=schedShareParts(r.text);
+  box.innerHTML=parts.map((p,i)=>{
+    const svg=qrMakeSvg(p);
+    const lbl=parts.length>1?`<div class="list-mini" style="font-weight:800;margin:8px 0 2px">QR ${i+1} / ${parts.length}</div>`:'';
+    return lbl+(svg?`<div style="width:min(62vw,240px);margin:0 auto">${svg}</div>`:`<p class="list-mini">${T('QRを作成できませんでした')}</p>`);
+  }).join('');
+  if(parts.length>1)box.innerHTML+=`<p class="list-mini" style="margin-top:8px">${T('受け取る側は、順番に全部のQRを読み取ってください。')}</p>`;
+}
+/* --- 受け取る側（選手） --- */
+let srForId='';   // v220: 取り込み対象（''=全員）
+function openSchedRecv(){ document.getElementById('srText').value=''; document.getElementById('srPreview').innerHTML=''; document.getElementById('srApplyBtn').style.display='none'; srForId=(!gwAllView&&gwSelfId)?gwSelfId:''; renderSrForPick(); renderSrSenders(); openModal('schedRecvModal'); }
+function renderSrForPick(){
+  const row=document.getElementById('srForRow'); if(!row)return;
+  const stars=(typeof gwStars==='function')?gwStars():[];
+  if(DB.mode!=='personal'||stars.length<2){ row.style.display='none'; srForId=''; return; }
+  row.style.display='';
+  if(srForId&&!stars.some(s=>s.id===srForId))srForId='';
+  document.getElementById('srForPick').innerHTML=
+    `<button class="${srForId===''?'on':''}" onclick="srPickFor('')">${T('全員')}</button>`+
+    stars.map(s=>`<button class="${srForId===s.id?'on':''}" onclick="srPickFor('${s.id}')">${esc(s.name)}</button>`).join('');
+}
+function srPickFor(id){ srForId=id; renderSrForPick(); schedRecvAnalyze(); }
+function schedRecvAnalyze(){
+  const p=schedShareParse(document.getElementById('srText').value);
+  const btn=document.getElementById('srApplyBtn'), pv=document.getElementById('srPreview');
+  if(!p.sender||!/^\d{4}-\d{2}$/.test(p.ym)||!p.items.length){ pv.innerHTML=''; btn.style.display='none'; return; }
+  const exist=(DB.schedule||[]).filter(s=>s.src===p.sender&&(s.date||'').slice(0,7)===p.ym&&(s.forId||'')===srForId).length;
+  const [y,m]=p.ym.split('-');
+  const forName=srForId?studentName(srForId):T('全員');
+  pv.innerHTML=`<div class="gw-field-row" style="border-bottom:none"><span class="nm"><b>${esc(p.sender)}</b>・${y}${T('年')} ${Number(m)}${T('月')}・${p.items.length}${T('件')}<span class="mate-tag" style="background:#33507e">${esc(forName)}</span></span></div>`+
+    (exist?`<p class="list-mini" style="color:#c77f0a;font-weight:700">${T('この送り主のこの月の予定')} ${exist}${T('件を置き換えます')}</p>`:'');
+  btn.style.display='';
+  btn.dataset.ready='1';
+}
+function schedRecvApply(){
+  const p=schedShareParse(document.getElementById('srText').value);
+  const n=schedShareApply(p,srForId);
+  if(n<0){ toast(T('予定表を読み取れませんでした')); return; }
+  closeModal('schedRecvModal');
+  toast(`${p.sender}${T('の予定')} ${n}${T('件を取り込みました')}`);
+  if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
+  if(typeof renderSched==='function'&&document.getElementById('screen-sched').classList.contains('active'))renderSched();
+}
+function renderSrSenders(){
+  const box=document.getElementById('srSenders');
+  const senders={}; (DB.schedule||[]).forEach(s=>{ if(s.src)senders[s.src]=(senders[s.src]||0)+1; });
+  const keys=Object.keys(senders);
+  box.innerHTML=keys.length?`<div class="gwd-h" style="font-size:13px">${T('取り込み済みの送り主')}</div>`+
+    keys.map(k=>`<div class="gw-field-row"><span class="nm">${esc(k)} <span class="list-mini">${senders[k]}${T('件')}</span></span><button class="chip-btn" onclick="srDeleteSender('${esc(k)}')">🗑 ${T('削除')}</button></div>`).join(''):'';
+}
+function srDeleteSender(name){
+  askConfirm(`${esc(name)} ${T('の予定をすべて削除しますか？（自分で登録した予定は消えません）')}`,()=>{
+    DB.schedule=(DB.schedule||[]).filter(s=>s.src!==name); save();
+    renderSrSenders();
+    if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
+    toast(T('削除しました'));
+  });
+}
 function renderSchedCountdown(){
   const box=document.getElementById('schedCountdown'); if(!box)return;
   const nowD=new Date(todayStr()+'T00:00');
@@ -9828,6 +10102,20 @@ function setAcctMonthRange(v){
 }
 // 年度内の YYYY-MM 一覧（4月〜翌3月）
 function fiscalMonths(fy){const s=fyStart();const arr=[];for(let i=0;i<12;i++){const mo0=(s-1)+i;const y=fy+Math.floor(mo0/12);const mm=(mo0%12)+1;arr.push(`${y}-${String(mm).padStart(2,'0')}`);}return arr;}
+/* v221: 仲間別の出席日一覧（年度内・名前タップで表示） */
+function openAttDates(sid){
+  const s=DB.students.find(x=>x.id===sid); if(!s)return;
+  const fy=fiscalYear, months=fiscalMonths(fy);
+  const dates=Object.keys(DB.attendance||{}).filter(dt=>months.includes(dt.slice(0,7))&&(DB.attendance[dt]||{})[sid]==='present').sort();
+  document.getElementById('adSub').textContent=`${s.name}・${fy}${T('年度')}・${T('出席')} ${dates.length}${T('回')}`;
+  const byM={}; dates.forEach(dt=>{(byM[dt.slice(0,7)]=byM[dt.slice(0,7)]||[]).push(dt);});
+  document.getElementById('adList').innerHTML=dates.length?Object.keys(byM).sort().map(ym=>{
+    const chips=byM[ym].map(dt=>{const d=new Date(dt+'T00:00');
+      return `<span class="ad-chip">${dt.slice(5).replace('-','/')}（${T(['日','月','火','水','木','金','土'][d.getDay()])}）</span>`;}).join('');
+    return `<div class="ad-month"><div class="ad-mh">${Number(ym.slice(5))}${T('月')}<span class="list-mini">・${byM[ym].length}${T('回')}</span></div><div class="ad-chips">${chips}</div></div>`;
+  }).join(''):`<p class="list-mini" style="margin:4px 0">${T('この年度の出席記録はありません')}</p>`;
+  openModal('attDatesModal');
+}
 function renderList(){
   if(listView==='account'){renderAccountView();return;}
   if(listView==='member'){renderMember();return;}
@@ -9866,7 +10154,7 @@ function renderAttView(){
     const memberRow=(s,gkey)=>{
       let total=0;
       const cells=months.map(ym=>{const p=cntOf(s.id,ym);total+=p;return `<td>${p||'-'}</td>`;}).join('');
-      return `<tr class="att-mrow"><td class="namecell">${esc(s.name)}</td>${cells}<td class="cell-total">${total}</td></tr>`;
+      return `<tr class="att-mrow"><td class="namecell" style="cursor:pointer" onclick="openAttDates('${s.id}')">${esc(s.name)} <span style="color:var(--muted);font-size:11px">›</span></td>${cells}<td class="cell-total">${total}</td></tr>`;
     };
     const body=groups.map((g,gi)=>{
       const gkey='g'+gi;
