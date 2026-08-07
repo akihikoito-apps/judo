@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v223（多言語の取りこぼし修正：JSが直接書いていた「並び替え/完了」ボタン・出席マトリクスの見出し「仲間/年間合計」・年度ラベルをT()経由に。辞書に「年度」を追加。英仏葡でUI日本語の残存ゼロを確認） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v224（予定共有のプライバシー配慮：送信内容にメモが含まれる旨の注意書きと「📝 メモも送る」チェックを追加（既定=送る・オフにするとメモを除いて送信・設定は記憶）。メモがある月だけ表示して画面はごちゃつかせない。名簿/月謝/出欠/申込情報は元から送信対象外） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1766,6 +1766,10 @@ function applyUpdate(){
       <button onclick="ssMove(1)">›</button>
     </div>
     <p class="list-mini" id="ssCount" style="margin:8px 0 4px;font-weight:800;color:var(--navy)"></p>
+    <label id="ssNoteRow" style="display:none;align-items:flex-start;gap:8px;margin:0 0 8px;cursor:pointer">
+      <input type="checkbox" id="ssNoteChk" onchange="ssSetNote(this.checked)" style="width:20px;height:20px;flex-shrink:0;margin-top:2px">
+      <span class="list-mini">📝 メモも送る<span style="display:block;color:#c77f0a">送られるのは下の内容だけです。メモに個人名などが入っていないかご確認ください。</span></span>
+    </label>
     <textarea id="ssPreview" rows="6" readonly style="width:100%;font-size:13px;font-family:inherit;padding:10px 11px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical;color:var(--muted)"></textarea>
     <button class="btn gold full" style="margin-top:12px" onclick="ssSend()">📩 LINE等で送る</button>
     <button class="btn ghost full" style="margin-top:10px" id="ssQrBtn" onclick="ssShowQr()">📷 QRコードを表示</button>
@@ -4904,7 +4908,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v223'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v224'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5447,6 +5451,8 @@ Object.assign(DICT,{
   '履歴はまだありません':{en:'No history yet',fr:'Aucun historique',pt:'Sem histórico ainda'},
   '取り消し':{en:'Remove',fr:'Annuler',pt:'Remover'},
   '年度':{en:'FY',fr:'Saison',pt:'Ano'},
+  '📝 メモも送る':{en:'📝 Include notes',fr:'📝 Inclure les mémos',pt:'📝 Incluir memos'},
+  '送られるのは下の内容だけです。メモに個人名などが入っていないかご確認ください。':{en:'Only the text below is sent. Please check that notes contain no personal names.',fr:'Seul le texte ci-dessous est envoyé. Vérifiez que les mémos ne contiennent pas de noms.',pt:'Apenas o texto abaixo é enviado. Verifique se os memos não contêm nomes.'},
   '道場・部活の事務管理と試合分析の、すべての機能をご利用いただけます。':{en:'Full access to dojo/club administration and match analysis.',fr:'Accès complet à la gestion du dojo/club et à l’analyse des combats.',pt:'Acesso completo à administração do dojô/clube e à análise de lutas.'},
   '年額プラン':{en:'Annual plan',fr:'Formule annuelle',pt:'Plano anual'},
   '年額 ¥4,800（最初の1ヶ月は無料）':{en:'¥4,800 / year (first month free)',fr:'4 800 ¥ / an (1er mois gratuit)',pt:'¥4.800 / ano (1º mês grátis)'},
@@ -9871,15 +9877,18 @@ function renderSchedCal(){
 /* ===== v219: 予定の共有（事務→選手）。テキスト主・QR副（長い月は自動で複数QRに分割） ===== */
 function schedShareText(ym){
   const sender=(DB.team||'').trim()||T('道場');
+  const withNote=(DB.shareNote!==false);            // v224: メモを送るか（既定=送る）
   const items=(DB.schedule||[]).filter(s=>s.date&&s.date.slice(0,7)===ym)
     .sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
   const L=['【My柔道 予定表】','送り主｜'+sender,'月｜'+ym,'--- 予定 ---'];
   items.forEach(s=>{
     const inferred=/試合|大会/.test(s.name||'');
     const flag=(s.showMatch===true&&!inferred)?'M':((s.showMatch===false&&inferred)?'x':'');
-    L.push([s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',(s.note||'').replace(/[\n｜]/g,' '),flag].join('｜').replace(/｜+$/,''));
+    const note=withNote?(s.note||'').replace(/[\n｜]/g,' '):'';
+    L.push([s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',note,flag].join('｜').replace(/｜+$/,''));
   });
-  return {text:L.join('\n'), count:items.length, sender, ym};
+  const hasNote=items.some(s=>(s.note||'').trim());
+  return {text:L.join('\n'), count:items.length, sender, ym, hasNote};
 }
 function schedShareParts(text){
   const MAX=700;                                           // 1枚あたり約700byte＝画面越しでも読み取りやすいサイズ
@@ -9923,11 +9932,17 @@ function schedShareApply(parsed,forId){
 let ssMonth=null;
 function openSchedShare(){ ssMonth=schedCalMonth||thisMonthStr(); renderSchedShare(); openModal('schedShareModal'); }
 function ssMove(d){ let[y,m]=ssMonth.split('-').map(Number); m+=d; if(m<1){m=12;y--;} if(m>12){m=1;y++;} ssMonth=`${y}-${String(m).padStart(2,'0')}`; renderSchedShare(); }
+function ssSetNote(v){ DB.shareNote=!!v; save(); renderSchedShare(); }   // v224: メモ送信の切替（記憶される）
 function renderSchedShare(){
   const [y,m]=ssMonth.split('-');
   document.getElementById('ssMonthLbl').textContent=`${y}${T('年')} ${Number(m)}${T('月')}`;
   const r=schedShareText(ssMonth);
   document.getElementById('ssCount').textContent=r.count?`${r.count}${T('件の予定を送ります')}`:T('この月に予定はありません');
+  // v224: メモがある月だけ「メモも送る」チェックを出す（プライバシー配慮・普段は表示しない）
+  const nrow=document.getElementById('ssNoteRow'), nchk=document.getElementById('ssNoteChk');
+  const showNoteRow=r.hasNote||(DB.shareNote===false);
+  if(nrow)nrow.style.display=showNoteRow?'flex':'none';
+  if(nchk)nchk.checked=(DB.shareNote!==false);
   document.getElementById('ssPreview').value=r.text;
   document.getElementById('ssQrBox').innerHTML='';
   const qb=document.getElementById('ssQrBtn'); if(qb)qb.textContent=T('📷 QRコードを表示');   // v221: 月を変えたらQRを畳んでボタンも戻す
