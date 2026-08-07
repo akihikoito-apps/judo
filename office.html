@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v224（予定共有のプライバシー配慮：送信内容にメモが含まれる旨の注意書きと「📝 メモも送る」チェックを追加（既定=送る・オフにするとメモを除いて送信・設定は記憶）。メモがある月だけ表示して画面はごちゃつかせない。名簿/月謝/出欠/申込情報は元から送信対象外） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v225（パスコードは事務のみに限定＝選手アプリでは非表示&自動解除。事務は「必ずメモして保管」「忘れたら削除→再インストール→バックアップ復元でしか戻せない」警告＋バックアップ未保存では設定不可＋設定直後に番号を表示。バックアップ導線強化＝削除でデータ消失を明記・リマインド間隔を14/30/90/オフから選択） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -628,6 +628,9 @@
   .bk-status.ok{background:#eef4ee;color:#2e6b45;border:1px solid #cfe3d4;}
   .bk-status.warn{background:#fbf0e6;color:#8a5a1e;border:1px solid #ecd3b0;}
   .bk-btn-sub{display:block;font-size:.82em;font-weight:700;opacity:.92;margin-top:2px;}
+  .lock-warn{background:#fdf6e3;border:1.5px solid #e6d08a;border-radius:12px;padding:11px 13px;margin:10px 0 4px;font-size:calc(13px*var(--fs,1));line-height:1.65;}
+  .lock-warn b{color:#8a6d1f;}
+  .lock-warn div{margin-top:5px;}
   .bk-stack{flex-direction:column;gap:1px;padding-top:8px;padding-bottom:9px;}   /* v222: 主文＋補足を1行ずつ縦に */
   /* v144: 履歴タブ */
   .rk-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;}
@@ -1379,10 +1382,14 @@ function applyUpdate(){
       <h3 style="margin-top:0;color:var(--navy)">データの保存・共有</h3>
       <div id="backupStatus" style="margin-bottom:10px"></div>
       <p class="list-mini">バックアップは、お使いのiCloud Drive・Googleドライブ・「ファイル」に保存できます（端末の外に保管＝機種変更や紛失でも安心）。仲間への共有もこのファイルで行えます。</p>
+      <p class="list-mini" style="color:#8a6d1f;font-weight:700">※ アプリを削除すると、バックアップがない限りデータは元に戻せません。</p>
       <button class="btn gold full bk-stack" style="margin-top:10px" onclick="exportData()"><span>💾 バックアップを保存</span><span class="bk-btn-sub">（クラウド/ファイルへ）</span></button>
       <label class="btn full ghost" style="margin-top:10px;cursor:pointer">📂 バックアップから復元
         <input type="file" accept=".json" style="display:none" onchange="importData(event)">
       </label>
+      <label class="fld" style="margin-top:16px">保存のリマインド</label>
+      <div class="cat-pick" id="bkRemindPick"></div>
+      <p class="list-mini">前回の保存から選んだ日数が過ぎると、画面上部でお知らせします。</p>
       <div id="dataUsageBox" style="margin-top:16px"></div>
     </div>
     <div class="card">
@@ -1395,12 +1402,19 @@ function applyUpdate(){
   <div id="setViewSec" style="display:none">
     <div class="card">
       <h3 style="margin-top:0;color:var(--navy)">アプリのロック（パスコード）</h3>
-      <p class="list-mini">個人情報保護のため、起動時に4桁のパスコード入力を求められるようにできます（この端末のみ・バックアップには含まれません）。※のぞき見を防ぐための簡易的なロックです。端末そのものの画面ロックも併せてご利用ください。</p>
+      <p class="list-mini">仲間の個人情報をお預かりするため、起動時に4桁のパスコード入力を求められるようにできます（この端末のみ・バックアップには含まれません）。※のぞき見を防ぐための簡易的なロックです。端末そのものの画面ロックも併せてご利用ください。</p>
+      <div class="lock-warn">
+        <b>⚠️ 設定する前に必ずお読みください</b>
+        <div>・パスコードは<b>お手元に必ずメモして大切に保管</b>してください。</div>
+        <div>・忘れた場合、アプリ内で解除する方法は<b>ありません</b>。アプリを削除して入れ直し、<b>バックアップから復元する方法でのみ</b>元に戻せます。</div>
+        <div>・そのため<b>バックアップを保存してからでないと設定できません</b>（設定 › データ管理）。</div>
+      </div>
       <label class="fld">起動時パスコード</label>
       <div class="io-pick">
         <button id="lockOff" class="on" onclick="setLockEnabled(false)">オフ</button>
         <button id="lockOn" onclick="setLockEnabled(true)">オン</button>
       </div>
+      <p class="list-mini" id="lockNoBackup" style="display:none;color:#c0392b;font-weight:700;margin-top:8px">バックアップがまだありません。「設定 › データ管理 › 💾 バックアップを保存」を先に行ってください。</p>
       <button class="btn ghost full" id="lockChangeBtn" style="margin-top:10px;display:none" onclick="startSetPasscode()">パスコードを変更</button>
     </div>
   </div>
@@ -2045,7 +2059,7 @@ function applyUpdate(){
   <div class="modal" style="max-width:400px;text-align:center">
     <div style="font-size:40px">💾</div>
     <h3 style="margin:8px 0 6px;color:var(--navy)">大切な記録が増えてきました</h3>
-    <p class="list-mini" style="text-align:left;line-height:1.7;margin:10px 0 4px">このアプリのデータは<b>この端末の中だけ</b>に保存されています。端末の故障・紛失・機種変更にそなえて、<b>バックアップを1度とっておく</b>と安心です。</p>
+    <p class="list-mini" style="text-align:left;line-height:1.7;margin:10px 0 4px">このアプリのデータは<b>この端末の中だけ</b>に保存されています。<b>アプリを削除すると、バックアップがない限りデータは元に戻せません</b>（端末の故障・紛失・機種変更も同じです）。</p>
     <p class="list-mini" style="text-align:left;line-height:1.7;margin:6px 0 14px">保存はかんたん・約10秒。iCloud Drive などに1つファイルを置くだけで、いつでもまるごと復元できます。</p>
     <button class="btn gold full" onclick="backupEduSave()">💾 今すぐバックアップを保存（おすすめ）</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="closeModal('backupEduModal')">あとで（設定 › データ管理 からいつでも）</button>
@@ -4908,7 +4922,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v224'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v225'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -5451,6 +5465,17 @@ Object.assign(DICT,{
   '履歴はまだありません':{en:'No history yet',fr:'Aucun historique',pt:'Sem histórico ainda'},
   '取り消し':{en:'Remove',fr:'Annuler',pt:'Remover'},
   '年度':{en:'FY',fr:'Saison',pt:'Ano'},
+  // v225: パスコード警告・バックアップ導線
+  '⚠️ 設定する前に必ずお読みください':{en:'⚠️ Please read before enabling',fr:'⚠️ À lire avant d’activer',pt:'⚠️ Leia antes de ativar'},
+  '先にバックアップを保存してください':{en:'Please save a backup first',fr:'Enregistrez d’abord une sauvegarde',pt:'Salve um backup primeiro'},
+  'パスコードを設定しました':{en:'Passcode set',fr:'Code défini',pt:'Senha definida'},
+  'この番号を必ずお手元にメモして、大切に保管してください。忘れた場合はアプリ内で解除できず、アプリを削除して入れ直し、バックアップから復元する方法でのみ元に戻せます。':{en:'Write this number down and keep it safe. If you forget it, it cannot be unlocked in the app — the only way back is to delete the app, reinstall it and restore from a backup.',fr:'Notez ce code et conservez-le précieusement. En cas d’oubli, aucun déverrouillage n’est possible dans l’app : il faut la supprimer, la réinstaller et restaurer une sauvegarde.',pt:'Anote este número e guarde-o com segurança. Se esquecer, não há como desbloquear no app — só excluindo, reinstalando e restaurando um backup.'},
+  'メモしました':{en:'I wrote it down',fr:'C’est noté',pt:'Anotei'},
+  '保存のリマインド':{en:'Backup reminder',fr:'Rappel de sauvegarde',pt:'Lembrete de backup'},
+  '日ごと':{en:' days',fr:' jours',pt:' dias'},
+  'お知らせしない':{en:'Off',fr:'Désactivé',pt:'Desativado'},
+  '前回の保存から選んだ日数が過ぎると、画面上部でお知らせします。':{en:'You’ll see a banner when this many days have passed since your last backup.',fr:'Une bannière apparaît lorsque ce nombre de jours s’est écoulé depuis la dernière sauvegarde.',pt:'Um aviso aparece quando esse número de dias passar desde o último backup.'},
+  '※ アプリを削除すると、バックアップがない限りデータは元に戻せません。':{en:'※ If you delete the app, data cannot be recovered without a backup.',fr:'※ Si vous supprimez l’app, les données sont irrécupérables sans sauvegarde.',pt:'※ Se você excluir o app, os dados não podem ser recuperados sem backup.'},
   '📝 メモも送る':{en:'📝 Include notes',fr:'📝 Inclure les mémos',pt:'📝 Incluir memos'},
   '送られるのは下の内容だけです。メモに個人名などが入っていないかご確認ください。':{en:'Only the text below is sent. Please check that notes contain no personal names.',fr:'Seul le texte ci-dessous est envoyé. Vérifiez que les mémos ne contiennent pas de noms.',pt:'Apenas o texto abaixo é enviado. Verifique se os memos não contêm nomes.'},
   '道場・部活の事務管理と試合分析の、すべての機能をご利用いただけます。':{en:'Full access to dojo/club administration and match analysis.',fr:'Accès complet à la gestion du dojo/club et à l’analyse des combats.',pt:'Acesso completo à administração do dojô/clube e à análise de lutas.'},
@@ -6107,6 +6132,11 @@ function applyMode(){
   const o=document.getElementById('modeOfficeB'),p=document.getElementById('modePersonalB');
   if(o)o.classList.toggle('on',!personal);
   if(p)p.classList.toggle('on',personal);
+  // v225: パスコードロックは事務のみ（他人の個人情報を預かるため）。個人アプリでは非表示にし、有効なら自動解除
+  const secTab=document.getElementById('setTabSec');
+  if(secTab)secTab.style.display=personal?'none':'';
+  if(personal&&lockEnabled){ lockEnabled=false; lockCode=''; saveLock(); }
+  if(personal){ const sv=document.getElementById('setViewSec'); if(sv&&sv.style.display!=='none')setSetView('team'); }
 }
 // v166: エディション適用。個人/事務専用ビルドはモードを固定し、切替UIを隠す。
 function applyEdition(){
@@ -11302,8 +11332,11 @@ function lockSubmit(){
     document.getElementById('lockMsg').textContent=''; renderLockDots();
   }else if(lockMode==='set2'){
     if(lockBuf===lockTemp){
+      const setCode=lockBuf;
       lockCode=lockHash(lockBuf); lockEnabled=true; saveLock();
-      hideLockScreen(); renderLockSettings(); toast('パスコードを設定しました');
+      hideLockScreen(); renderLockSettings();
+      // v225: 設定直後に番号を明示し、メモ保管を強く促す（忘れると復元でしか戻せないため）
+      askConfirm(`${T('パスコードを設定しました')}<br><br><span style="font-size:34px;font-weight:900;letter-spacing:.3em;color:var(--navy)">${setCode}</span><br><br>${T('この番号を必ずお手元にメモして、大切に保管してください。忘れた場合はアプリ内で解除できず、アプリを削除して入れ直し、バックアップから復元する方法でのみ元に戻せます。')}`,()=>{},T('メモしました'));
     }else{ lockMode='set1'; lockShake('一致しません。もう一度設定してください'); setLockTitle(); }
   }
 }
@@ -11316,6 +11349,8 @@ function cancelSetPasscode(){
 }
 function setLockEnabled(on){
   if(on){
+    // v225: バックアップ未保存では設定させない（忘れた時の復旧手段がバックアップのみのため）
+    if(!DB.lastBackup){ renderLockSettings(); toast(T('先にバックアップを保存してください')); return; }
     if(lockCode){ lockEnabled=true; saveLock(); renderLockSettings(); }
     else startSetPasscode();          // 初回は設定フローへ
   }else{
@@ -11328,6 +11363,8 @@ function renderLockSettings(){
   on.classList.toggle('on',lockEnabled);
   off.classList.toggle('on',!lockEnabled);
   document.getElementById('lockChangeBtn').style.display=lockEnabled?'block':'none';
+  const nb=document.getElementById('lockNoBackup');            // v225: バックアップ未保存の警告
+  if(nb)nb.style.display=(!DB.lastBackup&&!lockEnabled)?'block':'none';
 }
 function applyLogo(){
   // v148: 個人モードはストーリーロゴ、事務モードはチームロゴをヘッダー／アイコンに使用
@@ -11410,9 +11447,19 @@ function backupDaysSince(){
   const a=new Date(DB.lastBackup+'T00:00'),b=new Date(todayStr()+'T00:00');
   return Math.round((b-a)/86400000);
 }
-const BACKUP_REMIND_DAYS=30;
+// v225: リマインド間隔は利用者が選択（既定30日・0=オフ）
+const BACKUP_REMIND_OPTS=[14,30,90,0];
+function backupRemindDays(){ const v=DB.bkRemind; return (v===0||v===14||v===30||v===90)?v:30; }
+function setBackupRemind(d){ DB.bkRemind=d; save(); renderBkRemindPick(); renderBackupStatus(); showBackupReminder(); }
+function renderBkRemindPick(){
+  const el=document.getElementById('bkRemindPick'); if(!el)return;
+  const cur=backupRemindDays();
+  el.innerHTML=BACKUP_REMIND_OPTS.map(d=>`<button class="${cur===d?'on':''}" onclick="setBackupRemind(${d})">${d?d+T('日ごと'):T('お知らせしない')}</button>`).join('');
+}
 function renderBackupStatus(){
   const box=document.getElementById('backupStatus'); if(!box)return;
+  renderBkRemindPick();
+  const BACKUP_REMIND_DAYS=backupRemindDays()||99999;
   const days=backupDaysSince();
   if(days===Infinity){
     box.innerHTML=`<div class="bk-status warn"><b>${T('まだ一度も保存されていません')}</b><br>${T('大切なデータを守るため、今すぐ保存をおすすめします。')}</div>`;
@@ -11424,7 +11471,8 @@ function renderBackupStatus(){
 }
 function showBackupReminder(){
   const b=document.getElementById('backupBanner'); if(!b)return;
-  const overdue=(backupDaysSince()>=BACKUP_REMIND_DAYS);
+  const rd=backupRemindDays();
+  const overdue=rd>0&&(backupDaysSince()>=rd);
   const hasData=(DB.students&&DB.students.length>0);
   const up=document.getElementById('updateBanner');
   const updateShown=up&&up.style.display!=='none'&&up.style.display!=='';
