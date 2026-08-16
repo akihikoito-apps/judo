@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v228（集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v229（レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -902,7 +902,7 @@
   .ra-legend i{width:15px;height:13px;border-radius:3px;display:inline-block;}
   .ra-legend i.dash{background:none;border:2px dashed #c8a44d;border-radius:2px;height:0;width:17px;}
   .ra-note{font-size:calc(12px*var(--fs,1));color:var(--muted);margin-top:8px;line-height:1.6;text-align:center;}
-  .ra-help{text-align:right;margin-top:8px;}
+  .ra-secttl-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .ra-help-btn{background:none;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:calc(11.5px*var(--fs,1));font-weight:700;padding:3px 10px;cursor:pointer;}
   .ra-help-btn.on{background:var(--navy);border-color:var(--navy);color:#fff;}
   /* v128: 上部（全データ/対右/対左 縦ボタン｜勝率ゲージ｜勝敗分数） */
@@ -4939,7 +4939,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v228'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v229'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5248,7 +5248,7 @@ Object.assign(DICT,{
   '全データ':{en:'All data',fr:'Toutes données',pt:'Todos os dados'},
   '対 右組':{en:'vs Right grip',fr:'vs Garde droite',pt:'vs Pegada direita'},
   '対 左組':{en:'vs Left grip',fr:'vs Garde gauche',pt:'vs Pegada esquerda'},
-  '決まり技レーダー（割合）':{en:'Deciding-technique radar (share)',fr:'Radar des techniques décisives (%)',pt:'Radar de técnicas decisivas (%)'},
+  '決まり技レーダー':{en:'Deciding-technique radar',fr:'Radar des techniques décisives',pt:'Radar de técnicas decisivas'},
   '勝ち技':{en:'Winning',fr:'Gagnés',pt:'Vitórias'},
   '負け技':{en:'Losing',fr:'Perdus',pt:'Derrotas'},
   '負け技（取られた技）':{en:'Conceded techniques',fr:'Techniques encaissées',pt:'Técnicas sofridas'},
@@ -7385,16 +7385,16 @@ function raSectionHtml(bs,teamBs){
   const svg=raRadarSVG(ax,[{values:pv.arr,color:col,fill:fil},{values:tv.arr,color:'#c8a44d',fill:'rgba(200,164,77,.12)',dash:true}],mx,subCol);
   const wl=`<div class="ra-wl-toggle"><button class="ra-wlbtn win ${isWin?'on':''}" onclick="setMatchRaResult('○')">勝ち技</button><button class="ra-wlbtn lose ${!isWin?'on':''}" onclick="setMatchRaResult('▲')">負け技</button></div>`;
   return `<div class="ana-sec ra-sec">
-    <div class="ra-secttl"><span class="ra-ico">📊</span> 決まり技レーダー（割合）</div>
+    <div class="ra-secttl ra-secttl-row"><span><span class="ra-ico">📊</span> ${T('決まり技レーダー')}</span><button type="button" class="ra-help-btn" onclick="raToggleNote(this)">ⓘ ${T('説明')}</button></div>
     ${wl}
     <div class="ra-single">${svg}</div>
     <div class="ra-legend"><span><i style="background:${col}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>
-    <div class="ra-help"><button type="button" class="ra-help-btn" onclick="raToggleNote(this)">ⓘ ${T('説明')}</button></div>
     <div class="ra-note" style="display:none">軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。</div>
   </div>`;
 }
 function raToggleNote(btn){
-  const note=btn.parentElement.nextElementSibling;
+  const sec=btn.closest('.ra-sec')||btn.parentElement.parentElement;
+  const note=sec?sec.querySelector('.ra-note'):null;
   if(!note)return;
   const show=note.style.display==='none';
   note.style.display=show?'':'none';
