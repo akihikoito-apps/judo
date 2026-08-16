@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v227（既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v228（集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -91,6 +91,8 @@
   .result-btn{margin-top:8px;font-size:calc(13px*var(--fs,1));font-weight:700;padding:6px 12px;border-radius:18px;border:2px solid var(--gold);background:#fff;color:#9a7400;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
   .result-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;}
   .bout-row{display:flex;gap:10px;align-items:flex-start;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .bout-row-link{position:relative;padding-right:22px;}
+  .bout-row-link::after{content:"›";position:absolute;right:6px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:20px;line-height:1;}
   .bout-row:active{background:#f7f5ef;}
   .bout-mark{flex-shrink:0;width:calc(34px*var(--fs,1));height:calc(34px*var(--fs,1));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:calc(20px*var(--fs,1));font-weight:800;color:#fff;}
   .mark-win{background:#2e7d4f;}
@@ -899,7 +901,10 @@
   .ra-legend span{display:inline-flex;align-items:center;gap:7px;}
   .ra-legend i{width:15px;height:13px;border-radius:3px;display:inline-block;}
   .ra-legend i.dash{background:none;border:2px dashed #c8a44d;border-radius:2px;height:0;width:17px;}
-  .ra-note{font-size:calc(12px*var(--fs,1));color:var(--muted);margin-top:12px;line-height:1.6;text-align:center;}
+  .ra-note{font-size:calc(12px*var(--fs,1));color:var(--muted);margin-top:8px;line-height:1.6;text-align:center;}
+  .ra-help{text-align:right;margin-top:8px;}
+  .ra-help-btn{background:none;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:calc(11.5px*var(--fs,1));font-weight:700;padding:3px 10px;cursor:pointer;}
+  .ra-help-btn.on{background:var(--navy);border-color:var(--navy);color:#fff;}
   /* v128: 上部（全データ/対右/対左 縦ボタン｜勝率ゲージ｜勝敗分数） */
   .ra-top{display:flex;align-items:center;gap:10px;margin:2px 0 14px;flex-wrap:wrap;justify-content:center;}
   .ra-fcol{display:flex;flex-direction:column;gap:7px;flex-shrink:0;}
@@ -1244,7 +1249,7 @@ function applyUpdate(){
           <button class="chip-btn" onclick="openMatchSearch()">🔍 検索</button>
         </div>
       </div>
-      <p class="list-mini" id="matchSummaryHint">仲間をタップすると、その人の試合結果がすべて表示されます。「📋取り込み」で保護者からのLINE記入テキストをまとめて登録できます。</p>
+      <p class="list-mini" id="matchSummaryHint">仲間をタップすると、その人の試合結果がすべて表示されます。一覧の試合をタップすると登録内容を開いて修正・削除できます。「📋取り込み」で保護者からのLINE記入テキストをまとめて登録できます。</p>
       <div id="matchMemberList" style="margin-top:10px"></div>
     </div>
     <div class="card" id="matchDetailCard" style="display:none">
@@ -4934,7 +4939,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v227'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v228'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5645,6 +5650,8 @@ Object.assign(DICT,{
   'この試合をメモリーに登録する':{en:'Save this match to Memory',fr:'Enregistrer ce combat dans Souvenirs',pt:'Salvar esta luta na Memória'},
   '削除':{en:'Delete',fr:'Supprimer',pt:'Excluir'},
   // レーダー説明
+  '説明':{en:'Info',fr:'Infos',pt:'Info'},
+  '仲間をタップすると、その人の試合結果がすべて表示されます。一覧の試合をタップすると登録内容を開いて修正・削除できます。「📋取り込み」で保護者からのLINE記入テキストをまとめて登録できます。':{en:'Tap a member to see all their results. Tap a bout in the list to open and edit or delete it. Use “📋 Import” to register LINE reports from parents in bulk.',fr:'Touchez un membre pour voir tous ses résultats. Touchez un combat pour l’ouvrir, le modifier ou le supprimer. « 📋 Importer » enregistre en lot les rapports LINE des parents.',pt:'Toque em um membro para ver todos os resultados. Toque em uma luta na lista para abrir, editar ou excluir. Use “📋 Importar” para registrar em lote os relatos do LINE.'},
   '軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。':{en:'Axes = the 4 most-used throws (filled from Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi if fewer) + other throws, combinations, groundwork (hold/strangle/joint), fouls & decisions (shido/foul/decision/superiority), and walkover/withdrawal. Even if the technique is blank, it’s judged from the “Content” field. Gold dashed line = whole dojo.',fr:'Axes = les 4 projections les plus fréquentes (complétées par Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + autres projections, combinaisons, sol (immobilisation/étranglement/luxation), fautes & décisions (shido/faute/décision/supériorité), et forfait/abandon. Même sans technique, le champ « Contenu » sert au classement. Ligne dorée en pointillés = tout le dojo.',pt:'Eixos = os 4 golpes mais usados (completados por Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + outros golpes, combinações, solo (imobilização/estrangulamento/chave), faltas & decisões (shido/falta/decisão/superioridade) e W.O./desistência. Mesmo sem técnica, usa-se o campo “Conteúdo”. Linha dourada tracejada = todo o dojô.'},
   // 初回オンボーディング
   'ようこそ！':{en:'Welcome!',fr:'Bienvenue !',pt:'Bem-vindo!'},
@@ -6854,6 +6861,7 @@ function setMatchSheet(sheet){
 function studentName(id){const s=DB.students.find(x=>x.id===id);return s?s.name:T('(削除された仲間)');}
 function schedLabel(s){if(!s)return '';return T(s.name)+(s.title?' '+s.title:'');}
 function renderMatchList(){
+  if(typeof refreshMatchDetailIfOpen==='function')refreshMatchDetailIfOpen();
   if(curSheet==='team'){renderTeamCards();return;}
   const m=ensureMatch(curMatchSched);
   const arr=m.individual;
@@ -7381,8 +7389,16 @@ function raSectionHtml(bs,teamBs){
     ${wl}
     <div class="ra-single">${svg}</div>
     <div class="ra-legend"><span><i style="background:${col}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>
-    <div class="ra-note">軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。</div>
+    <div class="ra-help"><button type="button" class="ra-help-btn" onclick="raToggleNote(this)">ⓘ ${T('説明')}</button></div>
+    <div class="ra-note" style="display:none">軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。</div>
   </div>`;
+}
+function raToggleNote(btn){
+  const note=btn.parentElement.nextElementSibling;
+  if(!note)return;
+  const show=note.style.display==='none';
+  note.style.display=show?'':'none';
+  btn.classList.toggle('on',show);
 }
 function openWazaPicker(cb,current){
   _wazaCb=cb;
@@ -7585,7 +7601,7 @@ function allBoutsBySelf(){
     });
     if(mr.team&&Array.isArray(mr.team.cards)){
       mr.team.cards.forEach(card=>{
-        const enrich=b=>Object.assign({},b,{division:card.division||'',round:card.round||'',oppAffil:card.oppTeam||''});
+        const enrich=b=>Object.assign({},b,{division:card.division||'',round:card.round||'',oppAffil:card.oppTeam||'',cardId:card.id});
         const pushWithMirror=(b,roundOverride)=>{
           const base=enrich(b);if(roundOverride)base.round=roundOverride;
           push(base,'団体戦');
@@ -7749,7 +7765,9 @@ function renderMatchDetail(){
     const oppExtra=b.oppIsMate?'<span class="mate-tag">'+T('同門')+'</span>':(b.oppAffil?' / '+esc(b.oppAffil):'');
     const head=[b.schedDate?b.schedDate.replace(/-/g,'/'):'',b.schedName?esc(b.schedName):'',b.sheet?T(b.sheet):''].filter(Boolean).join('　');
     const parts=[b.division,b.round?T(b.round):''].filter(Boolean).map(esc).join('・');
-    return `<div class="bout-row" style="cursor:default">
+    const canEdit=(DB.mode!=='personal')&&b.schedId&&(b.sheet==='団体戦'?b.cardId:b.id);
+    const oc=canEdit?` onclick="openBoutFromDetail('${b.schedId}','${b.sheet==='団体戦'?'card':'bout'}','${b.sheet==='団体戦'?b.cardId:b.id}')"`:'';
+    return `<div class="bout-row${canEdit?' bout-row-link':''}" style="cursor:${canEdit?'pointer':'default'}"${oc}>
       <div class="bout-mark mark-${b.result==='○'?'win':b.result==='▲'?'lose':'draw'}">${b.result}</div>
       <div class="bout-body">
         <div class="bout-sub">${head}</div>
@@ -7759,6 +7777,16 @@ function renderMatchDetail(){
       </div>
     </div>`;
   }).join('') : '<div style="color:var(--muted);text-align:center;padding:16px 0;font-size:calc(14px*var(--fs,1))">直近1年の試合結果はありません</div>';
+}
+// v228: 集計＞試合結果の一覧行から、その試合の登録内容（編集モーダル）を直接開く
+function openBoutFromDetail(schedId,kind,id){
+  curMatchSched=schedId; ensureMatch(schedId);
+  if(kind==='card'){ curSheet='team'; openCardModal(id); }
+  else{ curSheet='individual'; openBoutModal(id); }
+}
+function refreshMatchDetailIfOpen(){
+  const dc=document.getElementById('matchDetailCard');
+  if(dc&&dc.style.display!=='none'&&matchDetailSelfId)renderMatchDetail();
 }
 function closeMatchDetail(){
   const dc=document.getElementById('matchDetailCard');
