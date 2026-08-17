@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v229（レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v230（決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -4939,7 +4939,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v229'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v230'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -7351,30 +7351,38 @@ function raBucket(w,keys,grade){
 }
 function raPct(bouts,result,keys){const c=[0,0,0,0,0,0,0,0,0];let tot=0;bouts.forEach(b=>{if(b.result!==result)return;tot++;c[raBucket(b.waza,keys,b.grade)]++;});return {arr:c.map(v=>tot?v/tot*100:0),tot};}
 function raRadarSVG(ax,series,scaleMax,subCol){
-  const fs=raFsNow(),cx=150,cy=150,R=78,n=9;
+  // v230: レーダーを大きく・すっきりと。％はチャート内ではなく各軸ラベルの下に表示（中心付近の重なりを解消）
+  const fs=raFsNow(),n=9,cx=0,cy=0,R=104;
+  const ja=(typeof LANG==='undefined'||!LANG||LANG==='ja');
+  const flx=Math.min(fs,1.25);
+  const fLab=13.5*flx, fVal=12.5*flx;
+  const LW=ja?86:104, LH=Math.round(fLab*1.08*2+fVal*1.2+4);       // 軸名2行＋％1行ぶん
+  const labR=R+13;
   const ang=i=>(-Math.PI/2)+(2*Math.PI*i/n),pt=(i,r)=>[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];
   const mx=scaleMax||1;
-  // 文字拡大(fs)で％数字が巨大化しチャートに重なるのを防ぐ：数値は小さめ固定、軸名のみ控えめに拡大（チャート枠は max-width で拡大するため相対的な見やすさは保たれる）
-  const flx=Math.min(fs,1.25);
-  const fLab=(13.5*flx).toFixed(1),fVal='12.5',labR=R+16+flx*5,valOff=11;
-  let g='';for(let r=1;r<=4;r++){const rr=R*r/4;g+=`<polygon points="${ax.names.map((_,i)=>pt(i,rr).join(',')).join(' ')}" fill="none" stroke="rgba(20,30,55,.10)"/>`;}
-  let axl='';ax.names.forEach((_,i)=>{const[x,y]=pt(i,R);axl+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(20,30,55,.13)"/>`;});
-  let polys='';series.forEach(s=>{const p=s.values.map((v,i)=>pt(i,R*Math.min(v/mx,1)).join(',')).join(' ');polys+=`<polygon points="${p}" fill="${s.fill}" stroke="${s.color}" stroke-width="3" ${s.dash?'stroke-dasharray="6 4"':''}/>`;});
-  let dots='',vlab='';const main=series[0];
-  main.values.forEach((v,i)=>{if(v>0){const rr=R*Math.min(v/mx,1),[x,y]=pt(i,rr);dots+=`<circle cx="${x}" cy="${y}" r="4" fill="${main.color}"/>`;const[lx,ly]=pt(i,rr+valOff);vlab+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="${main.color}" font-size="${fVal}" font-weight="800" text-anchor="middle" dominant-baseline="middle">${Math.round(v)}%</text>`;}});
-  // ラベルは foreignObject＋HTMLで描画。多言語で長くなっても自動折り返し＋左右に振り分けて重なりを防ぐ。
-  // （SVGテキストは日本語で描画→DOM走査で翻訳される方式のため、翻訳後の語長に合わせた自動折返しが必要）
-  const LW=96,LH=40;
-  let lab='';ax.names.forEach((t,i)=>{const[lx,ly]=pt(i,labR);const col=i<4?subCol:'#1a2b4a'; // 上位4投技はチャート色、固定軸は紺
+  let g='';for(let r=1;r<=4;r++){const rr=R*r/4;g+=`<polygon points="${ax.names.map((_,i)=>pt(i,rr).join(',')).join(' ')}" fill="${r%2?'rgba(20,30,55,.025)':'none'}" stroke="rgba(20,30,55,${r===4?'.20':'.09'})" stroke-width="${r===4?1.4:1}"/>`;}
+  let axl='';ax.names.forEach((_,i)=>{const[x,y]=pt(i,R);axl+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(20,30,55,.12)"/>`;});
+  let polys='';series.forEach(s=>{const p=s.values.map((v,i)=>pt(i,R*Math.min(v/mx,1)).map(z=>z.toFixed(1)).join(',')).join(' ');polys+=`<polygon points="${p}" fill="${s.fill}" stroke="${s.color}" stroke-width="3" stroke-linejoin="round" ${s.dash?'stroke-dasharray="6 4"':''}/>`;});
+  let dots='';const main=series[0];
+  main.values.forEach((v,i)=>{if(v>0){const rr=R*Math.min(v/mx,1),[x,y]=pt(i,rr);dots+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${main.color}" stroke="#fff" stroke-width="1.5"/>`;}});
+  // ラベル＝軸名（foreignObject＋HTMLで多言語の折返し対応）＋その下に本人の％
+  let lab='',minX=0,maxX=0,minY=0,maxY=0;
+  ax.names.forEach((t,i)=>{const[lx,ly]=pt(i,labR);const col=i<4?subCol:'#1a2b4a';
     const side=Math.abs(lx-cx)<8?'mid':(lx<cx?'left':'right');
-    const bx=(side==='mid')?(lx-LW/2):(side==='right'?lx-4:lx-LW+4);   // 右側は頂点から右へ、左側は左へ伸ばす
-    const just=side==='mid'?'center':(side==='right'?'flex-start':'flex-end');
+    const bx=(side==='mid')?(lx-LW/2):(side==='right'?lx-2:lx-LW+2);
     const talign=side==='mid'?'center':(side==='right'?'left':'right');
-    lab+=`<foreignObject x="${bx.toFixed(1)}" y="${(ly-LH/2).toFixed(1)}" width="${LW}" height="${LH}" style="overflow:visible">`+
-      `<div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;height:${LH}px;align-items:center;justify-content:${just}">`+
-      `<span style="font-size:${fLab}px;line-height:1.04;font-weight:700;color:${col};text-align:${talign};word-break:normal;overflow-wrap:break-word">${esc(t)}</span>`+
-      `</div></foreignObject>`;});
-  return `<svg class="ana-radar" viewBox="-64 14 428 276" width="100%" style="max-width:${Math.round(330*Math.min(fs,1.5))}px;overflow:visible;display:block;margin:0 auto">${g}${axl}${polys}${dots}${lab}${vlab}</svg>`;
+    const just=side==='mid'?'center':(side==='right'?'flex-start':'flex-end');
+    // 上側の軸はラベルを上に、下側は下に寄せる（チャートと重ならない）
+    const by=(ly<cy-8)?(ly-LH+6):(ly>cy+8?(ly-6):(ly-LH/2));
+    const v=main.values[i]||0;
+    const val=v>0?`<span style="display:block;font-size:${fVal.toFixed(1)}px;line-height:1.15;font-weight:900;color:${main.color};margin-top:1px">${Math.round(v)}%</span>`:'';
+    lab+=`<foreignObject x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${LW}" height="${LH}" style="overflow:visible">`+
+      `<div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;height:${LH}px;align-items:${ly<cy-8?'flex-end':(ly>cy+8?'flex-start':'center')};justify-content:${just}">`+
+      `<span style="display:block;text-align:${talign};font-size:${fLab.toFixed(1)}px;line-height:1.08;font-weight:700;color:${col};word-break:normal;overflow-wrap:break-word">${esc(t)}${val}</span>`+
+      `</div></foreignObject>`;
+    minX=Math.min(minX,bx);maxX=Math.max(maxX,bx+LW);minY=Math.min(minY,by);maxY=Math.max(maxY,by+LH);});
+  const pad=4, vx=Math.floor(minX-pad), vy=Math.floor(minY-pad), vw=Math.ceil(maxX-minX+pad*2), vh=Math.ceil(maxY-minY+pad*2);
+  return `<svg class="ana-radar" viewBox="${vx} ${vy} ${vw} ${vh}" width="100%" style="max-width:${Math.round(430*Math.min(fs,1.5))}px;overflow:visible;display:block;margin:0 auto">${g}${axl}${polys}${dots}${lab}</svg>`;
 }
 function raSectionHtml(bs,teamBs){
   const isWin=(matchRaResult!=='▲');             // v129: 勝ち/負けを1枚で切替
