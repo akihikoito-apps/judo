@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v230（決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v231（シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -672,6 +672,7 @@
   .share-styles button.on{background:var(--gold);border-color:var(--gold);color:#2a2100;}
   .share-styles button.locked{opacity:.72;}
   .share-styles button.locked::first-letter{font-size:.9em;}
+  .share-adv-btn{display:block;width:100%;margin-top:14px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.25);color:#fff;border-radius:12px;padding:9px 12px;font-family:inherit;font-weight:800;font-size:calc(13px*var(--fs,1));text-align:left;cursor:pointer;}
   .rk-photo .rk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .rk-add{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:rgba(255,255,255,.85);font-size:calc(13.5px*var(--fs,1));font-weight:700;cursor:pointer;text-align:center;}
   .rk-add .big{font-size:40px;display:block;margin-bottom:4px;}
@@ -1552,12 +1553,25 @@ function applyUpdate(){
 <div class="modal-bg" id="rkShareModal">
   <div class="modal" style="background:#0e1830;max-width:430px">
     <canvas id="rkcv" width="1080" height="1350" style="width:100%;height:auto;border-radius:12px;display:block"></canvas>
-    <div class="share-style-label">配色を選ぶ（プレビュー）</div>
-    <div class="share-styles" id="shareStyles"></div>
-    <div class="share-style-label">書式を選ぶ</div>
-    <div class="share-styles" id="shareFonts"></div>
-    <div class="share-style-label">柄・模様を選ぶ</div>
-    <div class="share-styles" id="sharePatterns"></div>
+    <div class="share-style-label">✨ テーマ（ワンタップで完成）</div>
+    <div class="share-styles" id="shareThemes"></div>
+    <div class="share-style-label">🖼 構図（写真の見せ方）</div>
+    <div class="share-styles" id="shareLayouts"></div>
+    <button type="button" class="share-adv-btn" id="shareAdvBtn" onclick="shareToggleAdv()">▼ こだわり調整（配色・書式・柄・フレーム・文字・スタンプ）</button>
+    <div id="shareAdv" style="display:none">
+      <div class="share-style-label">配色を選ぶ</div>
+      <div class="share-styles" id="shareStyles"></div>
+      <div class="share-style-label">書式を選ぶ</div>
+      <div class="share-styles" id="shareFonts"></div>
+      <div class="share-style-label">柄・背景</div>
+      <div class="share-styles" id="sharePatterns"></div>
+      <div class="share-style-label">フレーム</div>
+      <div class="share-styles" id="shareFrames"></div>
+      <div class="share-style-label">タイトルの文字エフェクト</div>
+      <div class="share-styles" id="shareTitlefx"></div>
+      <div class="share-style-label">スタンプ</div>
+      <div class="share-styles" id="shareStamps"></div>
+    </div>
     <div class="row" style="margin-top:12px;gap:10px">
       <button class="btn" style="flex:0 0 auto;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:0 14px" onclick="closeModal('rkShareModal')">閉じる</button>
       <button class="btn" style="flex:1;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:#fff;color:var(--navy)" onclick="rkSaveShare()">保存</button>
@@ -1637,7 +1651,7 @@ function applyUpdate(){
       <div class="list-mini" style="font-weight:800;color:var(--navy);margin-bottom:6px">Proでできること</div>
       <div class="list-mini">・メモリーの保存が無制限（無料は10件まで）</div>
       <div class="list-mini">・試合結果の分析（勝率・決まり技レーダー・組手別/技別）</div>
-      <div class="list-mini">・シェア画像の全デザイン（配色8×書式8×柄）</div>
+      <div class="list-mini">・シェア画像の全デザイン（テーマ10・構図14・フレーム・文字エフェクト・スタンプ）</div>
       <div class="list-mini">・複数の主役（家族）を登録</div>
     </div>
     <p class="list-mini" style="margin-top:12px">「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。</p>
@@ -4939,7 +4953,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v230'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v231'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5378,6 +5392,30 @@ Object.assign(DICT,{
   'マイ柔道ヒストリー':{en:'My Judo History',fr:'Mon histoire judo',pt:'Minha história de judô'},
   'スタイルを選ぶ（プレビュー）':{en:'Choose a style (preview)',fr:'Choisir un style (aperçu)',pt:'Escolha um estilo (prévia)'},
   '配色を選ぶ（プレビュー）':{en:'Choose colors (preview)',fr:'Choisir les couleurs (aperçu)',pt:'Escolha as cores (prévia)'},
+  '配色を選ぶ':{en:'Colors',fr:'Couleurs',pt:'Cores'},
+  '✨ テーマ（ワンタップで完成）':{en:'✨ Theme (one tap)',fr:'✨ Thème (un seul geste)',pt:'✨ Tema (um toque)'},
+  '🖼 構図（写真の見せ方）':{en:'🖼 Layout',fr:'🖼 Mise en page',pt:'🖼 Layout'},
+  '▼ こだわり調整（配色・書式・柄・フレーム・文字・スタンプ）':{en:'▼ Fine-tune (colors, font, pattern, frame, text, stamp)',fr:'▼ Réglages fins (couleurs, police, motif, cadre, texte, tampon)',pt:'▼ Ajustes finos (cores, fonte, padrão, moldura, texto, carimbo)'},
+  'こだわり調整（配色・書式・柄・フレーム・文字・スタンプ）':{en:'Fine-tune (colors, font, pattern, frame, text, stamp)',fr:'Réglages fins (couleurs, police, motif, cadre, texte, tampon)',pt:'Ajustes finos (cores, fonte, padrão, moldura, texto, carimbo)'},
+  '柄・背景':{en:'Pattern / background',fr:'Motif / fond',pt:'Padrão / fundo'},
+  'フレーム':{en:'Frame',fr:'Cadre',pt:'Moldura'},
+  'タイトルの文字エフェクト':{en:'Title text effect',fr:'Effet du titre',pt:'Efeito do título'},
+  'スタンプ':{en:'Stamp',fr:'Tampon',pt:'Carimbo'},
+  'フレームは Pro で使えます':{en:'Frames are a Pro feature',fr:'Les cadres sont réservés à Pro',pt:'Molduras são um recurso Pro'},
+  '文字エフェクトは Pro で使えます':{en:'Text effects are a Pro feature',fr:'Les effets de texte sont réservés à Pro',pt:'Efeitos de texto são um recurso Pro'},
+  'スタンプは Pro で使えます':{en:'Stamps are a Pro feature',fr:'Les tampons sont réservés à Pro',pt:'Carimbos são um recurso Pro'},
+  'この構図は Pro で使えます':{en:'This layout is a Pro feature',fr:'Cette mise en page est réservée à Pro',pt:'Este layout é um recurso Pro'},
+  'テーマは Pro で使えます':{en:'Themes are a Pro feature',fr:'Les thèmes sont réservés à Pro',pt:'Temas são um recurso Pro'},
+  '金メダル':{en:'Gold medal',fr:'Médaille d’or',pt:'Medalha de ouro'},'ネオン':{en:'Neon',fr:'Néon',pt:'Neon'},'号外':{en:'Extra!',fr:'Édition spéciale',pt:'Extra!'},'トレカ':{en:'Trading card',fr:'Carte à collectionner',pt:'Card colecionável'},
+  '桜':{en:'Sakura',fr:'Sakura',pt:'Sakura'},'畳・道場':{en:'Dojo tatami',fr:'Tatami du dojo',pt:'Tatame do dojô'},'花火':{en:'Fireworks',fr:'Feux d’artifice',pt:'Fogos'},'チャンピオン':{en:'Champion',fr:'Champion',pt:'Campeão'},'モノクロ雑誌':{en:'Magazine',fr:'Magazine',pt:'Revista'},
+  'スタンダード':{en:'Standard',fr:'Standard',pt:'Padrão'},'斜めスプリット':{en:'Diagonal split',fr:'Diagonale',pt:'Diagonal'},'サークル窓':{en:'Circle window',fr:'Fenêtre ronde',pt:'Janela circular'},'奥行き':{en:'Depth',fr:'Profondeur',pt:'Profundidade'},'ポスター帯':{en:'Poster ribbon',fr:'Bandeau affiche',pt:'Faixa pôster'},
+  'ポラロイド':{en:'Polaroid',fr:'Polaroid',pt:'Polaroid'},'アリーナ':{en:'Arena',fr:'Arène',pt:'Arena'},'コミック':{en:'Comic',fr:'BD',pt:'Quadrinhos'},'チケット':{en:'Ticket',fr:'Billet',pt:'Ingresso'},'タイポ重ね':{en:'Type overlay',fr:'Typo superposée',pt:'Tipografia'},'アーチ窓':{en:'Arch window',fr:'Fenêtre en arche',pt:'Janela em arco'},'トレカ枠':{en:'Card frame',fr:'Cadre carte',pt:'Moldura card'},'写真いっぱい':{en:'Full photo',fr:'Photo plein cadre',pt:'Foto inteira'},
+  'ゴールド':{en:'Gold',fr:'Or',pt:'Ouro'},'新聞紙':{en:'Newsprint',fr:'Papier journal',pt:'Jornal'},'ホログラム':{en:'Hologram',fr:'Hologramme',pt:'Holograma'},'畳':{en:'Tatami',fr:'Tatami',pt:'Tatame'},'夜空':{en:'Night sky',fr:'Ciel nocturne',pt:'Céu noturno'},'レッド':{en:'Red',fr:'Rouge',pt:'Vermelho'},'イエロー':{en:'Yellow',fr:'Jaune',pt:'Amarelo'},'ホワイト':{en:'White',fr:'Blanc',pt:'Branco'},'ピーチ':{en:'Peach',fr:'Pêche',pt:'Pêssego'},'バイオレット':{en:'Violet',fr:'Violet',pt:'Violeta'},'ティール':{en:'Teal',fr:'Sarcelle',pt:'Verde-azulado'},
+  'キラキラ':{en:'Sparkle',fr:'Étincelles',pt:'Brilhos'},'グリッド':{en:'Grid',fr:'Grille',pt:'Grade'},'網点':{en:'Halftone',fr:'Trame',pt:'Retícula'},'虹の放射':{en:'Rainbow rays',fr:'Rayons arc-en-ciel',pt:'Raios arco-íris'},'花びら':{en:'Petals',fr:'Pétales',pt:'Pétalas'},'畳目':{en:'Tatami weave',fr:'Trame tatami',pt:'Trama tatame'},'斜めストライプ':{en:'Diagonal stripes',fr:'Rayures diagonales',pt:'Listras diagonais'},'集中線':{en:'Speed lines',fr:'Lignes de vitesse',pt:'Linhas de ação'},
+  '金の額縁':{en:'Gold frame',fr:'Cadre doré',pt:'Moldura dourada'},'ネオン管':{en:'Neon tube',fr:'Tube néon',pt:'Tubo neon'},'二重線':{en:'Double line',fr:'Double trait',pt:'Linha dupla'},'白ソフト':{en:'Soft white',fr:'Blanc doux',pt:'Branco suave'},'木枠':{en:'Wood',fr:'Bois',pt:'Madeira'},'チャンピオン帯':{en:'Champion belt',fr:'Ceinture',pt:'Cinturão'},'ステッカー':{en:'Sticker',fr:'Autocollant',pt:'Adesivo'},'雑誌':{en:'Magazine',fr:'Magazine',pt:'Revista'},
+  '金箔':{en:'Gold foil',fr:'Feuille d’or',pt:'Folha de ouro'},'太縁':{en:'Bold edge',fr:'Contour épais',pt:'Contorno grosso'},'立体':{en:'3D',fr:'3D',pt:'3D'},'白ふち':{en:'White edge',fr:'Contour blanc',pt:'Contorno branco'},'影':{en:'Shadow',fr:'Ombre',pt:'Sombra'},'極太フチ':{en:'Heavy edge',fr:'Contour très épais',pt:'Contorno pesado'},'斜体二重':{en:'Slanted double',fr:'Italique double',pt:'Itálico duplo'},'ふきだし':{en:'Bubble',fr:'Bulle',pt:'Balão'},'白影':{en:'White glow',fr:'Halo blanc',pt:'Brilho branco'},
+  'メダル':{en:'Medal',fr:'Médaille',pt:'Medalha'},'稲妻':{en:'Bolt',fr:'Éclair',pt:'Raio'},'初勝利判':{en:'“First win” seal',fr:'Sceau « 1re victoire »',pt:'Selo “1ª vitória”'},'リボン':{en:'Ribbon',fr:'Ruban',pt:'Fita'},'一本判子':{en:'“Ippon” seal',fr:'Sceau « Ippon »',pt:'Selo “Ippon”'},'王冠':{en:'Crown',fr:'Couronne',pt:'Coroa'},'星':{en:'Star',fr:'Étoile',pt:'Estrela'},'一本！':{en:'Ippon!',fr:'Ippon !',pt:'Ippon!'},
+  '初勝利':{en:'FIRST WIN',fr:'1re VICTOIRE',pt:'1ª VITÓRIA'},'おめでとう':{en:'Congrats!',fr:'Bravo !',pt:'Parabéns!'},'やった!':{en:'YES!',fr:'OUI !',pt:'ISSO!'},'勝った!':{en:'WON!',fr:'GAGNÉ !',pt:'VENCEU!'},'次こそ!':{en:'NEXT!',fr:'LA PROCHAINE !',pt:'PRÓXIMA!'},
   '書式を選ぶ':{en:'Choose a font',fr:'Choisir une police',pt:'Escolha uma fonte'},
   'ゴシック':{en:'Gothic',fr:'Gothique',pt:'Gótica'},
   '極太':{en:'Heavy',fr:'Extra gras',pt:'Extra negrito'},
@@ -5589,7 +5627,7 @@ Object.assign(DICT,{
   'Proでできること':{en:'What Pro offers',fr:'Ce que Pro apporte',pt:'O que o Pro oferece'},
   '・メモリーの保存が無制限（無料は10件まで）':{en:'• Unlimited memory saves (free is up to 10)',fr:'• Souvenirs illimités (10 max en gratuit)',pt:'• Memórias ilimitadas (grátis até 10)'},
   '・試合結果の分析（勝率・決まり技レーダー・組手別/技別）':{en:'• Match analysis (win rate, technique radar, by grip/technique)',fr:'• Analyse des combats (taux de victoire, radar des techniques, par garde/technique)',pt:'• Análise das lutas (taxa de vitória, radar de técnicas, por pegada/técnica)'},
-  '・シェア画像の全デザイン（配色8×書式8×柄）':{en:'• All share-image designs (8 colors × 8 fonts × patterns)',fr:'• Tous les visuels à partager (8 couleurs × 8 styles × motifs)',pt:'• Todos os designs de imagem (8 cores × 8 fontes × padrões)'},
+  '・シェア画像の全デザイン（テーマ10・構図14・フレーム・文字エフェクト・スタンプ）':{en:'• All share-image designs (10 themes, 14 layouts, frames, text effects, stamps)',fr:'• Tous les visuels à partager (10 thèmes, 14 mises en page, cadres, effets de texte, tampons)',pt:'• Todos os designs de imagem (10 temas, 14 layouts, molduras, efeitos de texto, carimbos)'},
   '・複数の主役（家族）を登録':{en:'• Register multiple stars (family)',fr:'• Enregistrer plusieurs profils (famille)',pt:'• Cadastrar vários protagonistas (família)'},
   '「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。':{en:'“Report” and “Memory” (recording & sharing) stay free forever.',fr:'« Rapport » et « Souvenirs » (enregistrement et partage) restent gratuits.',pt:'“Relatório” e “Memória” (registrar e compartilhar) continuam grátis.'},
   '⭐ Proにする（年額）':{en:'⭐ Get Pro (yearly)',fr:'⭐ Passer à Pro (annuel)',pt:'⭐ Assinar o Pro (anual)'},
@@ -8593,8 +8631,7 @@ function rkPhotoDel(i){
     save(); renderRireki(); toast(T('削除しました'));
   });
 }
-function shareEnsureFree(){ if(isPro())return; if(shareLocked('style',shareStyle))shareStyle='classic'; if(shareLocked('font',shareFont))shareFont='gothic'; if(shareLocked('pattern',sharePattern))sharePattern='none'; }
-function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareStyle=DB.shareStyle||shareStyle;shareFont=DB.shareFont||shareFont;sharePattern=DB.sharePattern||sharePattern;shareEnsureFree();renderShareStyles();renderShareFonts();renderSharePatterns();drawRkShare(ev);openModal('rkShareModal');}
+function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareLoadState();shareEnsureFree();shareRenderAll();drawRkShare(ev);openModal('rkShareModal');}
 /* ===== v150→v153: 節目＝履歴に手動追加し試合カードと同仕様で表示。
    種類欄は廃止し「よく使う」ワード(きもち/できごと)のタップで連続追記。
    昇級/昇段のチップだけアイコン種別も設定（既定は自由=⭐） ===== */
@@ -8662,6 +8699,7 @@ function mileDelete(){
 }
 /* ===== v154→v155: シェア画像（配色8×書式8・タイトル主役・署名は右下・縦バランス自動） ===== */
 const SW=1080, SH=1350;
+/* ===== v231: シェア画像エンジン刷新 ＝ 構図(14) × テーマ(10) × こだわり(配色/書式/柄/フレーム/文字/スタンプ) ===== */
 const SHARE_STYLES=[
   {key:'classic', name:'クラシック', bg1:'#16264a', bg2:'#0b1424', accent:'#d8b25a', ink:'#ffffff', sub:'rgba(255,255,255,.66)', light:false},
   {key:'cool',    name:'クール',    bg1:'#10233b', bg2:'#050b16', accent:'#48c6ff', ink:'#eaf5ff', sub:'rgba(220,235,250,.6)', light:false},
@@ -8671,6 +8709,21 @@ const SHARE_STYLES=[
   {key:'sunset',  name:'サンセット', bg1:'#ff6a3d', bg2:'#a01a7d', accent:'#ffe6a3', ink:'#ffffff', sub:'rgba(255,255,255,.82)', light:false},
   {key:'cute',    name:'かわいい',  bg1:'#ffe3ef', bg2:'#ffc2dd', accent:'#ff4f9a', ink:'#6b2145', sub:'rgba(107,33,69,.62)', light:true},
   {key:'elegant', name:'エレガント', bg1:'#f6f1e8', bg2:'#e7dcc8', accent:'#b18a2e', ink:'#2c2419', sub:'rgba(44,36,25,.6)', light:true},
+  // v231 追加
+  {key:'gold',    name:'ゴールド',  bg1:'#0f1b3d', bg2:'#060b1c', accent:'#e8c46a', ink:'#ffffff', sub:'rgba(255,255,255,.7)', light:false},
+  {key:'neon',    name:'ネオン',    bg1:'#0b0714', bg2:'#000000', accent:'#3df2ff', accent2:'#ff3ec9', ink:'#ffffff', sub:'rgba(255,255,255,.65)', light:false},
+  {key:'paper',   name:'新聞紙',    bg1:'#f5efe0', bg2:'#e9e0c8', accent:'#c8102e', ink:'#111111', sub:'rgba(0,0,0,.6)', light:true},
+  {key:'holo',    name:'ホログラム', bg1:'#1a1040', bg2:'#05030f', accent:'#ffd166', accent2:'#7b5cff', ink:'#ffffff', sub:'rgba(255,255,255,.7)', light:false},
+  {key:'sakura',  name:'桜',       bg1:'#ffe9f1', bg2:'#ffd1e3', accent:'#ff5c9a', ink:'#5a1e3a', sub:'rgba(90,30,58,.65)', light:true},
+  {key:'tatami',  name:'畳',       bg1:'#7c8a5e', bg2:'#5b6a44', accent:'#d9b25a', ink:'#fff8ea', sub:'rgba(255,248,234,.72)', light:false},
+  {key:'night',   name:'夜空',      bg1:'#0a1230', bg2:'#02040d', accent:'#ffd166', ink:'#ffffff', sub:'rgba(255,255,255,.7)', light:false},
+  {key:'champ',   name:'レッド',    bg1:'#b3121b', bg2:'#1a0508', accent:'#ffd76a', ink:'#ffffff', sub:'rgba(255,255,255,.7)', light:false},
+  {key:'popy',    name:'イエロー',  bg1:'#ffe14d', bg2:'#ff8fb1', accent:'#3b5bff', ink:'#1e1b3a', sub:'rgba(30,27,58,.65)', light:true},
+  {key:'white',   name:'ホワイト',  bg1:'#ffffff', bg2:'#f2f2f2', accent:'#111111', ink:'#111111', sub:'rgba(0,0,0,.55)', light:true},
+  {key:'peach',   name:'ピーチ',    bg1:'#fff5ea', bg2:'#ffd9c2', accent:'#ff6a3d', ink:'#3a1a0c', sub:'rgba(58,26,12,.65)', light:true},
+  {key:'violet',  name:'バイオレット', bg1:'#1b0f3d', bg2:'#050213', accent:'#c9b8ff', accent2:'#7b5cff', ink:'#ffffff', sub:'rgba(255,255,255,.7)', light:false},
+  {key:'teal',    name:'ティール',  bg1:'#0f766e', bg2:'#083b37', accent:'#fffaf0', ink:'#ffffff', sub:'rgba(255,255,255,.7)', light:false},
+  {key:'comic',   name:'コミック',  bg1:'#fff3a0', bg2:'#ffb84d', accent:'#ff3b3b', ink:'#111111', sub:'rgba(0,0,0,.6)', light:true},
 ];
 // 書式（フォント）8種：色との組合せで表情をつくる
 const SHARE_FONTS=[
@@ -8683,26 +8736,6 @@ const SHARE_FONTS=[
   {key:'wide',      name:'ワイド',  fam:'"Hiragino Sans","Yu Gothic",sans-serif', tw:'600', bw:'400', ls:14},
   {key:'serifBold', name:'太明朝',  fam:'"Hiragino Mincho ProN","YuMincho","Yu Mincho",serif', tw:'900', bw:'600', ls:0},
 ];
-let shareStyle='classic', shareFont='gothic';
-function shareStyleObj(){ return SHARE_STYLES.find(s=>s.key===shareStyle)||SHARE_STYLES[0]; }
-function shareFontObj(){ return SHARE_FONTS.find(f=>f.key===shareFont)||SHARE_FONTS[0]; }
-function shareFam(){ return shareFontObj().fam; }
-// v168: 無料で使えるシェアのデザイン（無料でも“1枚”は作れる＝拡散を止めない）。それ以外はPro。
-const SHARE_FREE_STYLES=new Set(['classic','cool','mono']);
-const SHARE_FREE_FONTS=new Set(['gothic','mincho']);
-const SHARE_FREE_PATTERNS=new Set(['none']);
-function shareLocked(kind,key){ if(isPro())return false;
-  if(kind==='style')return !SHARE_FREE_STYLES.has(key);
-  if(kind==='font')return !SHARE_FREE_FONTS.has(key);
-  if(kind==='pattern')return !SHARE_FREE_PATTERNS.has(key);
-  return false;
-}
-function shareSetStyle(k){ if(shareLocked('style',k)){requirePro(T('この配色は Pro で使えます'));return;} shareStyle=k; DB.shareStyle=k; save(); renderShareStyles(); if(rkShareEv)drawRkShare(rkShareEv); }
-function shareSetFont(k){ if(shareLocked('font',k)){requirePro(T('この書式は Pro で使えます'));return;} shareFont=k; DB.shareFont=k; save(); renderShareFonts(); if(rkShareEv)drawRkShare(rkShareEv); }
-function shareChipHtml(kind,key,name,on){ const lock=shareLocked(kind,key)?'🔒':''; return `<button class="${on?'on':''}${lock?' locked':''}" onclick="shareSet${kind[0].toUpperCase()+kind.slice(1)}('${key}')">${lock}${T(name)}</button>`; }
-function renderShareStyles(){ const el=document.getElementById('shareStyles'); if(el)el.innerHTML=SHARE_STYLES.map(s=>shareChipHtml('style',s.key,s.name,s.key===shareStyle)).join(''); }
-function renderShareFonts(){ const el=document.getElementById('shareFonts'); if(el)el.innerHTML=SHARE_FONTS.map(f=>shareChipHtml('font',f.key,f.name,f.key===shareFont)).join(''); }
-// 柄・模様（なし＋8種）。色・透明度はテーマに合わせ、控えめに（文字の可読性を損なわない）
 const SHARE_PATTERNS=[
   {key:'none',      name:'なし'},
   {key:'ichimatsu', name:'市松'},
@@ -8713,12 +8746,114 @@ const SHARE_PATTERNS=[
   {key:'flame',     name:'炎'},
   {key:'rays',      name:'光線'},
   {key:'confetti',  name:'紙吹雪'},
+  {key:'sparkle',   name:'キラキラ'},
+  {key:'grid',      name:'グリッド'},
+  {key:'halftone',  name:'網点'},
+  {key:'holoRays',  name:'虹の放射'},
+  {key:'petals',    name:'花びら'},
+  {key:'tatami',    name:'畳目'},
+  {key:'fireworks', name:'花火'},
+  {key:'diagonal',  name:'斜めストライプ'},
+  {key:'speedlines',name:'集中線'},
 ];
-let sharePattern='none';
-function shareSetPattern(k){ if(shareLocked('pattern',k)){requirePro(T('この柄は Pro で使えます'));return;} sharePattern=k; DB.sharePattern=k; save(); renderSharePatterns(); if(rkShareEv)drawRkShare(rkShareEv); }
-function renderSharePatterns(){ const el=document.getElementById('sharePatterns'); if(el)el.innerHTML=SHARE_PATTERNS.map(p=>shareChipHtml('pattern',p.key,p.name,p.key===sharePattern)).join(''); }
+const SHARE_FRAMES=[
+  {key:'none',name:'なし'},{key:'goldDouble',name:'金の額縁'},{key:'neon',name:'ネオン管'},{key:'paper',name:'二重線'},{key:'holo',name:'ホログラム'},
+  {key:'softWhite',name:'白ソフト'},{key:'wood',name:'木枠'},{key:'belt',name:'チャンピオン帯'},{key:'sticker',name:'ステッカー'},{key:'masthead',name:'雑誌'},
+];
+const SHARE_TITLEFX=[
+  {key:'none',name:'なし'},{key:'goldFoil',name:'金箔'},{key:'neon',name:'ネオン'},{key:'bold',name:'太縁'},{key:'threeD',name:'立体'},{key:'whiteEdge',name:'白ふち'},
+  {key:'shadow',name:'影'},{key:'thickEdge',name:'極太フチ'},{key:'slant',name:'斜体二重'},{key:'bubble',name:'ふきだし'},{key:'glow',name:'白影'},
+];
+const SHARE_STAMPS=[
+  {key:'none',name:'なし'},{key:'medal',name:'メダル'},{key:'bolt',name:'稲妻'},{key:'seal',name:'初勝利判'},{key:'rare',name:'★RARE'},{key:'ribbon',name:'リボン'},
+  {key:'hanko',name:'一本判子'},{key:'party',name:'🎉'},{key:'crown',name:'王冠'},{key:'star',name:'星'},{key:'ippon',name:'一本！'},
+  {key:'dogi',name:'🥋'},{key:'trophy',name:'🏆'},{key:'fire',name:'🔥'},{key:'sparkles',name:'✨'},{key:'muscle',name:'💪'},
+];
+// 構図（レイアウト）：選ぶと「おすすめの組合せ」も一緒に適用（あとから個別に変更可）
+const SHARE_LAYOUTS=[
+  {key:'classic', name:'スタンダード', rec:{style:'classic',font:'gothic',pattern:'none',frame:'none',titlefx:'none',stamp:'none'}},
+  {key:'diag',    name:'斜めスプリット', rec:{style:'gold',font:'impact',pattern:'sparkle',frame:'none',titlefx:'bold',stamp:'none'}},
+  {key:'circle',  name:'サークル窓', rec:{style:'peach',font:'maru',pattern:'none',frame:'none',titlefx:'none',stamp:'none'}},
+  {key:'tilt',    name:'奥行き',     rec:{style:'violet',font:'impact',pattern:'sparkle',frame:'none',titlefx:'threeD',stamp:'none'}},
+  {key:'ribbon',  name:'ポスター帯', rec:{style:'bold',font:'impact',pattern:'none',frame:'none',titlefx:'none',stamp:'none'}},
+  {key:'polaroid',name:'ポラロイド', rec:{style:'elegant',font:'maru',pattern:'none',frame:'none',titlefx:'none',stamp:'none'}},
+  {key:'arena',   name:'アリーナ',   rec:{style:'night',font:'serifBold',pattern:'sparkle',frame:'none',titlefx:'goldFoil',stamp:'none'}},
+  {key:'comic',   name:'コミック',   rec:{style:'comic',font:'impact',pattern:'halftone',frame:'none',titlefx:'threeD',stamp:'ippon'}},
+  {key:'ticket',  name:'チケット',   rec:{style:'teal',font:'gothic',pattern:'none',frame:'none',titlefx:'none',stamp:'none'}},
+  {key:'typo',    name:'タイポ重ね', rec:{style:'mono',font:'impact',pattern:'none',frame:'none',titlefx:'bold',stamp:'none'}},
+  {key:'arch',    name:'アーチ窓',   rec:{style:'elegant',font:'mincho',pattern:'none',frame:'none',titlefx:'none',stamp:'none'}},
+  {key:'paper',   name:'号外',       rec:{style:'paper',font:'serifBold',pattern:'halftone',frame:'paper',titlefx:'bold',stamp:'seal'}},
+  {key:'window',  name:'トレカ枠',   rec:{style:'holo',font:'impact',pattern:'holoRays',frame:'holo',titlefx:'threeD',stamp:'rare'}},
+  {key:'full',    name:'写真いっぱい', rec:{style:'white',font:'impact',pattern:'none',frame:'masthead',titlefx:'glow',stamp:'none'}},
+];
+// テーマ（ワンタップ完成）：構図＋こだわり全部のプリセット
+const SHARE_THEMES=[
+  {key:'gold',   name:'金メダル',   set:{layout:'classic',style:'gold',font:'serifBold',pattern:'sparkle',frame:'goldDouble',titlefx:'goldFoil',stamp:'medal'}},
+  {key:'neon',   name:'ネオン',     set:{layout:'classic',style:'neon',font:'impact',pattern:'grid',frame:'neon',titlefx:'neon',stamp:'bolt'}},
+  {key:'extra',  name:'号外',       set:{layout:'paper',style:'paper',font:'serifBold',pattern:'halftone',frame:'paper',titlefx:'bold',stamp:'seal'}},
+  {key:'card',   name:'トレカ',     set:{layout:'window',style:'holo',font:'impact',pattern:'holoRays',frame:'holo',titlefx:'threeD',stamp:'rare'}},
+  {key:'sakura', name:'桜',        set:{layout:'classic',style:'sakura',font:'maru',pattern:'petals',frame:'softWhite',titlefx:'whiteEdge',stamp:'ribbon'}},
+  {key:'dojo',   name:'畳・道場',   set:{layout:'classic',style:'tatami',font:'mincho',pattern:'tatami',frame:'wood',titlefx:'shadow',stamp:'hanko'}},
+  {key:'hanabi', name:'花火',       set:{layout:'classic',style:'night',font:'impact',pattern:'fireworks',frame:'none',titlefx:'thickEdge',stamp:'party'}},
+  {key:'champ',  name:'チャンピオン', set:{layout:'classic',style:'champ',font:'impact',pattern:'diagonal',frame:'belt',titlefx:'slant',stamp:'crown'}},
+  {key:'pop',    name:'ポップ',     set:{layout:'classic',style:'popy',font:'maru',pattern:'speedlines',frame:'sticker',titlefx:'bubble',stamp:'star'}},
+  {key:'mag',    name:'モノクロ雑誌', set:{layout:'full',style:'white',font:'impact',pattern:'none',frame:'masthead',titlefx:'glow',stamp:'none'}},
+];
+let shareStyle='classic', shareFont='gothic', sharePattern='none', shareLayout='classic', shareFrame='none', shareTitleFx='none', shareStamp='none', shareTheme='';
+function shareStyleObj(){ return SHARE_STYLES.find(s=>s.key===shareStyle)||SHARE_STYLES[0]; }
+function shareFontObj(){ return SHARE_FONTS.find(f=>f.key===shareFont)||SHARE_FONTS[0]; }
+function shareLayoutObj(){ return SHARE_LAYOUTS.find(l=>l.key===shareLayout)||SHARE_LAYOUTS[0]; }
+function shareFam(){ return shareFontObj().fam; }
+// v168: 無料で使えるシェアのデザイン（無料でも“1枚”は作れる＝拡散を止めない）。それ以外はPro。
+const SHARE_FREE_STYLES=new Set(['classic','cool','mono']);
+const SHARE_FREE_FONTS=new Set(['gothic','mincho']);
+const SHARE_FREE_PATTERNS=new Set(['none']);
+function shareLocked(kind,key){ if(isPro())return false;
+  if(kind==='style')return !SHARE_FREE_STYLES.has(key);
+  if(kind==='font')return !SHARE_FREE_FONTS.has(key);
+  if(kind==='pattern')return !SHARE_FREE_PATTERNS.has(key);
+  if(kind==='layout')return key!=='classic';
+  if(kind==='frame'||kind==='titlefx'||kind==='stamp')return key!=='none';
+  if(kind==='theme')return true;
+  return false;
+}
+function shareLoadState(){
+  shareStyle=DB.shareStyle||'classic'; shareFont=DB.shareFont||'gothic'; sharePattern=DB.sharePattern||'none';
+  shareLayout=DB.shareLayout||'classic'; shareFrame=DB.shareFrame||'none'; shareTitleFx=DB.shareTitleFx||'none'; shareStamp=DB.shareStamp||'none'; shareTheme=DB.shareTheme||'';
+}
+function shareSaveState(){ DB.shareStyle=shareStyle; DB.shareFont=shareFont; DB.sharePattern=sharePattern; DB.shareLayout=shareLayout; DB.shareFrame=shareFrame; DB.shareTitleFx=shareTitleFx; DB.shareStamp=shareStamp; DB.shareTheme=shareTheme; save(); }
+function shareEnsureFree(){ if(isPro())return;
+  if(shareLocked('style',shareStyle))shareStyle='classic'; if(shareLocked('font',shareFont))shareFont='gothic'; if(shareLocked('pattern',sharePattern))sharePattern='none';
+  if(shareLocked('layout',shareLayout))shareLayout='classic'; shareFrame='none'; shareTitleFx='none'; shareStamp='none'; shareTheme=''; }
+function shareRedraw(){ shareRenderAll(); if(rkShareEv)drawRkShare(rkShareEv); }
+function shareSetStyle(k){ if(shareLocked('style',k)){requirePro(T('この配色は Pro で使えます'));return;} shareStyle=k; shareTheme=''; shareSaveState(); shareRedraw(); }
+function shareSetFont(k){ if(shareLocked('font',k)){requirePro(T('この書式は Pro で使えます'));return;} shareFont=k; shareTheme=''; shareSaveState(); shareRedraw(); }
+function shareSetPattern(k){ if(shareLocked('pattern',k)){requirePro(T('この柄は Pro で使えます'));return;} sharePattern=k; shareTheme=''; shareSaveState(); shareRedraw(); }
+function shareSetFrame(k){ if(shareLocked('frame',k)){requirePro(T('フレームは Pro で使えます'));return;} shareFrame=k; shareTheme=''; shareSaveState(); shareRedraw(); }
+function shareSetTitlefx(k){ if(shareLocked('titlefx',k)){requirePro(T('文字エフェクトは Pro で使えます'));return;} shareTitleFx=k; shareTheme=''; shareSaveState(); shareRedraw(); }
+function shareSetStamp(k){ if(shareLocked('stamp',k)){requirePro(T('スタンプは Pro で使えます'));return;} shareStamp=k; shareTheme=''; shareSaveState(); shareRedraw(); }
+function shareSetLayout(k){ if(shareLocked('layout',k)){requirePro(T('この構図は Pro で使えます'));return;} const L=SHARE_LAYOUTS.find(l=>l.key===k); if(!L)return;
+  shareLayout=k; if(L.rec){ shareStyle=L.rec.style; shareFont=L.rec.font; sharePattern=L.rec.pattern; shareFrame=L.rec.frame; shareTitleFx=L.rec.titlefx; shareStamp=L.rec.stamp; }
+  shareTheme=''; shareSaveState(); shareRedraw(); }
+function shareSetTheme(k){ if(shareLocked('theme',k)){requirePro(T('テーマは Pro で使えます'));return;} const th=SHARE_THEMES.find(t=>t.key===k); if(!th)return;
+  const s=th.set; shareLayout=s.layout; shareStyle=s.style; shareFont=s.font; sharePattern=s.pattern; shareFrame=s.frame; shareTitleFx=s.titlefx; shareStamp=s.stamp; shareTheme=k; shareSaveState(); shareRedraw(); }
+function shareChipHtml(kind,key,name,on){ const lock=shareLocked(kind,key)?'🔒':''; return `<button class="${on?'on':''}${lock?' locked':''}" onclick="shareSet${kind[0].toUpperCase()+kind.slice(1)}('${key}')">${lock}${T(name)}</button>`; }
+function shareRow(id,kind,list,cur){ const el=document.getElementById(id); if(el)el.innerHTML=list.map(o=>shareChipHtml(kind,o.key,o.name,o.key===cur)).join(''); }
+function renderShareStyles(){ shareRow('shareStyles','style',SHARE_STYLES,shareStyle); }
+function renderShareFonts(){ shareRow('shareFonts','font',SHARE_FONTS,shareFont); }
+function renderSharePatterns(){ shareRow('sharePatterns','pattern',SHARE_PATTERNS,sharePattern); }
+function shareRenderAll(){
+  shareRow('shareThemes','theme',SHARE_THEMES,shareTheme);
+  shareRow('shareLayouts','layout',SHARE_LAYOUTS,shareLayout);
+  renderShareStyles(); renderShareFonts(); renderSharePatterns();
+  shareRow('shareFrames','frame',SHARE_FRAMES,shareFrame);
+  shareRow('shareTitlefx','titlefx',SHARE_TITLEFX,shareTitleFx);
+  shareRow('shareStamps','stamp',SHARE_STAMPS,shareStamp);
+}
+function shareToggleAdv(){ const el=document.getElementById('shareAdv'), b=document.getElementById('shareAdvBtn'); if(!el)return; const show=el.style.display==='none'; el.style.display=show?'':'none'; if(b)b.textContent=(show?'▲ ':'▼ ')+T('こだわり調整（配色・書式・柄・フレーム・文字・スタンプ）'); }
 function hexA(h,a){ h=(h||'#000').replace('#',''); if(h.length===3)h=h.split('').map(c=>c+c).join(''); const n=parseInt(h,16)||0; return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
-// パネル領域（写真の下・写真なしは全面）に控えめな柄を描く
+const _fr=t=>t-Math.floor(t);
+// 柄・模様：色・透明度はテーマに合わせ、控えめに（文字の可読性を損なわない）。top以下の領域に描く
 function drawSharePattern(ctx,st,key,top){
   if(!key||key==='none')return;
   const H=SH-top;
@@ -8738,7 +8873,6 @@ function drawSharePattern(ctx,st,key,top){
     ctx.strokeStyle=hexA(st.ink,0.07); ctx.lineWidth=3; const R=64;
     for(let row=0,yy=top; yy<SH+R; yy+=R*0.55,row++){ const off=(row&1)?R:0; for(let xx=-R+off; xx<SW+R; xx+=R*2){ for(let k=1;k<=3;k++){ctx.beginPath();ctx.arc(xx,yy,R*k/3,Math.PI,2*Math.PI);ctx.stroke();} } }
   } else if(key==='flame'){
-    // 下から立ち上る炎（火の舌）＋火の粉。色はテーマのアクセントで統一
     const tongue=(cx,base,w,h)=>{ ctx.beginPath(); ctx.moveTo(cx-w/2,base);
       ctx.quadraticCurveTo(cx-w*0.55,base-h*0.45, cx-w*0.16,base-h*0.72);
       ctx.quadraticCurveTo(cx-w*0.05,base-h*0.92, cx,base-h);
@@ -8748,27 +8882,52 @@ function drawSharePattern(ctx,st,key,top){
     const baseY=SH;
     const gg=ctx.createLinearGradient(0,SH-320,0,SH); gg.addColorStop(0,hexA(st.accent,0)); gg.addColorStop(1,hexA(st.accent,0.22)); ctx.fillStyle=gg; ctx.fillRect(0,SH-320,SW,320);
     const row=(alpha,hb,step,phase)=>{ ctx.fillStyle=hexA(st.accent,alpha); for(let cx=phase; cx<SW+step; cx+=step){ const h=hb+(Math.floor(cx*13)%80); tongue(cx,baseY,step*0.95,h); ctx.fill(); } };
-    row(0.13, 240, 172, -34);   // 背面：高く薄く
-    row(0.24, 155, 122, 26);    // 前面：低く濃く
-    ctx.fillStyle=hexA(st.accent,0.55);  // 火の粉
+    row(0.13, 240, 172, -34); row(0.24, 155, 122, 26);
+    ctx.fillStyle=hexA(st.accent,0.55);
     for(let i=0;i<28;i++){ const xx=(i*127)%SW, yy=SH-30-((i*89)%330), rr=2+(i%3); ctx.beginPath();ctx.arc(xx,yy,rr,0,6.2832);ctx.fill(); }
   } else if(key==='rays'){
     ctx.save(); ctx.translate(SW/2, top); const n=24; for(let i=0;i<n;i++){ if(i&1)continue; ctx.fillStyle=hexA(st.accent,0.05); const a=(i/n)*6.2832; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,1700,a,a+6.2832/n); ctx.closePath(); ctx.fill(); } ctx.restore();
   } else if(key==='confetti'){
-    // お祝い＝多色・くっきり。上ほど密に降らせる（本文の可読性を確保）
-    const cols=['#ffd93b','#ff5d8f','#4dc4ff','#7ed957','#ff8a3d','#b47bff'];
-    const fract=t=>t-Math.floor(t), N=70;
+    const cols=['#ffd93b','#ff5d8f','#4dc4ff','#7ed957','#ff8a3d','#b47bff'], N=70;
     for(let i=0;i<N;i++){
-      const rx=fract(i*0.61803399), ry=fract(i*0.7548776+0.11), rr=fract(i*0.3819+0.27);
+      const rx=_fr(i*0.61803399), ry=_fr(i*0.7548776+0.11), rr=_fr(i*0.3819+0.27);
       const xx=rx*SW, yy=top+Math.pow(ry,1.5)*H*0.92;
       ctx.save(); ctx.translate(xx,yy); ctx.rotate((rr-0.5)*3.2); ctx.globalAlpha=0.9; ctx.fillStyle=cols[i%cols.length];
-      const sh=i%3;
-      if(sh===0) ctx.fillRect(-8,-5,16,10);
-      else if(sh===1) ctx.fillRect(-3,-13,6,26);
-      else { ctx.beginPath(); ctx.arc(0,0,7,0,6.2832); ctx.fill(); }
+      const sh=i%3; if(sh===0) ctx.fillRect(-8,-5,16,10); else if(sh===1) ctx.fillRect(-3,-13,6,26); else { ctx.beginPath(); ctx.arc(0,0,7,0,6.2832); ctx.fill(); }
       ctx.restore();
     }
     ctx.globalAlpha=1;
+  } else if(key==='sparkle'){
+    const col=st.light?st.accent:'#ffe9a8';
+    for(let i=0;i<60;i++){ const x=_fr(i*0.618)*SW, y=top+_fr(i*0.7548+0.1)*H, r=2+_fr(i*0.38)*9; ctx.fillStyle=hexA(col,0.3+_fr(i*0.21)*0.5);
+      ctx.beginPath(); for(let p=0;p<8;p++){ const a=p*Math.PI/4, rr=(p&1)?r*0.35:r; ctx.lineTo(x+rr*Math.cos(a),y+rr*Math.sin(a)); } ctx.closePath(); ctx.fill(); }
+  } else if(key==='grid'){
+    ctx.strokeStyle=hexA(st.accent,0.12); ctx.lineWidth=2; for(let x=0;x<SW;x+=60){line(x,top,x,SH);} for(let y=top;y<SH;y+=60){line(0,y,SW,y);}
+    const g=ctx.createLinearGradient(0,top,0,SH); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,st.light?'rgba(255,255,255,.55)':'rgba(0,0,0,.55)'); ctx.fillStyle=g; ctx.fillRect(0,top,SW,H);
+  } else if(key==='halftone'){
+    ctx.fillStyle=hexA(st.ink,0.07); for(let y=top;y<SH;y+=14) for(let x=0;x<SW;x+=14){ ctx.beginPath(); ctx.arc(x,y,1.6,0,6.283); ctx.fill(); }
+  } else if(key==='holoRays'){
+    ctx.save(); ctx.translate(SW/2,top+H/2); for(let i=0;i<36;i++){ const hue=(i*10)%360; ctx.fillStyle='hsla('+hue+',90%,65%,.09)'; const a=i*Math.PI/18; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,1600,a,a+Math.PI/36); ctx.closePath(); ctx.fill(); } ctx.restore();
+  } else if(key==='petals'){
+    for(let i=0;i<48;i++){ const x=_fr(i*0.618)*SW, y=top+_fr(i*0.7548+0.1)*H, s=10+_fr(i*0.38)*14, rot=_fr(i*0.27)*6.28;
+      ctx.save(); ctx.translate(x,y); ctx.rotate(rot); ctx.fillStyle=hexA(st.accent,0.45+_fr(i*0.5)*0.4);
+      ctx.beginPath(); ctx.moveTo(0,-s); ctx.bezierCurveTo(s*0.9,-s*0.9, s*0.9,s*0.4, 0,s); ctx.bezierCurveTo(-s*0.9,s*0.4,-s*0.9,-s*0.9,0,-s); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,.35)'; ctx.beginPath(); ctx.moveTo(0,-s*0.9); ctx.lineTo(s*0.18,-s*0.4); ctx.lineTo(0,s*0.2); ctx.lineTo(-s*0.18,-s*0.4); ctx.fill(); ctx.restore(); }
+  } else if(key==='tatami'){
+    ctx.strokeStyle='rgba(0,0,0,.10)'; ctx.lineWidth=1.5; for(let y=top;y<SH;y+=7){line(0,y,SW,y);}
+    ctx.strokeStyle='rgba(30,40,20,.5)'; ctx.lineWidth=10; line(SW/2,top,SW/2,SH);
+    ctx.strokeStyle='rgba(0,0,0,.28)'; ctx.lineWidth=14; line(0,top+2,SW,top+2);
+  } else if(key==='fireworks'){
+    const burst=(cx,cy,R,col,n)=>{ for(let i=0;i<n;i++){ const a=i*6.283/n; ctx.strokeStyle=col; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx+R*0.25*Math.cos(a),cy+R*0.25*Math.sin(a)); ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a)); ctx.stroke(); ctx.fillStyle=col; ctx.beginPath(); ctx.arc(cx+R*Math.cos(a),cy+R*Math.sin(a),5,0,6.283); ctx.fill(); } };
+    // クリップは無視して上部（写真エリア含む）にも打ち上げる
+    ctx.restore(); ctx.save();
+    burst(200,180,150,'rgba(255,209,102,.85)',22); burst(880,240,190,'rgba(255,110,150,.85)',26); burst(560,120,110,'rgba(110,220,255,.85)',18); burst(940,760,120,'rgba(180,255,140,.7)',18); burst(140,720,95,'rgba(255,209,102,.6)',16);
+    for(let i=0;i<50;i++){ ctx.fillStyle=hexA('#ffffff',0.3+_fr(i*0.31)*0.6); ctx.beginPath(); ctx.arc(_fr(i*0.618)*SW,_fr(i*0.75+.2)*SH,1.5+_fr(i*.4)*2,0,6.283); ctx.fill(); }
+  } else if(key==='diagonal'){
+    ctx.fillStyle=st.light?'rgba(0,0,0,.08)':'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.moveTo(0,SH); ctx.lineTo(SW,top+H*0.15); ctx.lineTo(SW,SH); ctx.closePath(); ctx.fill();
+    ctx.fillStyle=st.light?'rgba(0,0,0,.05)':'rgba(255,255,255,.06)'; for(let i=-6;i<20;i++){ ctx.beginPath(); ctx.moveTo(i*140,SH); ctx.lineTo(i*140+70,SH); ctx.lineTo(i*140+70+SH,0); ctx.lineTo(i*140+SH,0); ctx.closePath(); ctx.fill(); }
+  } else if(key==='speedlines'){
+    ctx.save(); ctx.translate(SW/2,top+H*0.5); ctx.strokeStyle=hexA(st.ink,0.14); for(let i=0;i<72;i++){ const a=i*6.283/72; ctx.lineWidth=2+(i%3)*2; ctx.beginPath(); ctx.moveTo(300*Math.cos(a),300*Math.sin(a)); ctx.lineTo(1500*Math.cos(a),1500*Math.sin(a)); ctx.stroke(); } ctx.restore();
   }
   ctx.restore();
 }
@@ -8796,12 +8955,27 @@ function shareFit(ctx,text,maxW,maxLines,maxSize,minSize,weight){
   if(lines.length>maxLines){ lines=lines.slice(0,maxLines); lines[maxLines-1]=lines[maxLines-1].replace(/.$/,'…'); }
   return {size,lines};
 }
-function shareBase(ctx,st,heroImg,heroH){
-  const g=ctx.createLinearGradient(0,0,SW,SH); g.addColorStop(0,st.bg1); g.addColorStop(1,st.bg2); ctx.fillStyle=g; ctx.fillRect(0,0,SW,SH);
-  if(heroImg){ rkDrawCover(ctx,heroImg,0,0,SW,heroH); ctx.fillStyle=st.accent; ctx.fillRect(0,heroH-6,SW,6); return heroH; }
-  return 0;
+// 1行に収まる最大サイズを優先（maxSizeの6割以上で1行に入るならそれ）。入らなければ2行
+function shareFitSmart(ctx,text,maxW,maxSize,minSize,weight){
+  const minSingle=Math.max(minSize,Math.round(maxSize*0.6));
+  const one=shareFit(ctx,text,maxW,1,maxSize,minSingle,weight);
+  if(one.lines.length===1&&one.lines[0]===(text||''))return one;
+  return shareFit(ctx,text,maxW,2,maxSize,minSize,weight);
 }
-// 写真が無いカードの上部の空きを、エンブレム＋日付＋スポットライトで“ポスター”に仕立てる
+function shareBG(ctx,st){ const g=ctx.createLinearGradient(0,0,SW,SH); g.addColorStop(0,st.bg1); g.addColorStop(1,st.bg2); ctx.fillStyle=g; ctx.fillRect(0,0,SW,SH); }
+// 写真（なければテーマ色のエンブレム面）を矩形領域に描く。呼び出し側でclip済みでもOK
+function shareHero(ctx,st,img,x,y,w,h){
+  if(img){ rkDrawCover(ctx,img,x,y,w,h); return; }
+  const g=ctx.createLinearGradient(x,y,x+w,y+h); g.addColorStop(0,hexA(st.accent,st.light?0.35:0.35)); g.addColorStop(1,hexA(st.accent,0.08)); ctx.fillStyle=g; ctx.fillRect(x,y,w,h);
+  const cx=x+w/2, cy=y+h/2, R=Math.min(w,h)*0.22;
+  const lum=(hx)=>{hx=(hx||'#000').replace('#',''); if(hx.length===3)hx=hx.split('').map(c=>c+c).join(''); const n=parseInt(hx,16)||0; return (0.299*((n>>16)&255)+0.587*((n>>8)&255)+0.114*(n&255))/255;};
+  const emb=(lum(st.accent)>0.75)?st.bg2:st.accent, txt=st.light?st.ink:((lum(st.accent)>0.75)?st.bg2:st.ink);
+  ctx.save(); ctx.strokeStyle=hexA(emb,0.95); ctx.lineWidth=6; ctx.beginPath(); ctx.arc(cx,cy,R,0,6.2832); ctx.stroke();
+  ctx.strokeStyle=hexA(emb,0.32); ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,R-15,0,6.2832); ctx.stroke();
+  ctx.fillStyle=txt; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font='900 '+Math.round(R*1.12)+'px "Hiragino Mincho ProN","YuMincho","Yu Mincho",serif'; ctx.fillText('柔',cx,cy+R*0.06); ctx.restore();
+  ctx.textAlign='left'; ctx.textBaseline='top';
+}
+// 写真が無いカードの上部の空きを、エンブレム＋日付＋スポットライトで“ポスター”に仕立てる（standard用）
 function shareHeroBand(ctx,st,dateStr){
   const cx=SW/2, cy=278, R=120;
   const gg=ctx.createRadialGradient(cx,cy-10,20,cx,cy-10,560);
@@ -8817,87 +8991,425 @@ function shareHeroBand(ctx,st,dateStr){
     ctx.font='700 30px '+shareFam(); ctx.fillText(dateStr,cx,cy+R+30); shareLS(ctx,0); ctx.restore(); }
   ctx.textAlign='left'; ctx.textBaseline='top';
 }
-// 署名：右下に 主役名／ストーリー名／My道場（柔道）を積む
-function shareSignature(ctx,st,name){
-  const fp=shareFontObj(), rx=SW-80;
-  shareLS(ctx,0); ctx.textAlign='right'; ctx.textBaseline='alphabetic';
-  ctx.fillStyle=st.ink;   ctx.font=fp.tw+' 40px '+fp.fam; ctx.fillText(name||'', rx, 1206);
-  ctx.fillStyle=st.sub;   ctx.font=fp.bw+' 27px '+fp.fam; ctx.fillText(shareIdentity(), rx, 1250);
-  ctx.fillStyle=st.accent;ctx.font=fp.tw+' 28px '+fp.fam; ctx.fillText('My柔道', rx, 1298);
+// 署名：右下に 主役名／ストーリー名／My柔道 を積む
+function shareSignature(ctx,st,name,baseY,rx,alignLeft){
+  const fp=shareFontObj(); rx=rx||(SW-80); baseY=baseY||1298;
+  ctx.save(); shareLS(ctx,0); ctx.textAlign=alignLeft?'left':'right'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle=st.ink;   ctx.font=fp.tw+' 40px '+fp.fam; ctx.fillText(name||'', rx, baseY-92);
+  ctx.fillStyle=st.sub;   ctx.font=fp.bw+' 27px '+fp.fam; ctx.fillText(shareIdentity(), rx, baseY-48);
+  ctx.fillStyle=st.accent;ctx.font=fp.tw+' 28px '+fp.fam; ctx.fillText('My柔道', rx, baseY);
+  ctx.restore(); ctx.textAlign='left'; ctx.textBaseline='top';
+}
+/* ---- 文字エフェクト（タイトル1行を描く） ---- */
+function shareTitleLine(ctx,st,fp,text,x,y,size,align){
+  const k=shareTitleFx; ctx.save(); ctx.textAlign=align||'left'; ctx.textBaseline='alphabetic'; sfont(ctx,fp.tw,size); shareLS(ctx,fp.ls);
+  const dark=st.light?'#111':st.bg2, ac2=st.accent2||st.accent;
+  if(k==='goldFoil'){
+    const g=ctx.createLinearGradient(0,y-size,0,y+size*0.2); g.addColorStop(0,'#fff2b3'); g.addColorStop(0.45,'#e6bd52'); g.addColorStop(0.55,'#a67c1e'); g.addColorStop(1,'#f7dd8a');
+    ctx.shadowColor='rgba(0,0,0,.55)'; ctx.shadowBlur=18; ctx.shadowOffsetY=6; ctx.fillStyle=g; ctx.fillText(text,x,y);
+    ctx.shadowColor='transparent'; ctx.lineWidth=2; ctx.strokeStyle='rgba(120,80,10,.6)'; ctx.strokeText(text,x,y);
+  } else if(k==='neon'){
+    for(const [c,b] of [[st.accent,60],[st.accent,28],['#fff',8]]){ ctx.shadowColor=c; ctx.shadowBlur=b; ctx.fillStyle='#fff'; ctx.fillText(text,x,y); }
+    ctx.shadowColor='transparent'; ctx.lineWidth=3; ctx.strokeStyle=st.accent; ctx.strokeText(text,x,y);
+  } else if(k==='bold'){
+    ctx.lineJoin='round'; ctx.lineWidth=size*0.12; ctx.strokeStyle=st.light?st.ink:dark; ctx.strokeText(text,x,y); ctx.fillStyle=st.light?st.ink:'#fff'; ctx.fillText(text,x,y);
+    if(!st.light){ ctx.lineWidth=size*0.03; ctx.strokeStyle=st.accent; ctx.strokeText(text,x,y); }
+  } else if(k==='threeD'){
+    for(let i=12;i>0;i--){ ctx.fillStyle=i>3?hexA(st.light?'#000000':dark,0.9):ac2; ctx.fillText(text,x+i*0.9,y+i*1.1); }
+    ctx.lineJoin='round'; ctx.lineWidth=size*0.12; ctx.strokeStyle=st.light?'#111':dark; ctx.strokeText(text,x,y);
+    const g=ctx.createLinearGradient(0,y-size,0,y); g.addColorStop(0,'#fff'); g.addColorStop(1,st.light?'#fff':st.accent); ctx.fillStyle=g; ctx.fillText(text,x,y);
+  } else if(k==='whiteEdge'){
+    ctx.shadowColor=hexA(st.accent,.45); ctx.shadowBlur=22; ctx.shadowOffsetY=6; ctx.lineJoin='round'; ctx.lineWidth=size*0.16; ctx.strokeStyle='#fff'; ctx.strokeText(text,x,y);
+    ctx.shadowColor='transparent'; ctx.fillStyle=st.light?st.ink:st.accent; ctx.fillText(text,x,y);
+  } else if(k==='shadow'){
+    ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=12; ctx.shadowOffsetY=5; ctx.fillStyle=st.ink; ctx.fillText(text,x,y);
+  } else if(k==='thickEdge'){
+    ctx.lineJoin='round'; ctx.lineWidth=size*0.16; ctx.strokeStyle=st.light?st.ink:dark; ctx.strokeText(text,x,y);
+    ctx.lineWidth=size*0.07; ctx.strokeStyle='#fff'; ctx.strokeText(text,x,y); ctx.fillStyle=st.light?st.ink:'#fff'; ctx.fillText(text,x,y);
+  } else if(k==='slant'){
+    ctx.transform(1,0,-0.18,1,0.18*y,0);
+    ctx.lineJoin='round'; ctx.lineWidth=size*0.22; ctx.strokeStyle=st.light?'#111':dark; ctx.strokeText(text,x+size*0.18,y);
+    ctx.lineWidth=size*0.11; ctx.strokeStyle=st.accent; ctx.strokeText(text,x+size*0.18,y);
+    ctx.fillStyle='#fff'; ctx.fillText(text,x+size*0.18,y);
+  } else if(k==='bubble'){
+    const ink=st.light?st.ink:dark;
+    ctx.lineJoin='round'; ctx.lineWidth=size*0.26; ctx.strokeStyle=ink; ctx.strokeText(text,x,y+8);
+    ctx.lineWidth=size*0.26; ctx.strokeStyle='#fff'; ctx.strokeText(text,x,y);
+    ctx.lineWidth=size*0.10; ctx.strokeStyle=ink; ctx.strokeText(text,x,y);
+    ctx.fillStyle=st.accent; ctx.fillText(text,x,y);
+  } else if(k==='glow'){
+    ctx.shadowColor='rgba(0,0,0,.6)'; ctx.shadowBlur=16; ctx.fillStyle='#fff'; ctx.fillText(text,x,y);
+  } else { ctx.fillStyle=st.ink; ctx.fillText(text,x,y); }
+  ctx.restore();
+}
+// タイトル（複数行OK）を描き、使った高さを返す。y=1行目のベースライン
+function shareTitleBlock(ctx,st,fp,text,x,y,maxW,maxLines,maxSize,minSize,align){
+  shareLS(ctx,fp.ls); const tt=(maxLines>=2)?shareFitSmart(ctx,text||'',maxW,maxSize,minSize,fp.tw):shareFit(ctx,text||'',maxW,maxLines,maxSize,minSize,fp.tw); shareLS(ctx,0);
+  const lh=tt.size*1.24;
+  tt.lines.forEach((ln,i)=>shareTitleLine(ctx,st,fp,ln,x,y+i*lh,tt.size,align));
+  return {h:tt.lines.length*lh, size:tt.size, lines:tt.lines.length};
+}
+/* ---- フレーム ---- */
+function shareFrameDraw(ctx,st){
+  const k=shareFrame; if(!k||k==='none')return; ctx.save();
+  if(k==='goldDouble'){
+    const g=ctx.createLinearGradient(0,0,SW,SH); g.addColorStop(0,'#fff0b8'); g.addColorStop(0.5,'#c99a2e'); g.addColorStop(1,'#ffe9a0');
+    ctx.strokeStyle=g; ctx.lineWidth=14; ctx.strokeRect(28,28,SW-56,SH-56); ctx.lineWidth=3; ctx.strokeRect(54,54,SW-108,SH-108);
+    const corner=(x,y,sx,sy)=>{ ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+sx*90,y); ctx.lineTo(x+sx*90,y+sy*14); ctx.lineTo(x+sx*14,y+sy*14); ctx.lineTo(x+sx*14,y+sy*90); ctx.lineTo(x,y+sy*90); ctx.closePath(); ctx.fill(); };
+    corner(28,28,1,1); corner(SW-28,28,-1,1); corner(28,SH-28,1,-1); corner(SW-28,SH-28,-1,-1);
+  } else if(k==='neon'){
+    const c2=st.accent2||'#ff3ec9';
+    for(const [b,w,c] of [[40,16,st.accent],[18,8,st.accent],[0,4,'#fff']]){ ctx.shadowColor=c; ctx.shadowBlur=b; ctx.strokeStyle=c; ctx.lineWidth=w; rkRR(ctx,34,34,SW-68,SH-68,34); ctx.stroke(); }
+    ctx.strokeStyle=c2; ctx.lineWidth=4; ctx.shadowColor=c2; ctx.shadowBlur=24; rkRR(ctx,60,60,SW-120,SH-120,26); ctx.stroke();
+  } else if(k==='paper'){
+    ctx.strokeStyle=st.ink; ctx.lineWidth=6; ctx.strokeRect(30,30,SW-60,SH-60); ctx.lineWidth=2; ctx.strokeRect(44,44,SW-88,SH-88);
+  } else if(k==='holo'){
+    const g=ctx.createLinearGradient(0,0,SW,SH); ['#ff6b6b','#ffd166','#6bff9e','#4dc4ff','#c77dff','#ff6b6b'].forEach((c,i,a)=>g.addColorStop(i/(a.length-1),c));
+    ctx.strokeStyle=g; ctx.lineWidth=26; rkRR(ctx,26,26,SW-52,SH-52,40); ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,.7)'; ctx.lineWidth=3; rkRR(ctx,44,44,SW-88,SH-88,30); ctx.stroke();
+    ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=3; rkRR(ctx,13,13,SW-26,SH-26,48); ctx.stroke();
+  } else if(k==='softWhite'){
+    ctx.strokeStyle='rgba(255,255,255,.9)'; ctx.lineWidth=28; rkRR(ctx,26,26,SW-52,SH-52,44); ctx.stroke();
+    ctx.strokeStyle=hexA(st.accent,.5); ctx.lineWidth=3; rkRR(ctx,54,54,SW-108,SH-108,32); ctx.stroke();
+  } else if(k==='wood'){
+    const g=ctx.createLinearGradient(0,0,SW,0); g.addColorStop(0,'#7a4a1e'); g.addColorStop(0.5,'#a8702f'); g.addColorStop(1,'#6b3f17');
+    ctx.strokeStyle=g; ctx.lineWidth=40; ctx.strokeRect(20,20,SW-40,SH-40);
+    ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=2; for(let i=0;i<8;i++){ ctx.beginPath(); ctx.moveTo(0,8+i*5); ctx.lineTo(SW,8+i*5); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0,SH-8-i*5); ctx.lineTo(SW,SH-8-i*5); ctx.stroke(); }
+    ctx.strokeStyle='#e9d9b0'; ctx.lineWidth=3; ctx.strokeRect(44,44,SW-88,SH-88);
+  } else if(k==='belt'){
+    ctx.fillStyle='#111'; ctx.fillRect(0,SH-150,SW,90); const g=ctx.createLinearGradient(0,SH-150,0,SH-60); g.addColorStop(0,'#fff0b8'); g.addColorStop(0.5,'#c99a2e'); g.addColorStop(1,'#ffe9a0'); ctx.fillStyle=g; ctx.fillRect(0,SH-140,SW,70);
+    ctx.fillStyle='#111'; ctx.font='900 34px "Hiragino Sans","Yu Gothic",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('★  C H A M P I O N  ★',SW/2,SH-105);
+  } else if(k==='sticker'){
+    const ink=st.light?st.ink:'#fff';
+    ctx.strokeStyle=ink; ctx.lineWidth=10; rkRR(ctx,26,26,SW-52,SH-52,40); ctx.stroke();
+    ctx.setLineDash([2,18]); ctx.lineCap='round'; ctx.lineWidth=8; ctx.strokeStyle=st.light?'#fff':st.accent; rkRR(ctx,26,26,SW-52,SH-52,40); ctx.stroke();
+  } else if(k==='masthead'){
+    ctx.fillStyle=st.light?'#111':'#fff'; ctx.fillRect(0,0,SW,120); ctx.fillStyle=st.light?'#fff':'#111'; ctx.font='900 64px "Hiragino Sans","Yu Gothic",sans-serif'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText('MY JUDO',60,62);
+    ctx.font='700 26px "Hiragino Sans","Yu Gothic",sans-serif'; ctx.textAlign='right'; ctx.fillText('MEMORY ISSUE  /  '+String(new Date().getFullYear()),SW-60,62);
+  }
+  ctx.restore(); ctx.textAlign='left'; ctx.textBaseline='top';
+}
+/* ---- スタンプ ---- */
+function shareStampDraw(ctx,st,kind,x,y,s){
+  if(!kind||kind==='none')return; ctx.save(); ctx.translate(x,y);
+  const G='"Hiragino Sans","Yu Gothic",sans-serif', M='"Hiragino Mincho ProN","YuMincho","Yu Mincho",serif', MR='"Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif';
+  const emoji=(e)=>{ ctx.font=(s*2)+'px "Apple Color Emoji","Segoe UI Emoji",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(e,0,0); };
+  if(kind==='medal'){
+    ctx.strokeStyle='#e8c46a'; ctx.fillStyle='#e8c46a';
+    for(const side of [-1,1]){ for(let i=0;i<9;i++){ const a=Math.PI*0.15+i*0.15, r=s*1.55; const px=side*r*Math.sin(a), py=-r*Math.cos(a)+r*0.4;
+      ctx.save(); ctx.translate(px,py); ctx.rotate(side*(a-0.6)); ctx.beginPath(); ctx.ellipse(0,0,s*0.25,s*0.09,0,0,6.283); ctx.fill(); ctx.restore(); } }
+    ctx.fillStyle='#c8102e'; ctx.beginPath(); ctx.moveTo(-s*0.35,-s*1.25); ctx.lineTo(s*0.35,-s*1.25); ctx.lineTo(s*0.12,-s*0.2); ctx.lineTo(-s*0.12,-s*0.2); ctx.fill();
+    const g=ctx.createRadialGradient(-s*0.2,-s*0.2,2,0,0,s*0.5); g.addColorStop(0,'#fff2b3'); g.addColorStop(1,'#c99a2e'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,s*0.5,0,6.283); ctx.fill();
+    ctx.strokeStyle='#8a6a1e'; ctx.lineWidth=3; ctx.stroke(); ctx.fillStyle='#8a6a1e'; ctx.font='900 '+(s*0.5)+'px '+G; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('1',0,2);
+  } else if(kind==='bolt'){
+    const c=st.accent2||st.accent; ctx.shadowColor=c; ctx.shadowBlur=30; ctx.fillStyle=c; ctx.beginPath(); ctx.moveTo(0,-s); ctx.lineTo(-s*0.5,s*0.1); ctx.lineTo(-s*0.05,s*0.1); ctx.lineTo(-s*0.3,s); ctx.lineTo(s*0.5,-s*0.2); ctx.lineTo(s*0.05,-s*0.2); ctx.closePath(); ctx.fill();
+  } else if(kind==='seal'){
+    ctx.rotate(-0.18); ctx.strokeStyle='#c8102e'; ctx.lineWidth=7; rkRR(ctx,-s,-s*0.55,s*2,s*1.1,10); ctx.stroke(); ctx.fillStyle='#c8102e'; ctx.font='900 '+(s*0.62)+'px '+M; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(T('初勝利'),0,3);
+  } else if(kind==='rare'){
+    for(let i=0;i<5;i++){ ctx.fillStyle='#ffd166'; ctx.beginPath(); for(let p=0;p<10;p++){ const a=-Math.PI/2+p*Math.PI/5, r=(p&1)?s*0.16:s*0.4; ctx.lineTo((i-2)*s*1.0+r*Math.cos(a),-s*0.9+r*Math.sin(a)); } ctx.closePath(); ctx.fill(); ctx.strokeStyle='#5a3fd8'; ctx.lineWidth=2; ctx.stroke(); }
+    const g=ctx.createLinearGradient(-s*2,0,s*2,0); ['#ff6b6b','#ffd166','#6bff9e','#4dc4ff','#c77dff'].forEach((c,i,a)=>g.addColorStop(i/(a.length-1),c)); ctx.fillStyle=g; rkRR(ctx,-s*1.6,-s*0.4,s*3.2,s*0.8,s*0.4); ctx.fill();
+    ctx.fillStyle='#1a1040'; ctx.font='900 '+(s*0.5)+'px '+G; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('★ RARE ★',0,2);
+  } else if(kind==='ribbon'){
+    ctx.fillStyle=st.accent; ctx.beginPath(); ctx.moveTo(-s*1.6,-s*0.5); ctx.lineTo(s*1.6,-s*0.5); ctx.lineTo(s*1.35,0); ctx.lineTo(s*1.6,s*0.5); ctx.lineTo(-s*1.6,s*0.5); ctx.lineTo(-s*1.35,0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='900 '+(s*0.55)+'px '+MR; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(T('おめでとう'),0,2);
+  } else if(kind==='hanko'){
+    ctx.rotate(0.08); ctx.fillStyle='#c8102e'; rkRR(ctx,-s,-s,s*2,s*2,10); ctx.fill(); ctx.fillStyle='#fff8ea'; ctx.font='900 '+(s*0.95)+'px '+M; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('一',0,-s*0.48); ctx.fillText('本',0,s*0.5);
+  } else if(kind==='party'){ emoji('🎉');
+  } else if(kind==='dogi'){ emoji('🥋');
+  } else if(kind==='trophy'){ emoji('🏆');
+  } else if(kind==='fire'){ emoji('🔥');
+  } else if(kind==='sparkles'){ emoji('✨');
+  } else if(kind==='muscle'){ emoji('💪');
+  } else if(kind==='crown'){
+    ctx.fillStyle='#ffd76a'; ctx.strokeStyle='#8a5a00'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(-s,s*0.6); ctx.lineTo(-s,-s*0.3); ctx.lineTo(-s*0.5,s*0.1); ctx.lineTo(0,-s); ctx.lineTo(s*0.5,s*0.1); ctx.lineTo(s,-s*0.3); ctx.lineTo(s,s*0.6); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#c8102e'; for(const px of [-s*0.55,0,s*0.55]){ ctx.beginPath(); ctx.arc(px,s*0.25,s*0.13,0,6.283); ctx.fill(); }
+  } else if(kind==='star'){
+    const ink=st.light?st.ink:'#111';
+    ctx.rotate(-0.25); ctx.fillStyle='#fff'; ctx.strokeStyle=ink; ctx.lineWidth=8; ctx.beginPath(); for(let p=0;p<10;p++){ const a=-Math.PI/2+p*Math.PI/5, r=(p&1)?s*0.45:s; ctx.lineTo(r*Math.cos(a),r*Math.sin(a)); } ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#ff4f9a'; ctx.beginPath(); for(let p=0;p<10;p++){ const a=-Math.PI/2+p*Math.PI/5, r=(p&1)?s*0.32:s*0.72; ctx.lineTo(r*Math.cos(a),r*Math.sin(a)); } ctx.closePath(); ctx.fill();
+  } else if(kind==='ippon'){
+    ctx.rotate(0.14); ctx.fillStyle=st.accent; rkRR(ctx,-s*1.5,-s*0.55,s*3,s*1.1,s*0.55); ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=6; rkRR(ctx,-s*1.5,-s*0.55,s*3,s*1.1,s*0.55); ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.font='900 '+(s*0.7)+'px '+MR; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(T('一本！'),0,3);
+  }
+  ctx.restore(); ctx.textAlign='left'; ctx.textBaseline='top';
+}
+/* ---- カードの中身（節目／試合）を矩形内に描く ---- */
+function shareModel(ev){
+  const s=DB.students.find(x=>x.id===rkSelfId)||{name:''};
+  const note=(DB.eventNotes&&DB.eventNotes[rkNoteKey(ev)])||'';
+  const date=(ev.date||'').replace(/-/g,'/');
+  if(ev.kind==='milestone'){
+    const label=(ev.type==='昇段')?T('昇段'):(ev.type==='昇級')?T('昇級'):T('記念');
+    return {kind:'milestone',label,title:ev.title||'',date,note,name:s.name};
+  }
+  const stt=rkStats(ev), ti=rkTypeInfo(ev);
+  return {kind:'match',label:ti.type?T(ti.type):'',typeName:ti.type,title:ti.title||'',date,note,name:s.name,w:stt.w,l:stt.l,d:stt.d,wazas:stt.wazas||[]};
+}
+// opts: {x,y,w,bottom,align('left'|'center'),titleMax,titleMin,noTitle,noLabel,compact,vcenter}
+function shareBody(ctx,st,fp,m,o){
+  const x=o.x, maxW=o.w, align=o.align||'left', cx=align==='center'?x+maxW/2:x;
+  const bottom=o.bottom||1160; const avail=bottom-o.y;
+  const compact=o.compact||(m.kind==='match'&&avail<520);
+  ctx.textAlign=align; ctx.textBaseline='alphabetic';
+  // 事前計測
+  let tt=null; if(!o.noTitle){ shareLS(ctx,fp.ls); tt=shareFitSmart(ctx,m.title,maxW,o.titleMax||104,o.titleMin||56,fp.tw); shareLS(ctx,0); }
+  const lhT=tt?tt.size*1.24:0;
+  sfont(ctx,fp.bw,compact?30:34); const noteLines=m.note?shareWrapLines(ctx,'「'+m.note+'」',maxW).slice(0,compact?1:2):[];
+  const noteLH=compact?42:48;
+  const rows=[]; // {h, draw(y)} y=ベースライン基準ではなく上端基準で並べる
+  if(!o.noLabel&&(m.kind==='milestone'?m.label:(m.label||m.kind==='match'))){
+    rows.push({h:54,draw:(y)=>{ ctx.save(); sfont(ctx,fp.tw,28); let bx=cx;
+      if(m.kind==='match'){ // 種類バッジ＋戦績
+        const rec=m.w+T('勝')+m.l+T('敗')+(m.d?m.d+T('分'):''); const recColor=m.w>m.l?'#37c26e':(m.l>m.w?'#ff5a4d':st.accent);
+        let lbW=0; if(m.label){ lbW=ctx.measureText(m.label).width+34; }
+        sfont(ctx,fp.tw,32); const recW=ctx.measureText(rec).width; const total=lbW+(lbW?16:0)+recW; let sx=align==='center'?cx-total/2:x;
+        if(m.label){ ctx.fillStyle=typeColor(m.typeName)||st.accent; rkRR(ctx,sx,y,lbW,44,11); ctx.fill(); ctx.fillStyle='#fff'; ctx.textAlign='left'; ctx.textBaseline='middle'; sfont(ctx,fp.tw,28); ctx.fillText(m.label,sx+17,y+23); sx+=lbW+16; }
+        ctx.fillStyle=recColor; ctx.textAlign='left'; ctx.textBaseline='middle'; sfont(ctx,fp.tw,32); ctx.fillText(rec,sx,y+23);
+      } else { // 節目ラベル（アクセント色のピル）
+        const w=ctx.measureText(m.label).width+40; const sx=align==='center'?cx-w/2:x; ctx.fillStyle=st.accent; rkRR(ctx,sx,y,w,46,13); ctx.fill();
+        ctx.fillStyle=st.light?'#fff':st.bg2; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(m.label,sx+20,y+24); }
+      ctx.restore(); }});
+  }
+  let titleBottom=null;
+  if(tt) rows.push({h:tt.lines.length*lhT+6,draw:(y)=>{ tt.lines.forEach((ln,i)=>shareTitleLine(ctx,st,fp,ln,cx,y+tt.size*0.92+i*lhT,tt.size,align)); titleBottom=y+tt.size*0.92+(tt.lines.length-1)*lhT; }});
+  rows.push({h:44,draw:(y)=>{ ctx.fillStyle=st.sub; sfont(ctx,fp.bw,30); ctx.textAlign=align; ctx.textBaseline='alphabetic'; ctx.fillText(m.date,cx,y+30); }});
+  if(m.kind==='match'){
+    if(compact){
+      const wz=(m.wazas||[]).map(w=>T(w[0])+' '+w[1]).join('・');
+      if(wz) rows.push({h:44,draw:(y)=>{ ctx.fillStyle=st.accent; sfont(ctx,fp.tw,28); ctx.textAlign=align; ctx.textBaseline='alphabetic'; ctx.fillText(T('決まり技')+'：'+wz,cx,y+30); }});
+    } else {
+      rows.push({h:112+20,draw:(y)=>{ const gap=24, tw=(maxW-2*gap)/3, th=112;
+        const tiles=[[T('勝'),m.w,'#37c26e'],[T('敗'),m.l,'#ff5a4d'],[T('分'),m.d,st.sub]];
+        tiles.forEach((t,i)=>{const tx=x+i*(tw+gap);ctx.fillStyle=st.light?'rgba(0,0,0,.05)':'rgba(255,255,255,.07)';rkRR(ctx,tx,y,tw,th,18);ctx.fill();
+          ctx.textAlign='center';ctx.textBaseline='middle'; ctx.fillStyle=t[2];sfont(ctx,fp.tw,54);ctx.fillText(String(t[1]),tx+tw/2,y+46); ctx.fillStyle=st.sub;sfont(ctx,fp.bw,25);ctx.fillText(t[0],tx+tw/2,y+90);});
+        ctx.textAlign=align; ctx.textBaseline='alphabetic'; }});
+      if(m.wazas.length){ rows.push({h:110,draw:(y)=>{ ctx.fillStyle=st.accent; sfont(ctx,fp.tw,28); ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.fillText(T('決まり技'),x,y+28); let cx2=x, yy=y+44;
+        m.wazas.forEach(w=>{const lb=T(w[0])+' '+w[1]; sfont(ctx,fp.bw,28); const wpx=ctx.measureText(lb).width+36; if(cx2+wpx>x+maxW){cx2=x;yy+=58;} ctx.fillStyle=st.light?'rgba(0,0,0,.06)':'rgba(255,255,255,.10)'; rkRR(ctx,cx2,yy,wpx,50,14);ctx.fill(); ctx.fillStyle=st.ink; ctx.textBaseline='alphabetic'; ctx.fillText(lb,cx2+18,yy+36); cx2+=wpx+14;}); ctx.textAlign=align; }}); }
+    }
+  } else {
+    rows.push({h:22,draw:(y)=>{ ctx.fillStyle=st.accent; ctx.fillRect(align==='center'?cx-60:x,y+8,120,6); }});
+  }
+  if(noteLines.length) rows.push({h:noteLines.length*noteLH+8,draw:(y)=>{ ctx.fillStyle=st.ink; sfont(ctx,fp.bw,compact?30:34); ctx.textAlign=align; ctx.textBaseline='alphabetic'; noteLines.forEach((ln,i)=>ctx.fillText(ln,cx,y+30+i*noteLH)); }});
+  const gap=o.gap==null?18:o.gap; const total=rows.reduce((a,r)=>a+r.h,0)+gap*(rows.length-1);
+  let y=o.y; if(o.vcenter&&avail>total) y=o.y+(avail-total)/2;
+  rows.forEach(r=>{ r.draw(y); y+=r.h+gap; });
   ctx.textAlign='left'; ctx.textBaseline='top';
+  return {end:y,titleBottom,titleSize:tt?tt.size:0};
+}
+/* ---- 構図（レイアウト）本体 ---- */
+const SHARE_LAYOUT_DRAW={
+  classic(ctx,st,fp,m,img){
+    const heroH=(m.kind==='milestone')?640:560;
+    shareBG(ctx,st);
+    if(img){ rkDrawCover(ctx,img,0,0,SW,heroH); const fade=ctx.createLinearGradient(0,heroH-140,0,heroH); fade.addColorStop(0,'rgba(0,0,0,0)'); fade.addColorStop(1,hexA(st.bg1,0.85)); ctx.fillStyle=fade; ctx.fillRect(0,heroH-140,SW,140); ctx.fillStyle=st.accent; ctx.fillRect(0,heroH-6,SW,6); }
+    const top=img?heroH:0;
+    drawSharePattern(ctx,st,sharePattern,top);
+    if(!img) shareHeroBand(ctx,st,m.kind==='milestone'?'':m.date);
+    shareFrameDraw(ctx,st);
+    shareBody(ctx,st,fp,m,{x:80,w:SW-160,y:img?heroH+50:520,bottom:shareFrame==='belt'?1080:1160,vcenter:true,titleMax:img?96:116});
+    shareStampDraw(ctx,st,shareStamp,SW-170,img?190:150,72);
+    shareSignature(ctx,st,m.name,shareFrame==='belt'?1180:1298);
+  },
+  diag(ctx,st,fp,m,img){
+    shareBG(ctx,st);
+    ctx.save(); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(SW,0); ctx.lineTo(SW,560); ctx.lineTo(0,820); ctx.closePath(); ctx.clip(); shareHero(ctx,st,img,0,0,SW,820); ctx.restore();
+    ctx.save(); ctx.fillStyle=st.accent; ctx.beginPath(); ctx.moveTo(0,820); ctx.lineTo(SW,560); ctx.lineTo(SW,610); ctx.lineTo(0,870); ctx.closePath(); ctx.fill();
+    ctx.fillStyle=st.light?st.ink:'#fff'; ctx.beginPath(); ctx.moveTo(0,880); ctx.lineTo(SW,620); ctx.lineTo(SW,632); ctx.lineTo(0,892); ctx.closePath(); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.translate(90,835); ctx.rotate(Math.atan2(-260,SW)); ctx.fillStyle=st.light?'#fff':st.bg2; ctx.font='900 30px '+shareFam(); ctx.textBaseline='middle'; ctx.fillText('MEMORY  ·  '+m.date,0,0); ctx.restore();
+    drawSharePattern(ctx,st,sharePattern,700);
+    shareFrameDraw(ctx,st);
+    shareBody(ctx,st,fp,m,{x:80,w:SW-160,y:930,bottom:1180,titleMax:112,noLabel:m.kind==='milestone',gap:14});
+    shareStampDraw(ctx,st,shareStamp,SW-170,190,72);
+    shareSignature(ctx,st,m.name,1298);
+  },
+  circle(ctx,st,fp,m,img){
+    shareBG(ctx,st);
+    ctx.strokeStyle=hexA(st.accent,.25); ctx.lineWidth=60; ctx.beginPath(); ctx.arc(760,300,520,0,6.283); ctx.stroke();
+    ctx.strokeStyle=hexA(st.accent,.18); ctx.lineWidth=20; ctx.beginPath(); ctx.arc(200,1150,300,0,6.283); ctx.stroke();
+    drawSharePattern(ctx,st,sharePattern,0);
+    const cx=430,cy=470,R=360;
+    ctx.save(); ctx.shadowColor='rgba(0,0,0,.25)'; ctx.shadowBlur=40; ctx.shadowOffsetY=20; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(cx,cy,R+16,0,6.283); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,R,0,6.283); ctx.clip(); shareHero(ctx,st,img,cx-R,cy-R,R*2,R*2); ctx.restore();
+    ctx.strokeStyle=st.accent; ctx.lineWidth=10; ctx.beginPath(); ctx.arc(cx,cy,R+8,0,6.283); ctx.stroke();
+    shareArcText(ctx,(m.kind==='milestone'?'MEMORY':'MATCH')+' · '+m.date,cx,cy,R+64,-Math.PI/2,32,st.accent);
+    // 右の丸バッジ
+    const badge=m.kind==='milestone'?[m.label,'MEMORY']:[m.w+T('勝'),m.l+T('敗')];
+    ctx.fillStyle=st.accent; ctx.beginPath(); ctx.arc(900,760,110,0,6.283); ctx.fill(); ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font='900 52px '+shareFam(); ctx.fillText(badge[0],900,748); ctx.font='800 24px '+shareFam(); ctx.fillText(badge[1],900,800); ctx.textAlign='left'; ctx.textBaseline='top';
+    shareFrameDraw(ctx,st);
+    shareBody(ctx,st,fp,m,{x:80,w:SW-160,y:920,bottom:1190,titleMax:104,noLabel:true,compact:true,gap:12});
+    shareStampDraw(ctx,st,shareStamp,SW-160,180,70);
+    shareSignature(ctx,st,m.name,1298);
+  },
+  tilt(ctx,st,fp,m,img){
+    shareBG(ctx,st);
+    ctx.save(); ctx.translate(SW/2,780); for(let i=0;i<24;i++){ if(i&1)continue; ctx.fillStyle=hexA(st.accent2||st.accent,.10); const a=i*6.283/24; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,1500,a,a+6.283/24); ctx.closePath(); ctx.fill(); } ctx.restore();
+    ctx.strokeStyle=hexA(st.accent2||st.accent,.25); ctx.lineWidth=2; for(let y=700;y<SH;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(SW,y); ctx.stroke(); }
+    drawSharePattern(ctx,st,sharePattern,0);
+    ctx.save(); ctx.fillStyle='rgba(0,0,0,.55)'; ctx.filter='blur(30px)'; ctx.beginPath(); ctx.moveTo(140,700); ctx.lineTo(980,660); ctx.lineTo(1000,760); ctx.lineTo(120,820); ctx.closePath(); ctx.fill(); ctx.restore();
+    sharePersp(ctx,st,img,150,120,780,520,640,80);
+    ctx.strokeStyle='#fff'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(150,120); ctx.lineTo(930,60); ctx.lineTo(930,700); ctx.lineTo(150,640); ctx.closePath(); ctx.stroke();
+    shareFrameDraw(ctx,st);
+    shareBody(ctx,st,fp,m,{x:70,w:SW-140,y:840,bottom:1190,titleMax:120,noLabel:m.kind==='milestone',gap:14});
+    shareStampDraw(ctx,st,shareStamp,SW-140,140,66);
+    shareSignature(ctx,st,m.name,1298);
+  },
+  ribbon(ctx,st,fp,m,img){
+    shareBG(ctx,st); shareHero(ctx,st,img,0,0,SW,SH);
+    const g=ctx.createLinearGradient(0,0,0,SH); g.addColorStop(0,'rgba(0,0,0,.05)'); g.addColorStop(0.55,'rgba(0,0,0,.25)'); g.addColorStop(1,'rgba(0,0,0,.85)'); ctx.fillStyle=g; ctx.fillRect(0,0,SW,SH);
+    drawSharePattern(ctx,st,sharePattern,0);
+    ctx.save(); ctx.translate(SW/2,700); ctx.rotate(-0.22);
+    ctx.fillStyle=st.accent; ctx.fillRect(-900,-90,1800,180); ctx.fillStyle='#fff'; ctx.fillRect(-900,100,1800,18); ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fillRect(-900,-118,1800,10);
+    ctx.textAlign='center'; ctx.textBaseline='middle'; shareLS(ctx,fp.ls); const tt=shareFit(ctx,m.title,1000,1,110,60,fp.tw); shareLS(ctx,0);
+    ctx.fillStyle=st.light?st.ink:'#fff'; sfont(ctx,fp.tw,tt.size); ctx.fillText(tt.lines[0]||'',0,4); ctx.restore();
+    ctx.save(); ctx.translate(60,60); ctx.fillStyle='#fff'; const tag=(m.kind==='milestone'?m.label:(m.w+T('勝')+m.l+T('敗')))+'  '+m.date; ctx.font='900 30px '+shareFam(); const tw=ctx.measureText(tag).width+32; ctx.fillRect(0,0,tw,60); ctx.fillStyle=st.accent; ctx.textBaseline='middle'; ctx.fillText(tag,16,31); ctx.restore();
+    ctx.save(); ctx.translate(SW/2,700); ctx.strokeStyle='rgba(255,255,255,.12)'; for(let i=0;i<40;i++){ const a=i*6.283/40; ctx.lineWidth=2+(i%3)*2; ctx.beginPath(); ctx.moveTo(300*Math.cos(a),300*Math.sin(a)); ctx.lineTo(1500*Math.cos(a),1500*Math.sin(a)); ctx.stroke(); } ctx.restore();
+    shareFrameDraw(ctx,st);
+    const st2=Object.assign({},st,{ink:'#fff',sub:'rgba(255,255,255,.75)',light:false});
+    shareBody(ctx,st2,fp,m,{x:80,w:SW-160,y:960,bottom:1190,noTitle:true,noLabel:true,compact:true,gap:12});
+    shareStampDraw(ctx,st,shareStamp,SW-160,180,70);
+    shareSignature(ctx,st2,m.name,1298);
+  },
+  polaroid(ctx,st,fp,m,img){
+    shareBG(ctx,st); ctx.fillStyle=hexA(st.ink,.04); for(let i=0;i<300;i++){ ctx.fillRect(_fr(i*0.618)*SW,_fr(i*0.75)*SH,3,3); }
+    drawSharePattern(ctx,st,sharePattern,0);
+    const pola=(x,y,rot,scale)=>{ ctx.save(); ctx.translate(x,y); ctx.rotate(rot); ctx.scale(scale,scale); ctx.shadowColor='rgba(0,0,0,.35)'; ctx.shadowBlur=30; ctx.shadowOffsetY=16; ctx.fillStyle='#fff'; ctx.fillRect(-330,-400,660,800); ctx.shadowColor='transparent'; shareHero(ctx,st,img,-300,-370,600,600); ctx.restore(); };
+    pola(300,520,-0.16,0.7); pola(560,560,0.09,1);
+    ctx.save(); ctx.translate(560,150); ctx.rotate(-0.08); ctx.fillStyle='rgba(255,220,120,.85)'; ctx.fillRect(-120,-24,240,48); ctx.restore();
+    ctx.save(); ctx.translate(230,140); ctx.rotate(0.35); ctx.fillStyle='rgba(120,200,255,.8)'; ctx.fillRect(-100,-22,200,44); ctx.restore();
+    shareFrameDraw(ctx,st);
+    ctx.save(); ctx.translate(0,0);
+    const r=shareBody(ctx,st,fp,m,{x:110,w:SW-220,y:1000,bottom:1200,titleMax:96,noLabel:true,compact:true,gap:10});
+    ctx.restore();
+    if(r.titleBottom){ ctx.strokeStyle=st.accent; ctx.lineWidth=8; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(110,r.titleBottom+18); ctx.quadraticCurveTo(400,r.titleBottom+36,760,r.titleBottom+14); ctx.stroke(); }
+    shareStampDraw(ctx,st,shareStamp,SW-140,300,66);
+    shareSignature(ctx,st,m.name,1298);
+  },
+  arena(ctx,st,fp,m,img){
+    shareBG(ctx,st);
+    const cx=SW/2, cy=520, R=330;
+    const sp=ctx.createRadialGradient(cx,cy,R*0.6,cx,cy,R*2.2); sp.addColorStop(0,hexA(st.accent,.35)); sp.addColorStop(1,hexA(st.accent,0)); ctx.fillStyle=sp; ctx.fillRect(0,0,SW,SH);
+    drawSharePattern(ctx,st,sharePattern,0);
+    for(let i=1;i<=4;i++){ ctx.strokeStyle=hexA(st.accent,0.35-i*0.07); ctx.lineWidth=3; ctx.beginPath(); ctx.arc(cx,cy,R+30+i*38,0,6.283); ctx.stroke(); }
+    ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,R,0,6.283); ctx.clip(); shareHero(ctx,st,img,cx-R,cy-R,R*2,R*2); ctx.restore();
+    ctx.strokeStyle=st.accent; ctx.lineWidth=12; ctx.beginPath(); ctx.arc(cx,cy,R+6,0,6.283); ctx.stroke();
+    const arc=(m.kind==='milestone'?'★  '+m.label.toUpperCase()+'  ★':'★  '+m.w+T('勝')+m.l+T('敗')+'  ★');
+    shareArcText(ctx,arc,cx,cy,R+95,-Math.PI/2,40,st.accent);
+    shareFrameDraw(ctx,st);
+    shareBody(ctx,st,fp,m,{x:80,w:SW-160,y:920,bottom:1190,align:'center',titleMax:108,noLabel:true,compact:true,gap:12});
+    shareStampDraw(ctx,st,shareStamp,SW-130,150,64);
+    shareSignature(ctx,st,m.name,1298);
+  },
+  comic(ctx,st,fp,m,img){
+    shareBG(ctx,st);
+    ctx.save(); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(SW,0); ctx.lineTo(SW,600); for(let x=SW;x>=0;x-=60){ ctx.lineTo(x-30,660); ctx.lineTo(x-60,600); } ctx.closePath(); ctx.clip(); shareHero(ctx,st,img,0,0,SW,700); ctx.restore();
+    ctx.save(); ctx.strokeStyle=st.light?st.ink:'#111'; ctx.lineWidth=10; ctx.lineJoin='miter'; ctx.beginPath(); ctx.moveTo(0,600); for(let x=0;x<=SW;x+=60){ ctx.lineTo(x+30,660); ctx.lineTo(x+60,600); } ctx.stroke(); ctx.restore();
+    drawSharePattern(ctx,st,sharePattern,660);
+    // 爆発吹き出し
+    ctx.save(); ctx.translate(880,240); ctx.rotate(0.15); ctx.fillStyle=st.accent; ctx.strokeStyle=st.light?'#111':'#fff'; ctx.lineWidth=8; ctx.beginPath(); for(let i=0;i<16;i++){ const a=i*6.283/16, r=(i&1)?90:130; ctx.lineTo(r*Math.cos(a),r*Math.sin(a)); } ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.font='900 50px '+shareFam(); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(m.kind==='milestone'?T('やった!'):(m.w>m.l?T('勝った!'):T('次こそ!')),0,4); ctx.restore(); ctx.textAlign='left'; ctx.textBaseline='top';
+    shareFrameDraw(ctx,st);
+    shareBody(ctx,st,fp,m,{x:80,w:SW-160,y:730,bottom:1190,titleMax:116,noLabel:m.kind==='milestone',gap:14});
+    shareStampDraw(ctx,st,shareStamp,SW-170,470,66);
+    shareSignature(ctx,st,m.name,1298);
+  },
+  ticket(ctx,st,fp,m,img){
+    shareBG(ctx,st); drawSharePattern(ctx,st,sharePattern,0);
+    ctx.save(); ctx.translate(SW/2,SH/2); ctx.rotate(-0.04);
+    ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=40; ctx.shadowOffsetY=20; ctx.fillStyle='#fffaf0'; rkRR(ctx,-470,-560,940,1120,28); ctx.fill(); ctx.shadowColor='transparent';
+    ctx.globalCompositeOperation='destination-out'; for(const y of [-560,560]){ ctx.beginPath(); ctx.arc(0,y,44,0,6.283); ctx.fill(); } ctx.globalCompositeOperation='source-over';
+    ctx.setLineDash([12,12]); ctx.strokeStyle='rgba(0,0,0,.35)'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(-470,-90); ctx.lineTo(470,-90); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save(); ctx.beginPath(); ctx.moveTo(-470,-560); ctx.lineTo(470,-560); ctx.lineTo(470,-200); ctx.lineTo(-470,-120); ctx.closePath(); ctx.clip(); shareHero(ctx,st,img,-470,-560,940,440); ctx.restore();
+    ctx.fillStyle=st.bg1; ctx.beginPath(); ctx.moveTo(-470,-120); ctx.lineTo(470,-200); ctx.lineTo(470,-176); ctx.lineTo(-470,-96); ctx.closePath(); ctx.fill();
+    ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.fillStyle=st.bg1; ctx.font='900 28px '+shareFam(); ctx.fillText('ADMIT ONE  ·  '+(m.kind==='milestone'?'MEMORY':'MATCH')+' TICKET',-420,-30);
+    const stT=Object.assign({},st,{ink:'#111',sub:'rgba(0,0,0,.6)',light:true,accent:st.bg1});
+    ctx.translate(-470,-560); // 座標系をチケット左上へ
+    shareBody(ctx,stT,fp,m,{x:50,w:860,y:560,bottom:900,titleMax:92,titleMin:52,noLabel:m.kind==='milestone',compact:true,gap:12});
+    ctx.fillStyle='#111'; let bx=50; for(let i=0;i<60;i++){ const w=(i*7%3)+1; ctx.fillRect(bx,955,w*2,80); bx+=w*2+4; }
+    ctx.fillStyle=st.bg1; ctx.font='900 28px '+shareFam(); ctx.textAlign='right'; ctx.textBaseline='alphabetic'; ctx.fillText(m.name+'  ·  '+shareIdentity()+'  ·  My柔道',890,1075);
+    ctx.restore(); ctx.textAlign='left'; ctx.textBaseline='top';
+    shareFrameDraw(ctx,st);
+    shareStampDraw(ctx,st,shareStamp,SW-150,150,66);
+  },
+  typo(ctx,st,fp,m,img){
+    shareBG(ctx,st);
+    ctx.save(); ctx.fillStyle=hexA(st.ink,.08); ctx.font='900 420px '+shareFam(); ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(m.kind==='milestone'?'記念':(m.w>m.l?'勝':'戦'),SW/2,420); ctx.restore();
+    drawSharePattern(ctx,st,sharePattern,0);
+    ctx.save(); ctx.translate(SW/2,560); ctx.rotate(0.05); ctx.shadowColor='rgba(0,0,0,.6)'; ctx.shadowBlur=50; ctx.shadowOffsetY=24; ctx.fillStyle='#fff'; rkRR(ctx,-380,-330,760,660,30); ctx.fill(); ctx.shadowColor='transparent'; ctx.beginPath(); rkRR(ctx,-360,-310,720,620,22); ctx.clip(); shareHero(ctx,st,img,-360,-310,720,620); ctx.restore();
+    shareFrameDraw(ctx,st);
+    shareBody(ctx,st,fp,m,{x:50,w:SW-100,y:850,bottom:1190,titleMax:128,noLabel:m.kind==='milestone',gap:14});
+    shareStampDraw(ctx,st,shareStamp,SW-140,150,66);
+    shareSignature(ctx,st,m.name,1298);
+  },
+  arch(ctx,st,fp,m,img){
+    shareBG(ctx,st); drawSharePattern(ctx,st,sharePattern,0);
+    ctx.fillStyle=st.accent; ctx.fillRect(0,0,SW,10); ctx.fillRect(0,SH-10,SW,10);
+    const x=180,w=720,top=110,h=700,r=w/2;
+    ctx.save(); ctx.beginPath(); ctx.moveTo(x,top+r); ctx.arc(x+r,top+r,r,Math.PI,0); ctx.lineTo(x+w,top+h); ctx.lineTo(x,top+h); ctx.closePath(); ctx.clip(); shareHero(ctx,st,img,x,top,w,h); ctx.restore();
+    ctx.strokeStyle=st.accent; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(x,top+r); ctx.arc(x+r,top+r,r,Math.PI,0); ctx.lineTo(x+w,top+h); ctx.lineTo(x,top+h); ctx.closePath(); ctx.stroke();
+    ctx.strokeStyle=hexA(st.accent,.45); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x-22,top+r); ctx.arc(x+r,top+r,r+22,Math.PI,0); ctx.lineTo(x+w+22,top+h+22); ctx.lineTo(x-22,top+h+22); ctx.closePath(); ctx.stroke();
+    ctx.save(); ctx.textAlign='center'; ctx.fillStyle=st.accent; ctx.font='700 26px '+shareFam(); ctx.textBaseline='alphabetic'; shareLS(ctx,8); ctx.fillText('—  '+(m.kind==='milestone'?'MEMORY':'MATCH')+'  —',SW/2,74); shareLS(ctx,0); ctx.restore();
+    shareFrameDraw(ctx,st);
+    shareBody(ctx,st,fp,m,{x:80,w:SW-160,y:880,bottom:1190,align:'center',titleMax:100,noLabel:true,compact:true,gap:12});
+    shareStampDraw(ctx,st,shareStamp,SW-130,150,64);
+    shareSignature(ctx,st,m.name,1298);
+  },
+  paper(ctx,st,fp,m,img){
+    shareBG(ctx,st); drawSharePattern(ctx,st,sharePattern,0);
+    ctx.save(); ctx.translate(SW/2,0); ctx.rotate(-0.01); ctx.fillStyle='#fff'; ctx.fillRect(-SW/2+70,520,SW-140,470); ctx.beginPath(); ctx.rect(-SW/2+84,534,SW-168,442); ctx.clip(); shareHero(ctx,st,img,-SW/2+84,534,SW-168,442); ctx.restore();
+    shareFrameDraw(ctx,st);
+    ctx.fillStyle=st.ink; ctx.fillRect(60,70,SW-120,10);
+    ctx.textBaseline='alphabetic'; ctx.textAlign='left'; ctx.fillStyle=st.accent; sfont(ctx,'900',44); ctx.fillText(T('号外'),70,140); ctx.fillStyle=st.ink; sfont(ctx,'700',30); ctx.fillText(m.date+'　'+shareIdentity(),190,138);
+    ctx.fillStyle=st.ink; ctx.fillRect(60,160,SW-120,4);
+    const tb=shareTitleBlock(ctx,st,fp,m.title,70,300,SW-140,2,124,64,'left');
+    ctx.fillStyle=st.ink; sfont(ctx,fp.bw,32); const sub=(m.kind==='milestone')?(m.name+'、'+m.label):(m.name+'、'+m.w+T('勝')+m.l+T('敗')+(m.wazas.length?'（'+m.wazas.map(w=>T(w[0])).join('・')+'）':''));
+    ctx.fillText(sub,70,300+tb.h+40);
+    ctx.textAlign='left'; sfont(ctx,fp.bw,32); ctx.fillStyle=st.ink; const nl=m.note?shareWrapLines(ctx,'「'+m.note+'」',SW-140).slice(0,2):[]; nl.forEach((ln,i)=>ctx.fillText(ln,70,1060+i*46));
+    shareStampDraw(ctx,st,shareStamp,SW-230,470,80);
+    shareSignature(ctx,st,m.name,1290);
+  },
+  window(ctx,st,fp,m,img){
+    shareBG(ctx,st); drawSharePattern(ctx,st,sharePattern,0);
+    ctx.save(); rkRR(ctx,90,110,SW-180,620,26); ctx.clip(); shareHero(ctx,st,img,90,110,SW-180,620); ctx.restore();
+    ctx.strokeStyle='rgba(255,255,255,.85)'; ctx.lineWidth=6; rkRR(ctx,90,110,SW-180,620,26); ctx.stroke();
+    ctx.fillStyle=st.light?'rgba(255,255,255,.55)':'rgba(0,0,0,.35)'; rkRR(ctx,90,780,SW-180,430,26); ctx.fill();
+    shareFrameDraw(ctx,st);
+    shareBody(ctx,st,fp,m,{x:120,w:SW-240,y:810,bottom:1190,titleMax:92,vcenter:true,gap:12,compact:true});
+    shareStampDraw(ctx,st,shareStamp,SW/2,730,42);
+    shareSignature(ctx,st,m.name,1298,SW-120);
+  },
+  full(ctx,st,fp,m,img){
+    shareBG(ctx,st); shareHero(ctx,st,img,0,shareFrame==='masthead'?120:0,SW,SH);
+    const fade=ctx.createLinearGradient(0,SH*0.35,0,SH); fade.addColorStop(0,'rgba(0,0,0,0)'); fade.addColorStop(0.5,'rgba(0,0,0,.45)'); fade.addColorStop(1,'rgba(0,0,0,.9)'); ctx.fillStyle=fade; ctx.fillRect(0,0,SW,SH);
+    drawSharePattern(ctx,st,sharePattern,SH*0.5);
+    shareFrameDraw(ctx,st);
+    const st2=Object.assign({},st,{ink:'#fff',sub:'rgba(255,255,255,.75)',light:false,accent:st.light?'#fff':st.accent});
+    shareBody(ctx,st2,fp,m,{x:80,w:SW-160,y:880,bottom:1210,titleMax:100,noLabel:m.kind==='milestone',compact:true,gap:12});
+    shareStampDraw(ctx,st,shareStamp,SW-150,shareFrame==='masthead'?250:150,66);
+    ctx.fillStyle='rgba(255,255,255,.85)'; ctx.font='900 24px '+shareFam(); ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.fillText('My柔道 · '+shareIdentity()+' · '+m.name, 80, SH-40); ctx.textBaseline='top';
+  },
+};
+// 円弧に沿った文字
+function shareArcText(ctx,text,cx,cy,r,startAngle,fontPx,fill){ const chars=[...text]; ctx.save(); ctx.textAlign='center'; ctx.textBaseline='alphabetic'; ctx.font='900 '+fontPx+'px '+shareFam(); const total=chars.reduce((a,c)=>a+ctx.measureText(c).width,0)+(chars.length-1)*6; let ang=startAngle-(total/2)/r; chars.forEach(c=>{ const w=ctx.measureText(c).width; ang+=(w/2)/r; ctx.save(); ctx.translate(cx+r*Math.cos(ang),cy+r*Math.sin(ang)); ctx.rotate(ang+Math.PI/2); ctx.fillStyle=fill; ctx.fillText(c,0,0); ctx.restore(); ang+=(w/2+6)/r; }); ctx.restore(); ctx.textAlign='left'; ctx.textBaseline='top'; }
+// 疑似パース：縦ストリップで高さを変えて奥行き（写真なしはテーマ面）
+function sharePersp(ctx,st,img,x,y,w,hLeft,hRight,strips){
+  if(!img){ // 台形をテーマ色で
+    ctx.save(); ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+w,y-(hRight-hLeft)/2); ctx.lineTo(x+w,y-(hRight-hLeft)/2+hRight); ctx.lineTo(x,y+hLeft); ctx.closePath(); ctx.clip(); shareHero(ctx,st,null,x,y-(hRight-hLeft)/2,w,hRight); ctx.restore(); return; }
+  const sh=img.height, sw=Math.min(img.width, sh*(w/((hLeft+hRight)/2))); const sx0=(img.width-sw)/2;
+  for(let i=0;i<strips;i++){ const t=i/strips; const h1=hLeft+(hRight-hLeft)*t; const dx=x+w*t, dw=w/strips+1; const cy=y+(hLeft-h1)/2; ctx.drawImage(img, sx0+sw*t, 0, sw/strips+1, sh, dx, cy, dw, h1); }
 }
 function drawRkShare(ev){
-  const draw=(ev.kind==='milestone')?_drawMileShare:_drawRkShare;
   const photo=(DB.eventPhotos&&DB.eventPhotos[rkNoteKey(ev)])||'';
-  if(photo){const img=new Image();img.onload=()=>draw(ev,img);img.onerror=()=>draw(ev,null);img.src=photo;}
-  else draw(ev,null);
+  const go=(img)=>{ try{ drawShareCard(ev,img); }catch(e){ console.error('share draw',e); } };
+  if(photo){const img=new Image();img.onload=()=>go(img);img.onerror=()=>go(null);img.src=photo;}
+  else go(null);
 }
-function _drawMileShare(ev,heroImg){
+function drawShareCard(ev,img){
   const ctx=document.getElementById('rkcv').getContext('2d'), st=shareStyleObj(), fp=shareFontObj();
-  const s=DB.students.find(x=>x.id===rkSelfId)||{name:''};
-  const label=(ev.type==='昇段')?T('昇段'):(ev.type==='昇級')?T('昇級'):T('記念');
-  const heroH=640, panelTop=shareBase(ctx,st,heroImg,heroH);
-  drawSharePattern(ctx,st,sharePattern,panelTop);
-  if(!heroImg) shareHeroBand(ctx,st,'');   // 写真が無いときは上部にヒーロー領域（日付は本文側に出る）
-  const x=80, maxW=SW-160;
-  ctx.textAlign='left'; ctx.textBaseline='top';
-  // タイトル計測（字間つき）
-  shareLS(ctx,fp.ls);
-  const tt=shareFit(ctx,ev.title||'',maxW, heroImg?2:3, heroImg?96:120, 56, fp.tw);
-  shareLS(ctx,0);
-  const cmt=(DB.eventNotes&&DB.eventNotes[rkNoteKey(ev)])||'';
-  sfont(ctx,fp.bw,36); const noteLines=cmt?shareWrapLines(ctx,'「'+cmt+'」',maxW).slice(0,3):[];
-  const dateStr=(ev.date||'').replace(/-/g,'/');
-  const lhT=tt.size*1.28;
-  const hLabel=36,g1=20, hTitle=tt.lines.length*lhT,g2=18, hDate=30,g3=26, hDiv=6,g4=30, hNote=noteLines.length*50;
-  const total=hLabel+g1+hTitle+g2+hDate+g3+hDiv+(hNote?g4+hNote:0);
-  const areaTop=heroImg?(panelTop+52):500, areaBot=1150;   // 写真なしはヒーロー領域の下から
-  let y=areaTop+Math.max(0,((areaBot-areaTop)-total)/2);
-  ctx.fillStyle=st.accent; sfont(ctx,fp.tw,36); ctx.fillText(label,x,y); y+=hLabel+g1;
-  shareLS(ctx,fp.ls); ctx.fillStyle=st.ink; tt.lines.forEach((ln,i)=>{ sfont(ctx,fp.tw,tt.size); ctx.fillText(ln,x,y+i*lhT); }); shareLS(ctx,0); y+=hTitle+g2;
-  ctx.fillStyle=st.sub; sfont(ctx,fp.bw,30); ctx.fillText(dateStr,x,y); y+=hDate+g3;
-  ctx.fillStyle=st.accent; ctx.fillRect(x,y,120,6); y+=hDiv;
-  if(noteLines.length){ y+=g4; ctx.fillStyle=st.ink; sfont(ctx,fp.bw,36); noteLines.forEach((ln,i)=>ctx.fillText(ln,x,y+i*50)); }
-  shareSignature(ctx,st,s.name);
-}
-function _drawRkShare(ev,heroImg){
-  const ctx=document.getElementById('rkcv').getContext('2d'), st=shareStyleObj(), fp=shareFontObj();
-  const s=DB.students.find(x=>x.id===rkSelfId)||{name:''}, stt=rkStats(ev);
-  const heroH=560, panelTop=shareBase(ctx,st,heroImg,heroH);
-  drawSharePattern(ctx,st,sharePattern,panelTop);
-  if(!heroImg) shareHeroBand(ctx,st,(ev.date||'').replace(/-/g,'/'));   // 写真が無いときは上部にヒーロー領域
-  const x=80, maxW=SW-160;
-  ctx.textAlign='left'; ctx.textBaseline='top';
-  const ti=rkTypeInfo(ev);
-  const rec=stt.w+T('勝')+stt.l+T('敗')+(stt.d?stt.d+T('分'):'');
-  const recColor=stt.w>stt.l?'#37c26e':(stt.l>stt.w?'#ff5a4d':st.accent);
-  shareLS(ctx,fp.ls);
-  const tt=shareFit(ctx,ti.title||'',maxW,2, heroImg?66:82, 40, fp.tw);
-  shareLS(ctx,0);
-  const cmt=(DB.eventNotes&&DB.eventNotes[rkNoteKey(ev)])||'';
-  sfont(ctx,fp.bw,30); const noteLines=cmt?shareWrapLines(ctx,'「'+cmt+'」',maxW).slice(0,2):[];
-  const wz=stt.wazas||[];
-  const lhT=tt.size*1.26;
-  const hTop=48,g1=16, hTitle=tt.lines.length*lhT,g2=26, th=112,gT=30, hWaza=wz.length?(40+58):0, hNote=noteLines.length*46;
-  const total=hTop+g1+hTitle+g2+th+(hWaza?gT+hWaza:0)+(hNote?26+hNote:0);
-  const areaTop=heroImg?(panelTop+44):500, areaBot=1150;   // 写真なしはヒーロー領域の下から
-  let y=areaTop+Math.max(0,((areaBot-areaTop)-total)/2);
-  // 種類バッジ（色付き・白抜き）＋戦績を同じ行に
-  let curX=x;
-  if(ti.type){ sfont(ctx,fp.tw,28); const lbl=T(ti.type); const pw=ctx.measureText(lbl).width+34; ctx.fillStyle=typeColor(ti.type); rkRR(ctx,curX,y,pw,44,11); ctx.fill(); ctx.fillStyle='#fff'; ctx.textBaseline='middle'; ctx.fillText(lbl,curX+17,y+23); ctx.textBaseline='top'; curX+=pw+16; }
-  ctx.fillStyle=recColor; sfont(ctx,fp.tw,32); ctx.textBaseline='middle'; ctx.fillText(rec,curX,y+23); ctx.textBaseline='top'; y+=hTop+g1;
-  shareLS(ctx,fp.ls); ctx.fillStyle=st.ink; tt.lines.forEach((ln,i)=>{ sfont(ctx,fp.tw,tt.size); ctx.fillText(ln,x,y+i*lhT); }); shareLS(ctx,0); y+=hTitle+g2;
-  const gap=24, tw=(maxW-2*gap)/3, ty=y;
-  const tiles=[[T('勝'),stt.w,'#37c26e'],[T('敗'),stt.l,'#ff5a4d'],[T('分'),stt.d,st.sub]];
-  tiles.forEach((t,i)=>{const tx=x+i*(tw+gap);ctx.fillStyle=st.light?'rgba(0,0,0,.05)':'rgba(255,255,255,.07)';rkRR(ctx,tx,ty,tw,th,18);ctx.fill();
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillStyle=t[2];sfont(ctx,fp.tw,54);ctx.fillText(String(t[1]),tx+tw/2,ty+46);
-    ctx.fillStyle=st.sub;sfont(ctx,fp.bw,25);ctx.fillText(t[0],tx+tw/2,ty+90);});
-  ctx.textAlign='left'; ctx.textBaseline='top'; y=ty+th;
-  if(wz.length){ y+=gT; ctx.fillStyle=st.accent; sfont(ctx,fp.tw,28); ctx.fillText(T('決まり技'),x,y); y+=40;
-    let cx=x; wz.forEach(w=>{const lb=T(w[0])+' '+w[1]; sfont(ctx,fp.bw,28); const wpx=ctx.measureText(lb).width+36; if(cx+wpx>x+maxW){cx=x;y+=58;} ctx.fillStyle=st.light?'rgba(0,0,0,.06)':'rgba(255,255,255,.10)'; rkRR(ctx,cx,y,wpx,50,14);ctx.fill(); ctx.fillStyle=st.ink; ctx.fillText(lb,cx+18,y+11); cx+=wpx+14;}); y+=50; }
-  if(noteLines.length){ y+=26; ctx.fillStyle=st.ink; sfont(ctx,fp.bw,30); noteLines.forEach((ln,i)=>ctx.fillText(ln,x,y+i*46)); }
-  shareSignature(ctx,st,s.name);
+  const m=shareModel(ev);
+  ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,SW,SH); ctx.textAlign='left'; ctx.textBaseline='top'; shareLS(ctx,0);
+  const fn=SHARE_LAYOUT_DRAW[shareLayout]||SHARE_LAYOUT_DRAW.classic;
+  fn(ctx,st,fp,m,img);
+  ctx.restore();
 }
 function shareFileName(){ const ev=rkShareEv||{}; return (ev.title||ev.name||'memory')+'.png'; }
 function rkSaveShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=shareFileName();a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
