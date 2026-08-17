@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v234（シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v235（シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -674,11 +674,11 @@
   .share-styles button.locked::first-letter{font-size:.9em;}
   .share-modal{display:flex;flex-direction:column;padding-top:12px;max-height:92vh;overflow:hidden;}
   .share-stage{flex:0 0 auto;z-index:3;background:#0e1830;padding:0 0 6px;}
-  .share-stage canvas{max-height:min(33vh,380px);width:auto;max-width:100%;margin:0 auto;}
+  .share-stage canvas{display:block;margin:0 auto;height:min(33vh,380px);width:auto;max-width:100%;aspect-ratio:1080/1350;object-fit:contain;}
+  .share-mini .share-stage canvas{height:min(22vh,240px);}
   .share-scroll{flex:1 1 auto;min-height:170px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:2px;}
   .share-modal .row{flex:0 0 auto;margin-top:12px;}
-  /* プレビューを小さく/大きく（狭い端末で選択肢を広く使う） */
-  .share-mini .share-stage canvas{max-height:min(22vh,240px);}
+
   .share-adjbar{display:flex;align-items:center;gap:8px;margin-top:6px;}
   .share-adjseg{display:flex;gap:6px;flex:1;min-width:0;}
   .share-adjseg button{border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:12px;padding:5px 11px;font-family:inherit;font-weight:800;font-size:calc(12.5px*var(--fs,1));cursor:pointer;white-space:nowrap;}
@@ -691,6 +691,7 @@
   .share-adjhint{color:rgba(255,255,255,.5);font-size:calc(11px*var(--fs,1));margin-top:4px;line-height:1.35;}
   .share-adv-btn{display:block;width:100%;margin-top:14px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.25);color:#fff;border-radius:12px;padding:9px 12px;font-family:inherit;font-weight:800;font-size:calc(13px*var(--fs,1));text-align:left;cursor:pointer;}
   .rk-photo .rk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .rk-photo .rk-cardimg{object-fit:contain;background:#0e1830;}
   .rk-add{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:rgba(255,255,255,.85);font-size:calc(13.5px*var(--fs,1));font-weight:700;cursor:pointer;text-align:center;}
   .rk-add .big{font-size:40px;display:block;margin-bottom:4px;}
   .rk-photo-ops{position:absolute;right:10px;bottom:10px;display:flex;gap:6px;}
@@ -1570,7 +1571,7 @@ function applyUpdate(){
 <div class="modal-bg" id="rkShareModal">
   <div class="modal share-modal" style="background:#0e1830;max-width:430px">
     <div class="share-stage">
-      <canvas id="rkcv" width="1080" height="1350" style="width:100%;height:auto;border-radius:12px;display:block;touch-action:none"></canvas>
+      <canvas id="rkcv" width="1080" height="1350" style="border-radius:12px;touch-action:none"></canvas>
       <div class="share-adjbar">
         <div class="share-adjseg" id="shareAdjSeg"></div>
         <button type="button" class="share-adjreset" id="shareMiniBtn" onclick="shareToggleMini()" title="プレビューの大きさ">⇕</button>
@@ -1585,10 +1586,10 @@ function applyUpdate(){
     <div class="share-scroll">
     <div class="share-style-label">✨ テーマ（ワンタップで完成）</div>
     <div class="share-styles" id="shareThemes"></div>
-    <div class="share-style-label">🖼 構図（写真の見せ方）</div>
-    <div class="share-styles" id="shareLayouts"></div>
-    <button type="button" class="share-adv-btn" id="shareAdvBtn" onclick="shareToggleAdv()">▼ こだわり調整（配色・書式・柄・フレーム・文字・スタンプ）</button>
+    <button type="button" class="share-adv-btn" id="shareAdvBtn" onclick="shareToggleAdv()">▼ こだわり調整（構図・配色・書式・柄・フレーム・文字・スタンプ）</button>
     <div id="shareAdv" style="display:none">
+      <div class="share-style-label">🖼 構図（写真の見せ方）</div>
+      <div class="share-styles" id="shareLayouts"></div>
       <div class="share-style-label">配色を選ぶ</div>
       <div class="share-styles" id="shareStyles"></div>
       <div class="share-style-label">書式を選ぶ</div>
@@ -1599,12 +1600,14 @@ function applyUpdate(){
       <div class="share-styles" id="shareFrames"></div>
       <div class="share-style-label">タイトルの文字エフェクト</div>
       <div class="share-styles" id="shareTitlefx"></div>
-      <div class="share-style-label">スタンプ</div>
+      <div class="share-style-label">スタンプ（3つまで）</div>
       <div class="share-styles" id="shareStamps"></div>
+      <div class="share-style-label">写真のぼかし</div>
+      <button type="button" class="share-adv-btn" id="shareBlurBtn" style="margin-top:0" onclick="shareOpenBlur()">🌫️ ぼかし（モザイク）を編集</button>
     </div>
     </div>
     <div class="row" style="margin-top:12px;gap:10px">
-      <button class="btn" style="flex:0 0 auto;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:0 14px" onclick="closeModal('rkShareModal')">閉じる</button>
+      <button class="btn" style="flex:0 0 auto;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:0 14px" onclick="shareCloseAsk()">閉じる</button>
       <button class="btn" style="flex:1;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:#fff;color:var(--navy)" onclick="rkSaveShare()">保存</button>
       <button class="btn" style="flex:1;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:#06C755;color:#fff" onclick="rkDoShare()">シェア</button>
     </div>
@@ -2095,6 +2098,7 @@ function applyUpdate(){
     <p id="confirmText" style="font-size:calc(16px*var(--fs,1));line-height:1.6;margin:12px 0 20px"></p>
     <div class="row">
       <button class="btn ghost" onclick="closeModal('confirmModal')">やめる</button>
+      <button class="btn ghost" id="confirmNoBtn" style="display:none" onclick="confirmChoiceNo()">保存しない</button>
       <button class="btn" id="confirmYesBtn" style="background:var(--red);color:#fff" onclick="confirmDeleteYes()">削除する</button>
     </div>
   </div>
@@ -4984,7 +4988,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v234'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v235'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5426,14 +5430,31 @@ Object.assign(DICT,{
   '配色を選ぶ':{en:'Colors',fr:'Couleurs',pt:'Cores'},
   '✨ テーマ（ワンタップで完成）':{en:'✨ Theme (one tap)',fr:'✨ Thème (un seul geste)',pt:'✨ Tema (um toque)'},
   '🖼 構図（写真の見せ方）':{en:'🖼 Layout',fr:'🖼 Mise en page',pt:'🖼 Layout'},
-  '▼ こだわり調整（配色・書式・柄・フレーム・文字・スタンプ）':{en:'▼ Fine-tune (colors, font, pattern, frame, text, stamp)',fr:'▼ Réglages fins (couleurs, police, motif, cadre, texte, tampon)',pt:'▼ Ajustes finos (cores, fonte, padrão, moldura, texto, carimbo)'},
-  'こだわり調整（配色・書式・柄・フレーム・文字・スタンプ）':{en:'Fine-tune (colors, font, pattern, frame, text, stamp)',fr:'Réglages fins (couleurs, police, motif, cadre, texte, tampon)',pt:'Ajustes finos (cores, fonte, padrão, moldura, texto, carimbo)'},
+  '▼ こだわり調整（構図・配色・書式・柄・フレーム・文字・スタンプ）':{en:'▼ Fine-tune (colors, font, pattern, frame, text, stamp)',fr:'▼ Réglages fins (couleurs, police, motif, cadre, texte, tampon)',pt:'▼ Ajustes finos (cores, fonte, padrão, moldura, texto, carimbo)'},
+  'こだわり調整（構図・配色・書式・柄・フレーム・文字・スタンプ）':{en:'Fine-tune (colors, font, pattern, frame, text, stamp)',fr:'Réglages fins (couleurs, police, motif, cadre, texte, tampon)',pt:'Ajustes finos (cores, fonte, padrão, moldura, texto, carimbo)'},
   '柄・背景':{en:'Pattern / background',fr:'Motif / fond',pt:'Padrão / fundo'},
   'フレーム':{en:'Frame',fr:'Cadre',pt:'Moldura'},
   'タイトルの文字エフェクト':{en:'Title text effect',fr:'Effet du titre',pt:'Efeito do título'},
   'スタンプ':{en:'Stamp',fr:'Tampon',pt:'Carimbo'},
   '写真':{en:'Photo',fr:'Photo',pt:'Foto'},
   'プレビューの大きさ':{en:'Preview size',fr:'Taille de l’aperçu',pt:'Tamanho da prévia'},
+  'スタンプ（3つまで）':{en:'Stamps (up to 3)',fr:'Tampons (3 max)',pt:'Carimbos (até 3)'},
+  'スタンプは3つまでです':{en:'Up to 3 stamps.',fr:'3 tampons maximum.',pt:'Até 3 carimbos.'},
+  '写真のぼかし':{en:'Photo blur',fr:'Flou de la photo',pt:'Desfoque da foto'},
+  '🌫️ ぼかし（モザイク）を編集':{en:'🌫️ Edit blur (mosaic)',fr:'🌫️ Modifier le flou (mosaïque)',pt:'🌫️ Editar desfoque (mosaico)'},
+  '先に写真を追加してください':{en:'Add a photo first.',fr:'Ajoutez d’abord une photo.',pt:'Adicione uma foto primeiro.'},
+  'メモリーに保存しました':{en:'Saved to your memory',fr:'Enregistré dans vos souvenirs',pt:'Salvo nas memórias'},
+  'デザインの変更を保存しますか？':{en:'Save your design changes?',fr:'Enregistrer les modifications ?',pt:'Salvar as alterações do design?'},
+  '「保存しない」を押すと、この画面で変えた内容は元に戻ります。':{en:'“Don’t save” discards the changes you made here.',fr:'« Ne pas enregistrer » annule les modifications faites ici.',pt:'“Não salvar” descarta as alterações feitas aqui.'},
+  '保存する':{en:'Save',fr:'Enregistrer',pt:'Salvar'},
+  '保存しない':{en:'Don’t save',fr:'Ne pas enregistrer',pt:'Não salvar'},
+  '確認':{en:'Confirm',fr:'Confirmation',pt:'Confirmação'},
+  '削除の確認':{en:'Confirm deletion',fr:'Confirmer la suppression',pt:'Confirmar exclusão'},
+  'デザインを編集':{en:'Edit design',fr:'Modifier le design',pt:'Editar design'},
+  'デザインを外す':{en:'Remove design',fr:'Retirer le design',pt:'Remover design'},
+  '保存したデザインを外して、元の写真に戻しますか？':{en:'Remove the saved design and show the original photo?',fr:'Retirer le design enregistré et afficher la photo d’origine ?',pt:'Remover o design salvo e mostrar a foto original?'},
+  '元に戻す':{en:'Restore',fr:'Restaurer',pt:'Restaurar'},
+  '元に戻しました':{en:'Restored',fr:'Restauré',pt:'Restaurado'},
   '写真をドラッグして位置、⤢で大きさ、⟳で角度を調整できます':{en:'Drag the photo to move it; ⤢ resizes and ⟳ rotates.',fr:'Faites glisser la photo ; ⤢ redimensionne, ⟳ fait pivoter.',pt:'Arraste a foto; ⤢ redimensiona e ⟳ gira.'},
   'スタンプをドラッグして位置、⤢で大きさ、⟳で角度を調整できます':{en:'Drag the stamp to move it; ⤢ resizes and ⟳ rotates.',fr:'Faites glisser le tampon ; ⤢ redimensionne, ⟳ fait pivoter.',pt:'Arraste o carimbo; ⤢ redimensiona e ⟳ gira.'},
   '写真を追加するか、スタンプを選ぶと位置を調整できます':{en:'Add a photo or pick a stamp to adjust its position.',fr:'Ajoutez une photo ou choisissez un tampon pour ajuster sa position.',pt:'Adicione uma foto ou escolha um carimbo para ajustar a posição.'},
@@ -7958,7 +7979,13 @@ function rkStats(ev){
 function rkNoteKey(ev){ const sid=ev.selfId||rkSelfId; if(ev.kind==='milestone')return sid+'|m:'+ev.id; return sid+'|'+(ev.schedId||ev.name); }
 // v149→v150: 写真枠の共通HTML（試合カード・節目カードで共用）
 function rkPhotoAreaHtml(key,i){
+  const card=(DB.eventCards&&DB.eventCards[key])||'';
   const photo=(DB.eventPhotos&&DB.eventPhotos[key])||'';
+  if(card) return `<img class="rk-img rk-cardimg" src="${card}" alt="">
+       <div class="rk-photo-ops">
+         <button class="rk-op" title="${T('デザインを編集')}" onclick="rkSetStar(${i});rkOpenShare(${i})">🎨</button>
+         <button class="rk-op" title="${T('デザインを外す')}" onclick="rkCardDel(${i})">↩️</button>
+       </div>`;
   return photo
     ? `<img class="rk-img" src="${photo}" alt="">
        <div class="rk-photo-ops">
@@ -8580,6 +8607,7 @@ function blurSave(){
     if(!DB.eventPhotos)DB.eventPhotos={};
     DB.eventPhotos[blurKey]=out; save();
     closeModal('photoBlurModal'); renderRireki(); toast(T('ぼかしを保存しました')+' 🌫️');
+    if(_blurFromShare){ _blurFromShare=false; if(rkShareEv){ _shareDirty=true; drawRkShare(rkShareEv); } }
   }catch(e){ toast(T('保存できませんでした')); }
 }
 function cropOpen(dataUrl,key){
@@ -8663,12 +8691,23 @@ function cropConfirm(){
 function rkPhotoDel(i){
   const ev=rkEvents[i]; if(!ev)return;
   askConfirm(T('この写真を削除しますか？'),()=>{
-    if(DB.eventPhotos)delete DB.eventPhotos[rkNoteKey(ev)];
+    const k=rkNoteKey(ev);
+    if(DB.eventPhotos)delete DB.eventPhotos[k];
+    if(DB.eventCards)delete DB.eventCards[k];
     save(); renderRireki(); toast(T('削除しました'));
   });
 }
+// 保存したデザインカードを外して、元の写真表示に戻す
+function rkCardDel(i){
+  const ev=rkEvents[i]; if(!ev)return;
+  askConfirm(T('保存したデザインを外して、元の写真に戻しますか？'),()=>{
+    if(DB.eventCards)delete DB.eventCards[rkNoteKey(ev)];
+    save(); renderRireki(); toast(T('元に戻しました'));
+  },T('元に戻す'));
+}
 function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareLoadState();shareEnsureFree();shareLoadAdj();shareRenderAll();shareBindDrag();drawRkShare(ev);
   const md=document.querySelector('#rkShareModal .modal'); if(md)md.classList.toggle('share-mini',!!DB.shareMini);
+  _shareSnap=shareSnapshot(); _shareDirty=false;
   openModal('rkShareModal');const m=document.querySelector('#rkShareModal .share-scroll');if(m)m.scrollTop=0;}
 /* ===== v150→v153: 節目＝履歴に手動追加し試合カードと同仕様で表示。
    種類欄は廃止し「よく使う」ワード(きもち/できごと)のタップで連続追記。
@@ -8838,6 +8877,10 @@ const SHARE_THEMES=[
   {key:'mag',    name:'モノクロ雑誌', set:{layout:'full',style:'white',font:'impact',pattern:'none',frame:'masthead',titlefx:'glow',stamp:'none'}},
 ];
 let shareStyle='classic', shareFont='gothic', sharePattern='none', shareLayout='classic', shareFrame='none', shareTitleFx='none', shareStamp='none', shareTheme='';
+const SHARE_STAMP_MAX=3;
+let shareStampList=[];   // [{k,x,y,s,r}] 最大3つ（x,y,s,r が未設定なら構図の既定位置）
+let shareStampIdx=0;     // 調整対象のスタンプ
+let _blurFromShare=false;
 /* v232: 写真とスタンプの位置・大きさをドラッグで調整（写真はカードごと、スタンプは構図ごとに記憶） */
 let shareAdjMode='photo';           // 'photo' | 'stamp'
 let sharePhotoAdj={x:0,y:0,z:1,r:0};  // 写真：中心オフセット(描画枠比)＋ズーム＋回転(度)
@@ -8847,28 +8890,32 @@ function sharePhotoKey(){ return rkShareEv?('p|'+rkNoteKey(rkShareEv)):''; }
 function shareLoadAdj(){
   const k=sharePhotoKey(); const map=DB.sharePhotoAdj||{};
   sharePhotoAdj=Object.assign({x:0,y:0,z:1,r:0}, (k&&map[k])||{});
-  const sm=DB.shareStampAdj||{}; const sa=sm[shareLayout];
-  shareStampAdj=sa?Object.assign({},sa):null;
   const hasPhoto=!!(rkShareEv&&DB.eventPhotos&&DB.eventPhotos[rkNoteKey(rkShareEv)]);
-  shareAdjMode=hasPhoto?'photo':'stamp';
+  shareAdjMode=hasPhoto?'photo':'stamp'; shareStampIdx=0;
 }
 function shareSaveAdj(){
   const k=sharePhotoKey(); if(k){ DB.sharePhotoAdj=DB.sharePhotoAdj||{}; DB.sharePhotoAdj[k]=sharePhotoAdj; }
-  DB.shareStampAdj=DB.shareStampAdj||{}; if(shareStampAdj)DB.shareStampAdj[shareLayout]=shareStampAdj; else delete DB.shareStampAdj[shareLayout];
-  save();
+  DB.shareStamps=shareStampList; save();
 }
+function shareCurStamp(){ return shareStampList[shareStampIdx]||null; }
+function shareSlot(){ return _shareStampSlot[shareStampIdx]||{x:_shareStampDef.x,y:_shareStampDef.y,s:_shareStampDef.s}; }
 function shareRenderAdjBar(){
   const seg=document.getElementById('shareAdjSeg'); if(!seg)return;
   const hasPhoto=!!(rkShareEv&&DB.eventPhotos&&DB.eventPhotos[rkNoteKey(rkShareEv)]);
-  const hasStamp=shareStamp&&shareStamp!=='none';
+  const hasStamp=shareStampList.length>0;
   const btn=(k,lb,en)=>'<button class="'+(shareAdjMode===k?'on':'')+'"'+(en?'':' disabled style="opacity:.4"')+' onclick="shareSetAdjMode(\''+k+'\')">'+lb+'</button>';
-  seg.innerHTML=btn('photo','📷 '+T('写真'),hasPhoto)+btn('stamp','🏷 '+T('スタンプ'),hasStamp);
+  let html=btn('photo','📷 '+T('写真'),hasPhoto)+btn('stamp','🏷 '+T('スタンプ'),hasStamp);
+  if(shareAdjMode==='stamp'&&shareStampList.length>1){
+    html+=shareStampList.map((sp,i)=>{ const o=SHARE_STAMPS.find(x=>x.key===sp.k); return '<button class="'+(shareStampIdx===i?'on':'')+'" onclick="shareSetStampIdx('+i+')">'+(i+1)+'</button>'; }).join('');
+  }
+  seg.innerHTML=html;
   if(shareAdjMode==='photo'&&!hasPhoto&&hasStamp)shareAdjMode='stamp';
   if(shareAdjMode==='stamp'&&!hasStamp&&hasPhoto)shareAdjMode='photo';
   const r=document.getElementById('shareAdjRange'), rot=document.getElementById('shareAdjRot');
   const en=(shareAdjMode==='photo')?hasPhoto:hasStamp;
-  if(r){ r.value=(shareAdjMode==='photo')?Math.round(sharePhotoAdj.z*100):Math.round(((shareStampAdj&&shareStampAdj.s)||_shareStampDef.s)/_shareStampDef.s*100); r.disabled=!en; }
-  if(rot){ rot.value=Math.round((shareAdjMode==='photo')?(sharePhotoAdj.r||0):((shareStampAdj&&shareStampAdj.r)||0)); rot.disabled=!en; }
+  const cs=shareCurStamp();
+  if(r){ r.value=(shareAdjMode==='photo')?Math.round(sharePhotoAdj.z*100):Math.round(((cs&&cs.s)||_shareStampDef.s)/(_shareStampDef.s||70)*100); r.disabled=!en; }
+  if(rot){ rot.value=Math.round((shareAdjMode==='photo')?(sharePhotoAdj.r||0):((cs&&cs.r)||0)); rot.disabled=!en; }
   const hint=document.getElementById('shareAdjHint');
   if(hint)hint.textContent=(!hasPhoto&&!hasStamp)?T('写真を追加するか、スタンプを選ぶと位置を調整できます')
     :(shareAdjMode==='photo'?T('写真をドラッグして位置、⤢で大きさ、⟳で角度を調整できます'):T('スタンプをドラッグして位置、⤢で大きさ、⟳で角度を調整できます'));
@@ -8878,17 +8925,18 @@ function shareToggleMini(){ const m=document.querySelector('#rkShareModal .modal
 function shareAdjScale(v){
   const p=Math.max(0.6,Math.min(4,(+v||100)/100));
   if(shareAdjMode==='photo'){ sharePhotoAdj.z=p; }
-  else { shareStampAdj=shareStampAdj||{x:_shareStampDef.x,y:_shareStampDef.y,s:_shareStampDef.s,r:0}; shareStampAdj.s=Math.max(20,Math.min(420,_shareStampDef.s*p)); }
+  else { const cs=shareCurStamp(); if(cs){ const sl=shareSlot(); if(cs.x==null){cs.x=sl.x;cs.y=sl.y;} cs.s=Math.max(20,Math.min(420,(_shareStampDef.s||70)*p)); } }
   shareSaveAdj(); if(rkShareEv)drawRkShare(rkShareEv);
 }
 function shareAdjRotate(v){
   const d=Math.max(-180,Math.min(180,+v||0));
   if(shareAdjMode==='photo'){ sharePhotoAdj.r=d; }
-  else { shareStampAdj=shareStampAdj||{x:_shareStampDef.x,y:_shareStampDef.y,s:_shareStampDef.s,r:0}; shareStampAdj.r=d; }
+  else { const cs=shareCurStamp(); if(cs){ const sl=shareSlot(); if(cs.x==null){cs.x=sl.x;cs.y=sl.y;} if(cs.s==null)cs.s=sl.s; cs.r=d; } }
   shareSaveAdj(); if(rkShareEv)drawRkShare(rkShareEv);
 }
 function shareAdjReset(){
-  if(shareAdjMode==='photo')sharePhotoAdj={x:0,y:0,z:1,r:0}; else shareStampAdj=null;
+  if(shareAdjMode==='photo')sharePhotoAdj={x:0,y:0,z:1,r:0};
+  else { const cs=shareCurStamp(); if(cs){ delete cs.x; delete cs.y; delete cs.s; delete cs.r; } }
   shareSaveAdj(); shareRenderAdjBar(); if(rkShareEv)drawRkShare(rkShareEv);
 }
 function shareBindDrag(){
@@ -8897,7 +8945,7 @@ function shareBindDrag(){
   const toCanvas=(e)=>{ const r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)/r.width*SW, y:(e.clientY-r.top)/r.height*SH, w:r.width}; };
   cv.addEventListener('pointerdown',e=>{
     const hasPhoto=!!(rkShareEv&&DB.eventPhotos&&DB.eventPhotos[rkNoteKey(rkShareEv)]);
-    const hasStamp=shareStamp&&shareStamp!=='none';
+    const hasStamp=shareStampList.length>0;
     if(shareAdjMode==='photo'&&!hasPhoto)return; if(shareAdjMode==='stamp'&&!hasStamp)return;
     dragging=true; last=toCanvas(e); cv.setPointerCapture(e.pointerId); e.preventDefault();
   });
@@ -8906,8 +8954,8 @@ function shareBindDrag(){
     if(shareAdjMode==='photo'){ sharePhotoAdj.x+=dx/SW; sharePhotoAdj.y+=dy/SH;
       const lim=0.5*Math.max(1,sharePhotoAdj.z||1);
       sharePhotoAdj.x=Math.max(-lim,Math.min(lim,sharePhotoAdj.x)); sharePhotoAdj.y=Math.max(-lim,Math.min(lim,sharePhotoAdj.y)); }
-    else { shareStampAdj=shareStampAdj||{x:_shareStampDef.x,y:_shareStampDef.y,s:_shareStampDef.s};
-      shareStampAdj.x=Math.max(30,Math.min(SW-30,shareStampAdj.x+dx)); shareStampAdj.y=Math.max(30,Math.min(SH-30,shareStampAdj.y+dy)); }
+    else { const cs=shareCurStamp(); if(cs){ const sl=shareSlot();
+      cs.x=Math.max(30,Math.min(SW-30,(cs.x!=null?cs.x:sl.x)+dx)); cs.y=Math.max(30,Math.min(SH-30,(cs.y!=null?cs.y:sl.y)+dy)); if(cs.s==null)cs.s=sl.s; } }
     if(rkShareEv)drawRkShare(rkShareEv);
   });
   const end=()=>{ if(!dragging)return; dragging=false; shareSaveAdj(); };
@@ -8932,24 +8980,51 @@ function shareLocked(kind,key){ if(isPro())return false;
 }
 function shareLoadState(){
   shareStyle=DB.shareStyle||'classic'; shareFont=DB.shareFont||'gothic'; sharePattern=DB.sharePattern||'none';
-  shareLayout=DB.shareLayout||'classic'; shareFrame=DB.shareFrame||'none'; shareTitleFx=DB.shareTitleFx||'none'; shareStamp=DB.shareStamp||'none'; shareTheme=DB.shareTheme||'';
+  shareLayout=DB.shareLayout||'classic'; shareFrame=DB.shareFrame||'none'; shareTitleFx=DB.shareTitleFx||'none'; shareTheme=DB.shareTheme||'';
+  shareStampList=Array.isArray(DB.shareStamps)?JSON.parse(JSON.stringify(DB.shareStamps)):((DB.shareStamp&&DB.shareStamp!=='none')?[{k:DB.shareStamp}]:[]);
+  shareStamp=shareStampList.length?shareStampList[0].k:'none';
 }
-function shareSaveState(){ DB.shareStyle=shareStyle; DB.shareFont=shareFont; DB.sharePattern=sharePattern; DB.shareLayout=shareLayout; DB.shareFrame=shareFrame; DB.shareTitleFx=shareTitleFx; DB.shareStamp=shareStamp; DB.shareTheme=shareTheme; save(); }
+function shareSaveState(){ DB.shareStyle=shareStyle; DB.shareFont=shareFont; DB.sharePattern=sharePattern; DB.shareLayout=shareLayout; DB.shareFrame=shareFrame; DB.shareTitleFx=shareTitleFx; DB.shareStamp=shareStamp; DB.shareStamps=shareStampList; DB.shareTheme=shareTheme; save(); }
 function shareEnsureFree(){ if(isPro())return;
   if(shareLocked('style',shareStyle))shareStyle='classic'; if(shareLocked('font',shareFont))shareFont='gothic'; if(shareLocked('pattern',sharePattern))sharePattern='none';
-  if(shareLocked('layout',shareLayout))shareLayout='classic'; shareFrame='none'; shareTitleFx='none'; shareStamp='none'; shareTheme=''; }
-function shareRedraw(){ shareRenderAll(); shareRenderAdjBar(); if(rkShareEv)drawRkShare(rkShareEv); }
+  if(shareLocked('layout',shareLayout))shareLayout='classic'; shareFrame='none'; shareTitleFx='none'; shareStamp='none'; shareStampList=[]; shareTheme=''; }
+let _shareDirty=false, _shareSnap=null;
+function shareSnapshot(){ return JSON.stringify({s:shareStyle,f:shareFont,p:sharePattern,l:shareLayout,fr:shareFrame,t:shareTitleFx,th:shareTheme,st:shareStampList,pa:sharePhotoAdj}); }
+function shareRestore(snap){ try{ const o=JSON.parse(snap);
+  shareStyle=o.s; shareFont=o.f; sharePattern=o.p; shareLayout=o.l; shareFrame=o.fr; shareTitleFx=o.t; shareTheme=o.th;
+  shareStampList=o.st||[]; shareStamp=shareStampList.length?shareStampList[0].k:'none'; sharePhotoAdj=o.pa||{x:0,y:0,z:1,r:0};
+  shareSaveState(); shareSaveAdj(); }catch(e){} }
+function shareRedraw(){ _shareDirty=true; shareRenderAll(); shareRenderAdjBar(); if(rkShareEv)drawRkShare(rkShareEv); }
+function shareCloseAsk(){
+  if(!_shareDirty){ closeModal('rkShareModal'); return; }
+  askChoice(T('デザインの変更を保存しますか？')+'<br><span class="list-mini">'+T('「保存しない」を押すと、この画面で変えた内容は元に戻ります。')+'</span>',
+    T('保存する'), T('保存しない'),
+    ()=>{ rkSaveShare(); },
+    ()=>{ if(_shareSnap)shareRestore(_shareSnap); _shareDirty=false; closeModal('rkShareModal'); renderRireki(); });
+}
 function shareSetStyle(k){ if(shareLocked('style',k)){requirePro(T('この配色は Pro で使えます'));return;} shareStyle=k; shareTheme=''; shareSaveState(); shareRedraw(); }
 function shareSetFont(k){ if(shareLocked('font',k)){requirePro(T('この書式は Pro で使えます'));return;} shareFont=k; shareTheme=''; shareSaveState(); shareRedraw(); }
 function shareSetPattern(k){ if(shareLocked('pattern',k)){requirePro(T('この柄は Pro で使えます'));return;} sharePattern=k; shareTheme=''; shareSaveState(); shareRedraw(); }
 function shareSetFrame(k){ if(shareLocked('frame',k)){requirePro(T('フレームは Pro で使えます'));return;} shareFrame=k; shareTheme=''; shareSaveState(); shareRedraw(); }
 function shareSetTitlefx(k){ if(shareLocked('titlefx',k)){requirePro(T('文字エフェクトは Pro で使えます'));return;} shareTitleFx=k; shareTheme=''; shareSaveState(); shareRedraw(); }
-function shareSetStamp(k){ if(shareLocked('stamp',k)){requirePro(T('スタンプは Pro で使えます'));return;} shareStamp=k; shareTheme=''; shareSaveState(); shareRedraw(); }
+function shareSetStamp(k){
+  if(shareLocked('stamp',k)){requirePro(T('スタンプは Pro で使えます'));return;}
+  if(k==='none'){ shareStampList=[]; }
+  else{
+    const at=shareStampList.findIndex(s=>s.k===k);
+    if(at>=0) shareStampList.splice(at,1);
+    else{ if(shareStampList.length>=SHARE_STAMP_MAX){ toast(T('スタンプは3つまでです')); return; } shareStampList.push({k}); }
+  }
+  shareStampIdx=Math.min(shareStampIdx,Math.max(0,shareStampList.length-1));
+  shareStamp=shareStampList.length?shareStampList[0].k:'none';
+  shareTheme=''; shareSaveState(); shareRedraw();
+}
+function shareSetStampIdx(i){ shareStampIdx=i; shareRenderAdjBar(); }
 function shareSetLayout(k){ if(shareLocked('layout',k)){requirePro(T('この構図は Pro で使えます'));return;} const L=SHARE_LAYOUTS.find(l=>l.key===k); if(!L)return;
-  shareLayout=k; shareStampAdj=(DB.shareStampAdj&&DB.shareStampAdj[k])?Object.assign({},DB.shareStampAdj[k]):null; if(L.rec){ shareStyle=L.rec.style; shareFont=L.rec.font; sharePattern=L.rec.pattern; shareFrame=L.rec.frame; shareTitleFx=L.rec.titlefx; shareStamp=L.rec.stamp; }
+  shareLayout=k; shareStampList.forEach(s=>{delete s.x;delete s.y;delete s.s;}); if(L.rec){ shareStyle=L.rec.style; shareFont=L.rec.font; sharePattern=L.rec.pattern; shareFrame=L.rec.frame; shareTitleFx=L.rec.titlefx; if(L.rec.stamp&&L.rec.stamp!=='none'){ shareStampList=[{k:L.rec.stamp}]; } shareStamp=L.rec.stamp; }
   shareTheme=''; shareSaveState(); shareRedraw(); }
 function shareSetTheme(k){ if(shareLocked('theme',k)){requirePro(T('テーマは Pro で使えます'));return;} const th=SHARE_THEMES.find(t=>t.key===k); if(!th)return;
-  const s=th.set; shareStampAdj=(DB.shareStampAdj&&DB.shareStampAdj[s.layout])?Object.assign({},DB.shareStampAdj[s.layout]):null; shareLayout=s.layout; shareStyle=s.style; shareFont=s.font; sharePattern=s.pattern; shareFrame=s.frame; shareTitleFx=s.titlefx; shareStamp=s.stamp; shareTheme=k; shareSaveState(); shareRedraw(); }
+  const s=th.set; shareLayout=s.layout; shareStampList=(s.stamp&&s.stamp!=='none')?[{k:s.stamp}]:[]; shareStampIdx=0; shareStyle=s.style; shareFont=s.font; sharePattern=s.pattern; shareFrame=s.frame; shareTitleFx=s.titlefx; shareStamp=s.stamp; shareTheme=k; shareSaveState(); shareRedraw(); }
 function shareChipHtml(kind,key,name,on){ const lock=shareLocked(kind,key)?'🔒':''; return `<button class="${on?'on':''}${lock?' locked':''}" onclick="shareSet${kind[0].toUpperCase()+kind.slice(1)}('${key}')">${lock}${T(name)}</button>`; }
 function shareRow(id,kind,list,cur){ const el=document.getElementById(id); if(el)el.innerHTML=list.map(o=>shareChipHtml(kind,o.key,o.name,o.key===cur)).join(''); }
 function renderShareStyles(){ shareRow('shareStyles','style',SHARE_STYLES,shareStyle); }
@@ -8962,9 +9037,20 @@ function shareRenderAll(){
   renderShareStyles(); renderShareFonts(); renderSharePatterns();
   shareRow('shareFrames','frame',SHARE_FRAMES,shareFrame);
   shareRow('shareTitlefx','titlefx',SHARE_TITLEFX,shareTitleFx);
-  shareRow('shareStamps','stamp',SHARE_STAMPS,shareStamp);
+  { const el=document.getElementById('shareStamps');
+    if(el)el.innerHTML=SHARE_STAMPS.map(o=>{ const on=(o.key==='none')?shareStampList.length===0:shareStampList.some(s=>s.k===o.key);
+      const lock=shareLocked('stamp',o.key)?'🔒':''; const n=shareStampList.findIndex(s=>s.k===o.key);
+      return '<button class="'+(on?'on':'')+(lock?' locked':'')+'" onclick="shareSetStamp(\''+o.key+'\')">'+lock+T(o.name)+(n>=0?' '+(n+1):'')+'</button>'; }).join(''); }
 }
-function shareToggleAdv(){ const el=document.getElementById('shareAdv'), b=document.getElementById('shareAdvBtn'); if(!el)return; const show=el.style.display==='none'; el.style.display=show?'':'none'; if(b)b.textContent=(show?'▲ ':'▼ ')+T('こだわり調整（配色・書式・柄・フレーム・文字・スタンプ）'); }
+function shareToggleAdv(){ const el=document.getElementById('shareAdv'), b=document.getElementById('shareAdvBtn'); if(!el)return; const show=el.style.display==='none'; el.style.display=show?'':'none'; if(b)b.textContent=(show?'▲ ':'▼ ')+T('こだわり調整（構図・配色・書式・柄・フレーム・文字・スタンプ）'); }
+// シェア画面からモザイク編集へ（保存後はプレビューを描き直す）
+function shareOpenBlur(){
+  if(!rkShareEv)return;
+  const key=rkNoteKey(rkShareEv);
+  if(!(DB.eventPhotos&&DB.eventPhotos[key])){ toast(T('先に写真を追加してください')); return; }
+  const i=rkEvents.indexOf(rkShareEv); if(i<0)return;
+  _blurFromShare=true; blurOpen(i);
+}
 function hexA(h,a){ h=(h||'#000').replace('#',''); if(h.length===3)h=h.split('').map(c=>c+c).join(''); const n=parseInt(h,16)||0; return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
 const _fr=t=>t-Math.floor(t);
 // 柄・模様：色・透明度はテーマに合わせ、控えめに（文字の可読性を損なわない）。top以下の領域に描く
@@ -9212,12 +9298,20 @@ function shareFrameDraw(ctx,st){
   ctx.restore(); ctx.textAlign='left'; ctx.textBaseline='top';
 }
 /* ---- スタンプ ---- */
-function shareStampDraw(ctx,st,kind,x,y,s){
-  if(!kind||kind==='none')return;
+// 構図から呼ばれる入口：選択中のスタンプ（最大3つ）をまとめて描く
+function shareStampDraw(ctx,st,kindIgnored,x,y,s){
   _shareStampDef={x,y,s};
-  let _rot=0;
-  if(shareStampAdj){ x=shareStampAdj.x; y=shareStampAdj.y; s=shareStampAdj.s; _rot=shareStampAdj.r||0; }
-  ctx.save(); ctx.translate(x,y); if(_rot)ctx.rotate(_rot*Math.PI/180);
+  const list=shareStampList||[];
+  list.forEach((sp,i)=>{
+    const dx=(sp.x!=null)?sp.x:(x-i*Math.min(120,s*1.5)), dy=(sp.y!=null)?sp.y:(y+i*Math.min(120,s*1.6));
+    _shareStampSlot[i]={x:dx,y:dy,s:(sp.s!=null?sp.s:s)};
+    shareStampOne(ctx,st,sp.k,dx,dy,(sp.s!=null?sp.s:s),sp.r||0);
+  });
+}
+let _shareStampSlot=[{},{},{}];
+function shareStampOne(ctx,st,kind,x,y,s,rot){
+  if(!kind||kind==='none')return;
+  ctx.save(); ctx.translate(x,y); if(rot)ctx.rotate(rot*Math.PI/180);
   const G='"Hiragino Sans","Yu Gothic",sans-serif', M='"Hiragino Mincho ProN","YuMincho","Yu Mincho",serif', MR='"Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif';
   const emoji=(e)=>{ ctx.font=(s*2)+'px "Apple Color Emoji","Segoe UI Emoji",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(e,0,0); };
   if(kind==='medal'){
@@ -9538,8 +9632,21 @@ function drawShareCard(ev,img){
   ctx.restore();
 }
 function shareFileName(){ const ev=rkShareEv||{}; return (ev.title||ev.name||'memory')+'.png'; }
-function rkSaveShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=shareFileName();a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
-function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=>{const file=new File([b],'card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:'#柔道 #My柔道'});}catch(e){}}else{rkSaveShare();alert(T('この端末は直接シェア非対応のため画像を保存しました。'));}},'image/png');}
+// v235: 「保存」＝作ったカードをメモリー一覧のカード画像として保存（端末保存は「シェア」から）
+function rkSaveShare(){
+  const cv=document.getElementById('rkcv'); if(!rkShareEv)return;
+  try{
+    const t=document.createElement('canvas'); t.width=640; t.height=800;
+    t.getContext('2d').drawImage(cv,0,0,640,800);
+    const out=t.toDataURL('image/jpeg',0.82);
+    DB.eventCards=DB.eventCards||{}; DB.eventCards[rkNoteKey(rkShareEv)]=out;
+    shareSaveState(); shareSaveAdj(); save();
+    _shareDirty=false; renderRireki(); toast(T('メモリーに保存しました')+' 🎨');
+    closeModal('rkShareModal');
+  }catch(e){ toast(T('保存できませんでした')); }
+}
+function rkDownloadShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=shareFileName();a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
+function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=>{const file=new File([b],'card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:'#柔道 #My柔道'});}catch(e){}}else{rkDownloadShare();alert(T('この端末は直接シェア非対応のため画像を保存しました。'));}},'image/png');}
 /* ===== v146: 分析タブ（個人モード）＝選手の試合分析（既存の決まり技レーダー等を再利用） ===== */
 let anaSelfId=null;
 // 個人アプリの無料ユーザーには分析をゲート（A案：タブは見せて、中身は「有料版で使えます」）
@@ -11850,12 +11957,26 @@ let _confirmCb=null;
 function askConfirm(html,onYes,yesLabel){
   document.getElementById('confirmText').innerHTML=html;
   const btn=document.getElementById('confirmYesBtn');
-  btn.textContent=yesLabel||'削除する';
-  _confirmCb=onYes;
+  btn.textContent=yesLabel||'削除する'; btn.style.background='var(--red)';
+  const no=document.getElementById('confirmNoBtn'); if(no)no.style.display='none';
+  document.querySelector('#confirmModal h3').textContent=T('削除の確認');
+  _confirmCb=onYes; _confirmNoCb=null;
   openModal('confirmModal');
 }
+// はい／いいえ／やめる の3択（変更の保存確認など）
+let _confirmNoCb=null;
+function askChoice(html,yesLabel,noLabel,onYes,onNo){
+  document.getElementById('confirmText').innerHTML=html;
+  const y=document.getElementById('confirmYesBtn'), n=document.getElementById('confirmNoBtn');
+  y.textContent=yesLabel; y.style.background='var(--navy)';
+  n.textContent=noLabel; n.style.display='';
+  document.querySelector('#confirmModal h3').textContent=T('確認');
+  _confirmCb=onYes; _confirmNoCb=onNo;
+  openModal('confirmModal');
+}
+function confirmChoiceNo(){ const cb=_confirmNoCb; _confirmCb=null;_confirmNoCb=null; closeModal('confirmModal'); if(typeof cb==='function')cb(); }
 function confirmDeleteYes(){
-  const cb=_confirmCb;_confirmCb=null;
+  const cb=_confirmCb;_confirmCb=null;_confirmNoCb=null;
   closeModal('confirmModal');
   if(typeof cb==='function')cb();
 }
