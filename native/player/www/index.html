@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v231（シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v232（シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -672,6 +672,16 @@
   .share-styles button.on{background:var(--gold);border-color:var(--gold);color:#2a2100;}
   .share-styles button.locked{opacity:.72;}
   .share-styles button.locked::first-letter{font-size:.9em;}
+  .share-modal{display:flex;flex-direction:column;padding-top:12px;}
+  .share-stage{position:sticky;top:-12px;z-index:3;background:#0e1830;padding:12px 0 8px;margin-top:-12px;}
+  .share-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .share-adjbar{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .share-adjseg{display:flex;gap:6px;flex:0 0 auto;}
+  .share-adjseg button{border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:12px;padding:5px 11px;font-family:inherit;font-weight:800;font-size:calc(12.5px*var(--fs,1));cursor:pointer;white-space:nowrap;}
+  .share-adjseg button.on{background:var(--gold);border-color:var(--gold);color:#2a2100;}
+  .share-adjbar input[type=range]{flex:1;min-width:0;accent-color:var(--gold);}
+  .share-adjreset{flex:0 0 auto;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:12px;padding:5px 10px;font-size:calc(14px*var(--fs,1));font-weight:800;cursor:pointer;}
+  .share-adjhint{color:rgba(255,255,255,.55);font-size:calc(11.5px*var(--fs,1));margin-top:6px;line-height:1.4;}
   .share-adv-btn{display:block;width:100%;margin-top:14px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.25);color:#fff;border-radius:12px;padding:9px 12px;font-family:inherit;font-weight:800;font-size:calc(13px*var(--fs,1));text-align:left;cursor:pointer;}
   .rk-photo .rk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .rk-add{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:rgba(255,255,255,.85);font-size:calc(13.5px*var(--fs,1));font-weight:700;cursor:pointer;text-align:center;}
@@ -1551,8 +1561,17 @@ function applyUpdate(){
 
 <!-- 履歴：シェア画像モーダル -->
 <div class="modal-bg" id="rkShareModal">
-  <div class="modal" style="background:#0e1830;max-width:430px">
-    <canvas id="rkcv" width="1080" height="1350" style="width:100%;height:auto;border-radius:12px;display:block"></canvas>
+  <div class="modal share-modal" style="background:#0e1830;max-width:430px">
+    <div class="share-stage">
+      <canvas id="rkcv" width="1080" height="1350" style="width:100%;height:auto;border-radius:12px;display:block;touch-action:none"></canvas>
+      <div class="share-adjbar">
+        <div class="share-adjseg" id="shareAdjSeg"></div>
+        <input type="range" id="shareAdjRange" min="60" max="220" value="100" oninput="shareAdjScale(this.value)">
+        <button type="button" class="share-adjreset" onclick="shareAdjReset()">⟲</button>
+      </div>
+      <div class="share-adjhint" id="shareAdjHint">写真をドラッグして位置、スライダーで大きさを調整できます</div>
+    </div>
+    <div class="share-scroll">
     <div class="share-style-label">✨ テーマ（ワンタップで完成）</div>
     <div class="share-styles" id="shareThemes"></div>
     <div class="share-style-label">🖼 構図（写真の見せ方）</div>
@@ -1571,6 +1590,7 @@ function applyUpdate(){
       <div class="share-styles" id="shareTitlefx"></div>
       <div class="share-style-label">スタンプ</div>
       <div class="share-styles" id="shareStamps"></div>
+    </div>
     </div>
     <div class="row" style="margin-top:12px;gap:10px">
       <button class="btn" style="flex:0 0 auto;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4);padding:0 14px" onclick="closeModal('rkShareModal')">閉じる</button>
@@ -4953,7 +4973,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v231'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v232'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5401,6 +5421,10 @@ Object.assign(DICT,{
   'フレーム':{en:'Frame',fr:'Cadre',pt:'Moldura'},
   'タイトルの文字エフェクト':{en:'Title text effect',fr:'Effet du titre',pt:'Efeito do título'},
   'スタンプ':{en:'Stamp',fr:'Tampon',pt:'Carimbo'},
+  '写真':{en:'Photo',fr:'Photo',pt:'Foto'},
+  '写真をドラッグして位置、スライダーで大きさを調整できます':{en:'Drag the photo to move it; use the slider to resize.',fr:'Faites glisser la photo pour la déplacer ; le curseur ajuste la taille.',pt:'Arraste a foto para mover; use o controle para redimensionar.'},
+  'スタンプをドラッグして位置、スライダーで大きさを調整できます':{en:'Drag the stamp to move it; use the slider to resize.',fr:'Faites glisser le tampon pour le déplacer ; le curseur ajuste la taille.',pt:'Arraste o carimbo para mover; use o controle para redimensionar.'},
+  '写真を追加するか、スタンプを選ぶと位置を調整できます':{en:'Add a photo or pick a stamp to adjust its position.',fr:'Ajoutez une photo ou choisissez un tampon pour ajuster sa position.',pt:'Adicione uma foto ou escolha um carimbo para ajustar a posição.'},
   'フレームは Pro で使えます':{en:'Frames are a Pro feature',fr:'Les cadres sont réservés à Pro',pt:'Molduras são um recurso Pro'},
   '文字エフェクトは Pro で使えます':{en:'Text effects are a Pro feature',fr:'Les effets de texte sont réservés à Pro',pt:'Efeitos de texto são um recurso Pro'},
   'スタンプは Pro で使えます':{en:'Stamps are a Pro feature',fr:'Les tampons sont réservés à Pro',pt:'Carimbos são um recurso Pro'},
@@ -8631,7 +8655,7 @@ function rkPhotoDel(i){
     save(); renderRireki(); toast(T('削除しました'));
   });
 }
-function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareLoadState();shareEnsureFree();shareRenderAll();drawRkShare(ev);openModal('rkShareModal');}
+function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareLoadState();shareEnsureFree();shareLoadAdj();shareRenderAll();shareBindDrag();drawRkShare(ev);openModal('rkShareModal');const m=document.querySelector('#rkShareModal .share-scroll');if(m)m.scrollTop=0;}
 /* ===== v150→v153: 節目＝履歴に手動追加し試合カードと同仕様で表示。
    種類欄は廃止し「よく使う」ワード(きもち/できごと)のタップで連続追記。
    昇級/昇段のチップだけアイコン種別も設定（既定は自由=⭐） ===== */
@@ -8800,6 +8824,71 @@ const SHARE_THEMES=[
   {key:'mag',    name:'モノクロ雑誌', set:{layout:'full',style:'white',font:'impact',pattern:'none',frame:'masthead',titlefx:'glow',stamp:'none'}},
 ];
 let shareStyle='classic', shareFont='gothic', sharePattern='none', shareLayout='classic', shareFrame='none', shareTitleFx='none', shareStamp='none', shareTheme='';
+/* v232: 写真とスタンプの位置・大きさをドラッグで調整（写真はカードごと、スタンプは構図ごとに記憶） */
+let shareAdjMode='photo';           // 'photo' | 'stamp'
+let sharePhotoAdj={x:0,y:0,z:1};    // 写真：中心オフセット(描画枠比)＋ズーム
+let shareStampAdj=null;             // スタンプ：{x,y,s}（未調整はnull＝構図の既定位置）
+let _shareStampDef={x:0,y:0,s:70};  // 直近に描いた既定位置（リセット用）
+function sharePhotoKey(){ return rkShareEv?('p|'+rkNoteKey(rkShareEv)):''; }
+function shareLoadAdj(){
+  const k=sharePhotoKey(); const map=DB.sharePhotoAdj||{};
+  sharePhotoAdj=Object.assign({x:0,y:0,z:1}, (k&&map[k])||{});
+  const sm=DB.shareStampAdj||{}; const sa=sm[shareLayout];
+  shareStampAdj=sa?Object.assign({},sa):null;
+  const hasPhoto=!!(rkShareEv&&DB.eventPhotos&&DB.eventPhotos[rkNoteKey(rkShareEv)]);
+  shareAdjMode=hasPhoto?'photo':'stamp';
+}
+function shareSaveAdj(){
+  const k=sharePhotoKey(); if(k){ DB.sharePhotoAdj=DB.sharePhotoAdj||{}; DB.sharePhotoAdj[k]=sharePhotoAdj; }
+  DB.shareStampAdj=DB.shareStampAdj||{}; if(shareStampAdj)DB.shareStampAdj[shareLayout]=shareStampAdj; else delete DB.shareStampAdj[shareLayout];
+  save();
+}
+function shareRenderAdjBar(){
+  const seg=document.getElementById('shareAdjSeg'); if(!seg)return;
+  const hasPhoto=!!(rkShareEv&&DB.eventPhotos&&DB.eventPhotos[rkNoteKey(rkShareEv)]);
+  const hasStamp=shareStamp&&shareStamp!=='none';
+  const btn=(k,lb,en)=>'<button class="'+(shareAdjMode===k?'on':'')+'"'+(en?'':' disabled style="opacity:.4"')+' onclick="shareSetAdjMode(\''+k+'\')">'+lb+'</button>';
+  seg.innerHTML=btn('photo','📷 '+T('写真'),hasPhoto)+btn('stamp','🏷 '+T('スタンプ'),hasStamp);
+  if(shareAdjMode==='photo'&&!hasPhoto&&hasStamp)shareAdjMode='stamp';
+  if(shareAdjMode==='stamp'&&!hasStamp&&hasPhoto)shareAdjMode='photo';
+  const r=document.getElementById('shareAdjRange');
+  if(r){ r.value=(shareAdjMode==='photo')?Math.round(sharePhotoAdj.z*100):Math.round(((shareStampAdj&&shareStampAdj.s)||_shareStampDef.s)/_shareStampDef.s*100); r.disabled=!(hasPhoto||hasStamp); }
+  const hint=document.getElementById('shareAdjHint');
+  if(hint)hint.textContent=(!hasPhoto&&!hasStamp)?T('写真を追加するか、スタンプを選ぶと位置を調整できます')
+    :(shareAdjMode==='photo'?T('写真をドラッグして位置、スライダーで大きさを調整できます'):T('スタンプをドラッグして位置、スライダーで大きさを調整できます'));
+}
+function shareSetAdjMode(k){ shareAdjMode=k; shareRenderAdjBar(); }
+function shareAdjScale(v){
+  const p=Math.max(0.6,Math.min(2.2,(+v||100)/100));
+  if(shareAdjMode==='photo'){ sharePhotoAdj.z=p; }
+  else { shareStampAdj=shareStampAdj||{x:_shareStampDef.x,y:_shareStampDef.y,s:_shareStampDef.s}; shareStampAdj.s=Math.max(20,Math.min(240,_shareStampDef.s*p)); }
+  shareSaveAdj(); if(rkShareEv)drawRkShare(rkShareEv);
+}
+function shareAdjReset(){
+  if(shareAdjMode==='photo')sharePhotoAdj={x:0,y:0,z:1}; else shareStampAdj=null;
+  shareSaveAdj(); shareRenderAdjBar(); if(rkShareEv)drawRkShare(rkShareEv);
+}
+function shareBindDrag(){
+  const cv=document.getElementById('rkcv'); if(!cv||cv.__bound)return; cv.__bound=true;
+  let dragging=false,last=null;
+  const toCanvas=(e)=>{ const r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)/r.width*SW, y:(e.clientY-r.top)/r.height*SH, w:r.width}; };
+  cv.addEventListener('pointerdown',e=>{
+    const hasPhoto=!!(rkShareEv&&DB.eventPhotos&&DB.eventPhotos[rkNoteKey(rkShareEv)]);
+    const hasStamp=shareStamp&&shareStamp!=='none';
+    if(shareAdjMode==='photo'&&!hasPhoto)return; if(shareAdjMode==='stamp'&&!hasStamp)return;
+    dragging=true; last=toCanvas(e); cv.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  cv.addEventListener('pointermove',e=>{
+    if(!dragging)return; const p=toCanvas(e); const dx=p.x-last.x, dy=p.y-last.y; last=p;
+    if(shareAdjMode==='photo'){ sharePhotoAdj.x+=dx/SW; sharePhotoAdj.y+=dy/SH;
+      sharePhotoAdj.x=Math.max(-0.5,Math.min(0.5,sharePhotoAdj.x)); sharePhotoAdj.y=Math.max(-0.5,Math.min(0.5,sharePhotoAdj.y)); }
+    else { shareStampAdj=shareStampAdj||{x:_shareStampDef.x,y:_shareStampDef.y,s:_shareStampDef.s};
+      shareStampAdj.x=Math.max(30,Math.min(SW-30,shareStampAdj.x+dx)); shareStampAdj.y=Math.max(30,Math.min(SH-30,shareStampAdj.y+dy)); }
+    if(rkShareEv)drawRkShare(rkShareEv);
+  });
+  const end=()=>{ if(!dragging)return; dragging=false; shareSaveAdj(); };
+  cv.addEventListener('pointerup',end); cv.addEventListener('pointercancel',end);
+}
 function shareStyleObj(){ return SHARE_STYLES.find(s=>s.key===shareStyle)||SHARE_STYLES[0]; }
 function shareFontObj(){ return SHARE_FONTS.find(f=>f.key===shareFont)||SHARE_FONTS[0]; }
 function shareLayoutObj(){ return SHARE_LAYOUTS.find(l=>l.key===shareLayout)||SHARE_LAYOUTS[0]; }
@@ -8825,7 +8914,7 @@ function shareSaveState(){ DB.shareStyle=shareStyle; DB.shareFont=shareFont; DB.
 function shareEnsureFree(){ if(isPro())return;
   if(shareLocked('style',shareStyle))shareStyle='classic'; if(shareLocked('font',shareFont))shareFont='gothic'; if(shareLocked('pattern',sharePattern))sharePattern='none';
   if(shareLocked('layout',shareLayout))shareLayout='classic'; shareFrame='none'; shareTitleFx='none'; shareStamp='none'; shareTheme=''; }
-function shareRedraw(){ shareRenderAll(); if(rkShareEv)drawRkShare(rkShareEv); }
+function shareRedraw(){ shareRenderAll(); shareRenderAdjBar(); if(rkShareEv)drawRkShare(rkShareEv); }
 function shareSetStyle(k){ if(shareLocked('style',k)){requirePro(T('この配色は Pro で使えます'));return;} shareStyle=k; shareTheme=''; shareSaveState(); shareRedraw(); }
 function shareSetFont(k){ if(shareLocked('font',k)){requirePro(T('この書式は Pro で使えます'));return;} shareFont=k; shareTheme=''; shareSaveState(); shareRedraw(); }
 function shareSetPattern(k){ if(shareLocked('pattern',k)){requirePro(T('この柄は Pro で使えます'));return;} sharePattern=k; shareTheme=''; shareSaveState(); shareRedraw(); }
@@ -8833,16 +8922,17 @@ function shareSetFrame(k){ if(shareLocked('frame',k)){requirePro(T('フレーム
 function shareSetTitlefx(k){ if(shareLocked('titlefx',k)){requirePro(T('文字エフェクトは Pro で使えます'));return;} shareTitleFx=k; shareTheme=''; shareSaveState(); shareRedraw(); }
 function shareSetStamp(k){ if(shareLocked('stamp',k)){requirePro(T('スタンプは Pro で使えます'));return;} shareStamp=k; shareTheme=''; shareSaveState(); shareRedraw(); }
 function shareSetLayout(k){ if(shareLocked('layout',k)){requirePro(T('この構図は Pro で使えます'));return;} const L=SHARE_LAYOUTS.find(l=>l.key===k); if(!L)return;
-  shareLayout=k; if(L.rec){ shareStyle=L.rec.style; shareFont=L.rec.font; sharePattern=L.rec.pattern; shareFrame=L.rec.frame; shareTitleFx=L.rec.titlefx; shareStamp=L.rec.stamp; }
+  shareLayout=k; shareStampAdj=(DB.shareStampAdj&&DB.shareStampAdj[k])?Object.assign({},DB.shareStampAdj[k]):null; if(L.rec){ shareStyle=L.rec.style; shareFont=L.rec.font; sharePattern=L.rec.pattern; shareFrame=L.rec.frame; shareTitleFx=L.rec.titlefx; shareStamp=L.rec.stamp; }
   shareTheme=''; shareSaveState(); shareRedraw(); }
 function shareSetTheme(k){ if(shareLocked('theme',k)){requirePro(T('テーマは Pro で使えます'));return;} const th=SHARE_THEMES.find(t=>t.key===k); if(!th)return;
-  const s=th.set; shareLayout=s.layout; shareStyle=s.style; shareFont=s.font; sharePattern=s.pattern; shareFrame=s.frame; shareTitleFx=s.titlefx; shareStamp=s.stamp; shareTheme=k; shareSaveState(); shareRedraw(); }
+  const s=th.set; shareStampAdj=(DB.shareStampAdj&&DB.shareStampAdj[s.layout])?Object.assign({},DB.shareStampAdj[s.layout]):null; shareLayout=s.layout; shareStyle=s.style; shareFont=s.font; sharePattern=s.pattern; shareFrame=s.frame; shareTitleFx=s.titlefx; shareStamp=s.stamp; shareTheme=k; shareSaveState(); shareRedraw(); }
 function shareChipHtml(kind,key,name,on){ const lock=shareLocked(kind,key)?'🔒':''; return `<button class="${on?'on':''}${lock?' locked':''}" onclick="shareSet${kind[0].toUpperCase()+kind.slice(1)}('${key}')">${lock}${T(name)}</button>`; }
 function shareRow(id,kind,list,cur){ const el=document.getElementById(id); if(el)el.innerHTML=list.map(o=>shareChipHtml(kind,o.key,o.name,o.key===cur)).join(''); }
 function renderShareStyles(){ shareRow('shareStyles','style',SHARE_STYLES,shareStyle); }
 function renderShareFonts(){ shareRow('shareFonts','font',SHARE_FONTS,shareFont); }
 function renderSharePatterns(){ shareRow('sharePatterns','pattern',SHARE_PATTERNS,sharePattern); }
 function shareRenderAll(){
+  shareRenderAdjBar();
   shareRow('shareThemes','theme',SHARE_THEMES,shareTheme);
   shareRow('shareLayouts','layout',SHARE_LAYOUTS,shareLayout);
   renderShareStyles(); renderShareFonts(); renderSharePatterns();
@@ -8940,7 +9030,11 @@ function rkDrawCover(ctx,img,x,y,w,h){
   const ir=img.width/img.height, r=w/h; let sw,sh,sx,sy;
   if(ir>r){sh=img.height;sw=sh*r;sx=(img.width-sw)/2;sy=0;}
   else{sw=img.width;sh=sw/r;sx=0;sy=(img.height-sh)/2;}
-  ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
+  // v232: ユーザー調整（ドラッグ移動・ズーム）を反映
+  const z=Math.max(0.6,Math.min(2.2,(sharePhotoAdj&&sharePhotoAdj.z)||1));
+  const ox=((sharePhotoAdj&&sharePhotoAdj.x)||0)*SW, oy=((sharePhotoAdj&&sharePhotoAdj.y)||0)*SH;
+  const dw=w*z, dh=h*z, dx=x+(w-dw)/2+ox, dy=y+(h-dh)/2+oy;
+  ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh); ctx.restore();
 }
 function shareWrapLines(ctx,text,maxW){
   const chars=[...(text||'')]; const lines=[]; let line='';
@@ -9091,7 +9185,10 @@ function shareFrameDraw(ctx,st){
 }
 /* ---- スタンプ ---- */
 function shareStampDraw(ctx,st,kind,x,y,s){
-  if(!kind||kind==='none')return; ctx.save(); ctx.translate(x,y);
+  if(!kind||kind==='none')return;
+  _shareStampDef={x,y,s};
+  if(shareStampAdj){ x=shareStampAdj.x; y=shareStampAdj.y; s=shareStampAdj.s; }
+  ctx.save(); ctx.translate(x,y);
   const G='"Hiragino Sans","Yu Gothic",sans-serif', M='"Hiragino Mincho ProN","YuMincho","Yu Mincho",serif', MR='"Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif';
   const emoji=(e)=>{ ctx.font=(s*2)+'px "Apple Color Emoji","Segoe UI Emoji",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(e,0,0); };
   if(kind==='medal'){
