@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v238（選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v239（事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1332,6 +1332,11 @@ function applyUpdate(){
     </div>
     <!-- 道場（事務）モードの設定：チーム名 → チームロゴ → 会計年度の開始月 -->
     <div id="setOfficeFields">
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--navy)">はじめの案内</h3>
+        <p class="list-mini">最初のご案内（ようこそ → 道場名 → 仲間の登録 → 出欠 → お金 → 選手アプリとの連携 → バックアップ）を、もう一度見られます。</p>
+        <button class="btn ghost full" onclick="startOnboarding()">▶ はじめの案内をもう一度見る</button>
+      </div>
       <div class="card">
         <h3 style="margin-top:0;color:var(--navy)">チーム名</h3>
         <input type="text" id="teamNameInput" onchange="saveTeamName()" placeholder="例：〇〇柔道クラブ" data-i18n-ph="例：〇〇柔道クラブ">
@@ -4995,7 +5000,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v238'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v239'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -5765,6 +5770,35 @@ Object.assign(DICT,{
   '仲間をタップすると、その人の試合結果がすべて表示されます。一覧の試合をタップすると登録内容を開いて修正・削除できます。「📋取り込み」で保護者からのLINE記入テキストをまとめて登録できます。':{en:'Tap a member to see all their results. Tap a bout in the list to open and edit or delete it. Use “📋 Import” to register LINE reports from parents in bulk.',fr:'Touchez un membre pour voir tous ses résultats. Touchez un combat pour l’ouvrir, le modifier ou le supprimer. « 📋 Importer » enregistre en lot les rapports LINE des parents.',pt:'Toque em um membro para ver todos os resultados. Toque em uma luta na lista para abrir, editar ou excluir. Use “📋 Importar” para registrar em lote os relatos do LINE.'},
   '軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。':{en:'Axes = the 4 most-used throws (filled from Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi if fewer) + other throws, combinations, groundwork (hold/strangle/joint), fouls & decisions (shido/foul/decision/superiority), and walkover/withdrawal. Even if the technique is blank, it’s judged from the “Content” field. Gold dashed line = whole dojo.',fr:'Axes = les 4 projections les plus fréquentes (complétées par Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + autres projections, combinaisons, sol (immobilisation/étranglement/luxation), fautes & décisions (shido/faute/décision/supériorité), et forfait/abandon. Même sans technique, le champ « Contenu » sert au classement. Ligne dorée en pointillés = tout le dojo.',pt:'Eixos = os 4 golpes mais usados (completados por Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + outros golpes, combinações, solo (imobilização/estrangulamento/chave), faltas & decisões (shido/falta/decisão/superioridade) e W.O./desistência. Mesmo sem técnica, usa-se o campo “Conteúdo”. Linha dourada tracejada = todo o dojô.'},
   // 初回オンボーディング
+  'My柔道（事務）へ':{en:'to My Judo (Office)',fr:'à My Judo (Bureau)',pt:'ao My Judo (Gestão)'},
+  '道場・部活の事務作業を、この1つにまとめられます。':{en:'All the admin work for your dojo or club, in one app.',fr:'Toute la gestion de votre dojo ou club dans une seule app.',pt:'Toda a gestão do dojô ou clube em um só app.'},
+  '出欠はタップ、集計は自動':{en:'Tap for attendance, totals are automatic',fr:'Présences en un geste, totaux automatiques',pt:'Presença com um toque, totais automáticos'},
+  '月謝・経費から年度会計まで':{en:'Fees, expenses and yearly accounts',fr:'Cotisations, dépenses et comptes annuels',pt:'Mensalidades, despesas e contas anuais'},
+  '予定の共有と、試合結果の取り込み・分析':{en:'Share schedules; import and analyse match results',fr:'Partagez le planning ; importez et analysez les résultats',pt:'Compartilhe a agenda; importe e analise resultados'},
+  'まず、道場・部活の名前を':{en:'First, your dojo or club name',fr:'D’abord, le nom de votre dojo',pt:'Primeiro, o nome do seu dojô'},
+  '画面の上に表示され、予定を送るときの「送り主」にもなります。':{en:'It appears at the top and is used as the sender when you share schedules.',fr:'Il s’affiche en haut et sert d’expéditeur pour le planning.',pt:'Aparece no topo e é usado como remetente ao enviar a agenda.'},
+  '（あとで変更できます）':{en:'(You can change it later.)',fr:'(Modifiable plus tard.)',pt:'(Pode alterar depois.)'},
+  '道場・部活の名前を入れてください':{en:'Please enter your dojo or club name.',fr:'Veuillez saisir le nom du dojo.',pt:'Digite o nome do dojô.'},
+  '仲間を登録しましょう':{en:'Add your members',fr:'Ajoutez vos membres',pt:'Cadastre seus membros'},
+  '「仲間」タブの「＋仲間を追加」から、名前・区分（小学生〜一般）・月謝などを登録します。':{en:'Use “＋Add member” in the Members tab to enter name, category and fee.',fr:'Dans l’onglet Membres, « ＋Ajouter » pour saisir nom, catégorie et cotisation.',pt:'Na aba Membros, use “＋Adicionar” para nome, categoria e mensalidade.'},
+  '段位・柔道メンバーID・生年月日も入れておくと、試合の申込に使えます':{en:'Adding rank, judo member ID and birthday helps with tournament entries',fr:'Grade, ID licence et date de naissance servent aux inscriptions',pt:'Graduação, ID e data de nascimento ajudam nas inscrições'},
+  '学年は毎年4月に自動でくり上がります':{en:'School years advance automatically each April',fr:'Les classes avancent automatiquement chaque avril',pt:'As séries avançam automaticamente em abril'},
+  '出欠はタップするだけ':{en:'Attendance is just a tap',fr:'La présence en un seul geste',pt:'Presença com um toque'},
+  '「出欠」タブでその日の「出」「欠」を押すだけ。集計は自動です。':{en:'Tap Present/Absent in the Attendance tab — totals are automatic.',fr:'Touchez Présent/Absent dans l’onglet Présences — totaux automatiques.',pt:'Toque em Presente/Ausente na aba Presença — os totais são automáticos.'},
+  '「集計」タブで仲間別・月別の出席数がひと目でわかります':{en:'See attendance by member and by month in the Reports tab',fr:'Voir les présences par membre et par mois dans Rapports',pt:'Veja presenças por membro e mês na aba Relatórios'},
+  '名前をタップすると「出席した日」の一覧も見られます':{en:'Tap a name to list the days they attended',fr:'Touchez un nom pour lister ses jours de présence',pt:'Toque em um nome para listar os dias presentes'},
+  '月謝も経費も、まとめて管理':{en:'Fees and expenses in one place',fr:'Cotisations et dépenses au même endroit',pt:'Mensalidades e despesas em um só lugar'},
+  '「お金」タブで月謝の支払済・未納を管理。会場費や遠征費などの経費もその場で入力できます。':{en:'Track paid/unpaid fees in the Money tab, and log venue or travel costs.',fr:'Suivez les cotisations payées/impayées et notez les frais de salle ou de déplacement.',pt:'Acompanhe mensalidades pagas/pendentes e registre custos de local e viagem.'},
+  '年度会計（収入・支出）は自動で計算されます':{en:'Yearly income and expenses are calculated automatically',fr:'Les comptes annuels sont calculés automatiquement',pt:'As contas anuais são calculadas automaticamente'},
+  '月謝でも都度払いでも登録できます':{en:'Monthly fees or pay-per-visit — both work',fr:'Cotisation mensuelle ou paiement à la séance',pt:'Mensalidade ou pagamento avulso'},
+  '選手アプリとつながります':{en:'Connects with the player app',fr:'Relié à l’app des judokas',pt:'Conecta com o app do atleta'},
+  '選手・保護者が使う「My柔道（選手）」（無料）と、LINE等やQRでやりとりできます。':{en:'Exchange by LINE or QR with “My Judo (Player)”, free for athletes and parents.',fr:'Échangez par LINE ou QR avec « My Judo (Joueur) », gratuit pour les familles.',pt:'Troque por LINE ou QR com o “My Judo (Atleta)”, grátis para famílias.'},
+  '「予定」タブ →「予定を共有」でその月の予定を配信（ひとことも添えられます）':{en:'Schedule tab → “Share schedule” sends the month (with a short message)',fr:'Onglet Planning → « Partager » envoie le mois (avec un mot)',pt:'Aba Agenda → “Compartilhar” envia o mês (com um recado)'},
+  '届いた試合結果は「集計 › 試合結果 › 取り込み」に貼るだけ':{en:'Paste reported results in Reports › Match results › Import',fr:'Collez les résultats reçus dans Rapports › Résultats › Importer',pt:'Cole os resultados em Relatórios › Resultados › Importar'},
+  '取り込んだ結果は勝率・決まり技レーダーで自動分析':{en:'Imported results feed the win-rate and technique radar automatically',fr:'Les résultats alimentent le taux de victoire et le radar des techniques',pt:'Os resultados alimentam a taxa de vitória e o radar de técnicas'},
+  '他の子の個人情報をお預かりするため、必要なら「設定 › セキュリティ」で4桁の暗証番号もかけられます。':{en:'Since you hold others’ personal data, you can set a 4-digit passcode in Settings › Security.',fr:'Comme vous détenez des données personnelles, un code à 4 chiffres est possible dans Réglages › Sécurité.',pt:'Como você guarda dados de terceiros, pode definir uma senha de 4 dígitos em Ajustes › Segurança.'},
+  '仲間の登録からはじめる':{en:'Start by adding members',fr:'Commencer par les membres',pt:'Começar cadastrando membros'},
+  '例：〇〇柔道クラブ':{en:'e.g. Sakura Judo Club',fr:'ex. Club de judo Sakura',pt:'ex.: Clube de Judô Sakura'},
   'My柔道（選手）へ':{en:'to My Judo (Player)',fr:'à My Judo (Joueur)',pt:'ao My Judo (Atleta)'},
   '稽古と試合の記録が、そのまま「じぶんの柔道ヒストリー」に。':{en:'Your practices and matches become your own judo history.',fr:'Vos entraînements et combats deviennent votre histoire du judo.',pt:'Seus treinos e lutas viram a sua história no judô.'},
   '道場・部活とつながって、予定の受け取りや試合結果の報告もできます。':{en:'Connect with your dojo or club to receive schedules and report results.',fr:'Reliez-vous à votre dojo pour recevoir le planning et envoyer vos résultats.',pt:'Conecte-se ao dojô para receber a agenda e enviar resultados.'},
@@ -8271,18 +8305,22 @@ function repCreateSelf(name){
 }
 // ===== 初回オンボーディング（個人アプリ・新規ユーザー／数枚ナビ）=====
 let obStep=0, obNameVal=''; const OB_STEPS=7;
+function obIsOffice(){ return (APP_EDITION==='office')||(APP_EDITION==='suite'&&DB.mode!=='personal'); }
 function maybeStartOnboarding(){
-  if(APP_EDITION!=='personal')return;                       // 個人アプリのみ
+  if(APP_EDITION==='suite')return;                          // Web版のスイートでは出さない
   if(DB.onboarded)return;                                   // 済みなら出さない
   if(DB.students&&DB.students.length>0){DB.onboarded=true;save();return;} // 既存データ利用者には出さない
   if(typeof lockEnabled!=='undefined'&&lockEnabled&&lockCode)return;      // ロック中は出さない
+  // 事務アプリは購読ゲート（ペイウォール）が出ている間は待つ → 解除後に呼び直す
+  if(APP_EDITION==='office'&&!officeEntitled())return;
   startOnboarding();
 }
-function startOnboarding(){ obStep=0; obNameVal=(DB.students.find(s=>s.isSelf)||{}).name||''; obRender(); document.getElementById('onboardModal').classList.add('show'); }
+function startOnboarding(){ obStep=0; obNameVal=obIsOffice()?(DB.team||''):((DB.students.find(s=>s.isSelf)||{}).name||''); obRender(); document.getElementById('onboardModal').classList.add('show'); }
 function obRender(){
   const body=document.getElementById('obBody'); if(!body)return;
   const skip='<button class="ob-skip" onclick="obSkip()">'+T('スキップ')+'</button>';
   let h='';
+  if(obIsOffice()){ obRenderOffice(body,skip); return; }
   if(obStep===0){
     h=`<div class="ob-emoji">🥋</div>
        <h3 class="ob-h">${T('ようこそ！')}<br>${T('My柔道（選手）へ')}</h3>
@@ -8345,7 +8383,86 @@ function obRender(){
   if(dots)dots.innerHTML=Array.from({length:OB_STEPS},(_,i)=>`<span class="ob-dot ${i===obStep?'on':''}"></span>`).join('');
   const inp=document.getElementById('obName'); if(inp)setTimeout(()=>{try{inp.focus();}catch(_){}},120);
 }
+// v239: 事務アプリ用チュートリアル（出欠・お金・予定共有・試合分析・バックアップ）
+function obRenderOffice(body,skip){
+  let h='';
+  if(obStep===0){
+    h=`<div class="ob-emoji">🥋</div>
+       <h3 class="ob-h">${T('ようこそ！')}<br>${T('My柔道（事務）へ')}</h3>
+       <p class="ob-p">${T('道場・部活の事務作業を、この1つにまとめられます。')}</p>
+       <div class="ob-steps">
+         <div class="ob-step"><span class="ob-no">📋</span><div>${T('出欠はタップ、集計は自動')}</div></div>
+         <div class="ob-step"><span class="ob-no">💴</span><div>${T('月謝・経費から年度会計まで')}</div></div>
+         <div class="ob-step"><span class="ob-no">📤</span><div>${T('予定の共有と、試合結果の取り込み・分析')}</div></div>
+       </div>
+       <button class="ob-btn gold" onclick="obNext()">${T('はじめる')}</button>
+       <button class="ob-skip" onclick="obSkip()">${T('あとで')}</button>`;
+  }else if(obStep===1){
+    h=`<div class="ob-emoji">🏫</div>
+       <h3 class="ob-h">${T('まず、道場・部活の名前を')}<br>${T('教えてください')}</h3>
+       <p class="ob-p">${T('画面の上に表示され、予定を送るときの「送り主」にもなります。')}<br>${T('（あとで変更できます）')}</p>
+       <input class="ob-input" id="obName" type="text" placeholder="${T('例：〇〇柔道クラブ')}" value="${esc(obNameVal)}">
+       <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
+  }else if(obStep===2){
+    h=`<div class="ob-emoji">👥</div>
+       <h3 class="ob-h">${T('仲間を登録しましょう')}</h3>
+       <p class="ob-p">${T('「仲間」タブの「＋仲間を追加」から、名前・区分（小学生〜一般）・月謝などを登録します。')}</p>
+       <div class="ob-steps">
+         <div class="ob-step"><span class="ob-no">✓</span><div>${T('段位・柔道メンバーID・生年月日も入れておくと、試合の申込に使えます')}</div></div>
+         <div class="ob-step"><span class="ob-no">✓</span><div>${T('学年は毎年4月に自動でくり上がります')}</div></div>
+       </div>
+       <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
+  }else if(obStep===3){
+    h=`<div class="ob-emoji">📋</div>
+       <h3 class="ob-h">${T('出欠はタップするだけ')}</h3>
+       <p class="ob-p">${T('「出欠」タブでその日の「出」「欠」を押すだけ。集計は自動です。')}</p>
+       <div class="ob-steps">
+         <div class="ob-step"><span class="ob-no">📊</span><div>${T('「集計」タブで仲間別・月別の出席数がひと目でわかります')}</div></div>
+         <div class="ob-step"><span class="ob-no">📅</span><div>${T('名前をタップすると「出席した日」の一覧も見られます')}</div></div>
+       </div>
+       <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
+  }else if(obStep===4){
+    h=`<div class="ob-emoji">💴</div>
+       <h3 class="ob-h">${T('月謝も経費も、まとめて管理')}</h3>
+       <p class="ob-p">${T('「お金」タブで月謝の支払済・未納を管理。会場費や遠征費などの経費もその場で入力できます。')}</p>
+       <div class="ob-steps">
+         <div class="ob-step"><span class="ob-no">🧾</span><div>${T('年度会計（収入・支出）は自動で計算されます')}</div></div>
+         <div class="ob-step"><span class="ob-no">✓</span><div>${T('月謝でも都度払いでも登録できます')}</div></div>
+       </div>
+       <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
+  }else if(obStep===5){
+    h=`<div class="ob-emoji">🔁</div>
+       <h3 class="ob-h">${T('選手アプリとつながります')}</h3>
+       <p class="ob-p">${T('選手・保護者が使う「My柔道（選手）」（無料）と、LINE等やQRでやりとりできます。')}</p>
+       <div class="ob-steps">
+         <div class="ob-step"><span class="ob-no">📤</span><div>${T('「予定」タブ →「予定を共有」でその月の予定を配信（ひとことも添えられます）')}</div></div>
+         <div class="ob-step"><span class="ob-no">📥</span><div>${T('届いた試合結果は「集計 › 試合結果 › 取り込み」に貼るだけ')}</div></div>
+         <div class="ob-step"><span class="ob-no">📈</span><div>${T('取り込んだ結果は勝率・決まり技レーダーで自動分析')}</div></div>
+       </div>
+       <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
+  }else{
+    h=`<div class="ob-emoji">🎉</div>
+       <h3 class="ob-h">${T('準備ができました！')}</h3>
+       <p class="ob-p">${T('データはこの端末の中だけに保存されます。')}<br><b>${T('アプリを消すと元に戻せない')}</b>${T('ので、ときどき「設定 › データ管理」からバックアップを保存してください。')}</p>
+       <p class="ob-p" style="margin-top:-8px">${T('他の子の個人情報をお預かりするため、必要なら「設定 › セキュリティ」で4桁の暗証番号もかけられます。')}</p>
+       <button class="ob-btn gold" onclick="obFinish('mates')">${T('仲間の登録からはじめる')}</button>
+       <button class="ob-skip" onclick="obFinish()">${T('あとで')}</button>`;
+  }
+  body.innerHTML=h;
+  const dots=document.getElementById('obDots');
+  if(dots)dots.innerHTML=Array.from({length:OB_STEPS},(_,i)=>`<span class="ob-dot ${i===obStep?'on':''}"></span>`).join('');
+  const inp=document.getElementById('obName'); if(inp)setTimeout(()=>{try{inp.focus();}catch(_){}},120);
+}
 function obNext(){
+  if(obStep===1&&obIsOffice()){
+    const inp=document.getElementById('obName');
+    obNameVal=(inp?inp.value:'').trim();
+    if(!obNameVal){ toast(T('道場・部活の名前を入れてください')); return; }
+    DB.team=obNameVal; save();
+    const ti=document.getElementById('teamNameInput'); if(ti)ti.value=DB.team;
+    if(typeof updateHeaderIdentity==='function')updateHeaderIdentity();
+    obStep++; obRender(); return;
+  }
   if(obStep===1){
     const inp=document.getElementById('obName');
     obNameVal=(inp?inp.value:'').trim();
@@ -8362,7 +8479,7 @@ function obSkip(){ obFinish(); }
 function obFinish(dest){
   if(DB){ DB.onboarded=true; save(); }
   const m=document.getElementById('onboardModal'); if(m)m.classList.remove('show');
-  if(dest&&(APP_EDITION==='personal'||DB.mode==='personal')){ switchTab(dest); }
+  if(dest){ switchTab(dest); }
 }
 function repToMemory(){
   const name=(document.getElementById('repName').value||'').trim();
@@ -8465,7 +8582,8 @@ function officeGateCheck(){
   // ネイティブ層は起動時に window.__iap.entitled?.() で再検証し、失効なら DB.officePro=false にできる
   openModal('officePaywallModal');
 }
-function officeUnlocked(){ DB.officePro=true; save(); closeModal('officePaywallModal'); toast(T('ご利用ありがとうございます！')); }
+function officeUnlocked(){ DB.officePro=true; save(); closeModal('officePaywallModal'); toast(T('ご利用ありがとうございます！'));
+  setTimeout(()=>{ try{ maybeStartOnboarding(); }catch(e){} },400); }
 async function purchaseOffice(){
   if(window.__iap&&window.__iap.buy){
     try{ const ok=await window.__iap.buy(); if(ok)officeUnlocked(); else toast(T('購入は完了しませんでした')); }
