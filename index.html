@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v236（メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v237（予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1845,6 +1845,9 @@ function applyUpdate(){
       <button onclick="ssMove(1)">›</button>
     </div>
     <p class="list-mini" id="ssCount" style="margin:8px 0 4px;font-weight:800;color:var(--navy)"></p>
+    <label class="fld" style="margin-top:6px">📣 ひとこと（LINEの先頭に表示されます）</label>
+    <input type="text" id="ssMsg" maxlength="60" placeholder="例：9/3の稽古はお休みです" oninput="ssSetMsg(this.value)">
+    <div class="io-pick" id="ssMsgPick" style="margin-top:6px"></div>
     <label id="ssNoteRow" style="display:none;align-items:flex-start;gap:8px;margin:0 0 8px;cursor:pointer">
       <input type="checkbox" id="ssNoteChk" onchange="ssSetNote(this.checked)" style="width:20px;height:20px;flex-shrink:0;margin-top:2px">
       <span class="list-mini">📝 メモも送る<span style="display:block;color:#c77f0a">送られるのは下の内容だけです。メモに個人名などが入っていないかご確認ください。</span></span>
@@ -4992,7 +4995,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v236'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v237'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5629,6 +5632,15 @@ Object.assign(DICT,{
   '【My柔道 予定表】…をここに貼り付け':{en:'Paste “【My柔道 予定表】…” here',fr:'Collez ici « 【My柔道 予定表】… »',pt:'Cole aqui “【My柔道 予定表】…”'},
   '📷 QRで読み取る':{en:'📷 Scan QR',fr:'📷 Scanner le QR',pt:'📷 Ler QR'},
   '📥 取り込む':{en:'📥 Import',fr:'📥 Importer',pt:'📥 Importar'},
+  '📣 ひとこと（LINEの先頭に表示されます）':{en:'📣 Message (shown at the top in LINE)',fr:'📣 Message (affiché en haut dans LINE)',pt:'📣 Recado (aparece no topo no LINE)'},
+  '例：9/3の稽古はお休みです':{en:'e.g. No practice on Sep 3',fr:'ex. Pas d’entraînement le 3/9',pt:'ex.: sem treino em 3/9'},
+  '今月の予定です':{en:'This month’s schedule',fr:'Le planning du mois',pt:'A agenda do mês'},
+  '予定を更新しました':{en:'Schedule updated',fr:'Planning mis à jour',pt:'Agenda atualizada'},
+  '稽古が休みになりました':{en:'A practice was cancelled',fr:'Un entraînement est annulé',pt:'Um treino foi cancelado'},
+  '大会の申込締切が近いです':{en:'Entry deadline is near',fr:'La date limite d’inscription approche',pt:'O prazo de inscrição está próximo'},
+  '時間・場所が変わりました':{en:'Time/place changed',fr:'Horaire/lieu modifié',pt:'Horário/local alterado'},
+  '月分':{en:'',fr:'',pt:''},
+  'に取り込み':{en:' imported',fr:' importé',pt:' importado'},
   '取り込み済みの送り主':{en:'Imported senders',fr:'Expéditeurs importés',pt:'Remetentes importados'},
   'この送り主のこの月の予定':{en:'This sender’s events for this month: ',fr:'Événements de cet expéditeur pour ce mois : ',pt:'Eventos deste remetente neste mês: '},
   '件を置き換えます':{en:' will be replaced',fr:' seront remplacés',pt:' serão substituídos'},
@@ -10728,7 +10740,10 @@ function schedShareText(ym){
   const withNote=(DB.shareNote!==false);            // v224: メモを送るか（既定=送る）
   const items=(DB.schedule||[]).filter(s=>s.date&&s.date.slice(0,7)===ym)
     .sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
-  const L=['【My柔道 予定表】','送り主｜'+sender,'月｜'+ym,'--- 予定 ---'];
+  const msg=(DB.ssMsg||'').trim().replace(/[\n｜]/g,' ');
+  const L=['【My柔道 予定表】'];
+  if(msg)L.push('ひとこと｜'+msg);
+  L.push('送り主｜'+sender,'月｜'+ym,'--- 予定 ---');
   items.forEach(s=>{
     const inferred=/試合|大会/.test(s.name||'');
     const flag=(s.showMatch===true&&!inferred)?'M':((s.showMatch===false&&inferred)?'x':'');
@@ -10736,7 +10751,7 @@ function schedShareText(ym){
     L.push([s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',note,flag].join('｜').replace(/｜+$/,''));
   });
   const hasNote=items.some(s=>(s.note||'').trim());
-  return {text:L.join('\n'), count:items.length, sender, ym, hasNote};
+  return {text:L.join('\n'), count:items.length, sender, ym, hasNote, msg};
 }
 function schedShareParts(text){
   const MAX=700;                                           // 1枚あたり約700byte＝画面越しでも読み取りやすいサイズ
@@ -10750,10 +10765,11 @@ function schedShareParts(text){
 }
 function schedShareParse(raw){
   const lines=(raw||'').replace(/\r/g,'').split('\n').map(l=>l.trim()).filter(Boolean);
-  let sender='',ym='',inBody=false; const items=[];
+  let sender='',ym='',msg='',inBody=false; const items=[];
   lines.forEach(line=>{
     if(/^【.*】$/.test(line))return;
     if(/^[-—―]+\s*予定\s*[-—―]+$/.test(line)){inBody=true;return;}
+    if(line.startsWith('ひとこと｜')){msg=line.slice(5).trim();return;}
     if(line.startsWith('送り主｜')){sender=line.slice(4).trim();return;}
     if(line.startsWith('月｜')){ym=line.slice(2).trim();return;}
     if(!inBody)return;
@@ -10761,10 +10777,10 @@ function schedShareParse(raw){
     if(!/^\d{1,2}$/.test(dd))return;
     items.push({dd:dd.padStart(2,'0'),name:(p[1]||'').trim(),title:(p[2]||'').trim(),time:(p[3]||'').trim(),place:(p[4]||'').trim(),note:(p[5]||'').trim(),flag:(p[6]||'').trim()});
   });
-  return {sender,ym,items};
+  return {sender,ym,msg,items};
 }
 function schedShareApply(parsed,forId){
-  const {sender,ym,items}=parsed; forId=forId||'';
+  const {sender,ym,items,msg}=parsed; forId=forId||'';
   if(!sender||!/^\d{4}-\d{2}$/.test(ym))return -1;
   // v220: 置き換えは「同送り主×同月×同対象」単位（兄=部活・弟=道場のように同送り主でも対象別に共存できる）
   DB.schedule=(DB.schedule||[]).filter(s=>!(s.src===sender&&(s.date||'').slice(0,7)===ym&&(s.forId||'')===forId));
@@ -10774,14 +10790,26 @@ function schedShareApply(parsed,forId){
     DB.schedule.push({id:'ss'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),
       name:it.name||T('予定'),title:it.title,date:ym+'-'+it.dd,time:it.time,place:it.place,note:it.note,showMatch:showMatch,src:sender,forId:forId});
   });
+  // v237: 送り主ごとに「最後に取り込んだ月・ひとこと・日付・件数」を残す
+  DB.schedSrc=DB.schedSrc||{};
+  DB.schedSrc[sender]={ym:ym,msg:(msg||''),at:todayStr(),n:items.length};
   save(); return items.length;
 }
 /* --- 送る側（事務） --- */
 let ssMonth=null;
-function openSchedShare(){ ssMonth=schedCalMonth||thisMonthStr(); renderSchedShare(); openModal('schedShareModal'); }
+// v237: 送るときのひとこと（LINEの先頭に出る／受け取り側の履歴にも残る）
+const SS_MSG_PRESETS=['今月の予定です','予定を更新しました','稽古が休みになりました','大会の申込締切が近いです','時間・場所が変わりました'];
+function ssMsgText(){ return (DB.ssMsg||'').trim(); }
+function ssSetMsg(v){ DB.ssMsg=(v||'').slice(0,60); save(); renderSchedShare(true); }
+function ssPickMsg(t){ const el=document.getElementById('ssMsg'); const cur=ssMsgText();
+  DB.ssMsg=(cur===t)?'':t; if(el)el.value=DB.ssMsg; save(); renderSchedShare(true); }
+function renderSsMsgPick(){ const el=document.getElementById('ssMsgPick'); if(!el)return;
+  const cur=ssMsgText();
+  el.innerHTML=SS_MSG_PRESETS.map(t=>`<button type="button" class="${cur===T(t)||cur===t?'on':''}" onclick="ssPickMsg('${esc(T(t))}')">${esc(T(t))}</button>`).join(''); }
+function openSchedShare(){ ssMonth=schedCalMonth||thisMonthStr(); const el=document.getElementById('ssMsg'); if(el)el.value=ssMsgText(); renderSchedShare(); openModal('schedShareModal'); }
 function ssMove(d){ let[y,m]=ssMonth.split('-').map(Number); m+=d; if(m<1){m=12;y--;} if(m>12){m=1;y++;} ssMonth=`${y}-${String(m).padStart(2,'0')}`; renderSchedShare(); }
 function ssSetNote(v){ DB.shareNote=!!v; save(); renderSchedShare(); }   // v224: メモ送信の切替（記憶される）
-function renderSchedShare(){
+function renderSchedShare(keepInput){
   const [y,m]=ssMonth.split('-');
   document.getElementById('ssMonthLbl').textContent=`${y}${T('年')} ${Number(m)}${T('月')}`;
   const r=schedShareText(ssMonth);
@@ -10791,6 +10819,8 @@ function renderSchedShare(){
   const showNoteRow=r.hasNote||(DB.shareNote===false);
   if(nrow)nrow.style.display=showNoteRow?'flex':'none';
   if(nchk)nchk.checked=(DB.shareNote!==false);
+  renderSsMsgPick();
+  const mi=document.getElementById('ssMsg'); if(mi&&!keepInput)mi.value=ssMsgText();
   document.getElementById('ssPreview').value=r.text;
   document.getElementById('ssQrBox').innerHTML='';
   const qb=document.getElementById('ssQrBtn'); if(qb)qb.textContent=T('📷 QRコードを表示');   // v221: 月を変えたらQRを畳んでボタンも戻す
@@ -10836,6 +10866,7 @@ function schedRecvAnalyze(){
   const [y,m]=p.ym.split('-');
   const forName=srForId?studentName(srForId):T('全員');
   pv.innerHTML=`<div class="gw-field-row" style="border-bottom:none"><span class="nm"><b>${esc(p.sender)}</b>・${y}${T('年')} ${Number(m)}${T('月')}・${p.items.length}${T('件')}<span class="mate-tag" style="background:#33507e">${esc(forName)}</span></span></div>`+
+    (p.msg?`<p class="list-mini" style="font-weight:800;color:var(--navy)">📣 ${esc(p.msg)}</p>`:'')+
     (exist?`<p class="list-mini" style="color:#c77f0a;font-weight:700">${T('この送り主のこの月の予定')} ${exist}${T('件を置き換えます')}</p>`:'');
   btn.style.display='';
   btn.dataset.ready='1';
@@ -10845,7 +10876,7 @@ function schedRecvApply(){
   const n=schedShareApply(p,srForId);
   if(n<0){ toast(T('予定表を読み取れませんでした')); return; }
   closeModal('schedRecvModal');
-  toast(`${p.sender}${T('の予定')} ${n}${T('件を取り込みました')}`);
+  toast(`${p.sender}${T('の予定')} ${n}${T('件を取り込みました')}`+(p.msg?'　📣 '+p.msg:''));
   if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
   if(typeof renderSched==='function'&&document.getElementById('screen-sched').classList.contains('active'))renderSched();
 }
@@ -10854,11 +10885,16 @@ function renderSrSenders(){
   const senders={}; (DB.schedule||[]).forEach(s=>{ if(s.src)senders[s.src]=(senders[s.src]||0)+1; });
   const keys=Object.keys(senders);
   box.innerHTML=keys.length?`<div class="gwd-h" style="font-size:13px">${T('取り込み済みの送り主')}</div>`+
-    keys.map(k=>`<div class="gw-field-row"><span class="nm">${esc(k)} <span class="list-mini">${senders[k]}${T('件')}</span></span><button class="chip-btn" onclick="srDeleteSender('${esc(k)}')">🗑 ${T('削除')}</button></div>`).join(''):'';
+    keys.map(k=>{
+      const info=(DB.schedSrc&&DB.schedSrc[k])||null;
+      const sub=info?`<span class="list-mini" style="display:block;color:var(--muted)">${info.ym?info.ym.replace('-','/')+T('月分'):''}${info.at?'・'+info.at.replace(/-/g,'/')+T('に取り込み'):''}</span>`:'';
+      const msg=(info&&info.msg)?`<span class="list-mini" style="display:block;font-weight:800;color:var(--navy)">📣 ${esc(info.msg)}</span>`:'';
+      return `<div class="gw-field-row"><span class="nm">${esc(k)} <span class="list-mini">${senders[k]}${T('件')}</span>${sub}${msg}</span><button class="chip-btn" onclick="srDeleteSender('${esc(k)}')">🗑 ${T('削除')}</button></div>`;
+    }).join(''):'';
 }
 function srDeleteSender(name){
   askConfirm(`${esc(name)} ${T('の予定をすべて削除しますか？（自分で登録した予定は消えません）')}`,()=>{
-    DB.schedule=(DB.schedule||[]).filter(s=>s.src!==name); save();
+    DB.schedule=(DB.schedule||[]).filter(s=>s.src!==name); if(DB.schedSrc)delete DB.schedSrc[name]; save();
     renderSrSenders();
     if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
     toast(T('削除しました'));
