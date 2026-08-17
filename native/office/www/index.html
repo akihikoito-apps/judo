@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v237（予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v238（選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1360,7 +1360,7 @@ function applyUpdate(){
     <div id="setPersonalFields" style="display:none">
       <div class="card">
         <h3 style="margin-top:0;color:var(--navy)">はじめの案内</h3>
-        <p class="list-mini">最初のご案内（ようこそ → お名前 → 使い方3ステップ）を、もう一度見られます。</p>
+        <p class="list-mini">最初のご案内（ようこそ → お名前 → 稽古の記録 → 試合報告 → メモリー → 予定の取り込み）を、もう一度見られます。</p>
         <button class="btn ghost full" onclick="startOnboarding()">▶ はじめの案内をもう一度見る</button>
       </div>
       <div class="card">
@@ -4995,7 +4995,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v237'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v238'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -5765,6 +5765,39 @@ Object.assign(DICT,{
   '仲間をタップすると、その人の試合結果がすべて表示されます。一覧の試合をタップすると登録内容を開いて修正・削除できます。「📋取り込み」で保護者からのLINE記入テキストをまとめて登録できます。':{en:'Tap a member to see all their results. Tap a bout in the list to open and edit or delete it. Use “📋 Import” to register LINE reports from parents in bulk.',fr:'Touchez un membre pour voir tous ses résultats. Touchez un combat pour l’ouvrir, le modifier ou le supprimer. « 📋 Importer » enregistre en lot les rapports LINE des parents.',pt:'Toque em um membro para ver todos os resultados. Toque em uma luta na lista para abrir, editar ou excluir. Use “📋 Importar” para registrar em lote os relatos do LINE.'},
   '軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。':{en:'Axes = the 4 most-used throws (filled from Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi if fewer) + other throws, combinations, groundwork (hold/strangle/joint), fouls & decisions (shido/foul/decision/superiority), and walkover/withdrawal. Even if the technique is blank, it’s judged from the “Content” field. Gold dashed line = whole dojo.',fr:'Axes = les 4 projections les plus fréquentes (complétées par Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + autres projections, combinaisons, sol (immobilisation/étranglement/luxation), fautes & décisions (shido/faute/décision/supériorité), et forfait/abandon. Même sans technique, le champ « Contenu » sert au classement. Ligne dorée en pointillés = tout le dojo.',pt:'Eixos = os 4 golpes mais usados (completados por Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + outros golpes, combinações, solo (imobilização/estrangulamento/chave), faltas & decisões (shido/falta/decisão/superioridade) e W.O./desistência. Mesmo sem técnica, usa-se o campo “Conteúdo”. Linha dourada tracejada = todo o dojô.'},
   // 初回オンボーディング
+  'My柔道（選手）へ':{en:'to My Judo (Player)',fr:'à My Judo (Joueur)',pt:'ao My Judo (Atleta)'},
+  '稽古と試合の記録が、そのまま「じぶんの柔道ヒストリー」に。':{en:'Your practices and matches become your own judo history.',fr:'Vos entraînements et combats deviennent votre histoire du judo.',pt:'Seus treinos e lutas viram a sua história no judô.'},
+  '道場・部活とつながって、予定の受け取りや試合結果の報告もできます。':{en:'Connect with your dojo or club to receive schedules and report results.',fr:'Reliez-vous à votre dojo pour recevoir le planning et envoyer vos résultats.',pt:'Conecte-se ao dojô para receber a agenda e enviar resultados.'},
+  '毎日の稽古を記録':{en:'Log every practice',fr:'Noter chaque entraînement',pt:'Registrar cada treino'},
+  '試合結果を道場に報告':{en:'Report results to your dojo',fr:'Envoyer les résultats au dojo',pt:'Enviar resultados ao dojô'},
+  '思い出をカードにしてシェア':{en:'Turn memories into cards and share',fr:'Transformer les souvenirs en cartes et partager',pt:'Transformar memórias em cards e compartilhar'},
+  '毎日の稽古を記録しよう':{en:'Log your daily practice',fr:'Notez vos entraînements',pt:'Registre seus treinos'},
+  '「予定・記録」タブのカレンダーで、その日をタップ。':{en:'Tap a day on the calendar in the “Schedule & Log” tab.',fr:'Touchez un jour dans l’onglet « Planning & Journal ».',pt:'Toque em um dia no calendário da aba “Agenda e Registro”.'},
+  '🔥の数と顔で、その日の調子をえらぶ':{en:'Pick 🔥 and a face for how it went',fr:'Choisissez 🔥 et un visage pour la forme du jour',pt:'Escolha 🔥 e uma carinha para o dia'},
+  'ひとことメモ・技のタグものこせる':{en:'Add a short note and technique tags',fr:'Ajoutez une note et des tags de technique',pt:'Adicione uma nota e tags de técnica'},
+  '体重など記録する項目は自分で決められる':{en:'Choose your own fields, like weight',fr:'Choisissez vos champs, comme le poids',pt:'Escolha seus campos, como peso'},
+  '試合結果は、道場にそのまま報告':{en:'Send match results straight to your dojo',fr:'Envoyez vos résultats directement au dojo',pt:'Envie os resultados direto ao dojô'},
+  '「試合報告」タブで入力して、LINE等やQRで送るだけ。':{en:'Fill in the “Report” tab and send by LINE or QR.',fr:'Remplissez l’onglet « Rapport » et envoyez par LINE ou QR.',pt:'Preencha a aba “Relato” e envie por LINE ou QR.'},
+  '先生が My柔道（事務）で取り込めば、伝え間違いがありません。':{en:'Your teacher imports it in My Judo (Office) — nothing gets lost in translation.',fr:'Votre professeur l’importe dans My Judo (Bureau) — aucune erreur de transmission.',pt:'O professor importa no My Judo (Gestão) — sem erros de recado.'},
+  '報告した試合は、自分の記録にも残ります':{en:'Reported matches stay in your own record too',fr:'Les combats envoyés restent aussi dans votre historique',pt:'As lutas enviadas também ficam no seu histórico'},
+  '「試合報告」と「メモリー」は、ずっと無料です':{en:'“Report” and “Memories” are free forever',fr:'« Rapport » et « Souvenirs » restent gratuits',pt:'“Relato” e “Memórias” são sempre grátis'},
+  '思い出はカードにしてシェア':{en:'Memories become shareable cards',fr:'Vos souvenirs deviennent des cartes à partager',pt:'Memórias viram cards para compartilhar'},
+  '「メモリー」タブに、大会や昇級・昇段などの節目が1枚のカードでたまります。':{en:'Tournaments and belt promotions collect as cards in the “Memories” tab.',fr:'Compétitions et passages de grade s’accumulent en cartes dans « Souvenirs ».',pt:'Competições e graduações viram cards na aba “Memórias”.'},
+  '写真を入れて、テーマ・構図・スタンプでデコレーション':{en:'Add a photo, then decorate with themes, layouts and stamps',fr:'Ajoutez une photo, puis décorez (thèmes, mises en page, tampons)',pt:'Adicione uma foto e decore com temas, layouts e carimbos'},
+  'InstagramやLINEにそのままシェア':{en:'Share straight to Instagram or LINE',fr:'Partagez directement sur Instagram ou LINE',pt:'Compartilhe direto no Instagram ou LINE'},
+  '道場の予定も受け取れます':{en:'Receive your dojo’s schedule',fr:'Recevez le planning du dojo',pt:'Receba a agenda do dojô'},
+  '先生から届いた予定表を「予定・記録 › 📥 予定の取り込み」で貼り付けるか、QRを読み取るだけ。':{en:'Paste the schedule your teacher sent, or scan the QR, in “Schedule & Log › 📥 Import schedule”.',fr:'Collez le planning reçu, ou scannez le QR, dans « Planning & Journal › 📥 Importer ».',pt:'Cole a agenda recebida, ou leia o QR, em “Agenda e Registro › 📥 Importar”.'},
+  '大会までのカウントダウンも自動で出ます。':{en:'A countdown to the next tournament appears automatically.',fr:'Un compte à rebours vers la prochaine compétition s’affiche.',pt:'Uma contagem regressiva até a próxima competição aparece.'},
+  '準備ができました！':{en:'You’re all set!',fr:'Tout est prêt !',pt:'Tudo pronto!'},
+  'データはこの端末の中だけに保存されます。':{en:'Your data stays only on this device.',fr:'Vos données restent uniquement sur cet appareil.',pt:'Seus dados ficam somente neste aparelho.'},
+  'アプリを消すと元に戻せない':{en:'Deleting the app erases it for good',fr:'Supprimer l’app efface tout définitivement',pt:'Apagar o app remove tudo definitivamente'},
+  'ので、ときどき「設定 › データ管理」からバックアップを保存してください。':{en:' — please save a backup now and then from “Settings › Data”.',fr:' — enregistrez une sauvegarde de temps en temps depuis « Réglages › Données ».',pt:' — salve um backup de vez em quando em “Ajustes › Dados”.'},
+  '先に試合結果を入力する':{en:'Enter a match result first',fr:'Saisir d’abord un résultat',pt:'Inserir um resultado primeiro'},
+  'あとで':{en:'Later',fr:'Plus tard',pt:'Depois'},
+  'スキップ':{en:'Skip',fr:'Passer',pt:'Pular'},
+  '次へ':{en:'Next',fr:'Suivant',pt:'Avançar'},
+  'はじめる':{en:'Get started',fr:'Commencer',pt:'Começar'},
+  'お名前を入れてください':{en:'Please enter a name.',fr:'Veuillez saisir un nom.',pt:'Digite um nome.'},
   'ようこそ！':{en:'Welcome!',fr:'Bienvenue !',pt:'Bem-vindo!'},
   'マイ柔道ヒストリーへ':{en:'to My Judo History',fr:'sur My Judo History',pt:'ao My Judo History'},
   '戦績カードはSNSにシェア':{en:'and share record cards on social media',fr:'et partagez vos cartes sur les réseaux',pt:'e compartilhe cards nas redes'},
@@ -8237,7 +8270,7 @@ function repCreateSelf(name){
   return s;
 }
 // ===== 初回オンボーディング（個人アプリ・新規ユーザー／数枚ナビ）=====
-let obStep=0, obNameVal='';
+let obStep=0, obNameVal=''; const OB_STEPS=7;
 function maybeStartOnboarding(){
   if(APP_EDITION!=='personal')return;                       // 個人アプリのみ
   if(DB.onboarded)return;                                   // 済みなら出さない
@@ -8248,42 +8281,75 @@ function maybeStartOnboarding(){
 function startOnboarding(){ obStep=0; obNameVal=(DB.students.find(s=>s.isSelf)||{}).name||''; obRender(); document.getElementById('onboardModal').classList.add('show'); }
 function obRender(){
   const body=document.getElementById('obBody'); if(!body)return;
+  const skip='<button class="ob-skip" onclick="obSkip()">'+T('スキップ')+'</button>';
   let h='';
   if(obStep===0){
     h=`<div class="ob-emoji">🥋</div>
-       <h3 class="ob-h">ようこそ！<br>マイ柔道ヒストリーへ</h3>
-       <p class="ob-p">試合の記録を残して、成長を“見える化”。<br><b>戦績カードはSNSにシェア</b>できます。</p>
-       <button class="ob-btn gold" onclick="obNext()">はじめる</button>
-       <button class="ob-skip" onclick="obSkip()">あとで</button>`;
+       <h3 class="ob-h">${T('ようこそ！')}<br>${T('My柔道（選手）へ')}</h3>
+       <p class="ob-p">${T('稽古と試合の記録が、そのまま「じぶんの柔道ヒストリー」に。')}<br>${T('道場・部活とつながって、予定の受け取りや試合結果の報告もできます。')}</p>
+       <div class="ob-steps">
+         <div class="ob-step"><span class="ob-no">🌱</span><div>${T('毎日の稽古を記録')}</div></div>
+         <div class="ob-step"><span class="ob-no">📝</span><div>${T('試合結果を道場に報告')}</div></div>
+         <div class="ob-step"><span class="ob-no">📖</span><div>${T('思い出をカードにしてシェア')}</div></div>
+       </div>
+       <button class="ob-btn gold" onclick="obNext()">${T('はじめる')}</button>
+       <button class="ob-skip" onclick="obSkip()">${T('あとで')}</button>`;
   }else if(obStep===1){
     h=`<div class="ob-emoji">✍️</div>
-       <h3 class="ob-h">まず、主役のお名前を<br>教えてください</h3>
-       <p class="ob-p">あなた自身、または お子さんの名前でOK。<br>（あとで変更・追加できます）</p>
-       <input class="ob-input" id="obName" type="text" placeholder="例：山本 蓮" value="${esc(obNameVal)}">
-       <button class="ob-btn" onclick="obNext()">次へ</button>
-       <button class="ob-skip" onclick="obSkip()">スキップ</button>`;
+       <h3 class="ob-h">${T('まず、主役のお名前を')}<br>${T('教えてください')}</h3>
+       <p class="ob-p">${T('あなた自身、または お子さんの名前でOK。')}<br>${T('（あとで変更・追加できます）')}</p>
+       <input class="ob-input" id="obName" type="text" placeholder="${T('例：山本 蓮')}" value="${esc(obNameVal)}">
+       <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
   }else if(obStep===2){
-    h=`<div class="ob-emoji">🎉</div>
-       <h3 class="ob-h">使い方はカンタン<br>3ステップ</h3>
+    h=`<div class="ob-emoji">🌱</div>
+       <h3 class="ob-h">${T('毎日の稽古を記録しよう')}</h3>
+       <p class="ob-p">${T('「予定・記録」タブのカレンダーで、その日をタップ。')}</p>
        <div class="ob-steps">
-         <div class="ob-step"><span class="ob-no">1</span><div><b>試合結果を入力</b>（勝ち負け・決まり技・相手）</div></div>
-         <div class="ob-step"><span class="ob-no">2</span><div><b>「メモリーに登録」</b>で自分の記録に残す</div></div>
-         <div class="ob-step"><span class="ob-no">3</span><div><b>戦績カードをSNSにシェア</b>！（Instagramなど）</div></div>
+         <div class="ob-step"><span class="ob-no">1</span><div>${T('🔥の数と顔で、その日の調子をえらぶ')}</div></div>
+         <div class="ob-step"><span class="ob-no">2</span><div>${T('ひとことメモ・技のタグものこせる')}</div></div>
+         <div class="ob-step"><span class="ob-no">3</span><div>${T('体重など記録する項目は自分で決められる')}</div></div>
        </div>
-       <p class="ob-p" style="margin-bottom:10px">さっそく、最初の試合を入れてみましょう。</p>
-       <button class="ob-btn gold" onclick="obFinish()">試合を入力する</button>
-       <button class="ob-skip" onclick="obFinish()">あとで入力する</button>`;
+       <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
+  }else if(obStep===3){
+    h=`<div class="ob-emoji">📝</div>
+       <h3 class="ob-h">${T('試合結果は、道場にそのまま報告')}</h3>
+       <p class="ob-p">${T('「試合報告」タブで入力して、LINE等やQRで送るだけ。')}<br>${T('先生が My柔道（事務）で取り込めば、伝え間違いがありません。')}</p>
+       <div class="ob-steps">
+         <div class="ob-step"><span class="ob-no">✓</span><div>${T('報告した試合は、自分の記録にも残ります')}</div></div>
+         <div class="ob-step"><span class="ob-no">✓</span><div>${T('「試合報告」と「メモリー」は、ずっと無料です')}</div></div>
+       </div>
+       <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
+  }else if(obStep===4){
+    h=`<div class="ob-emoji">📖</div>
+       <h3 class="ob-h">${T('思い出はカードにしてシェア')}</h3>
+       <p class="ob-p">${T('「メモリー」タブに、大会や昇級・昇段などの節目が1枚のカードでたまります。')}</p>
+       <div class="ob-steps">
+         <div class="ob-step"><span class="ob-no">🎨</span><div>${T('写真を入れて、テーマ・構図・スタンプでデコレーション')}</div></div>
+         <div class="ob-step"><span class="ob-no">📤</span><div>${T('InstagramやLINEにそのままシェア')}</div></div>
+       </div>
+       <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
+  }else if(obStep===5){
+    h=`<div class="ob-emoji">📥</div>
+       <h3 class="ob-h">${T('道場の予定も受け取れます')}</h3>
+       <p class="ob-p">${T('先生から届いた予定表を「予定・記録 › 📥 予定の取り込み」で貼り付けるか、QRを読み取るだけ。')}<br>${T('大会までのカウントダウンも自動で出ます。')}</p>
+       <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
+  }else{
+    h=`<div class="ob-emoji">🎉</div>
+       <h3 class="ob-h">${T('準備ができました！')}</h3>
+       <p class="ob-p">${T('データはこの端末の中だけに保存されます。')}<br><b>${T('アプリを消すと元に戻せない')}</b>${T('ので、ときどき「設定 › データ管理」からバックアップを保存してください。')}</p>
+       <button class="ob-btn gold" onclick="obFinish('growth')">${T('はじめる')}</button>
+       <button class="ob-skip" onclick="obFinish('report')">${T('先に試合結果を入力する')}</button>`;
   }
   body.innerHTML=h;
   const dots=document.getElementById('obDots');
-  if(dots)dots.innerHTML=[0,1,2].map(i=>`<span class="ob-dot ${i===obStep?'on':''}"></span>`).join('');
+  if(dots)dots.innerHTML=Array.from({length:OB_STEPS},(_,i)=>`<span class="ob-dot ${i===obStep?'on':''}"></span>`).join('');
   const inp=document.getElementById('obName'); if(inp)setTimeout(()=>{try{inp.focus();}catch(_){}},120);
 }
 function obNext(){
   if(obStep===1){
     const inp=document.getElementById('obName');
     obNameVal=(inp?inp.value:'').trim();
-    if(!obNameVal){ toast('お名前を入れてください'); return; }
+    if(!obNameVal){ toast(T('お名前を入れてください')); return; }
     let self=findStudentByName(obNameVal)||DB.students.find(s=>s.isSelf)||null;
     if(!self){ self=repCreateSelf(obNameVal); }
     else { self.isSelf=true; if(!self.name)self.name=obNameVal; }
@@ -8291,11 +8357,12 @@ function obNext(){
   }
   obStep++; obRender();
 }
+// v238: 「あとで」「スキップ」は画面を移動しない（従来は試合報告タブに飛んでいた）
 function obSkip(){ obFinish(); }
-function obFinish(){
+function obFinish(dest){
   if(DB){ DB.onboarded=true; save(); }
   const m=document.getElementById('onboardModal'); if(m)m.classList.remove('show');
-  if(APP_EDITION==='personal'||DB.mode==='personal'){ switchTab('report'); }
+  if(dest&&(APP_EDITION==='personal'||DB.mode==='personal')){ switchTab(dest); }
 }
 function repToMemory(){
   const name=(document.getElementById('repName').value||'').trim();
