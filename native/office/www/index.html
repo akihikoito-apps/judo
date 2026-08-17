@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v233（シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v234（シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -666,25 +666,29 @@
   .qr-frame{position:absolute;inset:14%;border:3px solid rgba(255,255,255,.85);border-radius:16px;box-shadow:0 0 0 2000px rgba(0,0,0,.28);pointer-events:none;}
   .qr-status{margin-top:9px;text-align:center;font-size:calc(13px*var(--fs,1));font-weight:700;color:var(--muted);}
   .qr-status.ok{color:var(--green);} .qr-status.err{color:var(--red);}
-  .share-style-label{color:rgba(255,255,255,.7);font-size:calc(12.5px*var(--fs,1));font-weight:700;margin:12px 2px 8px;}
+  .share-style-label{color:rgba(255,255,255,.7);font-size:calc(12.5px*var(--fs,1));font-weight:700;margin:10px 2px 6px;}
   .share-styles{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
   .share-styles button{flex:0 0 auto;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:16px;padding:7px 15px;font-family:inherit;font-weight:700;font-size:calc(13px*var(--fs,1));cursor:pointer;white-space:nowrap;}
   .share-styles button.on{background:var(--gold);border-color:var(--gold);color:#2a2100;}
   .share-styles button.locked{opacity:.72;}
   .share-styles button.locked::first-letter{font-size:.9em;}
-  .share-modal{display:flex;flex-direction:column;padding-top:12px;}
-  .share-stage{position:sticky;top:-12px;z-index:3;background:#0e1830;padding:12px 0 8px;margin-top:-12px;}
-  .share-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;}
-  .share-adjbar{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .share-modal{display:flex;flex-direction:column;padding-top:12px;max-height:92vh;overflow:hidden;}
+  .share-stage{flex:0 0 auto;z-index:3;background:#0e1830;padding:0 0 6px;}
+  .share-stage canvas{max-height:min(33vh,380px);width:auto;max-width:100%;margin:0 auto;}
+  .share-scroll{flex:1 1 auto;min-height:170px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:2px;}
+  .share-modal .row{flex:0 0 auto;margin-top:12px;}
+  /* プレビューを小さく/大きく（狭い端末で選択肢を広く使う） */
+  .share-mini .share-stage canvas{max-height:min(22vh,240px);}
+  .share-adjbar{display:flex;align-items:center;gap:8px;margin-top:6px;}
   .share-adjseg{display:flex;gap:6px;flex:1;min-width:0;}
   .share-adjseg button{border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:12px;padding:5px 11px;font-family:inherit;font-weight:800;font-size:calc(12.5px*var(--fs,1));cursor:pointer;white-space:nowrap;}
   .share-adjseg button.on{background:var(--gold);border-color:var(--gold);color:#2a2100;}
-  .share-adjbar2{display:flex;align-items:center;gap:12px;margin-top:6px;}
+  .share-adjbar2{display:flex;align-items:center;gap:12px;margin-top:4px;}
   .share-adjbar2 label{display:flex;align-items:center;gap:6px;flex:1;min-width:0;}
   .share-adjbar2 label span{color:rgba(255,255,255,.7);font-size:calc(15px*var(--fs,1));flex:0 0 auto;}
   .share-adjbar2 input[type=range]{flex:1;min-width:0;accent-color:var(--gold);}
   .share-adjreset{flex:0 0 auto;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;border-radius:12px;padding:5px 10px;font-size:calc(14px*var(--fs,1));font-weight:800;cursor:pointer;}
-  .share-adjhint{color:rgba(255,255,255,.55);font-size:calc(11.5px*var(--fs,1));margin-top:6px;line-height:1.4;}
+  .share-adjhint{color:rgba(255,255,255,.5);font-size:calc(11px*var(--fs,1));margin-top:4px;line-height:1.35;}
   .share-adv-btn{display:block;width:100%;margin-top:14px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.25);color:#fff;border-radius:12px;padding:9px 12px;font-family:inherit;font-weight:800;font-size:calc(13px*var(--fs,1));text-align:left;cursor:pointer;}
   .rk-photo .rk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
   .rk-add{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:rgba(255,255,255,.85);font-size:calc(13.5px*var(--fs,1));font-weight:700;cursor:pointer;text-align:center;}
@@ -1569,10 +1573,11 @@ function applyUpdate(){
       <canvas id="rkcv" width="1080" height="1350" style="width:100%;height:auto;border-radius:12px;display:block;touch-action:none"></canvas>
       <div class="share-adjbar">
         <div class="share-adjseg" id="shareAdjSeg"></div>
+        <button type="button" class="share-adjreset" id="shareMiniBtn" onclick="shareToggleMini()" title="プレビューの大きさ">⇕</button>
         <button type="button" class="share-adjreset" onclick="shareAdjReset()">⟲</button>
       </div>
       <div class="share-adjbar2">
-        <label><span>⤢</span><input type="range" id="shareAdjRange" min="60" max="220" value="100" oninput="shareAdjScale(this.value)"></label>
+        <label><span>⤢</span><input type="range" id="shareAdjRange" min="60" max="400" value="100" oninput="shareAdjScale(this.value)"></label>
         <label><span>⟳</span><input type="range" id="shareAdjRot" min="-180" max="180" value="0" oninput="shareAdjRotate(this.value)"></label>
       </div>
       <div class="share-adjhint" id="shareAdjHint">写真をドラッグして位置、スライダーで大きさを調整できます</div>
@@ -4979,7 +4984,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v233'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v234'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -5428,6 +5433,7 @@ Object.assign(DICT,{
   'タイトルの文字エフェクト':{en:'Title text effect',fr:'Effet du titre',pt:'Efeito do título'},
   'スタンプ':{en:'Stamp',fr:'Tampon',pt:'Carimbo'},
   '写真':{en:'Photo',fr:'Photo',pt:'Foto'},
+  'プレビューの大きさ':{en:'Preview size',fr:'Taille de l’aperçu',pt:'Tamanho da prévia'},
   '写真をドラッグして位置、⤢で大きさ、⟳で角度を調整できます':{en:'Drag the photo to move it; ⤢ resizes and ⟳ rotates.',fr:'Faites glisser la photo ; ⤢ redimensionne, ⟳ fait pivoter.',pt:'Arraste a foto; ⤢ redimensiona e ⟳ gira.'},
   'スタンプをドラッグして位置、⤢で大きさ、⟳で角度を調整できます':{en:'Drag the stamp to move it; ⤢ resizes and ⟳ rotates.',fr:'Faites glisser le tampon ; ⤢ redimensionne, ⟳ fait pivoter.',pt:'Arraste o carimbo; ⤢ redimensiona e ⟳ gira.'},
   '写真を追加するか、スタンプを選ぶと位置を調整できます':{en:'Add a photo or pick a stamp to adjust its position.',fr:'Ajoutez une photo ou choisissez un tampon pour ajuster sa position.',pt:'Adicione uma foto ou escolha um carimbo para ajustar a posição.'},
@@ -8661,7 +8667,9 @@ function rkPhotoDel(i){
     save(); renderRireki(); toast(T('削除しました'));
   });
 }
-function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareLoadState();shareEnsureFree();shareLoadAdj();shareRenderAll();shareBindDrag();drawRkShare(ev);openModal('rkShareModal');const m=document.querySelector('#rkShareModal .share-scroll');if(m)m.scrollTop=0;}
+function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareLoadState();shareEnsureFree();shareLoadAdj();shareRenderAll();shareBindDrag();drawRkShare(ev);
+  const md=document.querySelector('#rkShareModal .modal'); if(md)md.classList.toggle('share-mini',!!DB.shareMini);
+  openModal('rkShareModal');const m=document.querySelector('#rkShareModal .share-scroll');if(m)m.scrollTop=0;}
 /* ===== v150→v153: 節目＝履歴に手動追加し試合カードと同仕様で表示。
    種類欄は廃止し「よく使う」ワード(きもち/できごと)のタップで連続追記。
    昇級/昇段のチップだけアイコン種別も設定（既定は自由=⭐） ===== */
@@ -8866,10 +8874,11 @@ function shareRenderAdjBar(){
     :(shareAdjMode==='photo'?T('写真をドラッグして位置、⤢で大きさ、⟳で角度を調整できます'):T('スタンプをドラッグして位置、⤢で大きさ、⟳で角度を調整できます'));
 }
 function shareSetAdjMode(k){ shareAdjMode=k; shareRenderAdjBar(); }
+function shareToggleMini(){ const m=document.querySelector('#rkShareModal .modal'); if(!m)return; const on=m.classList.toggle('share-mini'); DB.shareMini=on; save(); }
 function shareAdjScale(v){
-  const p=Math.max(0.6,Math.min(2.2,(+v||100)/100));
+  const p=Math.max(0.6,Math.min(4,(+v||100)/100));
   if(shareAdjMode==='photo'){ sharePhotoAdj.z=p; }
-  else { shareStampAdj=shareStampAdj||{x:_shareStampDef.x,y:_shareStampDef.y,s:_shareStampDef.s}; shareStampAdj.s=Math.max(20,Math.min(240,_shareStampDef.s*p)); }
+  else { shareStampAdj=shareStampAdj||{x:_shareStampDef.x,y:_shareStampDef.y,s:_shareStampDef.s,r:0}; shareStampAdj.s=Math.max(20,Math.min(420,_shareStampDef.s*p)); }
   shareSaveAdj(); if(rkShareEv)drawRkShare(rkShareEv);
 }
 function shareAdjRotate(v){
@@ -8895,7 +8904,8 @@ function shareBindDrag(){
   cv.addEventListener('pointermove',e=>{
     if(!dragging)return; const p=toCanvas(e); const dx=p.x-last.x, dy=p.y-last.y; last=p;
     if(shareAdjMode==='photo'){ sharePhotoAdj.x+=dx/SW; sharePhotoAdj.y+=dy/SH;
-      sharePhotoAdj.x=Math.max(-0.5,Math.min(0.5,sharePhotoAdj.x)); sharePhotoAdj.y=Math.max(-0.5,Math.min(0.5,sharePhotoAdj.y)); }
+      const lim=0.5*Math.max(1,sharePhotoAdj.z||1);
+      sharePhotoAdj.x=Math.max(-lim,Math.min(lim,sharePhotoAdj.x)); sharePhotoAdj.y=Math.max(-lim,Math.min(lim,sharePhotoAdj.y)); }
     else { shareStampAdj=shareStampAdj||{x:_shareStampDef.x,y:_shareStampDef.y,s:_shareStampDef.s};
       shareStampAdj.x=Math.max(30,Math.min(SW-30,shareStampAdj.x+dx)); shareStampAdj.y=Math.max(30,Math.min(SH-30,shareStampAdj.y+dy)); }
     if(rkShareEv)drawRkShare(rkShareEv);
@@ -9045,7 +9055,7 @@ function rkDrawCover(ctx,img,x,y,w,h){
   if(ir>r){sh=img.height;sw=sh*r;sx=(img.width-sw)/2;sy=0;}
   else{sw=img.width;sh=sw/r;sx=0;sy=(img.height-sh)/2;}
   // v232: ユーザー調整（ドラッグ移動・ズーム）を反映
-  const z=Math.max(0.6,Math.min(2.2,(sharePhotoAdj&&sharePhotoAdj.z)||1));
+  const z=Math.max(0.6,Math.min(4,(sharePhotoAdj&&sharePhotoAdj.z)||1));
   const ox=((sharePhotoAdj&&sharePhotoAdj.x)||0)*SW, oy=((sharePhotoAdj&&sharePhotoAdj.y)||0)*SH;
   const deg=(sharePhotoAdj&&sharePhotoAdj.r)||0, rad=deg*Math.PI/180;
   const cover=deg?(Math.abs(Math.cos(rad))+Math.abs(Math.sin(rad))):1;   // 回転で隙間が出ないぶんだけ拡大
