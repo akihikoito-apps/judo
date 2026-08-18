@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v240（発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v241（選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -5007,7 +5007,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v240'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v241'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5460,6 +5460,16 @@ Object.assign(DICT,{
   '保存容量がいっぱいです。':{en:'Storage is full.',fr:'Le stockage est plein.',pt:'O armazenamento está cheio.'},
   '「設定 › データ管理」で、いらない写真を削除するか「古い年度をアーカイブ」してから、もう一度お試しください。':{en:'In Settings › Data, delete unneeded photos or archive an old year, then try again.',fr:'Dans Réglages › Données, supprimez des photos ou archivez une ancienne année, puis réessayez.',pt:'Em Ajustes › Dados, apague fotos ou arquive um ano antigo e tente novamente.'},
   '試合結果がまだありません':{en:'No match results yet',fr:'Aucun résultat pour le moment',pt:'Ainda não há resultados'},
+  'ご家族など、複数の主役を登録できます':{en:'Register more than one person (e.g. your family)',fr:'Enregistrez plusieurs personnes (votre famille)',pt:'Cadastre mais de uma pessoa (sua família)'},
+  'この大会にはすでに':{en:'This tournament already has ',fr:'Ce tournoi a déjà ',pt:'Este torneio já tem '},
+  '件の試合結果が登録されています。':{en:' result(s) already saved.',fr:' résultat(s) déjà enregistré(s).',pt:' resultado(s) já salvos.'},
+  'この内容を追加で登録しますか？':{en:'Add this on top of them?',fr:'Ajouter ceci en plus ?',pt:'Adicionar isto também?'},
+  '追加する':{en:'Add',fr:'Ajouter',pt:'Adicionar'},
+  '件をメモリーに登録しました':{en:' saved to Memories',fr:' enregistré(s) dans Souvenirs',pt:' salvo(s) nas Memórias'},
+  'この試合はすでにメモリーに登録済みです':{en:'This match is already saved.',fr:'Ce combat est déjà enregistré.',pt:'Esta luta já foi salva.'},
+  '「':{en:'“',fr:'« ',pt:'“'},
+  '」を記録する項目から削除します。これまでに入力した数値は見られなくなります。':{en:'” will be removed from your tracked fields. Values already entered will no longer be visible.',fr:' » sera retiré de vos champs suivis. Les valeurs déjà saisies ne seront plus visibles.',pt:'” será removido dos campos registrados. Os valores já inseridos deixarão de aparecer.'},
+  '削除する':{en:'Delete',fr:'Supprimer',pt:'Excluir'},
   'うまくいかないときは':{en:'If it isn’t working',fr:'En cas de problème',pt:'Se não funcionar'},
   '・Wi-Fi／モバイル通信がつながっているかご確認のうえ、もう一度お試しください。':{en:'• Check your Wi-Fi or mobile connection and try again.',fr:'• Vérifiez votre connexion Wi-Fi ou mobile et réessayez.',pt:'• Verifique a conexão Wi-Fi ou móvel e tente novamente.'},
   '・以前ご購入済みの場合は「購入を復元する」をお試しください。':{en:'• If you already purchased, tap “Restore Purchases”.',fr:'• Si vous avez déjà acheté, touchez « Restaurer les achats ».',pt:'• Se já comprou, toque em “Restaurar compras”.'},
@@ -8378,6 +8388,7 @@ function repToDojo(){
 }
 // ===== 報告→メモリー登録の導線（無料）。入力中の試合を自分(主役)のメモリーに残す =====
 let repRegSig='';   // 直前に登録した内容の署名（二重登録の防止）
+let _repDupOk=false; // v241: 既に登録済みの大会へ「追加」する意思確認（2度押し）
 function repCreateSelf(name){
   const parts=(name||'').split(/[\s　]+/).filter(Boolean);
   const grip='右';   // v201: 報告の組手欄は「相手の組手」のため、本人の組手既定は右のまま
@@ -8572,7 +8583,23 @@ function repToMemory(){
   const bouts=repMatches.filter(m=>m&&m.res);
   if(!bouts.length){ toast(T('登録する試合結果がありません')); return; }
   const sig=repGen();
-  if(sig&&sig===repRegSig){ toast('この試合はすでにメモリーに登録済みです'); return; }
+  if(sig&&sig===repRegSig){ toast(T('この試合はすでにメモリーに登録済みです')); return; }
+  // v241: アプリを開き直しても、少し文言を直しても気づけるように「保存済みの内容」と照合する
+  {
+    const _self=findStudentByName(name)||DB.students.find(s=>s.isSelf)||null;
+    const _dt=(document.getElementById('repDate').value||'').trim()||todayStr();
+    const _tk=(document.getElementById('repTaikai').value||'').trim();
+    const _sched=DB.schedule.find(s=>s.date===_dt&&((s.title||'').trim()===_tk)&&s.showMatch)||null;
+    if(_self&&_sched){
+      const done=(allBoutsBySelf()[_self.id]||[]).filter(b=>b.schedId===_sched.id).length;
+      if(done>0 && !_repDupOk){
+        // v241: 追加でよいかを明示的に確認する（アプリを開き直しても二重登録に気づけるように）
+        askConfirm(T('この大会にはすでに')+done+T('件の試合結果が登録されています。')+'<br>'+T('この内容を追加で登録しますか？'),
+          ()=>{ _repDupOk=true; repToMemory(); }, T('追加する'));
+        return;
+      }
+    }
+  }
   // 1) 対象の主役・大会を「まだ作らずに」特定
   let self=findStudentByName(name)||DB.students.find(s=>s.isSelf)||null;
   const dt=(document.getElementById('repDate').value||'').trim()||todayStr();
@@ -8602,8 +8629,8 @@ function repToMemory(){
     });
   }
   save();
-  repRegSig=sig;
-  toast(bouts.length+'件をメモリーに登録しました');
+  repRegSig=sig; _repDupOk=false;
+  toast(bouts.length+T('件をメモリーに登録しました'));
   // 4) 誘導：メモリーへ移動してその選手を表示（＝戦績カードのシェアへ）
   rkSelfId=self.id; rkYear='all';
   switchTab('rireki');
@@ -9348,7 +9375,11 @@ function shareSetStamp(k){
 }
 function shareSetStampIdx(i){ shareStampIdx=i; shareRenderAdjBar(); }
 function shareSetLayout(k){ if(shareLocked('layout',k)){requirePro(T('この構図は Pro で使えます'));return;} const L=SHARE_LAYOUTS.find(l=>l.key===k); if(!L)return;
-  shareLayout=k; shareStampList.forEach(s=>{delete s.x;delete s.y;delete s.s;}); if(L.rec){ shareStyle=L.rec.style; shareFont=L.rec.font; sharePattern=L.rec.pattern; shareFrame=L.rec.frame; shareTitleFx=L.rec.titlefx; if(L.rec.stamp&&L.rec.stamp!=='none'){ shareStampList=[{k:L.rec.stamp}]; } shareStamp=L.rec.stamp; }
+  shareLayout=k; shareStampList.forEach(s=>{delete s.x;delete s.y;delete s.s;});
+  if(L.rec){ shareStyle=L.rec.style; shareFont=L.rec.font; sharePattern=L.rec.pattern; shareFrame=L.rec.frame; shareTitleFx=L.rec.titlefx;
+    // v241: 構図の推奨に合わせてスタンプも入れ替える（前の構図のスタンプが残らないように）
+    shareStampList=(L.rec.stamp&&L.rec.stamp!=='none')?[{k:L.rec.stamp}]:[];
+    shareStampIdx=0; shareStamp=L.rec.stamp; }
   shareTheme=''; shareSaveState(); shareRedraw(); }
 function shareSetTheme(k){ if(shareLocked('theme',k)){requirePro(T('テーマは Pro で使えます'));return;} const th=SHARE_THEMES.find(t=>t.key===k); if(!th)return;
   const s=th.set; shareLayout=s.layout; shareStampList=(s.stamp&&s.stamp!=='none')?[{k:s.stamp}]:[]; shareStampIdx=0; shareStyle=s.style; shareFont=s.font; sharePattern=s.pattern; shareFrame=s.frame; shareTitleFx=s.titlefx; shareStamp=s.stamp; shareTheme=k; shareSaveState(); shareRedraw(); }
@@ -9701,7 +9732,19 @@ function shareBody(ctx,st,fp,m,o){
   // 事前計測
   let tt=null; if(!o.noTitle){ shareLS(ctx,fp.ls); tt=shareFitSmart(ctx,m.title,maxW,o.titleMax||104,o.titleMin||56,fp.tw); shareLS(ctx,0); }
   const lhT=tt?tt.size*1.24:0;
-  sfont(ctx,fp.bw,compact?30:34); const noteLines=m.note?shareWrapLines(ctx,'「'+m.note+'」',maxW).slice(0,compact?1:2):[];
+  sfont(ctx,fp.bw,compact?30:34);
+  const noteMax=compact?1:2;
+  let noteLines=[];
+  if(m.note){
+    const all=shareWrapLines(ctx,'「'+m.note+'」',maxW);
+    noteLines=all.slice(0,noteMax);
+    // v241: 入りきらない場合は最後の行を「…」で締める（署名に重ならないよう行数を固定）
+    if(all.length>noteMax && noteLines.length){
+      let last=noteLines[noteMax-1];
+      while(last.length>1 && ctx.measureText(last+'…」').width>maxW) last=last.slice(0,-1);
+      noteLines[noteMax-1]=last+'…」';
+    }
+  }
   const noteLH=compact?42:48;
   const rows=[]; // {h, draw(y)} y=ベースライン基準ではなく上端基準で並べる
   if(!o.noLabel&&(m.kind==='milestone'?m.label:(m.label||m.kind==='match'))){
@@ -10142,6 +10185,8 @@ function gwOpenDay(ds){
   // v220: 出席・調子は「その主役に紐づく稽古（対象＝全員 or 本人）がある日」のみ表示（記録済みの日は編集用に表示）
   const keikoForStar=sid=>dsSched.some(s=>gwIsKeikoType(s)&&(!s.forId||s.forId===sid));
   const kkStars=viewStars.filter(st=>st&&(keikoForStar(st.id)||keikoOf(st.id)[ds]));
+  // v241: 稽古の予定が無い日でも記録できる（道場と連携していない人でも使えるように）
+  if(!kkStars.length && viewStars.length) kkStars.push(...(gwAllView?viewStars:viewStars.filter(s=>s.id===gwSelfId)));
   const showKeikoSec=kkStars.length>0;
   document.getElementById('gwDayKeiko').innerHTML=!showKeikoSec?'':`<div class="gwd-sec keiko"><div class="gwd-h">🔥 ${T('稽古')}</div>`+
     kkStars.map(st=>{ const e=keikoOf(st.id)[ds];
@@ -10243,7 +10288,13 @@ function gwFieldAdd(){
   document.getElementById('gwFieldName').value=''; document.getElementById('gwFieldUnit').value='';
   save(); renderGwFields();
 }
-function gwFieldDel(id){ DB.growthFields=gwFields().filter(f=>f.id!==id); save(); renderGwFields(); }
+function gwFieldDel(id){
+  const f=gwFields().find(x=>x.id===id); if(!f)return;
+  // v241: 消すと過去の数値が見られなくなるため確認する
+  askConfirm(T('「')+esc(f.name)+T('」を記録する項目から削除します。これまでに入力した数値は見られなくなります。'),()=>{
+    DB.growthFields=gwFields().filter(x=>x.id!==id); save(); renderGwFields(); toast(T('削除しました'));
+  },T('削除する'));
+}
 // ―― 報告タブ：予定から大会を選ぶ ――
 function renderRepSchedPick(){
   const wrap=document.getElementById('repSchedPickWrap'), box=document.getElementById('repSchedPick');
@@ -11211,6 +11262,7 @@ function schedRecvApply(){
   const n=schedShareApply(p,srForId);
   if(n<0){ toast(T('予定表を読み取れませんでした')); return; }
   closeModal('schedRecvModal');
+  if(/^d{4}-d{2}$/.test(p.ym))gwMonth=p.ym;      // v241: 取り込んだ月を表示する
   toast(`${p.sender}${T('の予定')} ${n}${T('件を取り込みました')}`+(p.msg?'　📣 '+p.msg:''));
   if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
   if(typeof renderSched==='function'&&document.getElementById('screen-sched').classList.contains('active'))renderSched();
@@ -12185,6 +12237,12 @@ function splitLegacyName(name){
   if(parts.length>=2)return{last:parts[0],first:parts.slice(1).join(' ')};
   return{last:parts[0]||'',first:''};
 }
+// v241: 個人アプリでは「仲間」ではなく「選手」と呼ぶ（1人で使う人に合う言い方に）
+function stWordFix(){
+  if(APP_EDITION!=='personal'&&DB.mode!=='personal')return;
+  const t=document.getElementById('studentModalTitle');
+  if(t)t.textContent=t.textContent.replace('仲間',T('選手'));
+}
 function openStudentModal(id){
   editingStudent=id||null;
   if(id){
@@ -12260,7 +12318,7 @@ function openStudentModal(id){
   pickLeaveEnd(pickedLeaveEnd);
   updateAgeDisplay();
   document.getElementById('stDeleteBtn').style.display=editingStudent?'block':'none';
-  openModal('studentModal');
+  openModal('studentModal'); stWordFix();
 }
 function saveStudent(){
   const lastName=document.getElementById('stLastName').value.trim();
@@ -12277,6 +12335,11 @@ function saveStudent(){
   const visitBase=Math.max(0,Number(document.getElementById('stVisitBase').value)||0);
   const feeAmount=(pickedFeeReq&&feeType==='monthly')?(manual>0?manual:pickedFeeAmt):0;
   const cur=(editingStudent)?DB.students.find(x=>x.id===editingStudent):null;
+  // v241: 無料版は主役（自分・家族）1人まで。Proの説明と実装を一致させる
+  if(APP_EDITION==='personal' && pickedStSelf && !isPro()){
+    const others=DB.students.filter(s=>s.isSelf && (!cur||s.id!==cur.id)).length;
+    if(others>=1){ requirePro(T('ご家族など、複数の主役を登録できます')); return; }
+  }
   // 在籍状況（在籍中／休会／退会）
   let endDate='', leaveStart=(cur&&cur.leaveStart)||'', leaveEnd=(cur&&cur.leaveEnd)||'', leaveFee=(cur&&cur.leaveFee!=null)?cur.leaveFee:0;
   if(pickedStatus==='ended'){
