@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v241（選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v242（事務にデモ表示・試合報告QRの分割／選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1727,6 +1727,8 @@ function applyUpdate(){
     </div>
     <button class="btn gold full" style="margin-top:14px" onclick="purchaseOffice()">1ヶ月無料ではじめる</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="restoreOffice()">購入を復元する</button>
+    <button class="btn ghost full" style="margin-top:10px" onclick="demoStart()">👀 まず中身を見てみる（デモ）</button>
+    <p class="list-mini" style="margin-top:6px">デモではサンプルの道場データで全機能を試せます。入力しても保存はされません。</p>
     <p class="list-mini" style="margin-top:10px"><a href="https://akihikoito-apps.github.io/judo/terms.html" target="_blank" rel="noopener">利用規約</a>　<a href="https://akihikoito-apps.github.io/judo/privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a></p>
   </div>
 </div>
@@ -5007,7 +5009,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v241'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v242'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5470,6 +5472,12 @@ Object.assign(DICT,{
   '「':{en:'“',fr:'« ',pt:'“'},
   '」を記録する項目から削除します。これまでに入力した数値は見られなくなります。':{en:'” will be removed from your tracked fields. Values already entered will no longer be visible.',fr:' » sera retiré de vos champs suivis. Les valeurs déjà saisies ne seront plus visibles.',pt:'” será removido dos campos registrados. Os valores já inseridos deixarão de aparecer.'},
   '削除する':{en:'Delete',fr:'Supprimer',pt:'Excluir'},
+  '👀 まず中身を見てみる（デモ）':{en:'👀 Take a look first (demo)',fr:'👀 Voir l’app d’abord (démo)',pt:'👀 Ver primeiro (demo)'},
+  'デモではサンプルの道場データで全機能を試せます。入力しても保存はされません。':{en:'The demo uses sample dojo data so you can try every feature. Nothing you enter is saved.',fr:'La démo utilise des données d’exemple : tout est essayable, rien n’est enregistré.',pt:'A demo usa dados de exemplo: teste tudo; nada é salvo.'},
+  'デモを表示しています（保存はされません）':{en:'Showing the demo (nothing is saved)',fr:'Démo affichée (rien n’est enregistré)',pt:'Exibindo a demo (nada é salvo)'},
+  'デモ表示中（保存されません）':{en:'Demo mode (not saved)',fr:'Mode démo (non enregistré)',pt:'Modo demo (não salvo)'},
+  'デモを開始できませんでした':{en:'Could not start the demo.',fr:'Impossible de lancer la démo.',pt:'Não foi possível iniciar a demo.'},
+  '終了する':{en:'Exit',fr:'Quitter',pt:'Sair'},
   'うまくいかないときは':{en:'If it isn’t working',fr:'En cas de problème',pt:'Se não funcionar'},
   '・Wi-Fi／モバイル通信がつながっているかご確認のうえ、もう一度お試しください。':{en:'• Check your Wi-Fi or mobile connection and try again.',fr:'• Vérifiez votre connexion Wi-Fi ou mobile et réessayez.',pt:'• Verifique a conexão Wi-Fi ou móvel e tente novamente.'},
   '・以前ご購入済みの場合は「購入を復元する」をお試しください。':{en:'• If you already purchased, tap “Restore Purchases”.',fr:'• Si vous avez déjà acheté, touchez « Restaurer les achats ».',pt:'• Se já comprou, toque em “Restaurar compras”.'},
@@ -6242,6 +6250,7 @@ function uid(){
   try{ if(window.crypto&&crypto.randomUUID)return crypto.randomUUID().replace(/-/g,'').slice(0,16); }catch(e){}return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 let saveErrorShown=false;
 function save(){
+  if(demoMode)return true;                                  // v242: デモの入力は保存しない（本物のデータを守る）
   if(loadFailed)return false;                               // 壊れたデータを上書きしない
   try{
     localStorage.setItem(STORE_KEY,JSON.stringify(DB));
@@ -8252,7 +8261,27 @@ function dojoSetFmt(f){
   if(hint)hint.textContent=(f==='qr')
     ?T('タップで大きく表示できます。会場では、この画面をそのまま読み取ってもらえます。')
     :T('「送る」でLINEなどへ文字として送れます。「コピーする」で貼り付け用にコピーできます。');
-  if(f==='qr'&&pv){ const svg=qrMakeSvg(dojoSendCache); pv.innerHTML=svg||('<p class="list-mini" style="margin:0">'+T('内容が多すぎてQRにできません。テキストでお送りください。')+'</p>'); }
+  if(f==='qr'&&pv){
+    // v242: 予定表と同じく700バイトずつに分割（試合数が多くてもQRが細かくなりすぎない）
+    const parts=repShareParts(dojoSendCache);
+    const html=parts.map((p,i)=>{
+      const svg=qrMakeSvg(p);
+      const lbl=parts.length>1?'<div class="list-mini" style="font-weight:800;margin:8px 0 2px">QR '+(i+1)+' / '+parts.length+'</div>':'';
+      return lbl+(svg||('<p class="list-mini" style="margin:0">'+T('内容が多すぎてQRにできません。テキストでお送りください。')+'</p>'));
+    }).join('');
+    pv.innerHTML=html+(parts.length>1?'<p class="list-mini" style="margin-top:8px">'+T('受け取る側は、順番に全部のQRを読み取ってください。')+'</p>':'');
+  }
+}
+// v242: 試合きろくを700バイトずつのQRに分割（【My柔道 試合きろく i/n】を先頭に付ける）
+function repShareParts(text){
+  const MAX=700;
+  const bl=s=>{ try{return unescape(encodeURIComponent(s)).length;}catch(e){return s.length*3;} };
+  if(bl(text)<=MAX) return [text];
+  const lines=text.split('\n'), chunks=[]; let cur=[];
+  lines.forEach(l=>{ cur.push(l); if(bl(cur.join('\n'))>MAX-46){ cur.pop(); if(cur.length)chunks.push(cur.join('\n')); cur=[l]; } });
+  if(cur.length)chunks.push(cur.join('\n'));
+  const n=chunks.length;
+  return chunks.map((c,i)=>'【My柔道 試合きろく '+(i+1)+'/'+n+'】\n'+c);
 }
 function dojoQrPngBlob(){
   return new Promise(res=>{ try{
@@ -8737,6 +8766,66 @@ async function refreshPaywallPrices(){
     if(p)p.textContent='Pro '+T('年額')+' '+info.price;
   }catch(e){}
 }
+/* ===== v242: デモモード（購入前に中身を確かめられる・保存はしない） ===== */
+let demoMode=false;
+function demoSampleDB(){
+  const t=todayStr(), ym=t.slice(0,7), Y=+ym.slice(0,4), M=+ym.slice(5,7);
+  const d=(n)=>ym+"-"+String(Math.min(28,Math.max(1,n))).padStart(2,"0");
+  const cats=[["小学生",6],["中学生",5],["高校生",3],["一般",2]];
+  const sei=["山田","佐藤","鈴木","高橋","田中","伊藤","渡辺","中村","小林","加藤","吉田","山口","松本","井上","木村","林"];
+  const mei=["太郎","花子","蓮","結衣","大和","美咲","悠人","芽依","湊","紬","樹","陽菜","律","楓","新","澪"];
+  const students=[]; let i=0;
+  cats.forEach(function(c){ for(let k=0;k<c[1];k++,i++){
+    students.push({id:"demo"+i,name:sei[i%sei.length]+" "+mei[i%mei.length],kana:"",category:c[0],
+      fee:(c[0]==="一般")?3000:2000,feeReq:true,feeType:"monthly",rank:(c[0]==="高校生")?"初段":"3級",
+      sex:(i%2)?"女":"男",birth:"",judoId:"",note:"",startDate:"",endDate:""}); } });
+  const schedule=[], attendance={}, fees={};
+  const days=new Date(Y,M,0).getDate(), today=+t.slice(8);
+  for(let dd=1; dd<=days; dd++){
+    const w=new Date(Y,M-1,dd).getDay(), ds=ym+"-"+String(dd).padStart(2,"0");
+    if(w===2||w===4||w===6){
+      schedule.push({id:"ds"+dd,name:"稽古",date:ds,time:"18:30",place:"市民体育館",showMatch:false,forId:""});
+      if(dd<=today){ const a={}; students.forEach(function(s,ix){ a[s.id]=(ix%7===0)?"x":"o"; }); attendance[ds]=a; }
+    }
+  }
+  schedule.push({id:"devt",name:"大会",title:"市民スポーツ大会",date:d(today+9),time:"09:30",place:"県立武道館",showMatch:true,forId:""});
+  fees[ym]={}; students.forEach(function(s,ix){ if(ix%4!==0)fees[ym][s.id]=s.fee; });
+  const A=students[8]||students[0], B=students[9]||students[0];
+  const matchResults={ devt:{ individual:[
+    {id:"mb1",selfId:A.id,division:"高校男子60kg級",round:"1回戦",result:"○",grade:"一本",waza:"内股",oppName:"青葉 剛",oppAffil:"青葉柔道会",grip:"右",note:""},
+    {id:"mb2",selfId:A.id,division:"高校男子60kg級",round:"2回戦",result:"○",grade:"技あり",waza:"大外刈",oppName:"北原 昇",oppAffil:"北柔道クラブ",grip:"右",note:""},
+    {id:"mb3",selfId:A.id,division:"高校男子60kg級",round:"準決勝",result:"▲",grade:"判定",waza:"",oppName:"東 海斗",oppAffil:"東湊中",grip:"左",note:""},
+    {id:"mb4",selfId:B.id,division:"中学男子50kg級",round:"1回戦",result:"○",grade:"一本",waza:"背負投",oppName:"南田 陸",oppAffil:"南山中",grip:"右",note:""}
+  ], team:{cards:[]} } };
+  const cash=[{id:"c1",date:d(3),io:"out",cat:"会場費",amount:36000,memo:"今月分"},
+              {id:"c2",date:d(8),io:"in",cat:"参加費徴収",amount:24000,memo:"市民大会"},
+              {id:"c3",date:d(12),io:"out",cat:"用具購入",amount:18000,memo:"畳の補修"}];
+  return {team:"さくら柔道クラブ（デモ）",students:students,schedule:schedule,attendance:attendance,fees:fees,
+          matchResults:matchResults,cash:cash,onboarded:true,backupEduShown:true,lastBackup:t,officePro:true};
+}
+function demoStart(){
+  try{
+    demoMode=true;
+    const sample=demoSampleDB();
+    Object.keys(sample).forEach(function(k){ DB[k]=sample[k]; });
+    normalizeDB();
+    closeModal("officePaywallModal");
+    demoBanner(true);
+    initUI(); switchTab("mates");
+    toast(T("デモを表示しています（保存はされません）"));
+  }catch(e){ demoMode=false; toast(T("デモを開始できませんでした")); }
+}
+function demoEnd(){ try{ location.reload(); }catch(e){} }
+function demoBanner(on){
+  let el=document.getElementById("demoBanner");
+  if(!on){ if(el)el.remove(); return; }
+  if(el)return;
+  el=document.createElement("div"); el.id="demoBanner";
+  el.style.cssText="position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:60;background:#1a2b4a;color:#fff;padding:9px 12px;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 -2px 10px rgba(0,0,0,.25)";
+  el.innerHTML="<span>👀 "+T("デモ表示中（保存されません）")+"</span>"+
+    "<button style=\"flex:none;border:none;border-radius:9px;background:#d4a941;color:#2a2100;font-weight:900;padding:6px 12px;font-family:inherit;font-size:13px\" onclick=\"demoEnd()\">"+T("終了する")+"</button>";
+  document.body.appendChild(el);
+}
 /* ===== v165: QRで受け渡し（会場でアプリ間・個人LINE不要）＝渡す側は生成、受け取る側はカメラ/写真で読取 ===== */
 function qrMakeSvg(text){
   // qrcode-generator(MIT)。UTF-8バイトで符号化。typeNumber=0(自動)・誤り訂正M。
@@ -8844,8 +8933,22 @@ function qrSchedComplete(fullText){
 }
 function qrOnDecoded(text){
   if(qrScanMode==='sched'){ qrSchedDecoded(text); return; }
-  qrStopCamera(); closeModal('qrScanModal');
-  if(!/試合きろく|選手｜|--- 試合 ---/.test(text)){ toast(T('試合結果のQRではありませんでした')); return; }
+  // v242: 試合きろくも複数QRに対応（1/3・2/3…を順に読み取る）
+  const m=text.match(/^【My柔道 試合きろく(?: (\d+)\/(\d+))?】/);
+  if(m&&m[1]){
+    const i=+m[1], n=+m[2];
+    if(!qrPartsBuf||qrPartsBuf.n!==n||qrPartsBuf.kind!=='result')qrPartsBuf={kind:'result',n:n,parts:{}};
+    qrPartsBuf.parts[i]=text.replace(/^【[^】]*】\n?/,'');
+    const got=Object.keys(qrPartsBuf.parts).length;
+    if(got<n){ qrSetStatus(got+' / '+n+' '+T('読み取りました。次のQRをかざしてください')); qrResume(); return; }
+    const full=Array.from({length:n},(_,k)=>qrPartsBuf.parts[k+1]).join('\n');
+    qrPartsBuf=null; qrResultComplete(full); return;
+  }
+  if(!/試合きろく|選手｜|--- 試合 ---/.test(text)){ qrSetStatus(T('試合結果のQRではありませんでした'),'err'); qrResume(); return; }
+  qrResultComplete(text);
+}
+function qrResultComplete(text){
+  qrStopCamera(); closeModal('qrScanModal'); qrPartsBuf=null;
   openImportModal();
   document.getElementById('importText').value=text;
   analyzeImport();
