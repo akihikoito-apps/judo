@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v243（価格を確定：事務=年額¥7,200・選手Pro=年額¥2,200（いずれも最初の1ヶ月無料）。ストアから取得した実価格で上書きされるため、この表記は取得前の既定値／事務にデモ表示・試合報告QRの分割／選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v244（価格を確定：事務=年額¥7,800・選手Pro=年額¥2,200（いずれも最初の1ヶ月無料）。ストアから取得した実価格で上書きされるため、この表記は取得前の既定値／事務にデモ表示・試合報告QRの分割／選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1716,7 +1716,7 @@ function applyUpdate(){
     <p class="list-mini">道場・部活の事務管理と試合分析の、すべての機能をご利用いただけます。</p>
     <div style="text-align:left;background:#faf7ef;border:1px solid #eadcb0;border-radius:12px;padding:12px 14px;margin-top:12px">
       <div class="list-mini" style="font-weight:800;color:var(--navy);margin-bottom:6px">年額プラン</div>
-      <div class="list-mini" id="officePayPrice" style="font-weight:800">年額 ¥7,200（最初の1ヶ月は無料）</div>
+      <div class="list-mini" id="officePayPrice" style="font-weight:800">年額 ¥7,800（最初の1ヶ月は無料）</div>
       <div class="list-mini" id="officePayHelp" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff6e0;border:1px solid #e6c77a;color:#7a5b00;text-align:left">
         <b>うまくいかないときは</b><br>
         ・Wi-Fi／モバイル通信がつながっているかご確認のうえ、もう一度お試しください。<br>
@@ -5009,7 +5009,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v243'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v244'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -5653,7 +5653,7 @@ Object.assign(DICT,{
   '送られるのは下の内容だけです。メモに個人名などが入っていないかご確認ください。':{en:'Only the text below is sent. Please check that notes contain no personal names.',fr:'Seul le texte ci-dessous est envoyé. Vérifiez que les mémos ne contiennent pas de noms.',pt:'Apenas o texto abaixo é enviado. Verifique se os memos não contêm nomes.'},
   '道場・部活の事務管理と試合分析の、すべての機能をご利用いただけます。':{en:'Full access to dojo/club administration and match analysis.',fr:'Accès complet à la gestion du dojo/club et à l’analyse des combats.',pt:'Acesso completo à administração do dojô/clube e à análise de lutas.'},
   '年額プラン':{en:'Annual plan',fr:'Formule annuelle',pt:'Plano anual'},
-  '年額 ¥7,200（最初の1ヶ月は無料）':{en:'¥7,200 / year (first month free)',fr:'7 200 ¥ / an (1er mois gratuit)',pt:'¥7.200 / ano (1º mês grátis)'},
+  '年額 ¥7,800（最初の1ヶ月は無料）':{en:'¥7,800 / year (first month free)',fr:'7 800 ¥ / an (1er mois gratuit)',pt:'¥7.800 / ano (1º mês grátis)'},
   '無料期間の終了後は年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'After the free period, the subscription auto-renews at the annual price. Cancel anytime in iPhone Settings › Subscriptions.',fr:'Après la période gratuite, l’abonnement se renouvelle automatiquement au tarif annuel. Résiliable à tout moment dans Réglages › Abonnements.',pt:'Após o período grátis, a assinatura é renovada automaticamente pelo preço anual. Cancele quando quiser em Ajustes › Assinaturas.'},
   '1ヶ月無料ではじめる':{en:'Start 1 month free',fr:'Commencer 1 mois gratuit',pt:'Começar 1 mês grátis'},
   'Pro 年額 ¥2,200':{en:'Pro: ¥2,200 / year',fr:'Pro : 2 200 ¥ / an',pt:'Pro: ¥2.200 / ano'},
