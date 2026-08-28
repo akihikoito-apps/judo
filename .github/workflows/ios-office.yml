@@ -1,0 +1,136 @@
+name: iOS 事務アプリ → TestFlight
+
+# GitHubのmacOS環境でビルドし、App Store Connect（TestFlight）へ直接アップロードします。
+# Macは不要です。公開リポジトリなのでmacOSランナーの利用料はかかりません。
+#
+# 必要なGitHubシークレット（Settings › Secrets and variables › Actions）
+#   ASC_KEY_ID     … App Store Connect APIキーの「キーID」
+#   ASC_ISSUER_ID  … 同じページ上部にある「Issuer ID」
+#   ASC_KEY_P8     … ダウンロードした .p8 ファイルの中身をそのまま貼り付け
+#   APPLE_TEAM_ID  … Apple DeveloperのMembershipにある「Team ID」
+
+on:
+  workflow_dispatch:          # GitHubの画面から手動で実行できる
+  push:
+    branches: [main]
+    paths:
+      - 'native/office/**'
+      - 'native/build-www.js'
+      - 'index.html'
+      - 'build.js'
+      - '.github/workflows/ios-office.yml'
+
+concurrency:
+  group: ios-office
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      APP_DIR: native/office
+      EDITION: office
+      WORKSPACE: native/office/ios/App/App.xcworkspace
+      ARCHIVE: /tmp/App.xcarchive
+      KEYDIR: /tmp/private_keys
+
+    steps:
+      - name: リポジトリを取得
+        uses: actions/checkout@v4
+
+      - name: 環境を表示
+        run: |
+          xcodebuild -version
+          pod --version
+
+      - name: Node.js を用意
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: native/office/package-lock.json
+
+      - name: 依存パッケージを入れる
+        working-directory: native/office
+        run: npm ci --no-audit --no-fund
+
+      - name: ビルド番号を設定（GitHubの実行番号を使う）
+        run: |
+          sed -i '' "s/CURRENT_PROJECT_VERSION = [0-9]*;/CURRENT_PROJECT_VERSION = ${{ github.run_number }};/g" \
+            native/office/ios/App/App.xcodeproj/project.pbxproj
+          grep -m1 CURRENT_PROJECT_VERSION native/office/ios/App/App.xcodeproj/project.pbxproj
+
+      - name: www を生成して iOS 側へ同期（pod install もここで走る）
+        working-directory: native/office
+        run: |
+          node ../build-www.js office
+          npx cap sync ios
+          test -f ios/App/Podfile.lock || { echo "::error::Podfile.lock がありません（pod install が走っていません）"; exit 1; }
+          test -d ios/App/Pods         || { echo "::error::Pods ディレクトリがありません"; exit 1; }
+
+      - name: App Store Connect の APIキーを書き出す
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          mkdir -p "$KEYDIR"
+          printf '%s\n' "$ASC_KEY_P8" > "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8"
+          chmod 600 "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8"
+          head -c 30 "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8"; echo " ...（先頭だけ表示）"
+
+      - name: アーカイブ（証明書とプロファイルはAppleに自動生成させる）
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcodebuild archive \
+            -workspace "$WORKSPACE" \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$ARCHIVE" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic
+
+      - name: 書き出し設定を作る
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          cat > /tmp/ExportOptions.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          PLIST
+          cat /tmp/ExportOptions.plist
+
+      - name: TestFlight へアップロード
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath "$ARCHIVE" \
+            -exportOptionsPlist /tmp/ExportOptions.plist \
+            -exportPath /tmp/export \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - name: 完了メッセージ
+        run: echo "TestFlightへのアップロードが完了しました。処理に5〜15分かかることがあります。"
