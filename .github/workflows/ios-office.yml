@@ -98,12 +98,17 @@ jobs:
           chmod 600 "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8"
           head -c 30 "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8"; echo " ...（先頭だけ表示）"
 
+      - name: 開発チームIDをAppターゲットに書き込む
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: node native/ci-set-team.js office
+
       - name: アーカイブ（証明書とプロファイルはAppleに自動生成させる）
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
+          set +e
           xcodebuild archive \
             -workspace "$WORKSPACE" \
             -scheme App \
@@ -114,8 +119,28 @@ jobs:
             -authenticationKeyPath "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Automatic
+            2>&1 | tee /tmp/archive.log
+          code=${PIPESTATUS[0]}
+          if [ "$code" -ne 0 ]; then
+            echo "===== 失敗。エラー行を抜き出します ====="
+            grep -aE "error:|No profiles|No signing certificate|requires a development team|Communication with Apple|Provisioning profile|Failed to (register|create)|Unable to|not available" /tmp/archive.log | tail -10 > /tmp/errs.txt
+            [ -s /tmp/errs.txt ] || tail -10 /tmp/archive.log > /tmp/errs.txt
+            n=0
+            while IFS= read -r line; do
+              n=$((n+1)); [ "$n" -gt 10 ] && break
+              echo "::error::ARCHIVE $(printf '%s' "$line" | tr -d '\r' | cut -c1-400)"
+            done < /tmp/errs.txt
+          fi
+          exit $code
+
+      - name: 失敗時：ビルドログを保存
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: office-archive-log
+          path: /tmp/archive.log
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: 書き出し設定を作る
         env:
