@@ -16,6 +16,7 @@ on:
     paths:
       - 'native/office/**'
       - 'native/build-www.js'
+      - 'native/ci-set-team.js'
       - 'index.html'
       - 'build.js'
       - '.github/workflows/ios-office.yml'
