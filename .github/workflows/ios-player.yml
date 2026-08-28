@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
     env:
       APP_DIR: native/player
@@ -59,10 +59,23 @@ jobs:
           esac
           exit $ng
 
-      - name: 環境を表示
+      - name: 入っているXcodeのうち最新を選ぶ
         run: |
+          echo '--- この環境にあるXcode ---'
+          ls -d /Applications/Xcode*.app 2>/dev/null || echo '(見つかりません)'
+          latest=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$latest" ]; then
+            echo "選択: $latest"
+            sudo xcode-select -s "$latest/Contents/Developer"
+          fi
           xcodebuild -version
           pod --version
+          sdk=$(xcodebuild -showsdks | grep -o 'iphoneos[0-9.]*' | tail -1)
+          ver=$(xcodebuild -version | head -1)
+          echo "::notice::使用Xcode=${ver} / SDK=${sdk}"
+          case "$sdk" in
+            iphoneos1[0-9].*|iphoneos[0-9].*) echo "::warning::SDKが古い可能性があります（${sdk}）。App Storeへのアップロードで弾かれるかもしれません" ;;
+          esac
 
       - name: Node.js を用意
         uses: actions/setup-node@v4
