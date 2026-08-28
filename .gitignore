@@ -1,3 +1,4 @@
 
 # ルート直下の作業用（コミットしない）
 /node_modules/
+/.github/workflows/node_modules/
