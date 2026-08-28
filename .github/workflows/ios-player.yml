@@ -99,12 +99,12 @@ jobs:
           chmod 600 "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8"
           head -c 30 "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8"; echo " ...（先頭だけ表示）"
 
-      - name: 開発チームIDをAppターゲットに書き込む
+      - name: 署名設定を整える（チームID・固定identityの除去）
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: node native/ci-set-team.js player
 
-      - name: アーカイブ（証明書とプロファイルはAppleに自動生成させる）
+      - name: アーカイブ（署名はここではせず、書き出し時に配布用で署名する）
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
@@ -120,6 +120,9 @@ jobs:
             -authenticationKeyPath "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
             2>&1 | tee /tmp/archive.log
           code=${PIPESTATUS[0]}
           if [ "$code" -ne 0 ]; then
@@ -163,11 +166,12 @@ jobs:
           PLIST
           cat /tmp/ExportOptions.plist
 
-      - name: TestFlight へアップロード
+      - name: 配布用に署名してTestFlightへアップロード
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
+          set +e
           xcodebuild -exportArchive \
             -archivePath "$ARCHIVE" \
             -exportOptionsPlist /tmp/ExportOptions.plist \
@@ -175,7 +179,29 @@ jobs:
             -allowProvisioningUpdates \
             -authenticationKeyPath "$KEYDIR/AuthKey_${ASC_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
-            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            2>&1 | tee /tmp/export.log
+          code=${PIPESTATUS[0]}
+          if [ "$code" -ne 0 ]; then
+            echo "===== 失敗。エラー行を抜き出します ====="
+            grep -aE "error:|No profiles|No signing certificate|Communication with Apple|Provisioning profile|Failed to|Unable to|not available|denied" /tmp/export.log | tail -10 > /tmp/eerrs.txt
+            [ -s /tmp/eerrs.txt ] || tail -10 /tmp/export.log > /tmp/eerrs.txt
+            n=0
+            while IFS= read -r line; do
+              n=$((n+1)); [ "$n" -gt 10 ] && break
+              echo "::error::EXPORT $(printf '%s' "$line" | tr -d '\r' | cut -c1-400)"
+            done < /tmp/eerrs.txt
+          fi
+          exit $code
+
+      - name: 失敗時：書き出しログを保存
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: player-export-log
+          path: /tmp/export.log
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: 完了メッセージ
         run: echo "TestFlightへのアップロードが完了しました。処理に5〜15分かかることがあります。"

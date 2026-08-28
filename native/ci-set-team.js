@@ -4,11 +4,12 @@
    1) DEVELOPMENT_TEAM を Appターゲットにだけ書き込む
       xcodebuild のコマンドラインで渡すと Pods の全ターゲットにも適用され、署名で転ぶことがあるため。
 
-   2) Release構成の CODE_SIGN_IDENTITY を "Apple Distribution" にする
-      Capacitorの初期テンプレートは Debug/Release とも "iPhone Developer"（開発用）に固定しており、
-      そのままアーカイブすると Xcode が「開発用プロファイル」を作ろうとして
-      「No profiles ... iOS App Development」「Your team has no devices」で失敗する。
-      Debug は開発用のまま残す。
+   2) CODE_SIGN_IDENTITY の固定を外す
+      Capacitorの初期テンプレートは Debug/Release とも "iPhone Developer" に固定している。
+      自動署名（CODE_SIGN_STYLE = Automatic）と併用すると
+      「conflicting provisioning settings」で失敗するため、指定そのものを取り除いて
+      Xcodeに任せる。実際の署名はアーカイブ時ではなく、書き出し（-exportArchive）時に
+      配布用の証明書で行う。
 */
 const fs = require('fs');
 const path = require('path');
@@ -35,22 +36,21 @@ if (/DEVELOPMENT_TEAM = [^;]*;/.test(t)) {
     'CODE_SIGN_STYLE = Automatic;\n\t\t\t\tDEVELOPMENT_TEAM = ' + team + ';');
 }
 
-/* --- 2) Release構成だけ配布用の署名に --- */
-/* CODE_SIGN_IDENTITY の各出現について、その先に最初に現れる name = ...; を見て構成を判定する */
-let changed = 0, kept = 0;
-t = t.replace(/CODE_SIGN_IDENTITY = "[^"]*";/g, (m, offset) => {
-  const after = t.slice(offset, offset + 4000);
-  const nm = after.match(/name = (Debug|Release);/);
-  if (nm && nm[1] === 'Release') { changed++; return 'CODE_SIGN_IDENTITY = "Apple Distribution";'; }
-  kept++; return m;
-});
+/* --- 2) CODE_SIGN_IDENTITY の行を丸ごと削除（前後の改行・インデントごと） --- */
+const removed = (t.match(/^[ \t]*CODE_SIGN_IDENTITY = "[^"]*";[ \t]*\r?\n/gm) || []).length;
+t = t.replace(/^[ \t]*CODE_SIGN_IDENTITY = "[^"]*";[ \t]*\r?\n/gm, '');
+
+/* --- 3) 手動指定のプロファイルが残っていれば消す --- */
+const removedProf = (t.match(/^[ \t]*PROVISIONING_PROFILE_SPECIFIER = [^;]*;[ \t]*\r?\n/gm) || []).length;
+t = t.replace(/^[ \t]*PROVISIONING_PROFILE_SPECIFIER = [^;]*;[ \t]*\r?\n/gm, '');
 
 fs.writeFileSync(p, t);
 
 const teams = [...t.matchAll(/DEVELOPMENT_TEAM = ([^;]*);/g)].map(m => m[1].trim());
 console.log(app + ': DEVELOPMENT_TEAM=' + teams.length + '箇所（' +
   (teams[0] ? teams[0].slice(0, 4) + '******' : '?') + '） / ' +
-  'Releaseの署名を配布用に変更=' + changed + '箇所, Debugは据え置き=' + kept + '箇所');
-if (changed === 0) {
-  console.log('::warning::Release構成の CODE_SIGN_IDENTITY を変更できませんでした。署名で失敗する可能性があります');
+  'CODE_SIGN_IDENTITY の固定を削除=' + removed + '箇所 / ' +
+  'PROVISIONING_PROFILE_SPECIFIER の削除=' + removedProf + '箇所');
+if (/CODE_SIGN_IDENTITY/.test(t)) {
+  console.log('::warning::CODE_SIGN_IDENTITY がまだ残っています');
 }
