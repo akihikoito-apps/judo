@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v251（主役の並び順を全タブで統一：メモリー・分析・予定・記録・予定の対象者・節目の対象者のチップが登録順のままだったのを、「選手」タブと同じ年長順にそろえた／予定共有の「ひとこと」から候補のワンタップ挿入を廃止（縦積みになって読みづらく、使用頻度も低いため）。代わりに入力欄の下に書き方の例を表示／設定タブを開いたとき「使い方」から始まるように変更（従来はモード設定）／選手アプリの設定説明からセキュリティを削除（個人モードではパスコード機能自体が非表示のため）／使い方に追記：選手の試合報告は事務アプリでそのまま取り込める旨・予定の取り込み元が「My柔道(事務)」である旨・設定タブでできることの一覧（言語/通貨・チーム名/ロゴ・カラー/文字サイズ・データ管理・パスコード・規約）／主役一覧を年長順に変更／使い方シート改訂：はじめの案内も折りたたみに・各項目の最後に集計タブへの導線を追記・出欠の誤記を削除（予定登録は出欠に不要）・お金は「月謝」「その他収支」と項目名で説明・予定は試合設定の手入力と申込リマインダー、選手アプリでの取り込みを追記・試合結果を手入力と取り込みに分割・集計タブと分析タブの一覧を新設／選手：試合報告に「入力をリセット」ボタン（自動では消さない）・主役一覧を1人1行＋年少順＋全員に属性チップ／事務：試合結果の取り込みで未登録の選手をその場で仲間に追加・仲間シートは既定で開く／共通：設定に「使い方」シートを新設し「はじめの案内」を集約・段位の自由記載欄を廃止（追加はよく使う設定から）・「仲間の設定」を「よく使う設定」に改称／無料トライアルを使い切った人にはペイウォールで「無料」と書かない：ボタン文言と価格行と規約文をストアの適格性判定に合わせて切替。あわせて最低iOSを15.0へ（Apple警告90068・対応機種はiOS14と同一で減らない）／価格を確定：事務=年額¥7,800・選手Pro=年額¥2,200（いずれも最初の1ヶ月無料）。ストアから取得した実価格で上書きされるため、この表記は取得前の既定値／事務にデモ表示・試合報告QRの分割／選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v252（保存容量の対策：メモリー一覧のカード画像を640×800→400×500に縮小（一覧では最大110px幅のサムネイルとしてしか使わず、シェアと端末保存はそのつど原寸のキャンバスから作り直すため画質に影響しない）。1枚あたり約1/3になり、5MBの保存領域に入るメモリーがおよそ倍に。旧サイズで保存済みのカードは起動後に一度だけ縮小して容量を返す（カードのデザイン設定はイベント別に持っていないため作り直さず、既存画像を縮小再保存）／年度アーカイブの修正：これまで予定・出欠・月謝・試合結果だけを外し、メモリーの写真とカードはDBに残していた。辿る手がかりが消えるため見ることも消すこともできないまま容量を占め続けていたので、一緒に外すようにした。あわせて、外れる画像の枚数と容量を実行前に表示し、バックアップは共有シート（iCloud Drive／ファイル）で保存できたときだけアーカイブを実行するよう変更（旧版はダウンロードを呼ぶだけで、iPhoneでは保存されないまま削除へ進む恐れがあった）／主役の並び順を全タブで統一：メモリー・分析・予定・記録・予定の対象者・節目の対象者のチップが登録順のままだったのを、「選手」タブと同じ年長順にそろえた／予定共有の「ひとこと」から候補のワンタップ挿入を廃止（縦積みになって読みづらく、使用頻度も低いため）。代わりに入力欄の下に書き方の例を表示／設定タブを開いたとき「使い方」から始まるように変更（従来はモード設定）／選手アプリの設定説明からセキュリティを削除（個人モードではパスコード機能自体が非表示のため）／使い方に追記：選手の試合報告は事務アプリでそのまま取り込める旨・予定の取り込み元が「My柔道(事務)」である旨・設定タブでできることの一覧（言語/通貨・チーム名/ロゴ・カラー/文字サイズ・データ管理・パスコード・規約）／主役一覧を年長順に変更／使い方シート改訂：はじめの案内も折りたたみに・各項目の最後に集計タブへの導線を追記・出欠の誤記を削除（予定登録は出欠に不要）・お金は「月謝」「その他収支」と項目名で説明・予定は試合設定の手入力と申込リマインダー、選手アプリでの取り込みを追記・試合結果を手入力と取り込みに分割・集計タブと分析タブの一覧を新設／選手：試合報告に「入力をリセット」ボタン（自動では消さない）・主役一覧を1人1行＋年少順＋全員に属性チップ／事務：試合結果の取り込みで未登録の選手をその場で仲間に追加・仲間シートは既定で開く／共通：設定に「使い方」シートを新設し「はじめの案内」を集約・段位の自由記載欄を廃止（追加はよく使う設定から）・「仲間の設定」を「よく使う設定」に改称／無料トライアルを使い切った人にはペイウォールで「無料」と書かない：ボタン文言と価格行と規約文をストアの適格性判定に合わせて切替。あわせて最低iOSを15.0へ（Apple警告90068・対応機種はiOS14と同一で減らない）／価格を確定：事務=年額¥7,800・選手Pro=年額¥2,200（いずれも最初の1ヶ月無料）。ストアから取得した実価格で上書きされるため、この表記は取得前の既定値／事務にデモ表示・試合報告QRの分割／選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1455,7 +1455,7 @@ function applyUpdate(){
     </div>
     <div class="card">
       <h3 style="margin-top:0;color:var(--navy)">古い年度をアーカイブ</h3>
-      <p class="list-mini">容量が気になってきたら、終わった年度のデータをバックアップに書き出して本体から外し、動作を軽く保てます。実行前に<b>全体バックアップ（復元用）を自動保存</b>します。外した年度は、そのファイルを復元すればいつでも戻せます。</p>
+      <p class="list-mini">容量が気になってきたら、終わった年度のデータをバックアップに書き出して本体から外し、動作を軽く保てます。実行前に<b>全体バックアップ（復元用）を保存</b>し、<b>保存できたときだけ</b>本体から外します。メモリーの写真・カードも一緒に外れますが、バックアップに含まれるので、そのファイルを復元すればいつでも戻せます。</p>
       <div id="archiveBox" style="margin-top:10px"></div>
     </div>
   </div>
@@ -5031,7 +5031,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v251'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v252'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -5304,6 +5304,8 @@ const DICT={
   '保存する':{en:'Save',fr:'Enregistrer',pt:'Salvar'},'削除する':{en:'Delete',fr:'Supprimer',pt:'Excluir'},'決定':{en:'OK',fr:'OK',pt:'OK'},'戻る':{en:'Back',fr:'Retour',pt:'Voltar'},'閉じる':{en:'Close',fr:'Fermer',pt:'Fechar'},'やめる':{en:'Cancel',fr:'Annuler',pt:'Cancelar'},'表示する':{en:'Show',fr:'Afficher',pt:'Mostrar'},'表示しない':{en:'Hide',fr:'Masquer',pt:'Ocultar'},'更新する':{en:'Update',fr:'Mettre à jour',pt:'Atualizar'},
   '今日':{en:'Today',fr:'Aujourd’hui',pt:'Hoje'},'合計':{en:'Total',fr:'Total',pt:'Total'},'年間':{en:'Annual',fr:'Annuel',pt:'Anual'},'必要':{en:'Required',fr:'Requis',pt:'Obrigatório'},'不要':{en:'Not required',fr:'Non requis',pt:'Não obrigatório'},'オン':{en:'On',fr:'Activé',pt:'Ativado'},'オフ':{en:'Off',fr:'Désactivé',pt:'Desativado'},
   '項目':{en:'Item',fr:'Poste',pt:'Item'},'項目を編集':{en:'Edit items',fr:'Modifier les postes',pt:'Editar itens'},'日付':{en:'Date',fr:'Date',pt:'Data'},'カード':{en:'Card',fr:'Fiche',pt:'Cartão'},'表':{en:'Table',fr:'Tableau',pt:'Tabela'},'検索する項目':{en:'Search field',fr:'Champ de recherche',pt:'Campo de busca'},
+  'アーカイブの確認':{en:'Confirm archive',fr:'Confirmer l’archivage',pt:'Confirmar arquivamento'},
+  'バックアップして外す':{en:'Back up and remove',fr:'Sauvegarder puis retirer',pt:'Fazer backup e remover'},
   '削除の確認':{en:'Confirm deletion',fr:'Confirmer la suppression',pt:'Confirmar exclusão'},'新しいバージョンがあります':{en:'A new version is available',fr:'Une nouvelle version est disponible',pt:'Há uma nova versão disponível'},
   '言語を変更しました':{en:'Language changed',fr:'Langue changée',pt:'Idioma alterado'},
   'かんたん設定':{en:'Quick setup',fr:'Réglage rapide',pt:'Config. rápida'},'よく使う設定':{en:'Frequent settings',fr:'Réglages fréquents',pt:'Config. frequentes'},'かんたん設定':{en:'Quick setup',fr:'Réglage rapide',pt:'Config. rápida'},
@@ -10257,13 +10259,18 @@ function drawShareCard(ev,img){
   ctx.restore();
 }
 function shareFileName(){ const ev=rkShareEv||{}; return (ev.title||ev.name||'memory')+'.png'; }
+/* v252: 保存したカードは、メモリー一覧に重ねる最大110px幅のサムネイルとしてしか使わない。
+   シェアと端末保存はそのつど原寸のキャンバスから作り直すので、ここを小さくしても
+   共有画像の画質は落ちない。640×800だと1枚150〜240KBになり、5MBの保存領域を
+   写真つきメモリー10件ほどで使い切ってしまうため、表示に要る大きさまで落とす。 */
+const CARD_THUMB_W=400, CARD_THUMB_H=500, CARD_THUMB_Q=0.78;
 // v235: 「保存」＝作ったカードをメモリー一覧のカード画像として保存（端末保存は「シェア」から）
 function rkSaveShare(){
   const cv=document.getElementById('rkcv'); if(!rkShareEv)return;
   try{
-    const t=document.createElement('canvas'); t.width=640; t.height=800;
-    t.getContext('2d').drawImage(cv,0,0,640,800);
-    const out=t.toDataURL('image/jpeg',0.82);
+    const t=document.createElement('canvas'); t.width=CARD_THUMB_W; t.height=CARD_THUMB_H;
+    t.getContext('2d').drawImage(cv,0,0,CARD_THUMB_W,CARD_THUMB_H);
+    const out=t.toDataURL('image/jpeg',CARD_THUMB_Q);
     const _k=rkNoteKey(rkShareEv);
     DB.eventCards=DB.eventCards||{};
     const _prev=DB.eventCards[_k];
@@ -10274,6 +10281,37 @@ function rkSaveShare(){
     _shareDirty=false; renderRireki(); toast(T('メモリーに保存しました')+' 🎨');
     closeModal('rkShareModal');
   }catch(e){ toast(T('保存できませんでした')); }
+}
+/* v252: 旧版（640×800）で保存済みのカードを、表示に要る大きさまで縮めて容量を返す。
+   カードのデザイン設定はイベント別ではなく全体で1つしか持っていないため、
+   作り直すと過去のカードの見た目まで変わってしまう。そこで既存の画像を読み込んで
+   縮小し直す方式にする（一覧では110px幅で表示するので劣化は見えない）。 */
+function shrinkOldCards(){
+  try{
+    if(DB.cardThumbV252)return;
+    const o=DB.eventCards, keys=(o&&typeof o==='object')?Object.keys(o):[];
+    if(!keys.length){ DB.cardThumbV252=1; save(); return; }
+    let i=0, saved=0;
+    const done=()=>{ DB.cardThumbV252=1; save(); if(saved>0&&typeof renderDataUsage==='function'){try{renderDataUsage();}catch(_){}}};
+    const next=()=>{
+      if(i>=keys.length){ done(); return; }
+      const k=keys[i++], src=o[k];
+      if(typeof src!=='string'||!src){ next(); return; }
+      const img=new Image();
+      img.onload=()=>{
+        try{
+          const t=document.createElement('canvas'); t.width=CARD_THUMB_W; t.height=CARD_THUMB_H;
+          t.getContext('2d').drawImage(img,0,0,CARD_THUMB_W,CARD_THUMB_H);
+          const out=t.toDataURL('image/jpeg',CARD_THUMB_Q);
+          if(out&&out.length<src.length){ saved+=src.length-out.length; o[k]=out; }
+        }catch(e){}
+        next();
+      };
+      img.onerror=()=>next();
+      img.src=src;
+    };
+    next();
+  }catch(e){}
 }
 function rkDownloadShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=shareFileName();a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
 function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=>{const file=new File([b],'card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:'#柔道 #My柔道'});}catch(e){}}else{rkDownloadShare();alert(T('この端末は直接シェア非対応のため画像を保存しました。'));}},'image/png');}
@@ -12186,6 +12224,55 @@ function timeDataFYs(){
   (DB.cash||[]).forEach(c=>add(c.date));
   return [...set];
 }
+/* v252: アーカイブで一緒に外れるメモリー画像を、実行前に本人に見せる。
+   旧版は予定・出欠・試合結果だけを外し、写真とカードはDBに残していた。
+   一覧から辿る手がかり（試合結果）が消えるので、写真は見ることも消すこともできない
+   まま容量だけ占め続けていた。ここで対象を洗い出し、案内と削除の両方に使う。 */
+function archiveImgKeys(fy){
+  const inFY=(s)=> s&&s.length>=7 && fyOf(+s.slice(0,4),+s.slice(5,7))===fy;
+  const ids=new Set((DB.schedule||[]).filter(e=>inFY(e.date)).map(e=>String(e.id)));
+  const hit=[];
+  ['eventPhotos','eventCards','eventNotes','sharePhotoAdj'].forEach(store=>{
+    const o=DB[store]; if(!o||typeof o!=='object')return;
+    Object.keys(o).forEach(k=>{ const i=k.indexOf('|'); if(i<0)return;
+      if(ids.has(k.slice(i+1))) hit.push([store,k]); });
+  });
+  return hit;
+}
+function archiveImgStat(fy){
+  const keys=archiveImgKeys(fy); let bytes=0, photos=0, cards=0;
+  keys.forEach(([store,k])=>{
+    const v=DB[store]&&DB[store][k];
+    bytes += (typeof v==='string') ? v.length : (v?JSON.stringify(v).length:0);
+    if(store==='eventPhotos')photos++;
+    if(store==='eventCards')cards++;
+  });
+  return {keys,bytes,photos,cards,total:photos+cards};
+}
+function archiveSizeLabel(b){ return b>=1048576 ? ('約'+(b/1048576).toFixed(1)+'MB') : ('約'+Math.max(1,Math.round(b/1024))+'KB'); }
+function renderArchivePhotoNote(){
+  const el=document.getElementById('archivePhotoNote'), sel=document.getElementById('archiveFY');
+  if(!el||!sel)return;
+  const st=archiveImgStat(+sel.value);
+  el.innerHTML = st.total
+    ? '<p class="list-mini" style="margin:0;color:#9a7400">📷 この年度のメモリー画像（写真'+st.photos+'枚・カード'+st.cards+'枚／'+archiveSizeLabel(st.bytes)+'）も一緒に外れます。先に保存するバックアップに<b>画像も含まれます</b>ので、復元すればそのまま戻ります。</p>'
+    : '<p class="list-mini" style="margin:0">この年度に、メモリーの写真・カードはありません。</p>';
+}
+/* v252: アーカイブ前のバックアップ。共有シート（iCloud Drive／ファイル）で
+   保存できたときだけ true を返す。旧版は a.click() のダウンロードを呼ぶだけで、
+   iPhoneでは保存されないまま削除へ進む恐れがあった。 */
+async function archiveBackup(fy){
+  const json=JSON.stringify(DB,null,2);
+  const fname='judo_archive_before_FY'+fy+'_'+todayStr()+'.json';
+  try{
+    const file=new File([json],fname,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file],title:'My柔道 アーカイブ前バックアップ'}); markBackedUp(); return true; }
+      catch(e){ if(e&&e.name==='AbortError')return false; }   // 本人が中止＝保存できていない
+    }
+  }catch(e){}
+  try{ downloadFullBackup('judo_archive_before_FY'+fy); markBackedUp(); return true; }catch(e){ return false; }
+}
 function renderArchiveOptions(){
   const box=document.getElementById('archiveBox'); if(!box)return;
   const curFY=fyOf(new Date().getFullYear(), new Date().getMonth()+1);
@@ -12194,8 +12281,10 @@ function renderArchiveOptions(){
   const opts=past.map(fy=>`<option value="${fy}">${fy}年度（${fyRangeLabel(fy)}）</option>`).join('');
   box.innerHTML=`
     <label class="fld" style="margin-top:0">アーカイブする年度</label>
-    <select id="archiveFY" style="width:100%">${opts}</select>
+    <select id="archiveFY" style="width:100%" onchange="renderArchivePhotoNote()">${opts}</select>
+    <div id="archivePhotoNote" style="margin-top:8px"></div>
     <button class="btn full" style="margin-top:12px" onclick="doArchiveYear()">この年度をアーカイブ</button>`;
+  renderArchivePhotoNote();
 }
 function downloadFullBackup(prefix){
   const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
@@ -12206,9 +12295,14 @@ function doArchiveYear(){
   const sel=document.getElementById('archiveFY'); if(!sel)return;
   const fy=+sel.value;
   const inFY=(s)=> s&&s.length>=7 && fyOf(+s.slice(0,4),+s.slice(5,7))===fy;
-  askConfirm(`${fy}年度（${fyRangeLabel(fy)}）のデータをアプリ本体から外して容量を空けます。<br>先に復元用の全体バックアップを保存します。よろしいですか？`,()=>{
-    // ① 復元用フルバックアップを保存
-    downloadFullBackup(`judo_archive_before_FY${fy}`);
+  const st=archiveImgStat(fy);   // v252: 削除前に対象画像を確定させる（予定を消すと辿れなくなるため）
+  const imgLine = st.total
+    ? `<br><br>この年度の<b>メモリー画像（写真${st.photos}枚・カード${st.cards}枚／${archiveSizeLabel(st.bytes)}）も一緒に外れます</b>。バックアップには画像も含まれるので、復元すればそのまま戻ります。`
+    : '';
+  askConfirm(`${fy}年度（${fyRangeLabel(fy)}）のデータをアプリ本体から外して容量を空けます。${imgLine}<br><br>先に復元用の全体バックアップを保存します。<b>保存できたときだけ</b>アーカイブを実行します。よろしいですか？`,async()=>{
+    // ① 復元用フルバックアップを保存。保存できなければ何も外さない（v252）
+    const saved=await archiveBackup(fy);
+    if(!saved){ toast('バックアップを保存できなかったため、アーカイブを中止しました'); return; }
     // ② 該当年度の予定ID（試合結果の紐づけ用）を先に把握
     const evIds=new Set((DB.schedule||[]).filter(e=>inFY(e.date)).map(e=>e.id));
     // ③ 年度データを本体から除去（名簿・設定は保持）
@@ -12218,11 +12312,13 @@ function doArchiveYear(){
     if(Array.isArray(DB.schedule)) DB.schedule=DB.schedule.filter(e=>!inFY(e.date));
     if(Array.isArray(DB.cash)) DB.cash=DB.cash.filter(c=>!inFY(c.date));
     if(DB.matchResults&&typeof DB.matchResults==='object'){ evIds.forEach(id=>{ delete DB.matchResults[id]; }); }
+    // ④ v252: この年度のメモリー画像も外す。残しても一覧から辿れず、容量だけ占め続けるため
+    st.keys.forEach(([store,k])=>{ if(DB[store])delete DB[store][k]; });
     save();
     renderDataUsage(); renderArchiveOptions();
-    [ 'renderMates','renderAtt','renderMoney','renderSched','renderList' ].forEach(fn=>{ try{ if(typeof window[fn]==='function') window[fn](); }catch(_){} });
-    toast(`${fy}年度をアーカイブしました`);
-  });
+    [ 'renderMates','renderAtt','renderMoney','renderSched','renderList','renderRireki' ].forEach(fn=>{ try{ if(typeof window[fn]==='function') window[fn](); }catch(_){} });
+    toast(`${fy}年度をアーカイブしました`+(st.total?`（画像${st.total}枚・${archiveSizeLabel(st.bytes)}を解放）`:''));
+  },'バックアップして外す','アーカイブの確認','var(--navy)');
 }
 let showRetired=false;
 let mateFilter='all';
@@ -12834,12 +12930,16 @@ function deleteStudentFromModal(){
   });
 }
 let _confirmCb=null;
-function askConfirm(html,onYes,yesLabel){
+/* v252: 見出しとボタン色も渡せるようにした（省略時はこれまでどおり「削除の確認／赤」）。
+   アーカイブのように、消すのではなく外す操作を削除と読ませないため。 */
+function askConfirm(html,onYes,yesLabel,titleText,btnColor){
   document.getElementById('confirmText').innerHTML=html;
   const btn=document.getElementById('confirmYesBtn');
-  btn.textContent=yesLabel||'削除する'; btn.style.background='var(--red)';
+  btn.textContent=yesLabel||'削除する'; btn.style.background=btnColor||'var(--red)';
   const no=document.getElementById('confirmNoBtn'); if(no)no.style.display='none';
-  document.querySelector('#confirmModal h3').textContent=T('削除の確認');
+  const _h3=document.querySelector('#confirmModal h3');
+  _h3.textContent=T(titleText||'削除の確認');
+  _h3.style.color=btnColor||'var(--red)';   // v252: 見出しの色もボタンに合わせる（削除でない操作を赤で出さない）
   _confirmCb=onYes; _confirmNoCb=null;
   openModal('confirmModal');
 }
@@ -13288,6 +13388,7 @@ function initUI(){
   // v194: ストレージの永続化を要求（OSの自動削除=evictionからlocalStorageを守る。対応外環境では無視される）
   try{ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{}); }catch(_){}
   setTimeout(()=>{ if(typeof maybeBackupEdu==='function')maybeBackupEdu(); },600);  // v195: 起動時にも一度だけ判定（オンボーディング等と重ならぬよう遅延）
+  setTimeout(()=>{ if(typeof shrinkOldCards==='function')shrinkOldCards(); },1500);  // v252: 旧サイズのカードを縮めて容量を返す（初回のみ・描画を邪魔しないよう遅延）
 }
 load();
   if(loadFailed){ initUI(); showLoadFailure(); }        // v240: 壊れたデータを空DBで上書きしない
