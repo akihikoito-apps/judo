@@ -2,3 +2,5 @@
 # ルート直下の作業用（コミットしない）
 /node_modules/
 /.github/workflows/node_modules/
+# Androidの作業一式は android-prep ブランチで管理する（このブランチはiOSの1.1専用）
+native/*/android/
