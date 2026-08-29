@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">My柔道(選手)</string>
+    <string name="title_activity_main">My柔道(選手)</string>
+    <string name="package_name">com.akihikoito.myjudo.player</string>
+    <string name="custom_url_scheme">com.akihikoito.myjudo.player</string>
+</resources>

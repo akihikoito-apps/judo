@@ -1,0 +1,121 @@
+name: Android 選手アプリ → AAB
+
+# GitHubのLinux環境でAndroid用の配布ファイル（AAB）を作ります。Macは不要で、
+# 公開リポジトリなのでLinuxランナーの利用料はかかりません（macOSより速く・安い）。
+#
+# 【いまの状態】署名なしのAABを成果物として残すところまで。
+# Google Play へ自動アップロードする工程は、Play Console の登録と
+# サービスアカウント鍵ができてから追加します（下部のコメント参照）。
+#
+# 追加で必要になるGitHubシークレット（Play登録後）
+#   ANDROID_KEYSTORE_B64   … 署名鍵(.jks)をbase64にしたもの
+#   ANDROID_KEYSTORE_PASS  … キーストアのパスワード
+#   ANDROID_KEY_ALIAS      … 鍵のエイリアス
+#   ANDROID_KEY_PASS       … 鍵のパスワード
+#   PLAY_SERVICE_ACCOUNT   … Google Play API のサービスアカウントJSON
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'native/player/**'
+      - 'native/build-www.js'
+      - 'index.html'
+      - 'build.js'
+      - '.github/workflows/android-player.yml'
+
+concurrency:
+  group: android-player
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: リポジトリを取得
+        uses: actions/checkout@v4
+
+      - name: Node.js を用意
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: native/player/package-lock.json
+
+      - name: Java を用意（Androidのビルドに必要）
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Android SDK を用意
+        uses: android-actions/setup-android@v3
+
+      - name: 依存パッケージを入れる
+        working-directory: native/player
+        run: npm ci --no-audit --no-fund
+
+      - name: ビルド番号を設定（GitHubの実行番号を使う）
+        run: |
+          sed -i "s/versionCode [0-9]*/versionCode ${{ github.run_number }}/" \
+            native/player/android/app/build.gradle
+          grep -n "versionCode\|versionName" native/player/android/app/build.gradle
+
+      - name: www を生成して Android 側へ同期
+        working-directory: native/player
+        run: |
+          node ../build-www.js player
+          npx cap sync android
+          test -f android/app/src/main/assets/public/index.html || { echo "::error::wwwがコピーされていません"; exit 1; }
+
+      - name: AAB を作る
+        working-directory: native/player/android
+        run: |
+          set +e
+          chmod +x ./gradlew
+          ./gradlew bundleRelease --no-daemon --stacktrace 2>&1 | tee /tmp/gradle.log
+          code=${PIPESTATUS[0]}
+          if [ "$code" -ne 0 ]; then
+            grep -aE "error:|FAILURE|What went wrong|Could not|Execution failed" /tmp/gradle.log | tail -10 > /tmp/e.txt
+            [ -s /tmp/e.txt ] || tail -10 /tmp/gradle.log > /tmp/e.txt
+            n=0
+            while IFS= read -r line; do
+              n=$((n+1)); [ "$n" -gt 10 ] && break
+              echo "::error::GRADLE $(printf '%s' "$line" | tr -d '\r' | cut -c1-400)"
+            done < /tmp/e.txt
+          fi
+          exit $code
+
+      - name: できあがりを確認
+        run: |
+          f=$(find native/player/android -name "*.aab" | head -1)
+          echo "::notice::AAB=$f ($(du -h "$f" | cut -f1))"
+
+      - name: AAB を保存
+        uses: actions/upload-artifact@v4
+        with:
+          name: player-aab
+          path: native/player/android/app/build/outputs/bundle/release/*.aab
+          retention-days: 14
+
+      - name: 失敗時：ログを保存
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: player-gradle-log
+          path: /tmp/gradle.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+# ── Play Console の準備ができたら、ここから下を有効にします ──────────────
+#      - name: 署名鍵を書き出す
+#        run: echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > /tmp/release.jks
+#      - name: 署名して Google Play（内部テスト）へアップロード
+#        uses: r0adkll/upload-google-play@v1
+#        with:
+#          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT }}
+#          packageName: com.akihikoito.myjudo.player
+#          releaseFiles: native/player/android/app/build/outputs/bundle/release/app-release.aab
+#          track: internal

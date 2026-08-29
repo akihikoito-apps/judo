@@ -2,3 +2,12 @@
 # ルート直下の作業用（コミットしない）
 /node_modules/
 /.github/workflows/node_modules/
+# Androidのビルド生成物（AAB/APKやローカルSDK設定はコミットしない）
+native/*/android/local.properties
+native/*/android/.gradle/
+native/*/android/build/
+native/*/android/app/build/
+native/*/android/capacitor-cordova-android-plugins/build/
+native/*/android/app/src/main/assets/public/
+native/*/android/app/src/main/assets/capacitor.config.json
+native/*/android/app/src/main/assets/capacitor.plugins.json
