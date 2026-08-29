@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v250（予定共有の「ひとこと」から候補のワンタップ挿入を廃止（縦積みになって読みづらく、使用頻度も低いため）。代わりに入力欄の下に書き方の例を表示／設定タブを開いたとき「使い方」から始まるように変更（従来はモード設定）／選手アプリの設定説明からセキュリティを削除（個人モードではパスコード機能自体が非表示のため）／使い方に追記：選手の試合報告は事務アプリでそのまま取り込める旨・予定の取り込み元が「My柔道(事務)」である旨・設定タブでできることの一覧（言語/通貨・チーム名/ロゴ・カラー/文字サイズ・データ管理・パスコード・規約）／主役一覧を年長順に変更／使い方シート改訂：はじめの案内も折りたたみに・各項目の最後に集計タブへの導線を追記・出欠の誤記を削除（予定登録は出欠に不要）・お金は「月謝」「その他収支」と項目名で説明・予定は試合設定の手入力と申込リマインダー、選手アプリでの取り込みを追記・試合結果を手入力と取り込みに分割・集計タブと分析タブの一覧を新設／選手：試合報告に「入力をリセット」ボタン（自動では消さない）・主役一覧を1人1行＋年少順＋全員に属性チップ／事務：試合結果の取り込みで未登録の選手をその場で仲間に追加・仲間シートは既定で開く／共通：設定に「使い方」シートを新設し「はじめの案内」を集約・段位の自由記載欄を廃止（追加はよく使う設定から）・「仲間の設定」を「よく使う設定」に改称／無料トライアルを使い切った人にはペイウォールで「無料」と書かない：ボタン文言と価格行と規約文をストアの適格性判定に合わせて切替。あわせて最低iOSを15.0へ（Apple警告90068・対応機種はiOS14と同一で減らない）／価格を確定：事務=年額¥7,800・選手Pro=年額¥2,200（いずれも最初の1ヶ月無料）。ストアから取得した実価格で上書きされるため、この表記は取得前の既定値／事務にデモ表示・試合報告QRの分割／選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v251（主役の並び順を全タブで統一：メモリー・分析・予定・記録・予定の対象者・節目の対象者のチップが登録順のままだったのを、「選手」タブと同じ年長順にそろえた／予定共有の「ひとこと」から候補のワンタップ挿入を廃止（縦積みになって読みづらく、使用頻度も低いため）。代わりに入力欄の下に書き方の例を表示／設定タブを開いたとき「使い方」から始まるように変更（従来はモード設定）／選手アプリの設定説明からセキュリティを削除（個人モードではパスコード機能自体が非表示のため）／使い方に追記：選手の試合報告は事務アプリでそのまま取り込める旨・予定の取り込み元が「My柔道(事務)」である旨・設定タブでできることの一覧（言語/通貨・チーム名/ロゴ・カラー/文字サイズ・データ管理・パスコード・規約）／主役一覧を年長順に変更／使い方シート改訂：はじめの案内も折りたたみに・各項目の最後に集計タブへの導線を追記・出欠の誤記を削除（予定登録は出欠に不要）・お金は「月謝」「その他収支」と項目名で説明・予定は試合設定の手入力と申込リマインダー、選手アプリでの取り込みを追記・試合結果を手入力と取り込みに分割・集計タブと分析タブの一覧を新設／選手：試合報告に「入力をリセット」ボタン（自動では消さない）・主役一覧を1人1行＋年少順＋全員に属性チップ／事務：試合結果の取り込みで未登録の選手をその場で仲間に追加・仲間シートは既定で開く／共通：設定に「使い方」シートを新設し「はじめの案内」を集約・段位の自由記載欄を廃止（追加はよく使う設定から）・「仲間の設定」を「よく使う設定」に改称／無料トライアルを使い切った人にはペイウォールで「無料」と書かない：ボタン文言と価格行と規約文をストアの適格性判定に合わせて切替。あわせて最低iOSを15.0へ（Apple警告90068・対応機種はiOS14と同一で減らない）／価格を確定：事務=年額¥7,800・選手Pro=年額¥2,200（いずれも最初の1ヶ月無料）。ストアから取得した実価格で上書きされるため、この表記は取得前の既定値／事務にデモ表示・試合報告QRの分割／選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -5031,7 +5031,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v250'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v251'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -6964,7 +6964,7 @@ let pickedSchFor='';         // v197: 予定の対象（主役ID・''=全員）
 function renderSchForPick(){
   const row=document.getElementById('schForRow'), box=document.getElementById('schForPick');
   if(!row||!box)return;
-  const stars=(DB.mode==='personal')?DB.students.filter(s=>s.isSelf):[];
+  const stars=(DB.mode==='personal')?selfStars():[];
   if(stars.length<2){ row.style.display='none'; box.innerHTML=''; if(stars.length<2)pickedSchFor=pickedSchFor&&stars.some(s=>s.id===pickedSchFor)?pickedSchFor:''; return; }
   row.style.display='block';
   if(pickedSchFor&&!stars.some(s=>s.id===pickedSchFor))pickedSchFor='';
@@ -8245,7 +8245,7 @@ function renderRireki(){
   const map=allBoutsBySelf();
   // v150: 主役(isSelf)が居ればisSelf全員を候補に（試合が無くても節目を追加できる）。居なければ従来＝試合のある人。
   const hasHist=s=>(map[s.id]&&map[s.id].length)||(DB.milestones&&DB.milestones[s.id]&&DB.milestones[s.id].length);
-  const selfStudents=DB.students.filter(s=>s.isSelf);
+  const selfStudents=selfStars();
   const withB=selfStudents.length?selfStudents:DB.students.filter(hasHist);
   const chips=document.getElementById('rkChips'), yearsEl=document.getElementById('rkYears'), tl=document.getElementById('rkTimeline');
   if(!withB.length){chips.innerHTML='';yearsEl.innerHTML='';tl.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
@@ -9316,7 +9316,7 @@ function rkOpenShare(i){const ev=rkEvents[i];if(!ev)return;rkShareEv=ev;shareLoa
    昇級/昇段のチップだけアイコン種別も設定（既定は自由=⭐） ===== */
 let mileEditId=null, pickedMileType='自由';
 function mileOpenAdd(){
-  const stars=DB.students.filter(s=>s.isSelf);
+  const stars=selfStars();
   if(rkAllView&&stars.length>1){   // v200: 全員表示なら先に対象者を選ぶ
     document.getElementById('mileStarPick').innerHTML=stars.map(s=>`<button onclick="mileStarChoose('${s.id}')"><span class="rk-av">${esc((s.name||'?').slice(0,1))}</span>${esc(s.name)}</button>`).join('');
     openModal('mileStarModal'); return;
@@ -10305,7 +10305,7 @@ function renderAnalysisTab(){
   }
   const map=allBoutsBySelf();
   const withMatches=DB.students.filter(s=>map[s.id]&&map[s.id].length);
-  const selfW=DB.students.filter(s=>s.isSelf);
+  const selfW=selfStars();
   const withB=selfW.length?selfW:withMatches;          // v196: 主役が居れば試合ゼロでも稽古/からだ分析を出す
   const chips=document.getElementById('anaChips'), box=document.getElementById('anaAnalysis');
   if(!withB.length){chips.innerHTML='';if(segEl)segEl.innerHTML='';box.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
@@ -10326,7 +10326,7 @@ function renderAnalysisTab(){
 function anaSelect(id){anaSelfId=id;renderAnalysisTab();}
 /* ===== v196: 成長タブ（けいこカレンダー・自己評価・任意記入欄）＋分析の稽古/からだビュー ===== */
 let gwSelfId=null, gwMonth=null, kkEditKey=null, anaKeikoTag='', gwAllView=true, gwDayDs=null;   // v199: 既定は全員表示
-function gwStars(){ const s=DB.students.filter(x=>x.isSelf); return s.length?s:DB.students.slice(0,1); }
+function gwStars(){ const s=selfStars(); return s.length?s:DB.students.slice(0,1); }
 function keikoOf(id){ if(!DB.keiko||typeof DB.keiko!=='object')DB.keiko={}; if(!DB.keiko[id])DB.keiko[id]={}; return DB.keiko[id]; }
 function gwFields(){ return Array.isArray(DB.growthFields)?DB.growthFields:[]; }
 // v208: 稽古系の予定か（稽古・トレーニング＝出席/メモの対象。試合は除く）
@@ -12537,6 +12537,9 @@ function memberChip(s){
   const c=(s&&s.category)||'';
   return c||T('その他');
 }
+/* v251: 主役の一覧は、どのタブでも「選手」タブと同じ並びにする。
+   以前は DB.students の登録順のままだったので、選手タブだけ年長順・他タブは登録順、とずれていた。 */
+function selfStars(){ return sortSelfByAge(DB.students.filter(s=>s.isSelf)); }
 /* v247: 年齢順（年長が上）。学年レベル→生年月日（古いほど年長）→名前 の順に見る */
 function sortSelfByAge(arr){
   return arr.slice().sort((a,b)=>{
