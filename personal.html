@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v244（価格を確定：事務=年額¥7,800・選手Pro=年額¥2,200（いずれも最初の1ヶ月無料）。ストアから取得した実価格で上書きされるため、この表記は取得前の既定値／事務にデモ表示・試合報告QRの分割／選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v245（無料トライアルを使い切った人にはペイウォールで「無料」と書かない：ボタン文言と価格行と規約文をストアの適格性判定に合わせて切替。あわせて最低iOSを15.0へ（Apple警告90068・対応機種はiOS14と同一で減らない）／価格を確定：事務=年額¥7,800・選手Pro=年額¥2,200（いずれも最初の1ヶ月無料）。ストアから取得した実価格で上書きされるため、この表記は取得前の既定値／事務にデモ表示・試合報告QRの分割／選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -1723,9 +1723,9 @@ function applyUpdate(){
         ・以前ご購入済みの場合は「購入を復元する」をお試しください。<br>
         ・解決しない場合は <a href="https://akihikoito-apps.github.io/judo/support.html" target="_blank" rel="noopener">サポートページ</a> からお問い合わせください。
       </div>
-      <div class="list-mini" style="margin-top:6px">無料期間の終了後は年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。</div>
+      <div class="list-mini" id="officePayTerms" style="margin-top:6px">無料期間の終了後は年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。</div>
     </div>
-    <button class="btn gold full" style="margin-top:14px" onclick="purchaseOffice()">1ヶ月無料ではじめる</button>
+    <button class="btn gold full" id="officeBuyBtn" style="margin-top:14px" onclick="purchaseOffice()">1ヶ月無料ではじめる</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="restoreOffice()">購入を復元する</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="demoStart()">👀 まず中身を見てみる（デモ）</button>
     <p class="list-mini" style="margin-top:6px">デモではサンプルの道場データで全機能を試せます。入力しても保存はされません。</p>
@@ -5009,7 +5009,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v244'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v245'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5657,6 +5657,9 @@ Object.assign(DICT,{
   '無料期間の終了後は年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'After the free period, the subscription auto-renews at the annual price. Cancel anytime in iPhone Settings › Subscriptions.',fr:'Après la période gratuite, l’abonnement se renouvelle automatiquement au tarif annuel. Résiliable à tout moment dans Réglages › Abonnements.',pt:'Após o período grátis, a assinatura é renovada automaticamente pelo preço anual. Cancele quando quiser em Ajustes › Assinaturas.'},
   '1ヶ月無料ではじめる':{en:'Start 1 month free',fr:'Commencer 1 mois gratuit',pt:'Começar 1 mês grátis'},
   'Pro 年額 ¥2,200':{en:'Pro: ¥2,200 / year',fr:'Pro : 2 200 ¥ / an',pt:'Pro: ¥2.200 / ano'},
+  'ヶ月無料ではじめる':{en:' month free to start',fr:' mois gratuit pour commencer',pt:' mês grátis para começar'},
+  '年額プランを購読する':{en:'Subscribe to the yearly plan',fr:'S’abonner au forfait annuel',pt:'Assinar o plano anual'},
+  '年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'Renews automatically at the yearly price. Cancel any time in Settings › Subscriptions on your iPhone.',fr:'Renouvellement automatique au tarif annuel. Résiliation à tout moment dans Réglages › Abonnements.',pt:'Renova automaticamente pelo preço anual. Cancele quando quiser em Ajustes › Assinaturas.'},
   'サブスクリプションは年ごとに自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'The subscription auto-renews yearly. Cancel anytime in iPhone Settings › Subscriptions.',fr:'L’abonnement se renouvelle automatiquement chaque année. Résiliable à tout moment dans Réglages › Abonnements.',pt:'A assinatura é renovada automaticamente a cada ano. Cancele quando quiser em Ajustes › Assinaturas.'},
   'ご利用ありがとうございます！':{en:'Thank you!',fr:'Merci !',pt:'Obrigado!'},
   // v219: 予定の共有（事務→選手）
@@ -8759,9 +8762,15 @@ async function refreshPaywallPrices(){
   try{
     if(!(window.__iap&&window.__iap.priceInfo))return;
     const info=await window.__iap.priceInfo(); if(!info||!info.price)return;
-    const free=(info.intro&&info.intro.periodNumberOfUnits)?info.intro.periodNumberOfUnits:0;
+    // v245: 無料トライアルを使い切っている人には「無料」と書かない（Appleも再付与しない）
+    const usedUp=(info.eligible===false);
+    const free=(!usedUp && info.intro && info.intro.periodNumberOfUnits)?info.intro.periodNumberOfUnits:0;
     const o=document.getElementById('officePayPrice');
     if(o)o.textContent=T('年額')+' '+info.price+(free?'（'+T('最初の')+free+T('ヶ月は無料')+'）':'');
+    const btn=document.getElementById('officeBuyBtn');
+    if(btn)btn.textContent = free ? (free+T('ヶ月無料ではじめる')) : T('年額プランを購読する');
+    const tm=document.getElementById('officePayTerms');
+    if(tm && !free)tm.textContent=T('年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。');
     const p=document.getElementById('paywallPrice');
     if(p)p.textContent='Pro '+T('年額')+' '+info.price;
   }catch(e){}

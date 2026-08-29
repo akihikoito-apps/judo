@@ -37,7 +37,19 @@
       var P=await init(); if(!P) return null;
       try{ var offs=await P.getOfferings(); var pkg=pickPkg(offs&&offs.current); var pr=pkg&&pkg.product;
         if(!pr) return null;
-        return { price: pr.priceString||'', intro: (pr.introPrice&&(pr.introPrice.periodNumberOfUnits!=null))?pr.introPrice:null };
+        var intro=(pr.introPrice&&(pr.introPrice.periodNumberOfUnits!=null))?pr.introPrice:null;
+        // 無料トライアルをこのApple IDがまだ使えるか（1=INELIGIBLE / 2=ELIGIBLE / それ以外は不明）
+        var eligible=null;
+        if(intro && pr.identifier && P.checkTrialOrIntroductoryPriceEligibility){
+          try{
+            var el=await P.checkTrialOrIntroductoryPriceEligibility({ productIdentifiers:[pr.identifier] });
+            var r=el && (el[pr.identifier] || (el.eligibility && el.eligibility[pr.identifier]));
+            var st=r && (r.status!=null ? r.status : r);
+            if(st===1||st==='INTRO_ELIGIBILITY_STATUS_INELIGIBLE') eligible=false;
+            else if(st===2||st==='INTRO_ELIGIBILITY_STATUS_ELIGIBLE') eligible=true;
+          }catch(e){}
+        }
+        return { price: pr.priceString||'', intro: intro, eligible: eligible };
       }catch(e){ return null; }
     },
     // 購入（年額サブスク）。成功時 true。キャンセルは 'cancel' を返す。
