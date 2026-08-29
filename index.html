@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v245（無料トライアルを使い切った人にはペイウォールで「無料」と書かない：ボタン文言と価格行と規約文をストアの適格性判定に合わせて切替。あわせて最低iOSを15.0へ（Apple警告90068・対応機種はiOS14と同一で減らない）／価格を確定：事務=年額¥7,800・選手Pro=年額¥2,200（いずれも最初の1ヶ月無料）。ストアから取得した実価格で上書きされるため、この表記は取得前の既定値／事務にデモ表示・試合報告QRの分割／選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v246（選手：試合報告に「入力をリセット」ボタン（自動では消さない）・主役一覧を1人1行＋年少順＋全員に属性チップ／事務：試合結果の取り込みで未登録の選手をその場で仲間に追加・仲間シートは既定で開く／共通：設定に「使い方」シートを新設し「はじめの案内」を集約・段位の自由記載欄を廃止（追加はよく使う設定から）・「仲間の設定」を「よく使う設定」に改称／無料トライアルを使い切った人にはペイウォールで「無料」と書かない：ボタン文言と価格行と規約文をストアの適格性判定に合わせて切替。あわせて最低iOSを15.0へ（Apple警告90068・対応機種はiOS14と同一で減らない）／価格を確定：事務=年額¥7,800・選手Pro=年額¥2,200（いずれも最初の1ヶ月無料）。ストアから取得した実価格で上書きされるため、この表記は取得前の既定値／事務にデモ表示・試合報告QRの分割／選手アプリの指摘反映：主役のPro制限・二重登録防止・予定なし日の稽古記録・シェア文字あふれ／発売前チェックの修正：課金ブリッジ・データ保護・会計表示ほか／事務アプリにもチュートリアルを追加（道場名→仲間→出欠→お金→連携→バックアップ）／選手アプリのチュートリアルを現行仕様に刷新＋スキップで試合報告に飛ぶ不具合を修正／予定共有にひとことコメント＋取り込み履歴に表示／メモリー一覧：写真は大きく・作ったカードは右上に小さく重ねる／シェア画像：比率固定・保存でメモリーに反映・閉じる確認・スタンプ3つ・構図を調整内へ・ぼかし導線／シェア画像：選択肢の領域を確保＋プレビュー縮小トグル・拡大率を4倍まで／シェア画像：写真・スタンプの回転に対応／シェア画像：プレビュー固定＋写真/スタンプの位置・大きさ調整／シェア画像デコ刷新：テーマ10・構図14・フレーム/文字/スタンプ／決まり技レーダー拡大・％を軸ラベル下に／レーダー見出し「（割合）」削除・ⓘ説明を見出し右へ／集計＞試合結果：レーダー説明を折りたたみ・一覧タップで編集／既定ロゴをMy柔道のブランドアイコンに：事務=墨黒版/選手=白版。ロック画面・ホーム画面アイコン・タブのアイコン・manifestはブランドロゴ固定、ヘッダーの帯だけ利用者が設定したロゴを使用。旧「柔」クレストのままの利用者は自動移行） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -542,7 +542,7 @@
   /* 見出し行に補助ボタンを右寄せで並べる（記録モーダル等） */
   .modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
   .modal-head h3{flex:1 1 auto;}
-  /* 仲間の設定・よく使う設定・項目編集モーダル：タブ切替で高さが変わらないよう固定＋ペイン内スクロール */
+  /* よく使う設定・項目編集モーダル：タブ切替で高さが変わらないよう固定＋ペイン内スクロール */
   #feePresetModal .modal,#presetModal .modal,#cashCatModal .modal{display:flex;flex-direction:column;height:min(88vh,760px);overflow:hidden;}
   #feePresetModal>.modal>h3,#feePresetModal .set-tabs,#feePresetModal>.modal>.row,#presetModal>.modal>h3,#presetModal .set-tabs,#presetModal>.modal>.row,#cashCatModal>.modal>h3,#cashCatModal .set-tabs,#cashCatModal>.modal>.row{flex:0 0 auto;}
   #feePresetModal .ms-scroll,#presetModal .ms-scroll,#cashCatModal .ms-scroll{flex:1 1 auto;overflow-y:auto;min-height:0;margin:0 -2px 12px;padding:0 2px;}
@@ -851,6 +851,25 @@
   .imp-tgt-sel{width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);box-sizing:border-box;}
   .mate-count{font-size:calc(12px*var(--fs,1));font-weight:700;color:var(--muted);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:1px 9px;}
   .mate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
+  /* v246: 主役の一覧＝1人1行（名前を折り返さない） */
+  .mate-list{display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
+  .mate-row{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .mate-row .nm{font-size:calc(16px*var(--fs,1));font-weight:800;color:var(--ink);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .mate-row .grade-chip{margin-left:0;flex:none;}
+  .mate-row .cell-tag{font-size:calc(10px*var(--fs,1));font-weight:700;border-radius:6px;padding:1px 7px;flex:none;}
+  .mate-row.leave{background:#fbf6ec;border-color:#e6cf9a;}
+  .mate-row.leave .cell-tag{background:#fff;color:#8a6a2e;border:1.5px solid #d4ac5a;}
+  .mate-row.retired{opacity:.62;}
+  /* v246: 試合報告のリセット */
+  /* v246: 使い方シート */
+  .usage-card{padding:0;overflow:hidden;}
+  .usage-head{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;font-family:inherit;text-align:left;padding:13px 15px;font-size:calc(15px*var(--fs,1));font-weight:800;color:var(--navy);cursor:pointer;}
+  .usage-tri{color:var(--muted);font-size:calc(12px*var(--fs,1));flex:none;}
+  .usage-body{padding:0 15px 12px;}
+  .usage-body .list-mini{margin:4px 0;}
+  .rep-head{display:flex;align-items:center;gap:10px;margin-bottom:2px;}
+  .rep-reset{flex:none;background:#fff;border:1.5px solid var(--line);color:var(--muted);border-radius:999px;padding:6px 12px;font-family:inherit;font-size:calc(12px*var(--fs,1));font-weight:700;cursor:pointer;}
+  .rep-reset.arm{border-color:#c0392b;color:#c0392b;background:#fdf1ef;}
   .mate-cell{display:flex;flex-direction:column;gap:5px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:9px 9px 10px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;}
   .mate-cell .nm{font-size:calc(15px*var(--fs,1));font-weight:700;color:var(--ink);line-height:1.25;word-break:break-word;}
   .mate-cell .cell-tag{font-size:calc(10px*var(--fs,1));font-weight:700;border-radius:6px;padding:1px 7px;line-height:1.3;}
@@ -1176,7 +1195,7 @@ function applyUpdate(){
   <div class="mate-actions">
     <button class="act-toggle" id="retiredToggle" onclick="toggleRetired()">退会も表示</button>
     <button class="act-toggle" id="reorderToggle" onclick="toggleReorder()">並び替え</button>
-    <button class="act-outline" onclick="openFeePresetModal()">仲間の設定</button>
+    <button class="act-outline" onclick="openFeePresetModal()">よく使う設定</button>
     <button class="act-gold" onclick="openStudentModal()">＋仲間を追加</button>
   </div>
   <div class="card">
@@ -1288,12 +1307,22 @@ function applyUpdate(){
 </section>
 <section id="screen-set" class="screen">
   <div class="set-tabs">
+    <button id="setTabUse" onclick="setSetView('use')">📘 <span data-i18n="使い方">使い方</span></button>
     <button id="setTabLang" onclick="setSetView('lang')">🌐 <span data-i18n="言語">言語</span></button>
     <button id="setTabTeam" class="on" onclick="setSetView('team')" data-i18n="モード設定">モード設定</button>
     <button id="setTabDesign" onclick="setSetView('design')" data-i18n="デザイン">デザイン</button>
     <button id="setTabData" onclick="setSetView('data')" data-i18n="データ管理">データ管理</button>
     <button id="setTabSec" onclick="setSetView('sec')" data-i18n="セキュリティ">セキュリティ</button>
     <button id="setTabTerms" onclick="setSetView('terms')" data-i18n="規約・ポリシー">規約・ポリシー</button>
+  </div>
+
+  <div id="setViewUse" style="display:none">
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--navy)">📘 <span data-i18n="使い方">使い方</span></h3>
+      <p class="list-mini" data-i18n="各画面の使い方をまとめています。見出しを押すと開きます。">各画面の使い方をまとめています。見出しを押すと開きます。</p>
+      <button class="btn gold full" style="margin-top:10px" onclick="startOnboarding()" data-i18n="▶ はじめの案内をもう一度見る">▶ はじめの案内をもう一度見る</button>
+    </div>
+    <div id="usageBox"></div>
   </div>
 
   <div id="setViewLang" style="display:none">
@@ -1334,11 +1363,6 @@ function applyUpdate(){
     <!-- 道場（事務）モードの設定：チーム名 → チームロゴ → 会計年度の開始月 -->
     <div id="setOfficeFields">
       <div class="card">
-        <h3 style="margin-top:0;color:var(--navy)">はじめの案内</h3>
-        <p class="list-mini">最初のご案内（ようこそ → 道場名 → 仲間の登録 → 出欠 → お金 → 選手アプリとの連携 → バックアップ）を、もう一度見られます。</p>
-        <button class="btn ghost full" onclick="startOnboarding()">▶ はじめの案内をもう一度見る</button>
-      </div>
-      <div class="card">
         <h3 style="margin-top:0;color:var(--navy)">チーム名</h3>
         <input type="text" id="teamNameInput" onchange="saveTeamName()" placeholder="例：〇〇柔道クラブ" data-i18n-ph="例：〇〇柔道クラブ">
       </div>
@@ -1364,11 +1388,6 @@ function applyUpdate(){
 
     <!-- 個人モードの設定：ストーリー名 → ストーリーロゴ → 年度の開始月 -->
     <div id="setPersonalFields" style="display:none">
-      <div class="card">
-        <h3 style="margin-top:0;color:var(--navy)">はじめの案内</h3>
-        <p class="list-mini">最初のご案内（ようこそ → お名前 → 稽古の記録 → 試合報告 → メモリー → 予定の取り込み）を、もう一度見られます。</p>
-        <button class="btn ghost full" onclick="startOnboarding()">▶ はじめの案内をもう一度見る</button>
-      </div>
       <div class="card">
         <h3 style="margin-top:0;color:var(--navy)">ストーリー名</h3>
         <p class="list-mini">上部の帯とシェア画像に表示される、あなた（または家族）の記録の名前です。</p>
@@ -1787,7 +1806,10 @@ function applyUpdate(){
     <p class="ri-tip">💡 この「試合報告」は無料でずっと使えます。自分の試合を<b>記録として残したり、勝率や決まり技を分析したい</b>ときは、有料版でメモリー・分析もご利用いただけます。</p>
   </div>
   <div class="card">
-    <h3 style="margin-top:0;color:var(--navy)">試合結果を報告</h3>
+    <div class="rep-head">
+      <h3 style="margin:0;color:var(--navy)">試合結果を報告</h3>
+      <button class="rep-reset" onclick="repResetAll()">↺ 入力をリセット</button>
+    </div>
     <label class="fld">選手のなまえ</label>
     <input type="text" id="repName" placeholder="例：山本 蓮" oninput="repGen()">
     <div id="repSchedPickWrap" style="display:none"><label class="fld">予定から選ぶ</label><div class="cat-pick" id="repSchedPick"></div></div>
@@ -2032,7 +2054,7 @@ function applyUpdate(){
     <input type="text" id="stRole" placeholder="例：主将・キャプテン">
     <label class="fld">段位 / 級（任意）</label>
     <div class="cat-pick" id="rankPick"></div>
-    <input type="text" id="stRankFree" placeholder="その他（自由記載）" style="margin-top:8px">
+    <p class="list-mini" style="margin-top:6px">選択肢を増やしたいときは「よく使う設定」から追加できます。</p>
     <label class="fld">段位 / 級 取得年月日（任意）</label>
     <input type="date" id="stRankDate">
     <label class="fld">性別</label>
@@ -2156,7 +2178,7 @@ function applyUpdate(){
 <!-- 月謝のよく使う設定モーダル -->
 <div class="modal-bg" id="feePresetModal">
   <div class="modal">
-    <h3>仲間の設定</h3>
+    <h3>よく使う設定</h3>
     <div class="set-tabs" id="msTabs">
       <button id="msTabSortB" class="on" onclick="setMemberSettingsTab('sort')">並び順</button>
       <button id="msTabGradeB" onclick="setMemberSettingsTab('grade')">学年機能・区分</button>
@@ -5009,7 +5031,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v245'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v246'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5133,7 +5155,61 @@ const DICT={
   '在籍開始日':{en:'Join date',fr:'Date d’adhésion',pt:'Data de entrada'},'退会日':{en:'Leave date',fr:'Date de départ',pt:'Data de saída'},
   '休会の開始（年月）':{en:'Leave start (year-month)',fr:'Début de pause (année-mois)',pt:'Início da pausa (ano-mês)'},'休会の終了':{en:'Leave end',fr:'Fin de pause',pt:'Fim da pausa'},'終了月を指定':{en:'Set end month',fr:'Définir le mois de fin',pt:'Definir mês final'},
   '仲間一覧':{en:'Member list',fr:'Liste des membres',pt:'Lista de membros'},'仲間を追加':{en:'Add member',fr:'Ajouter un membre',pt:'Adicionar membro'},'＋仲間を追加':{en:'＋ Add member',fr:'＋ Ajouter',pt:'＋ Adicionar'},
-  '仲間の設定':{en:'Member settings',fr:'Réglages membres',pt:'Config. de membros'},'退会も表示':{en:'Show left',fr:'Voir les partis',pt:'Mostrar saídas'},'休会・退会も表示':{en:'Show leave/left',fr:'Voir pauses/départs',pt:'Mostrar pausas/saídas'},
+  '使い方':{en:'How to use',fr:'Aide',pt:'Como usar'},
+  '各画面の使い方をまとめています。見出しを押すと開きます。':{en:'A guide to each screen. Tap a heading to open it.',fr:'Guide de chaque écran. Touchez un titre pour l’ouvrir.',pt:'Guia de cada tela. Toque num título para abrir.'},
+  'その他':{en:'Other',fr:'Autre',pt:'Outro'},
+  '↺ 入力をリセット':{en:'↺ Clear entries',fr:'↺ Effacer la saisie',pt:'↺ Limpar campos'},
+  'もう一度押すと消えます':{en:'Tap again to clear',fr:'Appuyez encore pour effacer',pt:'Toque de novo para limpar'},
+  '入力内容をすべて消します。よければもう一度押してください':{en:'This clears everything you typed. Tap again to confirm.',fr:'Cela efface tout ce que vous avez saisi. Appuyez à nouveau pour confirmer.',pt:'Isso apaga tudo o que você digitou. Toque de novo para confirmar.'},
+  '入力内容をリセットしました':{en:'Entries cleared',fr:'Saisie effacée',pt:'Campos limpos'},
+  'を新しく登録して取り込む':{en:'— add as a new member and import',fr:'— ajouter comme nouveau membre et importer',pt:'— cadastrar como novo membro e importar'},
+  '記入：':{en:'Written: ',fr:'Saisi : ',pt:'Informado: '},
+  '（自動一致）':{en:'(matched automatically)',fr:'(correspondance automatique)',pt:'(correspondência automática)'},
+  '（一致者なし。選ぶか、新しく登録してください）':{en:'(no match — choose someone, or add a new member)',fr:'(aucune correspondance — choisissez ou ajoutez un membre)',pt:'(sem correspondência — escolha ou cadastre um membro)'},
+  '（記入に選手名がありません）':{en:'(no athlete name in the text)',fr:'(aucun nom d’athlète dans le texte)',pt:'(sem nome de atleta no texto)'},
+  '選手のなまえが読み取れませんでした':{en:'Could not read the athlete’s name',fr:'Impossible de lire le nom de l’athlète',pt:'Não foi possível ler o nome do atleta'},
+  '「':{en:'“',fr:'« ',pt:'“'},
+  '」を仲間に登録し、':{en:'” was added as a member, and ',fr:'» a été ajouté comme membre, et ',pt:'” foi adicionado como membro, e '},
+  '件を取り込みました':{en:' entries were imported',fr:' entrées ont été importées',pt:' registros foram importados'},
+  '選択肢を増やしたいときは「よく使う設定」から追加できます。':{en:'You can add more choices from “Common settings”.',fr:'Vous pouvez ajouter des choix depuis « Réglages fréquents ».',pt:'Você pode adicionar opções em “Config. frequentes”.'},
+  '👥 仲間の登録と設定':{en:'👥 Members: adding and settings',fr:'👥 Membres : ajout et réglages',pt:'👥 Membros: cadastro e ajustes'},
+  '「＋仲間を追加」で登録します。姓と名だけでも始められます。':{en:'Tap “+ Add member”. A first and last name is enough to start.',fr:'Touchez « + Ajouter un membre ». Un nom et prénom suffisent.',pt:'Toque em “+ Adicionar membro”. Nome e sobrenome já bastam.'},
+  '区分（小学生・中学生など）や段位の選択肢は、上の「よく使う設定」から増やせます。':{en:'Categories (elementary, junior high…) and belt ranks can be extended from “Common settings” above.',fr:'Les catégories et les grades s’ajoutent depuis « Réglages fréquents » ci-dessus.',pt:'Categorias e graduações podem ser ampliadas em “Config. frequentes” acima.'},
+  '月謝は「月額」と「都度払い」を選べ、金額は1人ずつ変えられます。':{en:'Fees can be monthly or per-visit, and the amount can differ per member.',fr:'Les cotisations sont mensuelles ou par séance, avec un montant par membre.',pt:'As mensalidades podem ser mensais ou por sessão, com valor por membro.'},
+  '📋 出欠':{en:'📋 Attendance',fr:'📋 Présences',pt:'📋 Presenças'},
+  '日付を選んで、名前の横の「出」「欠」を押すだけです。':{en:'Pick a date and tap “Present” or “Absent” next to each name.',fr:'Choisissez une date et touchez « Présent » ou « Absent ».',pt:'Escolha a data e toque em “Presente” ou “Ausente”.'},
+  '予定タブに稽古を登録しておくと、その日が自動で出てきます。':{en:'Sessions added in the Schedule tab appear here automatically.',fr:'Les séances ajoutées dans l’onglet Agenda apparaissent ici.',pt:'As sessões do calendário aparecem aqui automaticamente.'},
+  '💴 お金':{en:'💴 Money',fr:'💴 Argent',pt:'💴 Dinheiro'},
+  '月ごとに「集金済」「未納」を管理します。名前を押すと支払い済みになります。':{en:'Track collected and unpaid per month. Tap a name to mark it paid.',fr:'Suivez encaissé/impayé par mois. Touchez un nom pour marquer payé.',pt:'Acompanhe arrecadado/em aberto por mês. Toque no nome para marcar pago.'},
+  '都度払いの方は「▲」を押すたびに受領額が増えます。':{en:'For per-visit members, each tap on ▲ adds one payment.',fr:'Pour les membres par séance, chaque ▲ ajoute un paiement.',pt:'Para pagamento por sessão, cada ▲ adiciona um pagamento.'},
+  '会計では入出金を記録でき、年度ごとに集計されます。':{en:'Bookkeeping records income and expenses, totalled by fiscal year.',fr:'La comptabilité enregistre recettes et dépenses par exercice.',pt:'A contabilidade registra receitas e despesas por exercício.'},
+  '📅 予定と共有':{en:'📅 Schedule and sharing',fr:'📅 Agenda et partage',pt:'📅 Agenda e compartilhamento'},
+  '稽古・大会などを登録します。くり返し登録もできます。':{en:'Add sessions and tournaments. Repeating entries are supported.',fr:'Ajoutez séances et compétitions, y compris récurrentes.',pt:'Adicione treinos e competições, inclusive recorrentes.'},
+  '「予定を共有」で1ヶ月分をLINEやQRコードにして、選手・保護者に配れます。':{en:'“Share schedule” turns a month into a message or QR code for athletes and parents.',fr:'« Partager l’agenda » convertit un mois en message ou QR code.',pt:'“Compartilhar agenda” transforma o mês em mensagem ou QR code.'},
+  'ひとことコメントを添えると、どこが変わったか伝わります。':{en:'A short comment tells everyone what changed.',fr:'Un court commentaire indique ce qui a changé.',pt:'Um comentário curto mostra o que mudou.'},
+  '🥋 試合結果':{en:'🥋 Match results',fr:'🥋 Résultats',pt:'🥋 Resultados'},
+  '集計タブの「試合結果」から、個人戦・団体戦を記録できます。':{en:'Record individual and team matches from “Match results” in the Reports tab.',fr:'Enregistrez les combats individuels et par équipe depuis l’onglet Bilans.',pt:'Registre lutas individuais e por equipe na aba Relatórios.'},
+  '選手アプリからのLINE報告やQRコードは「📋取り込み」に貼るだけで登録できます。':{en:'Reports sent from the athlete app can be pasted or scanned in “Import”.',fr:'Les rapports de l’app athlète se collent ou se scannent dans « Importer ».',pt:'Relatórios do app do atleta podem ser colados ou lidos em “Importar”.'},
+  '取り込みのとき、まだ登録していない選手はその場で仲間に追加できます。':{en:'During import, an athlete who is not registered yet can be added on the spot.',fr:'Lors de l’import, un athlète non enregistré peut être ajouté immédiatement.',pt:'Na importação, um atleta ainda não cadastrado pode ser adicionado na hora.'},
+  '💾 バックアップ':{en:'💾 Backup',fr:'💾 Sauvegarde',pt:'💾 Backup'},
+  'データはこの端末の中だけにあります。機種変更や故障に備えて、ときどき書き出してください。':{en:'Your data lives only on this device. Export it now and then, in case you change or lose your phone.',fr:'Vos données restent sur cet appareil. Exportez-les de temps en temps.',pt:'Seus dados ficam só neste aparelho. Exporte de vez em quando.'},
+  '設定 › データ管理 › 「バックアップを書き出す」で1つのファイルになります。':{en:'Settings › Data › “Export backup” saves everything as one file.',fr:'Réglages › Données › « Exporter » enregistre tout dans un fichier.',pt:'Ajustes › Dados › “Exportar” salva tudo em um arquivo.'},
+  '📝 試合報告':{en:'📝 Match report',fr:'📝 Rapport de combat',pt:'📝 Relatório de luta'},
+  '選手名・大会名・日づけを入れ、「＋試合をふやす」で1試合ずつ選びます。':{en:'Enter the athlete, tournament and date, then add each match with “+ Add match”.',fr:'Saisissez l’athlète, la compétition et la date, puis « + Ajouter un combat ».',pt:'Informe atleta, campeonato e data, depois “+ Adicionar luta”.'},
+  '「📩 道場に送る」でLINE・QR・コピーのどれかで先生に渡せます。':{en:'“Send to dojo” hands it to your coach by message, QR code or copy.',fr:'« Envoyer au dojo » transmet par message, QR code ou copie.',pt:'“Enviar ao dojô” envia por mensagem, QR code ou cópia.'},
+  '入力は自動では消えません。消したいときは上の「↺ 入力をリセット」を押してください。':{en:'Entries are never cleared automatically. Use “Clear entries” at the top when you want to start over.',fr:'La saisie n’est jamais effacée automatiquement. Utilisez « Effacer la saisie » en haut.',pt:'Os campos nunca são limpos sozinhos. Use “Limpar campos” no topo.'},
+  '🌱 予定・記録':{en:'🌱 Schedule and log',fr:'🌱 Agenda et suivi',pt:'🌱 Agenda e registro'},
+  '稽古した日は🔥を押すだけ。調子は顔のマークで残せます。':{en:'Tap 🔥 on days you trained, and pick a face for how it went.',fr:'Touchez 🔥 les jours d’entraînement et choisissez un visage.',pt:'Toque 🔥 nos dias treinados e escolha uma carinha.'},
+  'ひとことメモやタグ、体重などの記入欄も使えます。':{en:'You can add a short note, tags, and fields such as weight.',fr:'Ajoutez une note, des tags et des champs comme le poids.',pt:'Adicione uma nota, tags e campos como o peso.'},
+  '道場から届いた予定表（LINE/QR）は「予定の取り込み」で読み込めます。':{en:'A schedule sent by your dojo can be loaded in “Import schedule”.',fr:'L’agenda envoyé par le dojo se charge dans « Importer l’agenda ».',pt:'A agenda enviada pelo dojô entra em “Importar agenda”.'},
+  '📖 メモリー':{en:'📖 Memories',fr:'📖 Souvenirs',pt:'📖 Memórias'},
+  '試合や昇級などの節目を、写真つきのカードとして残せます。':{en:'Keep milestones such as matches and promotions as cards with photos.',fr:'Conservez les moments clés sous forme de cartes avec photos.',pt:'Guarde marcos como cartões com fotos.'},
+  'カードは配色や構図を選んでシェア画像にできます。':{en:'Pick colours and layouts to turn a card into a shareable image.',fr:'Choisissez couleurs et mise en page pour en faire une image à partager.',pt:'Escolha cores e layout para gerar uma imagem para compartilhar.'},
+  '写真のぼかしで、相手や観客への配慮も簡単にできます。':{en:'Blur lets you protect opponents and bystanders in a photo.',fr:'Le flou protège adversaires et spectateurs sur la photo.',pt:'O desfoque protege adversários e espectadores na foto.'},
+  '📈 分析':{en:'📈 Analysis',fr:'📈 Analyse',pt:'📈 Análise'},
+  '勝率、決まり技のレーダー、組手（右組み・左組み）別の傾向が見られます。':{en:'See win rate, a radar of winning techniques, and trends by grip.',fr:'Voyez le taux de victoire, un radar des techniques et les tendances par garde.',pt:'Veja taxa de vitória, radar de técnicas e tendências por pegada.'},
+  '稽古の回数や調子の移り変わりもグラフになります。':{en:'Training frequency and how you felt are charted over time.',fr:'La fréquence des entraînements et votre forme sont mises en graphique.',pt:'A frequência de treinos e como você se sentiu viram gráficos.'},
+  '退会も表示':{en:'Show left',fr:'Voir les partis',pt:'Mostrar saídas'},'休会・退会も表示':{en:'Show leave/left',fr:'Voir pauses/départs',pt:'Mostrar pausas/saídas'},
   '並び替え':{en:'Reorder',fr:'Réorganiser',pt:'Reordenar'},'並び順':{en:'Sort order',fr:'Tri',pt:'Ordenação'},'学年機能・区分':{en:'Grades & categories',fr:'Niveaux & catégories',pt:'Séries e categorias'},'学年順':{en:'By grade',fr:'Par niveau',pt:'Por série'},'あいうえお':{en:'A–Z (kana)',fr:'A–Z (kana)',pt:'A–Z (kana)'},
   'この仲間を削除する':{en:'Delete this member',fr:'Supprimer ce membre',pt:'Excluir este membro'},
   // 予定
@@ -8364,6 +8440,25 @@ function repRenderKind(){
 function repPickCount(n){repCount=n;repRenderKind();repGen();}
 function repPickRole(r){repRole=r;repRenderKind();repGen();}
 function repAddMatch(){repMatches.push(repNewMatch());repRenderMatches();repGen();}
+/* v246: 送信後に自動で消さない（メモリー登録に使うため）。消したいときだけこのボタンで。 */
+let _repResetArm=false;
+function repResetAll(){
+  const btn=document.querySelector('.rep-reset');
+  if(!_repResetArm){
+    _repResetArm=true;
+    if(btn){btn.classList.add('arm');btn.textContent=T('もう一度押すと消えます');}
+    toast(T('入力内容をすべて消します。よければもう一度押してください'));
+    setTimeout(()=>{_repResetArm=false;const b=document.querySelector('.rep-reset');if(b){b.classList.remove('arm');b.textContent=T('↺ 入力をリセット');}},4000);
+    return;
+  }
+  _repResetArm=false;
+  ['repName','repTaikai','repDate'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  repMatches=[repNewMatch()]; repKind='個人'; repCount=5; repRole='先鋒'; repRegSig='';
+  repPickKind('個人');
+  repRenderMatches(); repGen();
+  const b=document.querySelector('.rep-reset'); if(b){b.classList.remove('arm');b.textContent=T('↺ 入力をリセット');}
+  toast(T('入力内容をリセットしました'));
+}
 function repDel(id){repMatches=repMatches.filter(m=>m.id!==id);if(!repMatches.length)repMatches=[repNewMatch()];repRenderMatches();repGen();}
 function repSet(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;repRenderMatches();repGen();}}
 function repSetRaw(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;repGen();}}
@@ -10571,8 +10666,15 @@ function analyzeImport(){
   importParsed=p;
   const matched=findStudentByName(p.head.self);
   const selEl=document.getElementById('importSelf');
-  selEl.innerHTML='<option value="">'+T('（選手を選ぶ）')+'</option>'+DB.students.map(s=>`<option value="${s.id}" ${matched&&matched.id===s.id?'selected':''}>${esc(s.name)}</option>`).join('');
-  document.getElementById('importSelfHint').textContent = p.head.self ? ('記入：'+p.head.self+(matched?'（自動一致）':'（一致者なし・選んでください）')) : '（記入に選手名がありません）';
+  // v246: 一致する仲間がいないとき、その場で新しく登録できる選択肢を出す（結果と一緒に登録できる）
+  const newName=(p.head.self||'').trim();
+  const newOpt=newName?`<option value="__newstu__" ${matched?'':'selected'}>${T('＋')} 「${esc(newName)}」${T('を新しく登録して取り込む')}</option>`:'';
+  selEl.innerHTML='<option value="">'+T('（選手を選ぶ）')+'</option>'
+    +DB.students.map(s=>`<option value="${s.id}" ${matched&&matched.id===s.id?'selected':''}>${esc(s.name)}</option>`).join('')
+    +newOpt;
+  document.getElementById('importSelfHint').textContent = p.head.self
+    ? (T('記入：')+p.head.self+(matched?T('（自動一致）'):T('（一致者なし。選ぶか、新しく登録してください）')))
+    : T('（記入に選手名がありません）');
   // 試合結果設定あり（試合/大会・または結果済み）の予定だけに限定（通常稽古は出さない）
   const scheds=[...DB.schedule].filter(schedIsMatch).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   let best=null;
@@ -10701,8 +10803,24 @@ function renderImportBouts(){
 }
 function doImport(){
   if(!importParsed)return;
-  const selfId=document.getElementById('importSelf').value;
+  let selfId=document.getElementById('importSelf').value;
   if(!selfId){toast(T('選手を選んでください'));return;}
+  // v246: 「新しく登録して取り込む」＝この場で仲間を作ってから取り込む
+  if(selfId==='__newstu__'){
+    const nm=((importParsed.head&&importParsed.head.self)||'').trim();
+    if(!nm){toast(T('選手のなまえが読み取れませんでした'));return;}
+    const dup=findStudentByName(nm);
+    if(dup){ selfId=dup.id; }
+    else{
+      const parts=nm.split(/[\s　]+/).filter(Boolean);
+      const st={id:uid(),name:nm,lastName:parts[0]||nm,firstName:parts.slice(1).join(' '),lastKana:'',firstKana:'',kana:'',
+        role:'',category:(cats()[0]||{}).name||'',gradeBaseFY:null,gradeBaseLevel:null,gradeFixed:false,gradeTouchedFY:null,
+        rank:'',rankDate:'',sex:'',grip:'',feeReq:false,feeType:'monthly',visitBase:0,feeAmount:0,
+        startDate:todayStr(),endDate:'',leaveStart:'',leaveEnd:'',leaveFee:0,birth:'',judoId:'',note:'',isSelf:false};
+      DB.students.push(st); selfId=st.id;
+      _importNewStuName=nm;
+    }
+  }
   let schedId=document.getElementById('importSched').value;
   if(schedId==='__new__'){
     const dt=document.getElementById('importNewDate').value;
@@ -10749,8 +10867,15 @@ function doImport(){
   }
   save(); closeModal('importModal');
   if(typeof renderMatchSummary==='function')renderMatchSummary();
-  toast(picked.length+'件を取り込みました');
+  if(typeof renderMates==='function')renderMates();
+  if(_importNewStuName){
+    toast(T('「')+_importNewStuName+T('」を仲間に登録し、')+picked.length+T('件を取り込みました'));
+    _importNewStuName='';
+  }else{
+    toast(picked.length+T('件を取り込みました'));
+  }
 }
+let _importNewStuName='';   // v246: 取り込みと同時に登録した仲間の名前（完了メッセージ用）
 function impEmptyBout(){return {id:uid(),selfId:'',result:'○',grade:'',waza:'',oppName:'',oppId:'',grip:'右',note:''};}
 function openMatchSearch(){
   document.getElementById('searchWord').value='';
@@ -11858,14 +11983,92 @@ function saveFyStartPersonal(){
   if(typeof renderRireki==='function')renderRireki();
   if(typeof renderSched==='function')renderSched();
 }
+/* ===== v246: 使い方シート ===== */
+const USAGE_OFFICE=[
+  ['👥 仲間の登録と設定',[
+    '「＋仲間を追加」で登録します。姓と名だけでも始められます。',
+    '区分（小学生・中学生など）や段位の選択肢は、上の「よく使う設定」から増やせます。',
+    '月謝は「月額」と「都度払い」を選べ、金額は1人ずつ変えられます。'
+  ]],
+  ['📋 出欠',[
+    '日付を選んで、名前の横の「出」「欠」を押すだけです。',
+    '予定タブに稽古を登録しておくと、その日が自動で出てきます。'
+  ]],
+  ['💴 お金',[
+    '月ごとに「集金済」「未納」を管理します。名前を押すと支払い済みになります。',
+    '都度払いの方は「▲」を押すたびに受領額が増えます。',
+    '会計では入出金を記録でき、年度ごとに集計されます。'
+  ]],
+  ['📅 予定と共有',[
+    '稽古・大会などを登録します。くり返し登録もできます。',
+    '「予定を共有」で1ヶ月分をLINEやQRコードにして、選手・保護者に配れます。',
+    'ひとことコメントを添えると、どこが変わったか伝わります。'
+  ]],
+  ['🥋 試合結果',[
+    '集計タブの「試合結果」から、個人戦・団体戦を記録できます。',
+    '選手アプリからのLINE報告やQRコードは「📋取り込み」に貼るだけで登録できます。',
+    '取り込みのとき、まだ登録していない選手はその場で仲間に追加できます。'
+  ]],
+  ['💾 バックアップ',[
+    'データはこの端末の中だけにあります。機種変更や故障に備えて、ときどき書き出してください。',
+    '設定 › データ管理 › 「バックアップを書き出す」で1つのファイルになります。'
+  ]]
+];
+const USAGE_PERSONAL=[
+  ['📝 試合報告',[
+    '選手名・大会名・日づけを入れ、「＋試合をふやす」で1試合ずつ選びます。',
+    '「📩 道場に送る」でLINE・QR・コピーのどれかで先生に渡せます。',
+    '入力は自動では消えません。消したいときは上の「↺ 入力をリセット」を押してください。'
+  ]],
+  ['🌱 予定・記録',[
+    '稽古した日は🔥を押すだけ。調子は顔のマークで残せます。',
+    'ひとことメモやタグ、体重などの記入欄も使えます。',
+    '道場から届いた予定表（LINE/QR）は「予定の取り込み」で読み込めます。'
+  ]],
+  ['📖 メモリー',[
+    '試合や昇級などの節目を、写真つきのカードとして残せます。',
+    'カードは配色や構図を選んでシェア画像にできます。',
+    '写真のぼかしで、相手や観客への配慮も簡単にできます。'
+  ]],
+  ['📈 分析',[
+    '勝率、決まり技のレーダー、組手（右組み・左組み）別の傾向が見られます。',
+    '稽古の回数や調子の移り変わりもグラフになります。'
+  ]],
+  ['💾 バックアップ',[
+    'データはこの端末の中だけにあります。機種変更や故障に備えて、ときどき書き出してください。',
+    '設定 › データ管理 › 「バックアップを書き出す」で1つのファイルになります。'
+  ]]
+];
+function renderUsage(){
+  const box=document.getElementById('usageBox'); if(!box)return;
+  const office=(typeof obIsOffice==='function')?obIsOffice():(DB.mode!=='personal');
+  const secs=office?USAGE_OFFICE:USAGE_PERSONAL;
+  box.innerHTML=secs.map((s,i)=>
+    `<div class="card usage-card">
+      <button class="usage-head" onclick="toggleUsage(${i})">
+        <span class="usage-tri" id="usageTri${i}">▶</span><span>${T(s[0])}</span>
+      </button>
+      <div class="usage-body" id="usageBody${i}" style="display:none">
+        ${s[1].map(l=>'<p class="list-mini">・'+T(l)+'</p>').join('')}
+      </div>
+    </div>`).join('');
+}
+function toggleUsage(i){
+  const b=document.getElementById('usageBody'+i), t=document.getElementById('usageTri'+i);
+  if(!b)return;
+  const open=(b.style.display!=='none');
+  b.style.display=open?'none':'';
+  if(t)t.textContent=open?'▶':'▼';
+}
 function setSetView(v){
-  const map={lang:'setViewLang',team:'setViewTeam',design:'setViewDesign',data:'setViewData',sec:'setViewSec',terms:'setViewTerms'};
-  const tabs={lang:'setTabLang',team:'setTabTeam',design:'setTabDesign',data:'setTabData',sec:'setTabSec',terms:'setTabTerms'};
+  const map={use:'setViewUse',lang:'setViewLang',team:'setViewTeam',design:'setViewDesign',data:'setViewData',sec:'setViewSec',terms:'setViewTerms'};
+  const tabs={use:'setTabUse',lang:'setTabLang',team:'setTabTeam',design:'setTabDesign',data:'setTabData',sec:'setTabSec',terms:'setTabTerms'};
   Object.keys(map).forEach(k=>{
     const vw=document.getElementById(map[k]);if(vw)vw.style.display=(k===v)?'':'none';
     const tb=document.getElementById(tabs[k]);if(tb)tb.classList.toggle('on',k===v);
   });
   if(v==='data'){ renderBackupStatus(); renderDataUsage(); renderArchiveOptions(); }
+  if(v==='use'){ renderUsage(); }
 }
 // ―― データ使用量の表示（localStorage 目安 5MB に対する割合）――
 const STORAGE_BUDGET=5*1024*1024;
@@ -11978,7 +12181,7 @@ function sortMembersList(list){
 const foldOpen={mates:new Set(),att:new Set(),fee:new Set(),match:new Set()};
 // v164: 出欠は毎日使うので「開いた状態」から始める（Setには“閉じた”グループを持つ＝意味が反転）。
 //       お金（月謝）などは従来どおり閉じた状態から。
-const FOLD_DEFAULT_OPEN=new Set(['att','fee']);   // v240: 月謝も既定で開く（毎月の主作業のため）
+const FOLD_DEFAULT_OPEN=new Set(['att','fee','mates']);   // v246: 仲間も既定で開く（開くたびに畳まれていると手間なため）
 function foldRender(ns){const f={mates:renderMates,att:renderAtt,fee:renderFee,match:renderMatchSummary}[ns];if(f)f();}
 function toggleFold(ns,key){const s=foldOpen[ns];if(!s)return;if(s.has(key))s.delete(key);else s.add(key);foldRender(ns);}
 function isFoldOpen(ns,gi){
@@ -12068,6 +12271,16 @@ function renderMates(){
     return;
   }
 
+  // v246: 主役の1行表示（属性チップ＋名前＋役職/状態）
+  const selfRowHtml=(s)=>{
+    let cls='mate-row', st='';
+    if(s.endDate){ cls+=' retired'; st='<span class="cell-tag">'+T('退会')+'</span>'; }
+    else if(isOnLeaveMonth(s,cur)){ cls+=' leave'; st='<span class="cell-tag">'+T('休会')+'</span>'; }
+    const role=s.role?`<span class="role-tag">${esc(s.role)}</span>`:'';
+    return `<div class="${cls}" onclick="openStudentModal('${s.id}')">`+
+      `<span class="grade-chip">${esc(memberChip(s))}</span>`+
+      `<span class="nm">${esc(s.name)}</span>${role}${st}</div>`;
+  };
   const cellHtml=(s)=>{
     let cls='mate-cell', st='';
     if(s.endDate){ cls+=' retired'; st='<span class="cell-tag">退会</span>'; }
@@ -12079,8 +12292,8 @@ function renderMates(){
   };
   let html=toggleHtml;
   if(selfView){
-    // 自分（主役）＝家族含め少数なので折りたたまずフラット表示
-    html+=`<div class="mate-grid">`+sortMembersList(visible).map(cellHtml).join('')+`</div>`;
+    // v246: 主役は人数が少ないので、1人1行・年齢順（年少が上）・全員に属性チップを付けて表示
+    html+=`<div class="mate-list">`+sortSelfByAge(visible).map(selfRowHtml).join('')+`</div>`;
   }else{
     groups.forEach((g,gi)=>{
       html+=foldHead('mates',gi,g.color,g.label,g.members.length);
@@ -12230,6 +12443,27 @@ function gradeInfo(s,fy){
 }
 function gradeLabel(s){const gi=gradeInfo(s);return gi?gi.grade:'';}
 function memberLevel(s){const gi=gradeInfo(s);return (gi&&gi.grade)?gi.level:null;}
+/* v246: 全員に付ける小さな属性チップ。学年があれば「小4」、無ければ区分名（一般 など） */
+function memberChip(s){
+  const g=(typeof gradeLabel==='function')?gradeLabel(s):'';
+  if(g)return g;
+  const c=(s&&s.category)||'';
+  return c||T('その他');
+}
+/* v246: 年齢順（年少が上）。学年レベル→生年月日（新しいほど年少）→名前 の順に見る */
+function sortSelfByAge(arr){
+  return arr.slice().sort((a,b)=>{
+    const la=memberLevel(a), lb=memberLevel(b);
+    if(la!=null&&lb!=null&&la!==lb)return la-lb;
+    if(la!=null&&lb==null)return -1;
+    if(la==null&&lb!=null)return 1;
+    const ba=(a.birth||''), bb=(b.birth||'');
+    if(ba&&bb&&ba!==bb)return bb.localeCompare(ba);   // 生年月日が新しい＝年少を上に
+    if(ba&&!bb)return -1;
+    if(!ba&&bb)return 1;
+    return (a.name||'').localeCompare(b.name||'','ja');
+  });
+}
 function refreshGrades(){
   if(!DB.gradeEnabled)return;
   const fy=currentFY();
@@ -12247,11 +12481,10 @@ function refreshGrades(){
 let pickedRank='';
 function renderRankPick(){
   const mk=r=>`<button class="${r===pickedRank?'on':''}" onclick="pickRank('${esc(r)}')">${esc(r)}</button>`;
+  // v246: 「その他（自由記載）」欄は廃止。一覧に無い既存の値だけはボタンとして残し、消えないようにする
+  const extra=(pickedRank && !ranksAll().includes(pickedRank)) ? [pickedRank] : [];
   document.getElementById('rankPick').innerHTML=
-    `<div class="rank-row">${ranksAll().map(mk).join('')}</div>`;
-  const inp=document.getElementById('stRankFree');
-  // v240: 未選択（''）のときも必ず空にする。以前は前の仲間の自由記載が残り、別人に保存されていた
-  inp.value=(pickedRank && !ranksAll().includes(pickedRank)) ? pickedRank : '';
+    `<div class="rank-row">${ranksAll().concat(extra).map(mk).join('')}</div>`;
 }
 function pickRank(r){pickedRank=r;renderRankPick();}
 let pickedStSelf=false; // v147: 個人モード＝この人が「自分・家族（主役）」か
@@ -12467,8 +12700,7 @@ function saveStudent(){
   const birth=document.getElementById('stBirth').value||'';
   const judoId=document.getElementById('stJudoId').value.trim();
   const note=document.getElementById('stNote').value.trim();
-  const rankFree=document.getElementById('stRankFree').value.trim();
-  const rank=rankFree||pickedRank||'';
+  const rank=pickedRank||'';
   const rankDate=document.getElementById('stRankDate').value||'';
   const sex=pickedSex||'';
   const grip=pickedStuGrip||'';
