@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v254（再提出前の修正：アプリ内の利用規約 第4条を実際の価格（事務 年額7,800円＋1ヶ月無料／選手Pro 年額2,200円）に更新。事務の購読画面は、アプリ版では購入状況の確認が返るまでボタンを出さない（購入済みの人に一瞬出て閉じるのを防ぐ）。デモのボタンを2番目・紺の塗りにして目立たせ、復元は小さく最後へ） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v255（再提出前の総点検（Codex＋独立監査2本）での修正：復元後に保存されない／保存失敗でも「復元しました」／復元で購読状態が上書き／アプリ版でバックアップ未保存のままアーカイブ・最終バックアップ日を記録／アーカイブで期首残高が変わる（archiveCarry）／デモ中に購読画面が重なる・暗証番号が残る／選手の復元で購入画面が閉じない／デモ帯がボタンを覆う／onclick への文字列埋め込みで「'」が壊れ・細工でコード実行（escJ）／稽古記録の日付変更で上書き消失／繰り返し予定の単回編集で対象者が保存されない／取り込み後の月移動／アプリ内プライバシーポリシーにRevenueCat／端末言語で起動／分析タブPro案内の翻訳／購入・復元の二度押し防止） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -588,6 +588,7 @@
   nav.tabbar button .tlbl{font-size:min(calc(clamp(8px,2.5vw,10px)*var(--fs,1)),15px);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;letter-spacing:-.2px;}
   nav.tabbar button.active{color:#fff;background:var(--navy);}
 
+  body.iap-busy #officePayActions button, body.iap-busy #paywallModal .btn{opacity:.55;pointer-events:none;}   /* v255: 購入処理中 */
   .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;align-items:flex-end;justify-content:center;}
   .modal-bg.close-confirm{z-index:80;}
   .modal-bg.show{display:flex;}
@@ -1366,7 +1367,7 @@ function applyUpdate(){
       </div>
       <div class="card">
         <h3 style="margin-top:0;color:var(--navy)">チームロゴ</h3>
-        <p class="list-mini">選んだ画像は自動で正方形に整えられ、左上のマークとホーム画面アイコンになります。</p>
+        <p class="list-mini">選んだ画像は自動で正方形に整えられ、左上のマークになります。</p>
         <div class="logo-area">
           <div class="logo-preview" id="logoPreview">柔</div>
           <div style="flex:1">
@@ -1393,7 +1394,7 @@ function applyUpdate(){
       </div>
       <div class="card">
         <h3 style="margin-top:0;color:var(--navy)">ストーリーロゴ</h3>
-        <p class="list-mini">選んだ画像は自動で正方形に整えられ、左上のマークとホーム画面アイコンになります。</p>
+        <p class="list-mini">選んだ画像は自動で正方形に整えられ、左上のマークになります。</p>
         <div class="logo-area">
           <div class="logo-preview" id="storyLogoPreview">柔</div>
           <div style="flex:1">
@@ -1549,12 +1550,13 @@ function applyUpdate(){
 
       <h4 style="color:var(--navy);margin:16px 0 4px">3. 制作者が扱いうる情報</h4>
       <p style="margin:0">課金・サブスクリプションは Apple（App Store）を通じて行われ、決済情報は Apple が管理します。制作者はクレジットカード番号等を取得せず、Apple から受け取るのは売上集計等の統計的情報に限られます。お問い合わせをいただいた場合は、その内容および連絡先を、返信・対応の目的の範囲でのみ利用します。</p>
+      <p style="margin:6px 0 0"><b>ただし、サブスクリプションの管理のみ例外です。</b>加入状態を確認するため、課金管理サービス RevenueCat, Inc.（米国）に、アプリ内で自動生成される匿名の利用者ID・端末の識別子（IDFV）・OS/アプリのバージョン・購入履歴が送信されます。<b>お名前や記録した内容（仲間の氏名・出欠・会計・写真など）が送信されることはありません。</b>詳しくは RevenueCat のプライバシーポリシー（https://www.revenuecat.com/privacy/）をご確認ください。</p>
 
       <h4 style="color:var(--navy);margin:16px 0 4px">4. 第三者提供</h4>
-      <p style="margin:0">制作者は利用者のデータを取得しないため、第三者に提供することもありません。お問い合わせ対応で取得した情報も、法令に基づく場合を除き、本人の同意なく第三者へ提供しません。</p>
+      <p style="margin:0">制作者は利用者のデータを取得しないため、第三者に提供することもありません。お問い合わせ対応で取得した情報も、法令に基づく場合を除き、本人の同意なく第三者へ提供しません。<br>唯一の外部送信は、上記のサブスクリプション管理（RevenueCat）に必要な最小限の情報です。同社は本アプリの加入状態の管理という目的の範囲でのみ情報を取り扱います。</p>
 
       <h4 style="color:var(--navy);margin:16px 0 4px">5. 解析・広告について</h4>
-      <p style="margin:0">本アプリは、利用者の行動を追跡する解析ツールや広告配信の仕組みを使用していません。将来導入する場合は、本ポリシーを改定し事前にお知らせします。</p>
+      <p style="margin:0">本アプリは、利用者の行動を追跡する解析ツールや広告配信の仕組みを使用していません。第三者への情報提供は、上記のサブスクリプション管理（RevenueCat）に限られます。将来導入する場合は、本ポリシーを改定し事前にお知らせします。</p>
 
       <h4 style="color:var(--navy);margin:16px 0 4px">6. データの保存・バックアップ・消去</h4>
       <p style="margin:0">データは端末内に保存されるため、アプリの削除・端末の初期化・故障・紛失により失われる場合があります。重要なデータはバックアップ機能で利用者ご自身の責任で保管してください。バックアップの送受信は利用者自身の手段で行われ、制作者は関与しません。端末内のデータは、アプリ内で削除するかアプリを削除することで消去できます。</p>
@@ -5033,7 +5035,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v254'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v255'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -5293,7 +5295,7 @@ const DICT={
   '文字サイズ':{en:'Font size',fr:'Taille du texte',pt:'Tamanho da fonte'},'文字サイズ：':{en:'Font size: ',fr:'Taille : ',pt:'Tamanho: '},'小（標準）':{en:'Small (default)',fr:'Petit (défaut)',pt:'Pequeno (padrão)'},'中':{en:'Medium',fr:'Moyen',pt:'Médio'},'大':{en:'Large',fr:'Grand',pt:'Grande'},'小':{en:'Small',fr:'Petit',pt:'Pequeno'},
   'カラー：':{en:'Color: ',fr:'Couleur : ',pt:'Cor: '},'カラー（着せ替え）':{en:'Color theme',fr:'Thème de couleur',pt:'Tema de cor'},'色':{en:'Color',fr:'Couleur',pt:'Cor'},'柄':{en:'Pattern',fr:'Motif',pt:'Padrão'},'単色':{en:'Solid',fr:'Uni',pt:'Sólido'},'グラデーション':{en:'Gradient',fr:'Dégradé',pt:'Degradê'},'深緑':{en:'Deep green',fr:'Vert foncé',pt:'Verde escuro'},
   '画像を選ぶ':{en:'Choose image',fr:'Choisir une image',pt:'Escolher imagem'},'標準に戻す':{en:'Reset to default',fr:'Réinitialiser',pt:'Restaurar padrão'},
-  '選んだ画像は自動で正方形に整えられ、左上のマークとホーム画面アイコンになります。':{en:'The image is auto-cropped to a square and used as the top-left mark and home-screen icon.',fr:'L’image est recadrée en carré et sert de logo et d’icône.',pt:'A imagem é ajustada em quadrado e vira o logo e o ícone.'},
+  '選んだ画像は自動で正方形に整えられ、左上のマークになります。':{en:'The image is auto-cropped to a square and used as the top-left mark.',fr:'L’image est recadrée en carré et sert de logo en haut à gauche.',pt:'A imagem é ajustada em quadrado e vira o logo no canto superior esquerdo.'},
   'ヘッダーの色を選べます（単色・グラデーション・柄）。タップですぐに反映され、この端末に記憶されます。':{en:'Pick a header color (solid, gradient, pattern). Applied instantly and saved on this device.',fr:'Choisissez la couleur d’en-tête (uni, dégradé, motif). Appliqué et enregistré sur cet appareil.',pt:'Escolha a cor do cabeçalho (sólido, degradê, padrão). Aplicado e salvo neste aparelho.'},
   '画面全体の文字の大きさを変えられます。この端末に記憶されます。':{en:'Change the overall text size. Saved on this device.',fr:'Modifiez la taille du texte. Enregistré sur cet appareil.',pt:'Altere o tamanho do texto. Salvo neste aparelho.'},
   // データ管理
@@ -5603,6 +5605,27 @@ Object.assign(DICT,{
   '「':{en:'“',fr:'« ',pt:'“'},
   '」を記録する項目から削除します。これまでに入力した数値は見られなくなります。':{en:'” will be removed from your tracked fields. Values already entered will no longer be visible.',fr:' » sera retiré de vos champs suivis. Les valeurs déjà saisies ne seront plus visibles.',pt:'” será removido dos campos registrados. Os valores já inseridos deixarão de aparecer.'},
   '削除する':{en:'Delete',fr:'Supprimer',pt:'Excluir'},
+  '試合結果の分析は':{en:'Match analysis is',fr:'L’analyse des combats est',pt:'A análise de lutas está'},
+  '有料版（Pro）で':{en:'part of Pro',fr:'incluse dans Pro',pt:'no Pro'},
+  'あなたの柔道を数字で深掘り。':{en:'Dig into your judo with numbers. ',fr:'Analysez votre judo en chiffres. ',pt:'Aprofunde seu judô em números. '},
+  '「試合報告」と「メモリー」は無料':{en:'Match Report and Memories stay free',fr:'Le rapport de combat et les souvenirs restent gratuits',pt:'Relatório de luta e Memórias continuam grátis'},
+  'のまま、Proでは分析が使えます。':{en:'; Pro adds the analysis.',fr:' ; Pro ajoute l’analyse.',pt:'; o Pro adiciona a análise.'},
+  '勝率・決まり技レーダー':{en:'Win rate & scoring-technique radar',fr:'Taux de victoire et radar des techniques',pt:'Taxa de vitória e radar de técnicas'},
+  'どの技で勝てているかが一目でわかる':{en:'see at a glance which techniques win for you',fr:'voyez d’un coup d’œil les techniques qui vous font gagner',pt:'veja de relance quais técnicas te dão vitórias'},
+  '組手（右/左）別・技別':{en:'By grip (right/left) and by technique',fr:'Par garde (droite/gauche) et par technique',pt:'Por pegada (direita/esquerda) e por técnica'},
+  'の傾向':{en:' trends',fr:' : tendances',pt:' : tendências'},
+  '直近の調子や対戦の振り返り':{en:'Recent form and opponent review',fr:'Forme récente et bilan des adversaires',pt:'Fase recente e revisão dos adversários'},
+  '⭐ 有料版（Pro）にする':{en:'⭐ Get Pro',fr:'⭐ Passer à Pro',pt:'⭐ Assinar o Pro'},
+  '試合結果の分析（勝率・決まり技レーダー）':{en:'Match analysis (win rate & technique radar)',fr:'Analyse des combats (taux de victoire et radar des techniques)',pt:'Análise de lutas (taxa de vitória e radar de técnicas)'},
+  '復元したデータを保存できませんでした（保存容量が足りない可能性があります）。元のデータのまま残しています。':{en:'The restored data could not be saved (storage may be full). Your previous data has been kept.',fr:'Impossible d’enregistrer les données restaurées (stockage peut-être plein). Vos données précédentes sont conservées.',pt:'Não foi possível salvar os dados restaurados (o armazenamento pode estar cheio). Seus dados anteriores foram mantidos.'},
+  'バックアップを保存できませんでした。もう一度お試しください。解決しない場合は、アプリを再起動してからお試しください。':{en:'The backup could not be saved. Please try again. If it keeps failing, restart the app and try again.',fr:'La sauvegarde n’a pas pu être enregistrée. Réessayez. Si le problème persiste, redémarrez l’app puis réessayez.',pt:'Não foi possível salvar o backup. Tente novamente. Se continuar, reinicie o app e tente de novo.'},
+  'デモ中は暗証番号を設定できません':{en:'A passcode can’t be set in the demo',fr:'Impossible de définir un code en mode démo',pt:'Não é possível definir senha na demonstração'},
+  'にはすでに稽古の記録があります。この内容で上書きしますか？':{en:'already has a practice record. Overwrite it with this one?',fr:'contient déjà un entraînement. Le remplacer par celui-ci ?',pt:'já tem um registro de treino. Substituir por este?'},
+  '上書きする':{en:'Overwrite',fr:'Remplacer',pt:'Substituir'},
+  '上書きの確認':{en:'Confirm overwrite',fr:'Confirmer le remplacement',pt:'Confirmar substituição'},
+  '選手を追加':{en:'Add athlete',fr:'Ajouter un athlète',pt:'Adicionar atleta'},
+  '仲間を編集':{en:'Edit member',fr:'Modifier le membre',pt:'Editar membro'},
+  '復元しました':{en:'Restored',fr:'Restauré',pt:'Restaurado'},
   'ご購入状況を確認しています…':{en:'Checking your purchase…',fr:'Vérification de votre achat…',pt:'Verificando sua compra…'},
   '👀 まず中身を見てみる（デモ）':{en:'👀 Take a look first (demo)',fr:'👀 Voir l’app d’abord (démo)',pt:'👀 Ver primeiro (demo)'},
   'デモではサンプルの道場データで全機能を試せます。入力しても保存はされません。':{en:'The demo uses sample dojo data so you can try every feature. Nothing you enter is saved.',fr:'La démo utilise des données d’exemple : tout est essayable, rien n’est enregistré.',pt:'A demo usa dados de exemplo: teste tudo; nada é salvo.'},
@@ -6287,7 +6310,7 @@ function startI18nObserver(){
 }
 function applyI18n(){runI18nScan();}
 function setLang(L){
-  LANG=L;DB.lang=L;save();
+  LANG=L;DB.lang=L;DB.langChosen=true;save();   // v255: 自分で選んだ言語は端末の言語より優先
   runI18nScan();
   if(typeof toast==='function')toast(tr('言語を変更しました',LANG));
 }
@@ -6429,7 +6452,7 @@ function load(){
     catch(e){
       // v240: 壊れて読めない場合は「空のDBで上書きしない」。退避してから復元を案内する
       loadFailed=true; loadFailedRaw=s;
-      try{ localStorage.setItem(STORE_KEY+'_broken_'+Date.now(), s); }catch(_){}
+      try{ localStorage.setItem(STORE_KEY+'_broken', s); }catch(_){}   // v255: 起動のたびに増えないよう1つだけ（上書き）
     }
   }
   normalizeDB();
@@ -6524,6 +6547,9 @@ function todayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.get
 function thisMonthStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function shiftMonth(ym,delta){let[y,m]=ym.split('-').map(Number);m=m-1+delta;y+=Math.floor(m/12);m=((m%12)+12)%12;return `${y}-${String(m+1).padStart(2,'0')}`;}
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+// v255: onclick="f('…')" の中に入れる文字列用。先にJSの文字列として無害化し、そのあとHTML属性用にエスケープする
+// （esc だけでは「'」が残り、O'Neil のような名前でボタンが壊れ、細工した名前ではコードが実行されてしまう）
+function escJ(s){return esc(String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/[\r\n\u2028\u2029]/g,' '));}
 // その仲間の月謝額（個別設定がなければ全体設定。削除済みでも全体額で補完）
 function nameWithTags(s){
   return `<div class="person-name-only">${esc(s.name)}</div>`;
@@ -6859,7 +6885,7 @@ function renderCashCatPick(){
   // 編集中などで一覧に無い項目が選ばれている場合も選べるように残す
   if(pickedCashCat && !cats.includes(pickedCashCat)) cats=[pickedCashCat,...cats];
   if(!cats.includes(pickedCashCat)) pickedCashCat=cats[0]||'';
-  document.getElementById('cashCatPick').innerHTML=cats.map(c=>`<button class="${c===pickedCashCat?'on':''}" onclick="pickCashCat('${esc(c)}')">${esc(c)}</button>`).join('');
+  document.getElementById('cashCatPick').innerHTML=cats.map(c=>`<button class="${c===pickedCashCat?'on':''}" onclick="pickCashCat('${escJ(c)}')">${esc(c)}</button>`).join('');
   const hint=document.getElementById('cashCatEmptyHint'); if(hint)hint.style.display=cats.length?'none':'';
 }
 function pickCashCat(c){
@@ -6995,9 +7021,9 @@ function updateSchedWeek(){
 // 種類・時間・場所のプリセットボタン描画（手入力欄と連動）
 function renderSchedPicks(){
   const P=DB.schedPresets;
-  const mk=(arr,picked,fn)=>arr.filter(x=>x&&x.trim()).map(x=>`<button class="${x===picked?'on':''}" onclick="${fn}('${esc(x)}')">${esc(x)}</button>`).join('');
+  const mk=(arr,picked,fn)=>arr.filter(x=>x&&x.trim()).map(x=>`<button class="${x===picked?'on':''}" onclick="${fn}('${escJ(x)}')">${esc(x)}</button>`).join('');
   // 種類は登録色を左帯で表示（色が種類に紐づくことを可視化）
-  const mkType=arr=>arr.filter(x=>x&&x.trim()).map(x=>`<button class="${x===pickedSchType?'on':''}" style="border-left:7px solid ${typeColor(x)}" onclick="pickSchType('${esc(x)}')">${esc(x)}</button>`).join('');
+  const mkType=arr=>arr.filter(x=>x&&x.trim()).map(x=>`<button class="${x===pickedSchType?'on':''}" style="border-left:7px solid ${typeColor(x)}" onclick="pickSchType('${escJ(x)}')">${esc(x)}</button>`).join('');
   document.getElementById('schTypePick').innerHTML=mkType(P.types);
   document.getElementById('schTimePick').innerHTML=mk(P.times,pickedSchTime,'pickSchTime');
   document.getElementById('schPlacePick').innerHTML=mk(P.places,pickedSchPlace,'pickSchPlace');
@@ -7118,7 +7144,7 @@ function applyRecurScope(scope){
   }
   const p=pendingSchedEdit; if(!p){closeModal('recurScopeModal');return;}
   if(scope==='one'){
-    Object.assign(s,{name:p.name,title:p.title,date:p.date,time:p.time,place:p.place,note:p.note,showMatch:p.showMatch});
+    Object.assign(s,{name:p.name,title:p.title,date:p.date,time:p.time,place:p.place,note:p.note,showMatch:p.showMatch,forId:p.forId||''});   // v255: 対象者も保存
   }else{
     const sid=s.seriesId, from=p.origDate;
     // v125: 「以降すべて」で日付を変更した場合、以降の各回へ同じ日数差分を一律加算（当該回だけズレて間隔が崩れる不具合を修正）
@@ -7302,13 +7328,13 @@ function roundOpts(){return ((DB.matchPresets&&DB.matchPresets.rounds)||[]).filt
 function renderBGradePicks(){
   const el=document.getElementById('bGrade'); if(!el)return;
   const v=el.value.trim();
-  document.getElementById('bGradePicks').innerHTML=gradeOpts().map(g=>`<button type="button" class="${g===v?'on':''}" onclick="pickBGrade('${esc(g)}')">${esc(g)}</button>`).join('');
+  document.getElementById('bGradePicks').innerHTML=gradeOpts().map(g=>`<button type="button" class="${g===v?'on':''}" onclick="pickBGrade('${escJ(g)}')">${esc(g)}</button>`).join('');
 }
 function pickBGrade(g){const el=document.getElementById('bGrade');el.value=(el.value.trim()===g)?'':g;renderBGradePicks();}
 function renderBRoundPicks(){
   const el=document.getElementById('bRound'); if(!el)return;
   const v=el.value.trim();
-  document.getElementById('bRoundPicks').innerHTML=roundOpts().map(g=>`<button type="button" class="${g===v?'on':''}" onclick="pickBRound('${esc(g)}')">${esc(g)}</button>`).join('');
+  document.getElementById('bRoundPicks').innerHTML=roundOpts().map(g=>`<button type="button" class="${g===v?'on':''}" onclick="pickBRound('${escJ(g)}')">${esc(g)}</button>`).join('');
 }
 function pickBRound(g){const el=document.getElementById('bRound');el.value=(el.value.trim()===g)?'':g;renderBRoundPicks();}
 function openMatchPreset(){
@@ -7344,7 +7370,7 @@ function bSelfCatsPresent(){
 function renderBSelfCatPick(){
   const cats=['全員',...bSelfCatsPresent()];
   if(!cats.includes(bSelfCat))bSelfCat='全員';
-  document.getElementById('bSelfCatPick').innerHTML=cats.map(c=>`<button type="button" class="${c===bSelfCat?'on':''}" onclick="pickBSelfCat('${esc(c)}')">${esc(c)}</button>`).join('');
+  document.getElementById('bSelfCatPick').innerHTML=cats.map(c=>`<button type="button" class="${c===bSelfCat?'on':''}" onclick="pickBSelfCat('${escJ(c)}')">${esc(c)}</button>`).join('');
 }
 function fillBSelfOptions(keepId){
   let arr=DB.students;
@@ -7596,7 +7622,7 @@ function fillCardStep1(suffix){
 function renderCdRoundPicks(){
   const el=document.getElementById('cdRound'); if(!el)return;
   const v=el.value.trim();
-  document.getElementById('cdRoundPicks').innerHTML=roundOpts().map(g=>`<button type="button" class="${g===v?'on':''}" onclick="pickCdRound('${esc(g)}')">${esc(g)}</button>`).join('');
+  document.getElementById('cdRoundPicks').innerHTML=roundOpts().map(g=>`<button type="button" class="${g===v?'on':''}" onclick="pickCdRound('${escJ(g)}')">${esc(g)}</button>`).join('');
 }
 function pickCdRound(g){const el=document.getElementById('cdRound');el.value=(el.value.trim()===g)?'':g;renderCdRoundPicks();}
 function copyCard(cardId){
@@ -7668,7 +7694,7 @@ function teamSelfCatChips(b,key){
   const cats=['全員',...mateGroupOrder().filter(c=>DB.students.some(s=>s.category===c))];
   if(DB.students.some(s=>!s.category||!mateGroupOrder().includes(s.category)))cats.push('未設定');
   if(!cats.includes(cat)){cat='全員';teamSelfCat[key]='全員';}
-  return cats.map(c=>`<button type="button" class="${c===cat?'on':''}" onclick="pickTeamSelfCat('${key}','${esc(c)}')">${esc(c)}</button>`).join('');
+  return cats.map(c=>`<button type="button" class="${c===cat?'on':''}" onclick="pickTeamSelfCat('${key}','${escJ(c)}')">${esc(c)}</button>`).join('');
 }
 function teamSelfOptions(b,key){
   const arr=teamSelfArr(teamSelfCat[key]||'全員');
@@ -7693,7 +7719,7 @@ function gripBtnsHtml(b,key){
 }
 function teamGradeChips(b,key){
   const v=b.grade||'';
-  return gradeOpts().map(g=>`<button type="button" class="${g===v?'on':''}" onclick="pickTeamGrade('${key}','${esc(g)}')">${esc(g)}</button>`).join('');
+  return gradeOpts().map(g=>`<button type="button" class="${g===v?'on':''}" onclick="pickTeamGrade('${key}','${escJ(g)}')">${esc(g)}</button>`).join('');
 }
 function pickTeamGrade(key,g){
   const b=boutByKey(key);if(!b)return;
@@ -8488,7 +8514,7 @@ function repRenderKind(){
   const cp=document.getElementById('repCountPick'); if(cp)cp.innerHTML=[3,5,7].map(n=>`<button class="${repCount===n?'on':''}" onclick="repPickCount(${n})">${n}人制</button>`).join('');
   const roles=(POS[repCount]||POS[5]).concat(['代表戦']);
   if(!roles.includes(repRole))repRole=roles[0];
-  const rp=document.getElementById('repRolePick'); if(rp)rp.innerHTML=roles.map(r=>`<button class="${repRole===r?'on':''}" onclick="repPickRole('${esc(r)}')">${esc(r)}</button>`).join('');
+  const rp=document.getElementById('repRolePick'); if(rp)rp.innerHTML=roles.map(r=>`<button class="${repRole===r?'on':''}" onclick="repPickRole('${escJ(r)}')">${esc(r)}</button>`).join('');
 }
 function repPickCount(n){repCount=n;repRenderKind();repGen();}
 function repPickRole(r){repRole=r;repRenderKind();repGen();}
@@ -8837,7 +8863,7 @@ function memoryFreeLeft(){ return Math.max(0, FREE_MEMORY_LIMIT-memoryCardCount(
 function memoryLimitMsg(){ return '無料で保存できるメモリーは'+FREE_MEMORY_LIMIT+'件までです。これまでの記録はそのまま見られます。Proにすると無制限に保存できます。'; }
 function requirePro(msg){
   if(isPro())return true;
-  const el=document.getElementById('paywallMsg'); if(el&&msg)el.textContent=msg;
+  const el=document.getElementById('paywallMsg'); if(el&&msg)el.textContent=T(msg);   // v255: 案内文も翻訳
   openModal('paywallModal');
   return false;
 }
@@ -8850,6 +8876,8 @@ function proUnlocked(){ setPro(true); closeModal('paywallModal');
   if(anaScreen&&anaScreen.classList.contains('active')&&typeof renderAnalysisTab==='function')renderAnalysisTab();
   toast(T('Proになりました。ありがとうございます！'));
 }
+// v255: 復元でも購入と同じく購入画面を閉じて再描画する（旧版は印を付けるだけで画面が残った）
+function proRestored(){ proUnlocked(); toast(T('購入を復元しました')); }
 function iapErrText(fallback){ const e=(window.__iap&&window.__iap.lastError)||''; return e?e:T(fallback); }
 async function purchasePro(){
   if(window.__iap&&window.__iap.buy){
@@ -8863,7 +8891,7 @@ async function purchasePro(){
 }
 async function restorePro(){
   if(window.__iap&&window.__iap.restore){
-    try{ const ok=await window.__iap.restore(); if(ok){setPro(true);toast(T('購入を復元しました'));} else toast(iapErrText('復元できる購入がありませんでした')); }
+    try{ const ok=await window.__iap.restore(); if(ok){proRestored();} else toast(iapErrText('復元できる購入がありませんでした')); }
     catch(e){ toast(T('復元できませんでした')); }
     return;
   }
@@ -8873,6 +8901,7 @@ async function restorePro(){
 function officeEntitled(){ return !!DB.officePro; }
 function officeGateCheck(){
   if(APP_EDITION!=='office')return;
+  if(demoMode)return;                      // v255: デモ中は購読画面を重ねない
   if(officeEntitled())return;
   // ネイティブ層は起動時に window.__iap.entitled?.() で再検証し、失効なら DB.officePro=false にできる
   openModal('officePaywallModal');
@@ -8985,7 +9014,7 @@ function demoBanner(on){
   if(!on){ if(el)el.remove(); return; }
   if(el)return;
   el=document.createElement("div"); el.id="demoBanner";
-  el.style.cssText="position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:60;background:#1a2b4a;color:#fff;padding:9px 12px;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 -2px 10px rgba(0,0,0,.25)";
+  el.style.cssText="position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:45;background:#1a2b4a;color:#fff;padding:9px 12px;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 -2px 10px rgba(0,0,0,.25)";
   el.innerHTML="<span>👀 "+T("デモ表示中（保存されません）")+"</span>"+
     "<button style=\"flex:none;border:none;border-radius:9px;background:#d4a941;color:#2a2100;font-weight:900;padding:6px 12px;font-family:inherit;font-size:13px\" onclick=\"demoEnd()\">"+T("終了する")+"</button>";
   document.body.appendChild(el);
@@ -10331,15 +10360,15 @@ let anaSelfId=null;
 function analysisLockHtml(){
   return `<div class="ana-lock">
     <div class="al-emoji">🔒📈</div>
-    <h3 class="al-h">試合結果の分析は<br>有料版（Pro）で</h3>
-    <p class="al-p">あなたの柔道を数字で深掘り。<b>「試合報告」と「メモリー」は無料</b>のまま、Proでは分析が使えます。</p>
+    <h3 class="al-h">${T('試合結果の分析は')}<br>${T('有料版（Pro）で')}</h3>
+    <p class="al-p">${T('あなたの柔道を数字で深掘り。')}<b>${T('「試合報告」と「メモリー」は無料')}</b>${T('のまま、Proでは分析が使えます。')}</p>
     <div class="al-feat">
-      <div class="al-item"><span>📊</span><div><b>勝率・決まり技レーダー</b>——どの技で勝てているかが一目でわかる</div></div>
-      <div class="al-item"><span>🤼</span><div><b>組手（右/左）別・技別</b>の傾向</div></div>
-      <div class="al-item"><span>📈</span><div>直近の調子や対戦の振り返り</div></div>
+      <div class="al-item"><span>📊</span><div><b>${T('勝率・決まり技レーダー')}</b>——${T('どの技で勝てているかが一目でわかる')}</div></div>
+      <div class="al-item"><span>🤼</span><div><b>${T('組手（右/左）別・技別')}</b>${T('の傾向')}</div></div>
+      <div class="al-item"><span>📈</span><div>${T('直近の調子や対戦の振り返り')}</div></div>
     </div>
-    <button class="btn gold full" onclick="requirePro('試合結果の分析（勝率・決まり技レーダー）')">⭐ 有料版（Pro）にする</button>
-    <p class="al-note">「試合報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。</p>
+    <button class="btn gold full" onclick="requirePro('試合結果の分析（勝率・決まり技レーダー）')">${T('⭐ 有料版（Pro）にする')}</button>
+    <p class="al-note">${T('「試合報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。')}</p>
   </div>`;
 }
 let anaView='match';   // v196: 分析ビュー 'match'|'keiko'|'body'
@@ -10555,9 +10584,14 @@ function gwOpenKeiko(dateStr,starId){
   openModal('keikoModal');
 }
 function kkAddTag(t){ const el=document.getElementById('kkTags'); const cur=el.value.trim(); const arr=cur?cur.split(/[,、\s　]+/).map(s=>s.trim()).filter(Boolean):[]; if(!arr.includes(t))arr.push(t); el.value=arr.join(' '); }
-function keikoSave(){
+function keikoSave(okOverwrite){
   const ds=document.getElementById('kkDate').value||kkEditKey||todayStr();
   const K=keikoOf(gwSelfId);
+  // v255: 日付を変えた先にすでに記録があるときは、黙って上書きせずに確認する
+  if(okOverwrite!==true && kkEditKey && kkEditKey!==ds && K[ds]){
+    askConfirm(ds.replace(/-/g,'/')+' '+T('にはすでに稽古の記録があります。この内容で上書きしますか？'),()=>{ keikoSave(true); },T('上書きする'),'上書きの確認','var(--navy)');
+    return;
+  }
   const s=pickedKkScore;                       // v220: 顔の5段階（null=未記入）
   const m=document.getElementById('kkMemo').value.trim();
   const t=document.getElementById('kkTags').value.split(/[,、\s　]+/).map(x=>x.trim()).filter(Boolean);
@@ -11588,7 +11622,7 @@ function schedRecvApply(){
   const n=schedShareApply(p,srForId);
   if(n<0){ toast(T('予定表を読み取れませんでした')); return; }
   closeModal('schedRecvModal');
-  if(/^d{4}-d{2}$/.test(p.ym))gwMonth=p.ym;      // v241: 取り込んだ月を表示する
+  if(/^\d{4}-\d{2}$/.test(p.ym))gwMonth=p.ym;      // v241: 取り込んだ月を表示する（v255: \d の欠けを修正）
   toast(`${p.sender}${T('の予定')} ${n}${T('件を取り込みました')}`+(p.msg?'　📣 '+p.msg:''));
   if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
   if(typeof renderSched==='function'&&document.getElementById('screen-sched').classList.contains('active'))renderSched();
@@ -11602,7 +11636,7 @@ function renderSrSenders(){
       const info=(DB.schedSrc&&DB.schedSrc[k])||null;
       const sub=info?`<span class="list-mini" style="display:block;color:var(--muted)">${info.ym?info.ym.replace('-','/')+T('月分'):''}${info.at?'・'+info.at.replace(/-/g,'/')+T('に取り込み'):''}</span>`:'';
       const msg=(info&&info.msg)?`<span class="list-mini" style="display:block;font-weight:800;color:var(--navy)">📣 ${esc(info.msg)}</span>`:'';
-      return `<div class="gw-field-row"><span class="nm">${esc(k)} <span class="list-mini">${senders[k]}${T('件')}</span>${sub}${msg}</span><button class="chip-btn" onclick="srDeleteSender('${esc(k)}')">🗑 ${T('削除')}</button></div>`;
+      return `<div class="gw-field-row"><span class="nm">${esc(k)} <span class="list-mini">${senders[k]}${T('件')}</span>${sub}${msg}</span><button class="chip-btn" onclick="srDeleteSender('${escJ(k)}')">🗑 ${T('削除')}</button></div>`;
     }).join(''):'';
 }
 function srDeleteSender(name){
@@ -11815,6 +11849,19 @@ function openingBalanceFor(fy){
   const vfs=DB.visitFees||{};
   Object.keys(vfs).forEach(ym=>{ if(ym<first){ const vf=vfs[ym]||{}; Object.keys(vf).forEach(sid=>{bal+=(vf[sid]||0);}); }});
   (DB.cash||[]).forEach(c=>{ const ym=(c.date||'').slice(0,7); if(ym && ym<first){ bal+=(c.io==='in'?1:-1)*(c.amount||0); }});
+  // v255: アーカイブで外した年度の収支（繰越額）を足し戻す。外しても翌年度以降の残高が変わらないように
+  const ac=DB.archiveCarry||{};
+  Object.keys(ac).forEach(k=>{ if(+k<fy) bal+=(+ac[k]||0); });
+  return bal;
+}
+// v255: ある年度の収支（月謝・都度会費・入出金）。アーカイブ時に繰越額として残すため
+function fyNetBalance(fy){
+  const ms=new Set(fiscalMonths(fy)); let bal=0;
+  const fees=DB.fees||{};
+  Object.keys(fees).forEach(ym=>{ if(ms.has(ym)){ const paid=fees[ym]||{}; Object.keys(paid).forEach(sid=>{const st=DB.students.find(x=>x.id===sid);bal+=paidAmount(paid[sid],st);}); }});
+  const vfs=DB.visitFees||{};
+  Object.keys(vfs).forEach(ym=>{ if(ms.has(ym)){ const vf=vfs[ym]||{}; Object.keys(vf).forEach(sid=>{bal+=(vf[sid]||0);}); }});
+  (DB.cash||[]).forEach(c=>{ const ym=(c.date||'').slice(0,7); if(ms.has(ym)){ bal+=(c.io==='in'?1:-1)*(c.amount||0); }});
   return bal;
 }
 function renderAccountView(){
@@ -12281,6 +12328,7 @@ async function archiveBackup(fy){
       catch(e){ if(e&&e.name==='AbortError')return false; }   // 本人が中止＝保存できていない
     }
   }catch(e){}
+  if(isNativeApp())return false;   // v255: アプリ版はダウンロードで保存できない（何も起きない）ので、保存できなかった扱いにして何も外さない
   try{ downloadFullBackup('judo_archive_before_FY'+fy); markBackedUp(); return true; }catch(e){ return false; }
 }
 function renderArchiveOptions(){
@@ -12313,6 +12361,9 @@ function doArchiveYear(){
     // ① 復元用フルバックアップを保存。保存できなければ何も外さない（v252）
     const saved=await archiveBackup(fy);
     if(!saved){ toast('バックアップを保存できなかったため、アーカイブを中止しました'); return; }
+    // ①' v255: 外す前に、この年度の収支を繰越額として残す（期首残高が変わらないように。再アーカイブ分は加算）
+    const net=fyNetBalance(fy);
+    if(net){ if(!DB.archiveCarry||typeof DB.archiveCarry!=='object')DB.archiveCarry={}; DB.archiveCarry[fy]=(+DB.archiveCarry[fy]||0)+net; }
     // ② 該当年度の予定ID（試合結果の紐づけ用）を先に把握
     const evIds=new Set((DB.schedule||[]).filter(e=>inFY(e.date)).map(e=>e.id));
     // ③ 年度データを本体から除去（名簿・設定は保持）
@@ -12580,7 +12631,7 @@ function commitMateOrder(){
 }
 let pickedCat='小学生';
 function renderCatPick(){
-  document.getElementById('catPick').innerHTML=catNames().map(c=>`<button class="${c===pickedCat?'on':''}" onclick="pickCat('${c}')">${c}</button>`).join('');
+  document.getElementById('catPick').innerHTML=catNames().map(c=>`<button class="${c===pickedCat?'on':''}" onclick="pickCat('${escJ(c)}')">${esc(c)}</button>`).join('');
 }
 function pickCat(c){pickedCat=c;renderCatPick();updateGradePicker();}
 // ===== 学年（自動進級：入学基準を保存し、毎回計算） =====
@@ -12676,7 +12727,7 @@ function refreshGrades(){
 }
 let pickedRank='';
 function renderRankPick(){
-  const mk=r=>`<button class="${r===pickedRank?'on':''}" onclick="pickRank('${esc(r)}')">${esc(r)}</button>`;
+  const mk=r=>`<button class="${r===pickedRank?'on':''}" onclick="pickRank('${escJ(r)}')">${esc(r)}</button>`;
   // v246: 「その他（自由記載）」欄は廃止。一覧に無い既存の値だけはボタンとして残し、消えないようにする
   const extra=(pickedRank && !ranksAll().includes(pickedRank)) ? [pickedRank] : [];
   document.getElementById('rankPick').innerHTML=
@@ -12782,13 +12833,13 @@ function splitLegacyName(name){
 function stWordFix(){
   if(APP_EDITION!=='personal'&&DB.mode!=='personal')return;
   const t=document.getElementById('studentModalTitle');
-  if(t)t.textContent=t.textContent.replace('仲間',T('選手'));
+  if(t)t.textContent=T(editingStudent?'選手を編集':'選手を追加');   // v255: 「Athleteを追加」のように混ざらないよう文ごと訳す
 }
 function openStudentModal(id){
   editingStudent=id||null;
   if(id){
     const s=DB.students.find(x=>x.id===id);
-    document.getElementById('studentModalTitle').textContent='仲間を編集';
+    document.getElementById('studentModalTitle').textContent=T('仲間を編集');
     const nm=(s.lastName!=null||s.firstName!=null)?{last:s.lastName||'',first:s.firstName||''}:splitLegacyName(s.name);
     document.getElementById('stLastName').value=nm.last;
     document.getElementById('stFirstName').value=nm.first;
@@ -12820,7 +12871,7 @@ function openStudentModal(id){
     document.getElementById('stRole').value=s.role||'';
     pickedStSelf=!!s.isSelf;
   }else{
-    document.getElementById('studentModalTitle').textContent='仲間を追加';
+    document.getElementById('studentModalTitle').textContent=T('仲間を追加');
     pickedStSelf=(DB.mode==='personal'&&mateView==='self');
     ['stLastName','stFirstName','stLastKana','stFirstKana'].forEach(id=>document.getElementById(id).value='');
     pickedCat='小学生';
@@ -13094,7 +13145,7 @@ function loadLock(){
     else{lockCode='';}
   }}catch(e){}
 }
-function saveLock(){try{localStorage.setItem(LOCK_KEY,JSON.stringify({enabled:lockEnabled,hash:lockCode}));}catch(e){}}
+function saveLock(){if(demoMode)return;try{   /* v255: デモ中のパスコードは本来のアプリに残さない */ localStorage.setItem(LOCK_KEY,JSON.stringify({enabled:lockEnabled,hash:lockCode}));}catch(e){}}
 function buildLockKeypad(){
   const kp=document.getElementById('lockKeypad');
   let html='';
@@ -13164,6 +13215,7 @@ function cancelSetPasscode(){
   renderLockSettings();
 }
 function setLockEnabled(on){
+  if(on&&demoMode){ renderLockSettings(); toast(T('デモ中は暗証番号を設定できません')); return; }   // v255
   if(on){
     // v225: バックアップ未保存では設定させない（忘れた時の復旧手段がバックアップのみのため）
     if(!DB.lastBackup){ renderLockSettings(); toast(T('先にバックアップを保存してください')); return; }
@@ -13254,12 +13306,18 @@ async function exportData(){
         askConfirm(`${T('バックアップを保存しました')}<br><br>${T('保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。')}`,()=>{},T('確認しました'));
       }catch(e){
         if(e&&e.name==='AbortError')return;   // ユーザーがキャンセル＝保存扱いにしない
+        if(isNativeApp()){ backupNativeFail(); return; }   // v255: アプリ版はダウンロードでは保存されない
         downloadBackup(json,fname);            // 共有失敗時はダウンロードで保存
       }
       return;
     }
   }catch(e){}
+  if(isNativeApp()){ backupNativeFail(); return; }
   downloadBackup(json,fname);
+}
+// v255: アプリ版で共有シートが使えなかったとき。保存できたことにしない（最終バックアップ日を記録しない）
+function backupNativeFail(){
+  try{ alert('⚠️ '+T('バックアップを保存できませんでした。もう一度お試しください。解決しない場合は、アプリを再起動してからお試しください。')); }catch(e){}
 }
 // 最終バックアップからの経過日数（未実施は Infinity）
 function backupDaysSince(){
@@ -13319,15 +13377,24 @@ function importData(ev){
 function doRestore(){
   const d=pendingRestoreData;pendingRestoreData=null;
   if(!d){closeModal('confirmModal');return;}
+  // v255: 購読状態はバックアップの値ではなく、この端末の値を引き継ぐ（購入前のバックアップで購読が外れる／他人のPro状態を持ち込むのを防ぐ）
+  const _keepPro=DB.pro, _keepOfficePro=DB.officePro, _prevDB=DB, _prevLoadFailed=loadFailed;
   DB=Object.assign({attendance:{},fees:{},schedule:[],students:[],places:[],metaHistory:[],logo:DEFAULT_LOGO,cash:[],cashCats:{in:['寄付','参加費徴収','物販収入','補助金','その他収入'],out:['用具購入','会場費','遠征費','審査料','その他支出']},schedPresets:{types:['練習','大会','イベント','昇級審査'],times:['09:00','10:00','18:00','19:00'],places:['市民体育館','〇〇道場','','']},feePresets:[2000,3000,0,0]},d);
   // v240: 復元前の状態を退避し、正規化・再描画に失敗したら元に戻す（壊れたファイルで詰まないように）
   const _rollback=(()=>{ try{ return localStorage.getItem(STORE_KEY); }catch(e){ return null; } })();
   try{
+    DB.pro=_keepPro; DB.officePro=_keepOfficePro;
     normalizeDB(); // v125: load()と同一の正規化・マイグレーション
     closeModal('confirmModal');
     initUI();                       // 先に描画して問題がないことを確かめる
-    save();                         // 問題なければ保存
-    toast('復元しました');
+    loadFailed=false;               // v255: 読み込み失敗後の復元でも保存できるように（旧版は保存禁止のまま「復元しました」と出ていた）
+    if(!save()){                    // v255: 保存できたときだけ「復元しました」（容量オーバー等で保存できなければ元に戻す）
+      DB=_prevDB; loadFailed=_prevLoadFailed;
+      try{ initUI(); }catch(e){}
+      try{ alert('⚠️ '+T('復元したデータを保存できませんでした（保存容量が足りない可能性があります）。元のデータのまま残しています。')); }catch(e){}
+      return;
+    }
+    toast(T('復元しました'));
   }catch(err){
     try{ if(_rollback!==null)localStorage.setItem(STORE_KEY,_rollback); }catch(e){}
     closeModal('confirmModal');
@@ -13368,12 +13435,24 @@ document.querySelectorAll('.modal-bg').forEach(bg=>{
 let pendingCloseId=null;
 function askCloseConfirm(id){ pendingCloseId=id; openModal('closeConfirmModal'); }
 function closeConfirmDo(){ const id=pendingCloseId; pendingCloseId=null; closeModal('closeConfirmModal'); if(id)closeModal(id); }
+// v255: 購入・復元の二度押しを防ぐ（処理中に押すと課金側の「処理中」エラーが英語のまま出ていた）
+let _iapBusy=false;
+function iapGuard(fn){ return async function(){ if(_iapBusy)return; _iapBusy=true; document.body.classList.add('iap-busy');
+  try{ return await fn.apply(this,arguments); } finally{ _iapBusy=false; document.body.classList.remove('iap-busy'); } }; }
+purchasePro=iapGuard(purchasePro); restorePro=iapGuard(restorePro); purchaseOffice=iapGuard(purchaseOffice); restoreOffice=iapGuard(restoreOffice);
 function closeConfirmStay(){ pendingCloseId=null; closeModal('closeConfirmModal'); }
 let tT=null;
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2000);}
 
+// v255: 端末の言語から初期言語を決める（ja/en/fr/pt 以外は英語。日本語端末は従来どおり日本語）
+function deviceLang(){
+  try{ const l=String((navigator.languages&&navigator.languages[0])||navigator.language||'ja').toLowerCase();
+    if(l.startsWith('ja'))return 'ja'; if(l.startsWith('fr'))return 'fr'; if(l.startsWith('pt'))return 'pt'; return 'en';
+  }catch(e){ return 'ja'; }
+}
 function initUI(){
-  LANG=DB.lang||'ja';
+  // v255: 自分で選んだ言語（または日本語以外を選んだ記録）があればそれを、なければ端末の言語で始める（英語端末で日本語のみになるのを防ぐ）
+  LANG=(DB.langChosen||(DB.lang&&DB.lang!=='ja'))?DB.lang:deviceLang(); DB.lang=LANG;
   applyEdition();                                // v166: 専用ビルドはモード固定＋切替UI非表示
   officeGateCheck();                             // v218: 事務アプリは未加入ならハードペイウォール
   applyTheme();applyFont();

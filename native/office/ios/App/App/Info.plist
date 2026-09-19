@@ -21,11 +21,11 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>NSCameraUsageDescription</key>
-	<string>QRコードを読み取って試合結果を受け渡すためにカメラを使用します。画像が外部に送信されることはありません。</string>
+	<string>QRコードの読み取り（試合結果や予定の受け渡し）と、記録に添える写真の撮影にカメラを使用します。画像が外部に送信されることはありません。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>記録カードに写真を添えるために写真ライブラリを使用します。写真は端末内にのみ保存されます。</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>作成したシェア画像やバックアップ画像を保存するために使用します。</string>
+	<string>作成したシェア画像を写真に保存するために使用します。</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
