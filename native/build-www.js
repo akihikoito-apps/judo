@@ -124,15 +124,17 @@ const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: 
   document.addEventListener('DOMContentLoaded', function(){
     setTimeout(function(){
       try{
+        var payReady=function(){ try{ if(typeof officePaySetChecking==='function') officePaySetChecking(false); }catch(e){} };
         window.__iap.entitledNow().then(function(ok){
-          if(ok===null) return;                       // 不明（未設定/オフライン）は現状維持
+          if(ok===null){ payReady(); return; }        // 不明（未設定/オフライン）は現状維持（v254: 購読画面のボタンは出す）
           try{
             if(ok && typeof DB!=='undefined' && !DB.officePro && typeof officeUnlocked==='function' && APP==='office'){ officeUnlocked(); }
             if(ok && typeof DB!=='undefined' && !DB.pro && typeof setPro==='function' && APP==='player'){ setPro(true); }
             if(!ok && typeof DB!=='undefined' && APP==='office' && DB.officePro){ DB.officePro=false; save(); if(typeof officeGateCheck==='function') officeGateCheck(); }
             if(!ok && typeof DB!=='undefined' && APP==='player' && DB.pro){ setPro(false); }
           }catch(e){}
-        }).catch(function(e){ console.log('iap entitledNow error', e); });
+          if(!ok) payReady();                         // v254: 未加入なら購読画面のボタンを出す（失効時の再表示の後に）
+        }).catch(function(e){ payReady(); console.log('iap entitledNow error', e); });
       }catch(e){ console.log('iap boot error', e); }
       try{ if(typeof refreshPaywallPrices==='function') refreshPaywallPrices(); }catch(e){}
     }, 800);
