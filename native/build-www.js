@@ -44,7 +44,11 @@ const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: 
     try{
       var P=plugin();
       if(!P || API_KEY.indexOf('REVENUECAT_')===0){ ready=Promise.resolve(null); return ready; }
-      ready=Promise.resolve(P.configure({ apiKey: API_KEY })).then(function(){ return P; })
+      // v256: StoreKit 2 を明示する。既定（自動選択）では古いレシート方式(StoreKit 1)に落ちることがあり、
+      //        サンドボックスで「The receipt is not valid …」で購入シートすら出ずに失敗した。
+      //        ※RevenueCat側に In-App Purchase キーが設定済みであること（両プロジェクト設定済み・2026-09-24確認）。
+      //        iOS 15 など StoreKit 2 が使えない端末では、SDKが自動でStoreKit 1に戻す。
+      ready=Promise.resolve(P.configure({ apiKey: API_KEY, storeKitVersion: 'STOREKIT_2' })).then(function(){ return P; })
         .catch(function(e){ console.log('iap configure error', e); ready=null; return null; });
     }catch(e){ console.log('iap init error', e); ready=Promise.resolve(null); }
     return ready;
@@ -52,6 +56,29 @@ const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: 
   function entitled(info){
     try{ return !!(info && info.customerInfo && info.customerInfo.entitlements && info.customerInfo.entitlements.active && info.customerInfo.entitlements.active[ENTITLEMENT]); }
     catch(e){ return false; }
+  }
+  // v256: 課金側のエラーを日本語の案内に置き換える（従来は英語の原文がそのまま画面に出ていた）。
+  //       返す文字列はアプリ側の辞書に登録してあり、en/fr/pt でも訳される。
+  var ERR={
+    '2':'App Store側で問題が起きています。少し時間をおいてもう一度お試しください。',
+    '3':'この端末では購入が許可されていません。設定の「スクリーンタイム」などの制限をご確認ください。',
+    '5':'この商品はいま購入できません。少し時間をおいてもう一度お試しください。',
+    '6':'すでにご購入済みです。「購入を復元する」をお試しください。',
+    '7':'このご購入は別のApple IDで使用中です。ご購入時のApple IDでお試しください。',
+    '8':'購入の確認に失敗しました。アプリをいったん終了して開き直し、もう一度お試しください。',
+    '9':'購入の確認に失敗しました。アプリをいったん終了して開き直し、もう一度お試しください。',
+    '10':'通信に失敗しました。電波のよい場所でもう一度お試しください。',
+    '13':'このご購入は別のApple IDで使用中です。',
+    '15':'前の手続きがまだ進行中です。少し待ってからお試しください。',
+    '17':'課金の設定に問題があります。お手数ですがサポートページからご連絡ください。',
+    '20':'購入の承認待ちです。承認されると自動でご利用いただけます。',
+    '23':'課金の設定に問題があります。お手数ですがサポートページからご連絡ください。',
+    '35':'オフラインのため購入できません。通信を確認してからお試しください。'
+  };
+  function errText(e,fallback){
+    try{ console.log('iap error', e && e.code, e && e.message); }catch(_){}
+    var c=String(e&&e.code!=null?e.code:'');
+    return ERR[c]||fallback;
   }
   // ユーザーが購入をキャンセルしたか（RevenueCat: PURCHASE_CANCELLED_ERROR = 1）
   function cancelled(e){ if(!e) return false; if(e.userCancelled) return true;
@@ -99,8 +126,8 @@ const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: 
         return ok;
       }catch(e){
         if(cancelled(e)) return 'cancel';
-        window.__iap.lastError=(e&&e.message)?String(e.message):'購入に失敗しました';
-        console.log('iap buy error', e); return false;
+        window.__iap.lastError=errText(e,'購入は完了しませんでした。少し時間をおいてもう一度お試しください。');
+        return false;
       }
     },
     // 購入の復元。成功（対象あり）で true。
@@ -111,7 +138,7 @@ const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: 
       try{ var res=await P.restorePurchases(); var ok=entitled(res);
         if(!ok) window.__iap.lastError='このApple IDでのご購入が見つかりませんでした';
         return ok; }
-      catch(e){ window.__iap.lastError=(e&&e.message)?String(e.message):'復元に失敗しました'; console.log('iap restore error', e); return false; }
+      catch(e){ window.__iap.lastError=errText(e,'復元できませんでした。少し時間をおいてもう一度お試しください。'); return false; }
     },
     // 現在の加入状態（起動時の再検証用）。true/false/null(不明)。
     entitledNow: async function(){

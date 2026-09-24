@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v255（再提出前の総点検（Codex＋独立監査2本）での修正：復元後に保存されない／保存失敗でも「復元しました」／復元で購読状態が上書き／アプリ版でバックアップ未保存のままアーカイブ・最終バックアップ日を記録／アーカイブで期首残高が変わる（archiveCarry）／デモ中に購読画面が重なる・暗証番号が残る／選手の復元で購入画面が閉じない／デモ帯がボタンを覆う／onclick への文字列埋め込みで「'」が壊れ・細工でコード実行（escJ）／稽古記録の日付変更で上書き消失／繰り返し予定の単回編集で対象者が保存されない／取り込み後の月移動／アプリ内プライバシーポリシーにRevenueCat／端末言語で起動／分析タブPro案内の翻訳／購入・復元の二度押し防止） -->
+<!-- My柔道 / 内部名 MyDojo ・ アプリ版 v256（課金の方式と文言：RevenueCatのconfigureで StoreKit 2 を明示（既定の自動選択だと古いレシート方式に落ち、サンドボックスで「The receipt is not valid…」により購入シートも出ず失敗した）。課金エラーを番号で読み分けて日本語の案内にし、en/fr/pt の辞書にも登録。iapErrText も T() を通す） -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -5035,7 +5035,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v255'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v256'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5626,6 +5626,23 @@ Object.assign(DICT,{
   '選手を追加':{en:'Add athlete',fr:'Ajouter un athlète',pt:'Adicionar atleta'},
   '仲間を編集':{en:'Edit member',fr:'Modifier le membre',pt:'Editar membro'},
   '復元しました':{en:'Restored',fr:'Restauré',pt:'Restaurado'},
+  'App Store側で問題が起きています。少し時間をおいてもう一度お試しください。':{en:'There is a problem on the App Store side. Please wait a moment and try again.',fr:'Un problème est survenu du côté de l’App Store. Merci de réessayer dans un instant.',pt:'Há um problema no lado da App Store. Aguarde um momento e tente novamente.'},
+  'この端末では購入が許可されていません。設定の「スクリーンタイム」などの制限をご確認ください。':{en:'Purchases are not allowed on this device. Check restrictions such as Screen Time in Settings.',fr:'Les achats ne sont pas autorisés sur cet appareil. Vérifiez les restrictions (Temps d’écran) dans Réglages.',pt:'Compras não são permitidas neste dispositivo. Verifique restrições como Tempo de Uso nos Ajustes.'},
+  'この商品はいま購入できません。少し時間をおいてもう一度お試しください。':{en:'This product cannot be purchased right now. Please wait a moment and try again.',fr:'Ce produit ne peut pas être acheté pour le moment. Merci de réessayer dans un instant.',pt:'Este produto não pode ser comprado agora. Aguarde um momento e tente novamente.'},
+  'すでにご購入済みです。「購入を復元する」をお試しください。':{en:'You have already purchased this. Please try "Restore purchase".',fr:'Vous avez déjà effectué cet achat. Essayez « Restaurer l’achat ».',pt:'Você já comprou este item. Tente "Restaurar compra".'},
+  'このご購入は別のApple IDで使用中です。ご購入時のApple IDでお試しください。':{en:'This purchase is in use by another Apple Account. Please sign in with the account used for the purchase.',fr:'Cet achat est utilisé par un autre compte Apple. Connectez-vous avec le compte utilisé pour l’achat.',pt:'Esta compra está em uso por outra Conta Apple. Entre com a conta usada na compra.'},
+  '購入の確認に失敗しました。アプリをいったん終了して開き直し、もう一度お試しください。':{en:'The purchase could not be verified. Please quit the app, open it again and retry.',fr:'L’achat n’a pas pu être vérifié. Quittez l’app, rouvrez-la puis réessayez.',pt:'Não foi possível verificar a compra. Feche o app, abra novamente e tente de novo.'},
+  '通信に失敗しました。電波のよい場所でもう一度お試しください。':{en:'The connection failed. Please try again where the signal is good.',fr:'La connexion a échoué. Réessayez dans une zone mieux couverte.',pt:'A conexão falhou. Tente novamente onde o sinal for bom.'},
+  'このご購入は別のApple IDで使用中です。':{en:'This purchase is in use by another Apple Account.',fr:'Cet achat est utilisé par un autre compte Apple.',pt:'Esta compra está em uso por outra Conta Apple.'},
+  '前の手続きがまだ進行中です。少し待ってからお試しください。':{en:'A previous request is still in progress. Please wait a moment and try again.',fr:'Une demande précédente est encore en cours. Patientez un instant puis réessayez.',pt:'Uma solicitação anterior ainda está em andamento. Aguarde e tente novamente.'},
+  '課金の設定に問題があります。お手数ですがサポートページからご連絡ください。':{en:'There is a problem with the purchase setup. Please contact us from the support page.',fr:'Un problème de configuration des achats est survenu. Contactez-nous via la page d’assistance.',pt:'Há um problema na configuração de compras. Fale conosco pela página de suporte.'},
+  '購入の承認待ちです。承認されると自動でご利用いただけます。':{en:'The purchase is awaiting approval. It will become available automatically once approved.',fr:'L’achat est en attente d’approbation. Il sera disponible automatiquement une fois approuvé.',pt:'A compra aguarda aprovação. Ficará disponível automaticamente após a aprovação.'},
+  'オフラインのため購入できません。通信を確認してからお試しください。':{en:'You are offline, so the purchase cannot be made. Check your connection and try again.',fr:'Vous êtes hors ligne, l’achat est impossible. Vérifiez votre connexion et réessayez.',pt:'Você está off-line, então a compra não pode ser feita. Verifique a conexão e tente novamente.'},
+  '購入は完了しませんでした。少し時間をおいてもう一度お試しください。':{en:'The purchase was not completed. Please wait a moment and try again.',fr:'L’achat n’a pas abouti. Merci de réessayer dans un instant.',pt:'A compra não foi concluída. Aguarde um momento e tente novamente.'},
+  '復元できませんでした。少し時間をおいてもう一度お試しください。':{en:'The purchase could not be restored. Please wait a moment and try again.',fr:'La restauration a échoué. Merci de réessayer dans un instant.',pt:'Não foi possível restaurar. Aguarde um momento e tente novamente.'},
+  '課金機能を準備できませんでした（通信環境をご確認ください）':{en:'Purchases could not be prepared (please check your connection).',fr:'Les achats n’ont pas pu être préparés (vérifiez votre connexion).',pt:'Não foi possível preparar as compras (verifique sua conexão).'},
+  '商品情報を取得できませんでした（時間をおいて再度お試しください）':{en:'Product information could not be loaded (please try again later).',fr:'Les informations produit n’ont pas pu être chargées (réessayez plus tard).',pt:'Não foi possível carregar as informações do produto (tente mais tarde).'},
+  'このApple IDでのご購入が見つかりませんでした':{en:'No purchase was found for this Apple Account.',fr:'Aucun achat trouvé pour ce compte Apple.',pt:'Nenhuma compra encontrada para esta Conta Apple.'},
   'ご購入状況を確認しています…':{en:'Checking your purchase…',fr:'Vérification de votre achat…',pt:'Verificando sua compra…'},
   '👀 まず中身を見てみる（デモ）':{en:'👀 Take a look first (demo)',fr:'👀 Voir l’app d’abord (démo)',pt:'👀 Ver primeiro (demo)'},
   'デモではサンプルの道場データで全機能を試せます。入力しても保存はされません。':{en:'The demo uses sample dojo data so you can try every feature. Nothing you enter is saved.',fr:'La démo utilise des données d’exemple : tout est essayable, rien n’est enregistré.',pt:'A demo usa dados de exemplo: teste tudo; nada é salvo.'},
@@ -8878,7 +8895,7 @@ function proUnlocked(){ setPro(true); closeModal('paywallModal');
 }
 // v255: 復元でも購入と同じく購入画面を閉じて再描画する（旧版は印を付けるだけで画面が残った）
 function proRestored(){ proUnlocked(); toast(T('購入を復元しました')); }
-function iapErrText(fallback){ const e=(window.__iap&&window.__iap.lastError)||''; return e?e:T(fallback); }
+function iapErrText(fallback){ const e=(window.__iap&&window.__iap.lastError)||''; return e?T(e):T(fallback); }   // v256: 課金側の文言も辞書で訳す
 async function purchasePro(){
   if(window.__iap&&window.__iap.buy){
     try{ const ok=await window.__iap.buy();
