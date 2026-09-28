@@ -11515,7 +11515,7 @@ function doImport(){
   if(selfId==='__newstu__'){
     const nm=((importParsed.head&&importParsed.head.self)||'').trim();
     if(!nm){toast(T('選手のなまえが読み取れませんでした'));return;}
-    const dup=findStudentByName(nm);
+    const dup=findStudentExact(nm);      // v258: 部分一致で別人に振り替えない（佐藤 愛子→佐藤 愛）
     if(dup){ selfId=dup.id; }
     else{
       const parts=nm.split(/[\s　]+/).filter(Boolean);
@@ -12125,6 +12125,19 @@ function schedShareParse(raw){
    取り込みと「何件消えるか」の予測が必ず同じ結果になるようにするため。
    優先順位：①送り元IDで見つかる既存 ②対応表にあるID（消えていれば、そのIDで作り直す）
              ③送り元IDの手がかりが無いときだけ、日付＋種類＋大会名で照合 */
+/* v258: 送り元IDとこちらの予定IDの対応表から、
+   「予定も試合結果も申込も残っていない」ものだけを片付ける。
+   予定が消えていても結果が残っているうちは残す（取り込み直したときに紐付けを戻すため）。 */
+function schedSrcMapPrune(){
+  if(!DB.schedSrcMap)return;
+  Object.keys(DB.schedSrcMap).forEach(k=>{
+    const id=DB.schedSrcMap[k];
+    const used=(DB.schedule||[]).some(s=>s.id===id)
+      || !!((DB.matchResults||{})[id])
+      || !!((DB.entries||{})[id]);
+    if(!used)delete DB.schedSrcMap[k];
+  });
+}
 function schedMatchPlan(sender,ym,forId,items,mine,mineAll){
   mine=mine||(DB.schedule||[]).filter(s=>s.src===sender&&(s.date||'').slice(0,7)===ym&&(s.forId||'')===forId);
   mineAll=mineAll||(DB.schedule||[]).filter(s=>s.src===sender&&(s.forId||'')===forId);
@@ -12204,6 +12217,7 @@ function schedShareApply(parsed,forId){
   // v237: 送り主ごとに「最後に取り込んだ月・ひとこと・日付・件数」を残す
   DB.schedSrc=DB.schedSrc||{};
   DB.schedSrc[sender]={ym:ym,msg:(msg||''),at:todayStr(),n:items.length};
+  schedSrcMapPrune();                    // v258: 使われなくなった対応を溜めない
   if(!save()){ try{
     DB.schedule=JSON.parse(_bkSchedJson); DB.schedSrc=JSON.parse(_bkSrcJson); DB.schedSrcMap=JSON.parse(_bkMapJson);
     Object.keys(_bkMeta).forEach(k=>{ const m=DB.matchResults&&DB.matchResults[k]; if(m){ m.name=_bkMeta[k].name; m.title=_bkMeta[k].title; m.date=_bkMeta[k].date; } });
@@ -12344,8 +12358,7 @@ function srDeleteSender(name){
     // v258: 他の削除と同じく、試合結果に大会名・日付を残してから消す
     (DB.schedule||[]).forEach(s=>{ if(s.src===name&&typeof bakeSchedMeta==='function')bakeSchedMeta(s.id); });
     DB.schedule=(DB.schedule||[]).filter(s=>s.src!==name); if(DB.schedSrc)delete DB.schedSrc[name];
-    // v258: この送り主の対応表も片付ける（送り主ごと消したのに残り続けないように）
-    if(DB.schedSrcMap)Object.keys(DB.schedSrcMap).forEach(k=>{ if(k.split('\u0001')[0]===name)delete DB.schedSrcMap[k]; });
+    schedSrcMapPrune();                  // v258: 参照の無くなった対応だけ片付ける
     save();
     renderSrSenders();
     if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
