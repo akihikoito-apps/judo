@@ -1665,11 +1665,16 @@ function applyUpdate(){
   <div class="modal">
     <h3 style="margin-top:0">道場に送る</h3>
     <p class="list-mini">道場の担当者に送ってください。道場アプリの「集計 › 試合結果 › 📥取り込み」から、QRでもテキストでもそのまま登録できます。</p>
+    <div id="dojoGroupPick" style="display:none;margin-top:8px">
+      <label class="fld">送る試合</label>
+      <select id="dojoGroupSel" onchange="dojoSetGroup(this.value)" style="width:100%"></select>
+      <p class="list-mini" style="margin:6px 0 0">個人戦と団体戦は道場アプリでの取り込み方がちがいます。ひとまとまりずつ、分けて送ってください。</p>
+    </div>
     <div class="io-pick" style="margin-top:8px">
       <button id="dojoFmtQr" class="on" onclick="dojoSetFmt('qr')">📷 QRコード</button>
       <button id="dojoFmtTx" onclick="dojoSetFmt('text')">📝 テキスト</button>
     </div>
-    <div id="dojoPrevQr" onclick="qrShowFromDojo()" style="display:flex;justify-content:center;align-items:center;height:min(62vw,260px);padding:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;margin-top:10px;cursor:pointer;box-sizing:border-box"></div>
+    <div id="dojoPrevQr" onclick="qrShowFromDojo(event.target)" style="display:flex;justify-content:center;align-items:center;height:min(62vw,260px);padding:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;margin-top:10px;cursor:pointer;box-sizing:border-box"></div>
     <textarea id="dojoSendText" readonly class="dojo-send-ta" style="display:none;margin-top:10px;height:min(62vw,260px);box-sizing:border-box"></textarea>
     <p class="list-mini" id="dojoQrHint" style="margin-top:6px;min-height:2.9em">タップで大きく表示できます。会場では、この画面をそのまま読み取ってもらえます。</p>
     <div class="row" style="margin-top:12px">
@@ -1686,6 +1691,7 @@ function applyUpdate(){
     <h3 style="margin-top:0">QRで渡す</h3>
     <p class="list-mini">道場の担当者に、このQRを「試合結果 › 📋 取り込み › 📷 QRで受け取る」で読み取ってもらってください。</p>
     <div id="qrShowBox" style="background:#fff;padding:14px;border-radius:14px;display:inline-block;margin:6px auto 4px;min-height:120px"></div>
+    <div id="qrShowSub" class="list-mini" style="display:none;font-weight:800;margin-top:2px"></div>
     <div id="qrShowErr" class="imp-warn" style="display:none">この内容はQR1枚に収まりません。「コピー」や「送る」で渡してください。</div>
     <div class="row" style="margin-top:14px"><button class="btn ghost" onclick="closeModal('qrShowModal')">閉じる</button></div>
   </div>
@@ -1736,18 +1742,18 @@ function applyUpdate(){
     <p class="list-mini">道場・部活の事務管理と試合分析の、すべての機能をご利用いただけます。</p>
     <div style="text-align:left;background:#faf7ef;border:1px solid #eadcb0;border-radius:12px;padding:12px 14px;margin-top:12px">
       <div class="list-mini" style="font-weight:800;color:var(--navy);margin-bottom:6px">年額プラン</div>
-      <div class="list-mini" id="officePayPrice" style="font-weight:800">年額 ¥7,800（最初の1ヶ月は無料）</div>
+      <div class="list-mini" id="officePayPrice" style="font-weight:800">年額 ¥7,800（初めてのご利用なら最初の1ヶ月は無料）</div>
       <div class="list-mini" id="officePayHelp" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff6e0;border:1px solid #e6c77a;color:#7a5b00;text-align:left">
         <b>うまくいかないときは</b><br>
         ・Wi-Fi／モバイル通信がつながっているかご確認のうえ、もう一度お試しください。<br>
         ・以前ご購入済みの場合は「購入を復元する」をお試しください。<br>
         ・解決しない場合は <a href="https://akihikoito-apps.github.io/judo/support.html" target="_blank" rel="noopener">サポートページ</a> からお問い合わせください。
       </div>
-      <div class="list-mini" id="officePayTerms" style="margin-top:6px">無料期間の終了後は年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。</div>
+      <div class="list-mini" id="officePayTerms" style="margin-top:6px">無料期間があるときは、その終了後から年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。</div>
     </div>
     <p class="list-mini" id="officePayChecking" style="display:none;margin-top:14px;font-weight:700">ご購入状況を確認しています…</p>
     <div id="officePayActions">
-    <button class="btn gold full" id="officeBuyBtn" style="margin-top:14px" onclick="purchaseOffice()">1ヶ月無料ではじめる</button>
+    <button class="btn gold full" id="officeBuyBtn" style="margin-top:14px" onclick="purchaseOffice()">年額プランをはじめる</button>
     <button class="btn full" style="margin-top:10px" onclick="demoStart()">👀 まず中身を見てみる（デモ）</button>
     <p class="list-mini" style="margin-top:6px">デモではサンプルの道場データで全機能を試せます。入力しても保存はされません。</p>
     <button class="btn ghost full sm" style="margin-top:10px" onclick="restoreOffice()">購入を復元する</button>
@@ -2563,7 +2569,7 @@ function applyUpdate(){
     </div>
     <div id="importStep2" style="display:none">
       <label class="fld" style="margin-top:0">選手（在籍者から選択）</label>
-      <select id="importSelf"></select>
+      <select id="importSelf" onchange="onImportSelfChange()"></select>
       <div class="imp-hint" id="importSelfHint"></div>
       <label class="fld">取り込み先の大会</label>
       <select id="importSched" onchange="onImportSchedChange()"></select>
@@ -5035,7 +5041,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v256'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v258'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -5643,6 +5649,113 @@ Object.assign(DICT,{
   '課金機能を準備できませんでした（通信環境をご確認ください）':{en:'Purchases could not be prepared (please check your connection).',fr:'Les achats n’ont pas pu être préparés (vérifiez votre connexion).',pt:'Não foi possível preparar as compras (verifique sua conexão).'},
   '商品情報を取得できませんでした（時間をおいて再度お試しください）':{en:'Product information could not be loaded (please try again later).',fr:'Les informations produit n’ont pas pu être chargées (réessayez plus tard).',pt:'Não foi possível carregar as informações do produto (tente mais tarde).'},
   'このApple IDでのご購入が見つかりませんでした':{en:'No purchase was found for this Apple Account.',fr:'Aucun achat trouvé pour ce compte Apple.',pt:'Nenhuma compra encontrada para esta Conta Apple.'},
+  /* ===== v258 で追加した訳 ===== */
+  'この予定表を取り込むと、いまある予定のうち':{en:'Importing this schedule will delete ',fr:'Importer cet agenda supprimera ',pt:'Importar esta agenda vai apagar '},
+  '件が消えます。':{en:' of the events you already have.',fr:' de vos événements actuels.',pt:' dos eventos que você já tem.'},
+  '予定表の全部を貼れているか、もう一度ご確認ください。':{en:'Please check that you pasted the whole schedule.',fr:'Vérifiez que vous avez collé l’agenda en entier.',pt:'Confira se você colou a agenda inteira.'},
+  'このまま取り込みますか？':{en:'Import it anyway?',fr:'Importer quand même ?',pt:'Importar mesmo assim?'},
+  '取り込む':{en:'Import',fr:'Importer',pt:'Importar'},
+  '予定表が途中までしか貼られていません（':{en:'The schedule is only partly pasted (',fr:'L’agenda n’est collé qu’en partie (',pt:'A agenda foi colada só em parte ('},
+  '件）。全部を貼り直してください。':{en:' items). Please paste the whole thing again.',fr:' éléments). Recollez-le en entier.',pt:' itens). Cole tudo novamente.'},
+  '予定表が途中までしか貼られていません。全部を貼り直してください':{en:'The schedule is only partly pasted. Please paste the whole thing again.',fr:'L’agenda n’est collé qu’en partie. Recollez-le en entier.',pt:'A agenda foi colada só em parte. Cole tudo novamente.'},
+  '報告がまとめて貼られています。':{en:'More than one report has been pasted together.',fr:'Plusieurs rapports ont été collés ensemble.',pt:'Foram colados vários relatórios juntos.'},
+  '」を出場者から外します。':{en:'” will be removed from the entry list.',fr:'» sera retiré de la liste des inscrits.',pt:'” será removido da lista de inscritos.'},
+  '入力した参加費・集金済み・メモも一緒に消えます。':{en:'The entry fee, payment status and notes you entered will be deleted too.',fr:'Les frais, le paiement et les remarques saisis seront aussi supprimés.',pt:'A taxa, o pagamento e as observações também serão apagados.'},
+  '外す':{en:'Remove',fr:'Retirer',pt:'Remover'},
+  '次の方を出場者から外します。':{en:'These people will be removed from the entry list.',fr:'Ces personnes seront retirées des inscrits.',pt:'Estas pessoas serão removidas dos inscritos.'},
+  '出場者が変わったので、申込の完了を取り消しました':{en:'The entry list changed, so the application is no longer marked complete.',fr:'La liste a changé : l’inscription n’est plus marquée terminée.',pt:'A lista mudou, então a inscrição não está mais como concluída.'},
+  '別の予定表のQRです。1枚目から読み直してください':{en:'This QR belongs to a different schedule. Please start again from sheet 1.',fr:'Ce QR appartient à un autre agenda. Recommencez à partir du 1er.',pt:'Este QR é de outra agenda. Comece de novo pela 1ª folha.'},
+  '別の人のQRです。1枚目から読み直してください':{en:'This QR belongs to a different person. Please start again from sheet 1.',fr:'Ce QR appartient à une autre personne. Recommencez à partir du 1er.',pt:'Este QR é de outra pessoa. Comece de novo pela 1ª folha.'},
+  'ちがう選手の報告がまとめて貼られています。':{en:'Reports from more than one athlete have been pasted together.',fr:'Des rapports de plusieurs athlètes ont été collés ensemble.',pt:'Foram colados relatórios de mais de um atleta.'},
+  '取り違えるおそれがあるため、1人分ずつ貼って取り込んでください。':{en:'To avoid mixing them up, please paste and import one athlete at a time.',fr:'Pour éviter toute confusion, importez un athlète à la fois.',pt:'Para não misturar, importe um atleta por vez.'},
+  'わかりました':{en:'OK',fr:'D’accord',pt:'Entendi'},
+  '登録済み':{en:'Already saved',fr:'Déjà enregistré',pt:'Já salvo'},
+  '保存できませんでした。取り込みは行われていません':{en:'Could not save. Nothing was imported.',fr:'Enregistrement impossible. Rien n’a été importé.',pt:'Não foi possível salvar. Nada foi importado.'},
+  'この月に予定はありません（送ると、受け取った側のこの月の予定が取り消されます）':{en:'No events this month (sending this cancels that month\'s events for everyone who receives it)',fr:'Aucun événement ce mois-ci (l’envoi annule ce mois chez les destinataires)',pt:'Nenhum evento neste mês (enviar cancela o mês de quem receber)'},
+  '予定は0件です。この月の予定はすべて取り消しになります。':{en:'This schedule has no events. Everything for that month will be cancelled.',fr:'Cet agenda est vide : tout le mois sera annulé.',pt:'Esta agenda está vazia: todo o mês será cancelado.'},
+  'この予定表は0件です。':{en:'This schedule has no events.',fr:'Cet agenda ne contient aucun événement.',pt:'Esta agenda não tem eventos.'},
+  'の':{en:'’s ',fr:'de ',pt:'de '},
+  '月の予定を、すべて取り消します。':{en:'— all events for that month will be cancelled.',fr:'— tous les événements du mois seront annulés.',pt:'— todos os eventos do mês serão cancelados.'},
+  'よろしいですか？':{en:'Is that OK?',fr:'Confirmer ?',pt:'Tudo certo?'},
+  'すべて取り消す':{en:'Cancel them all',fr:'Tout annuler',pt:'Cancelar tudo'},
+  '入力しかけの内容を戻しました':{en:'Restored what you had been typing.',fr:'Votre saisie en cours a été restaurée.',pt:'Restauramos o que você estava digitando.'},
+  '種別は、入力済みの試合すべてに適用されます':{en:'The match type applies to every bout you have entered.',fr:'Le type s’applique à tous les combats saisis.',pt:'O tipo vale para todas as lutas já inseridas.'},
+  '役割は、入力済みの試合すべてに適用されます':{en:'The position applies to every bout you have entered.',fr:'La position s’applique à tous les combats saisis.',pt:'A posição vale para todas as lutas já inseridas.'},
+  /* ===== v257 で追加した訳 ===== */
+  'QRが複数枚になるため、テキストでお送りします':{en:'The QR code needs several images, so we\'ll send it as text.',fr:'Le QR nécessite plusieurs images : envoi en texte.',pt:'O QR precisa de várias imagens; enviando como texto.'},
+  'QRが複数枚になるため、テキストでコピーします':{en:'The QR code needs several images, so we\'ll copy it as text.',fr:'Le QR nécessite plusieurs images : copie en texte.',pt:'O QR precisa de várias imagens; copiando como texto.'},
+  '⚠️ このファイルは復元できませんでした。\n元のデータはそのまま残しています。\n別のバックアップファイルをお試しください。':{en:'⚠️ This file could not be restored.\nYour existing data has been left untouched.\nPlease try another backup file.',fr:'⚠️ Ce fichier n’a pas pu être restauré.\nVos données actuelles sont intactes.\nEssayez un autre fichier de sauvegarde.',pt:'⚠️ Não foi possível restaurar este arquivo.\nSeus dados atuais foram mantidos.\nTente outro arquivo de backup.'},
+  '⚠️ データを保存できませんでした。\n端末の保存容量が上限に達している可能性があります。\n\nこのあとの変更も保存されません。「設定 › データ管理」からバックアップを保存し、写真の削除や「古い年度をアーカイブ」で空き容量を確保してください。':{en:'⚠️ Your data could not be saved.\nYour device may be out of storage.\n\nChanges from now on will not be saved either. Save a backup from Settings › Data, then free up space by deleting photos or using “Archive an older year”.',fr:'⚠️ Impossible d’enregistrer les données.\nLe stockage de l’appareil est peut-être plein.\n\nLes modifications suivantes ne seront pas enregistrées non plus. Enregistrez une sauvegarde depuis Réglages › Données, puis libérez de l’espace (supprimer des photos ou « Archiver une année »).',pt:'⚠️ Não foi possível salvar os dados.\nO armazenamento do aparelho pode estar cheio.\n\nAs próximas alterações também não serão salvas. Salve um backup em Ajustes › Dados e libere espaço apagando fotos ou usando “Arquivar um ano anterior”.'},
+  '⚠️ 保存されていたデータを読み取れませんでした。\n\n上書きを避けるため、これ以上の自動保存は行いません。\n「設定 › データ管理 › バックアップから復元」で、お手元のバックアップファイルを読み込んでください。\n\n（読み取れなかったデータは端末内に退避してあります）':{en:'⚠️ The saved data could not be read.\n\nTo avoid overwriting it, automatic saving has been stopped.\nPlease load your backup file from Settings › Data › Restore from backup.\n\n(The unreadable data has been set aside on this device.)',fr:'⚠️ Impossible de lire les données enregistrées.\n\nPour éviter de les écraser, l’enregistrement automatique est arrêté.\nChargez votre sauvegarde depuis Réglages › Données › Restaurer.\n\n(Les données illisibles sont conservées à part sur l’appareil.)',pt:'⚠️ Não foi possível ler os dados salvos.\n\nPara não sobrescrevê-los, o salvamento automático foi interrompido.\nCarregue seu backup em Ajustes › Dados › Restaurar do backup.\n\n(Os dados ilegíveis foram guardados à parte no aparelho.)'},
+  '」さんのことですか？':{en:'”?',fr:' » ?',pt:'”?'},
+  '」は、登録されている「':{en:'” — is this the registered “',fr:' » : s’agit-il de « ',pt:'” — é a pessoa cadastrada “'},
+  '」はまだ登録されていません。':{en:'” is not registered yet.',fr:'» n’est pas encore enregistré.',pt:'” ainda não está cadastrado.'},
+  '」へ移し、このカードは削除します。よろしいですか？':{en:'” and delete this card. Is that OK?',fr:'» et supprimer cette carte. Confirmer ?',pt:'” e excluir este card. Tudo certo?'},
+  '」を削除します。この操作は取り消せません。':{en:'” will be deleted. This cannot be undone.',fr:'» sera supprimé. Action irréversible.',pt:'” será excluído. Não é possível desfazer.'},
+  '」を場所の一覧から削除します。':{en:'” will be removed from the list of places.',fr:'» sera retiré de la liste des lieux.',pt:'” será removido da lista de locais.'},
+  'このカードの記入済みの選手を「':{en:'Move the players filled in on this card to “',fr:'Déplacer les joueurs saisis sur cette carte vers « ',pt:'Mover os atletas preenchidos neste card para “'},
+  'この入出金の記録を削除します。この操作は取り消せません。':{en:'This cash entry will be deleted. This cannot be undone.',fr:'Cette écriture sera supprimée. Action irréversible.',pt:'Este lançamento será excluído. Não é possível desfazer.'},
+  'この対戦カード（団体戦）を削除します。含まれる各選手の結果もすべて消えます。この操作は取り消せません。':{en:'This team-match card will be deleted, along with every player\'s result on it. This cannot be undone.',fr:'Cette carte de rencontre par équipe sera supprimée, avec tous les résultats qu’elle contient. Action irréversible.',pt:'Este card de confronto por equipes será excluído, junto com todos os resultados nele. Não é possível desfazer.'},
+  'この試合結果を削除します。この操作は取り消せません。':{en:'This match result will be deleted. This cannot be undone.',fr:'Ce résultat sera supprimé. Action irréversible.',pt:'Este resultado será excluído. Não é possível desfazer.'},
+  'はい':{en:'Yes',fr:'Oui',pt:'Sim'},
+  'を反映しました':{en:'applied to everyone.',fr:'appliqué à tous.',pt:'aplicado a todos.'},
+  'を解放':{en:'freed',fr:'libérés',pt:'liberados'},
+  'コピーしました。対戦相手と結果を入力してください':{en:'Copied. Enter the opponent and the result.',fr:'Copié. Saisissez l’adversaire et le résultat.',pt:'Copiado. Informe o adversário e o resultado.'},
+  'コピーしました。相手チームと結果を入力してください':{en:'Copied. Enter the opposing team and the result.',fr:'Copié. Saisissez l’équipe adverse et le résultat.',pt:'Copiado. Informe a equipe adversária e o resultado.'},
+  'バックアップから復元します。<br><br>今このアプリに入っているデータ（仲間・出欠・お金・予定など）は、すべてバックアップの内容に上書きされ、元には戻せません。<br><br>復元してよろしいですか？':{en:'Restore from a backup.<br><br>Everything now in this app (members, attendance, money, schedule and so on) will be overwritten by the backup and cannot be brought back.<br><br>Restore anyway?',fr:'Restaurer depuis une sauvegarde.<br><br>Tout ce que contient l’app (membres, présences, finances, agenda…) sera écrasé par la sauvegarde, sans retour possible.<br><br>Restaurer ?',pt:'Restaurar a partir de um backup.<br><br>Tudo o que está no app (membros, presenças, finanças, agenda etc.) será substituído pelo backup e não poderá ser recuperado.<br><br>Restaurar mesmo assim?'},
+  'バックアップを保存できなかったため、アーカイブを中止しました':{en:'The backup could not be saved, so archiving was cancelled.',fr:'La sauvegarde a échoué : archivage annulé.',pt:'Não foi possível salvar o backup; o arquivamento foi cancelado.'},
+  'ファイルを読めませんでした':{en:'The file could not be read.',fr:'Impossible de lire le fichier.',pt:'Não foi possível ler o arquivo.'},
+  'ロゴを設定しました':{en:'Logo set.',fr:'Logo défini.',pt:'Logo definido.'},
+  'ロックを解除しました':{en:'Lock removed.',fr:'Verrouillage supprimé.',pt:'Bloqueio removido.'},
+  '予定を削除しました':{en:'Event deleted.',fr:'Événement supprimé.',pt:'Evento excluído.'},
+  '人制':{en:'-player format',fr:'joueurs',pt:'atletas'},
+  '件の予定を登録しました':{en:' events added.',fr:' événements ajoutés.',pt:' eventos adicionados.'},
+  'すでに埋まっている位置があるため統合できません。先にどちらかを空けてください':{en:'Some positions are already filled, so these cards cannot be merged. Please clear one side first.',fr:'Certaines positions sont déjà occupées : fusion impossible. Videz d’abord l’une des deux.',pt:'Algumas posições já estão preenchidas, então não é possível mesclar. Limpe um dos lados primeiro.'},
+  '取り込み先のカードと人数がちがうため、この役割を入れられません':{en:'The target card has a different roster size, so this position cannot be filled.',fr:'La carte cible a un nombre de joueurs différent : cette position ne peut pas être remplie.',pt:'O card de destino tem outro número de atletas, então esta posição não pode ser preenchida.'},
+  '件は取り込み先に位置がありませんでした':{en:' had no matching position on the target card',fr:' sans position correspondante sur la carte cible',pt:' sem posição correspondente no card de destino'},
+  'AAAA年度（BBBB）のデータをアプリ本体から外して容量を空けます。':{en:'Data for FY AAAA (BBBB) will be moved out of the app to free up space.',fr:'Les données de l’exercice AAAA (BBBB) seront sorties de l’app pour libérer de l’espace.',pt:'Os dados do ano fiscal AAAA (BBBB) serão retirados do app para liberar espaço.'},
+  'この年度のメモリー画像も一緒に外れます（写真':{en:'Memory images for this year go with it (photos: ',fr:'Les images Mémoire de cette année suivent (photos : ',pt:'As imagens de memória deste ano vão junto (fotos: '},
+  '枚・カード':{en:', cards: ',fr:', cartes : ',pt:', cards: '},
+  '枚／':{en:', ',fr:', ',pt:', '},
+  '）。バックアップには画像も含まれるので、復元すればそのまま戻ります。':{en:'). Images are included in the backup, so restoring brings them back.',fr:'). Les images sont dans la sauvegarde : une restauration les rétablit.',pt:'). As imagens estão no backup, então a restauração as traz de volta.'},
+  '件を統合しました':{en:' merged.',fr:' fusionnés.',pt:' mesclados.'},
+  '休会の開始（年月）を選んでください':{en:'Choose the month the leave starts.',fr:'Choisissez le mois de début de la pause.',pt:'Escolha o mês de início do afastamento.'},
+  '先に復元用の全体バックアップを保存します。<b>保存できたときだけ</b>アーカイブを実行します。よろしいですか？':{en:'A full backup will be saved first. Archiving runs <b>only if that backup succeeds</b>. Continue?',fr:'Une sauvegarde complète sera enregistrée d’abord. L’archivage ne s’exécute <b>que si elle réussit</b>. Continuer ?',pt:'Um backup completo será salvo primeiro. O arquivamento só ocorre <b>se o backup for bem-sucedido</b>. Continuar?'},
+  '出場者全員に':{en:'Everyone entered:',fr:'À tous les inscrits :',pt:'A todos os inscritos:'},
+  '初めてのご利用なら最初の':{en:'new subscribers get ',fr:'première fois : ',pt:'na primeira vez: '},
+  '別の人の記録にしたいときは、「やめる」を押してなまえを直してください。':{en:'If this belongs to someone else, tap Cancel and correct the name.',fr:'Si cela concerne quelqu’un d’autre, touchez Annuler et corrigez le nom.',pt:'Se for de outra pessoa, toque em Cancelar e corrija o nome.'},
+  '名簿から見えなくしたいだけなら、削除せず「退会」に設定し、仲間タブの「退会した仲間を表示」をオフにする方法がおすすめです。':{en:'If you only want them hidden from the list, set them to “Left” instead of deleting, and turn off “Show members who left” on the Members tab.',fr:'Pour seulement les masquer, mettez « Parti » au lieu de supprimer, puis désactivez « Afficher les membres partis » dans l’onglet Membres.',pt:'Se quiser apenas ocultá-los da lista, marque “Saiu” em vez de excluir e desative “Mostrar quem saiu” na aba Membros.'},
+  '回':{en:' times',fr:' fois',pt:' vezes'},
+  '姓または名を入れてください':{en:'Enter a first or last name.',fr:'Saisissez un nom ou un prénom.',pt:'Informe o nome ou o sobrenome.'},
+  '対戦相手には別の仲間を選んでください':{en:'Choose a different member as the opponent.',fr:'Choisissez un autre membre comme adversaire.',pt:'Escolha outro membro como adversário.'},
+  '対戦相手の仲間を選んでください':{en:'Choose the member who was the opponent.',fr:'Choisissez le membre qui était l’adversaire.',pt:'Escolha o membro que foi o adversário.'},
+  '年度をアーカイブしました':{en:' was archived.',fr:' a été archivée.',pt:' foi arquivado.'},
+  '年額プランをはじめる':{en:'Start the yearly plan',fr:'Commencer l’abonnement annuel',pt:'Assinar o plano anual'},
+  '新しい主役として登録して、この人の記録にしますか？':{en:'Register them as a new person and keep this as their record?',fr:'L’enregistrer comme nouvelle personne et lui attribuer ce résultat ?',pt:'Cadastrar como nova pessoa e guardar como registro dela?'},
+  '日付を選んでください':{en:'Choose a date.',fr:'Choisissez une date.',pt:'Escolha uma data.'},
+  '枚':{en:' photos',fr:' photos',pt:' fotos'},
+  '標準のロゴに戻しました':{en:'Back to the standard logo.',fr:'Retour au logo standard.',pt:'De volta ao logo padrão.'},
+  '無料期間があるときは、その終了後から年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'If a free period applies, the yearly price renews automatically once it ends. You can cancel any time in Settings › Subscriptions on your iPhone.',fr:'Si une période gratuite s’applique, le tarif annuel se renouvelle automatiquement à son terme. Résiliation à tout moment dans Réglages › Abonnements.',pt:'Se houver período gratuito, a renovação anual automática começa ao fim dele. Cancele quando quiser em Ajustes › Assinaturas.'},
+  '画像':{en:'Images',fr:'Images',pt:'Imagens'},
+  '登録する試合結果がありません':{en:'There are no results to save.',fr:'Aucun résultat à enregistrer.',pt:'Não há resultados para salvar.'},
+  '種類を選んでください':{en:'Choose a type.',fr:'Choisissez un type.',pt:'Escolha um tipo.'},
+  '編集':{en:'Edit',fr:'Modifier',pt:'Editar'},
+  '調整しました':{en:'Adjusted.',fr:'Ajusté.',pt:'Ajustado.'},
+  '通常額に戻しました':{en:'Back to the usual amount.',fr:'Retour au montant habituel.',pt:'De volta ao valor normal.'},
+  '過去の月謝や出欠の集計金額は保持されますが、集計表からこの方の名前は消えます。':{en:'Past fees and attendance totals are kept, but this person\'s name disappears from the tables.',fr:'Les cotisations et présences passées sont conservées, mais ce nom disparaît des tableaux.',pt:'As mensalidades e presenças anteriores são mantidas, mas este nome some das tabelas.'},
+  '金額を入れてください':{en:'Enter an amount.',fr:'Saisissez un montant.',pt:'Informe um valor.'},
+  '日間は無料':{en:' days free',fr:' jours offerts',pt:' dias grátis'},
+  '週間は無料':{en:' weeks free',fr:' semaines offertes',pt:' semanas grátis'},
+  '年間は無料':{en:' years free',fr:' ans offerts',pt:' anos grátis'},
+  '日間無料ではじめる':{en:' days free to start',fr:' jours gratuits pour commencer',pt:' dias grátis para começar'},
+  '週間無料ではじめる':{en:' weeks free to start',fr:' semaines gratuites pour commencer',pt:' semanas grátis para começar'},
+  '年間無料ではじめる':{en:' years free to start',fr:' ans gratuits pour commencer',pt:' anos grátis para começar'},
+  '新しく登録する':{en:'Register',fr:'Enregistrer',pt:'Cadastrar'},
+  '統合する':{en:'Merge',fr:'Fusionner',pt:'Mesclar'},
+  '復元する':{en:'Restore',fr:'Restaurer',pt:'Restaurar'},
+  '送る試合':{en:'Matches to send',fr:'Combats à envoyer',pt:'Lutas a enviar'},
+  '個人戦と団体戦は道場アプリでの取り込み方がちがいます。ひとまとまりずつ、分けて送ってください。':{en:'Individual and team matches are imported differently by the dojo app. Please send one group at a time.',fr:'Les combats individuels et par équipe s’importent différemment dans l’app du dojo. Envoyez un groupe à la fois.',pt:'Lutas individuais e por equipes são importadas de formas diferentes no app do dojo. Envie um grupo por vez.'},
+  '年額 ¥7,800（初めてのご利用なら最初の1ヶ月は無料）':{en:'¥7,800 / year (first-time users get the first month free)',fr:'7 800 ¥ par an (1er mois offert pour une première fois)',pt:'¥7.800 por ano (1º mês grátis na primeira vez)'},
   'ご購入状況を確認しています…':{en:'Checking your purchase…',fr:'Vérification de votre achat…',pt:'Verificando sua compra…'},
   '👀 まず中身を見てみる（デモ）':{en:'👀 Take a look first (demo)',fr:'👀 Voir l’app d’abord (démo)',pt:'👀 Ver primeiro (demo)'},
   'デモではサンプルの道場データで全機能を試せます。入力しても保存はされません。':{en:'The demo uses sample dojo data so you can try every feature. Nothing you enter is saved.',fr:'La démo utilise des données d’exemple : tout est essayable, rien n’est enregistré.',pt:'A demo usa dados de exemplo: teste tudo; nada é salvo.'},
@@ -6432,7 +6545,7 @@ function save(){
     showSaveError(true);                                    // v240: 失敗し続ける間ずっと出す
     if(!saveErrorShown){
       saveErrorShown=true;
-      try{alert('⚠️ データを保存できませんでした。\n端末の保存容量が上限に達している可能性があります。\n\nこのあとの変更も保存されません。「設定 › データ管理」からバックアップを保存し、写真の削除や「古い年度をアーカイブ」で空き容量を確保してください。');}catch(_){}
+      try{alert(T('⚠️ データを保存できませんでした。\n端末の保存容量が上限に達している可能性があります。\n\nこのあとの変更も保存されません。「設定 › データ管理」からバックアップを保存し、写真の削除や「古い年度をアーカイブ」で空き容量を確保してください。'));}catch(_){}
     }
     return false;
   }
@@ -6478,7 +6591,7 @@ function load(){
 function showLoadFailure(){
   if(!loadFailed)return;
   try{
-    alert('⚠️ 保存されていたデータを読み取れませんでした。\n\n上書きを避けるため、これ以上の自動保存は行いません。\n「設定 › データ管理 › バックアップから復元」で、お手元のバックアップファイルを読み込んでください。\n\n（読み取れなかったデータは端末内に退避してあります）');
+    alert(T('⚠️ 保存されていたデータを読み取れませんでした。\n\n上書きを避けるため、これ以上の自動保存は行いません。\n「設定 › データ管理 › バックアップから復元」で、お手元のバックアップファイルを読み込んでください。\n\n（読み取れなかったデータは端末内に退避してあります）'));
   }catch(e){}
 }
 // DBの正規化・旧形式マイグレーション（load と 復元doRestore の両方から必ず通す。v125で共通化）
@@ -6867,7 +6980,7 @@ function saveFeeAdjust(){
   else DB.feeOverrides[feeMonth][feeAdjustSid]=amt;
   // すでに支払済なら焼き付け額も更新
   if(DB.fees[feeMonth]&&DB.fees[feeMonth][feeAdjustSid]!==undefined)DB.fees[feeMonth][feeAdjustSid]=amt;
-  save();closeModal('feeAdjustModal');renderFee();toast('調整しました');
+  save();closeModal('feeAdjustModal');renderFee();toast(T('調整しました'));
 }
 function resetFeeAdjust(){
   if(!feeAdjustSid)return;
@@ -6875,7 +6988,7 @@ function resetFeeAdjust(){
   if(DB.feeOverrides[feeMonth])delete DB.feeOverrides[feeMonth][feeAdjustSid];
   // 支払済なら登録額で焼き直し
   if(DB.fees[feeMonth]&&DB.fees[feeMonth][feeAdjustSid]!==undefined)DB.fees[feeMonth][feeAdjustSid]=monthlyBaseFee(s,feeMonth);
-  save();closeModal('feeAdjustModal');renderFee();toast('通常額に戻しました');
+  save();closeModal('feeAdjustModal');renderFee();toast(T('通常額に戻しました'));
 }
 // 支払い記録から金額を取り出す（古い true 記録は現在額で補完）
 function studentFee(s){return (s && s.feeAmount!=null && s.feeAmount>0)?s.feeAmount:DB.feeAmount;}
@@ -6941,7 +7054,7 @@ function saveCashCats(){
   // 選択中の項目が消えたら先頭に寄せて再描画
   if(!(DB.cashCats[pickedIO]||[]).includes(pickedCashCat)) pickedCashCat='';
   renderCashCatPick();
-  toast('保存しました');
+  toast(T('保存しました'));
 }
 let editingCash=null;
 function openCashModal(id){
@@ -6970,17 +7083,17 @@ function saveCash(){
   const date=document.getElementById('cashDate').value;
   const memo=document.getElementById('cashMemo').value.trim();
   const cat=pickedCashCat;
-  if(amount<=0){toast('金額を入れてください');return;}
-  if(!date){toast('日付を選んでください');return;}
+  if(amount<=0){toast(T('金額を入れてください'));return;}
+  if(!date){toast(T('日付を選んでください'));return;}
   if(editingCash){
     const c=DB.cash.find(x=>x.id===editingCash);
     c.io=pickedIO;c.cat=cat;c.amount=amount;c.date=date;c.memo=memo;
   }else{
     DB.cash.push({id:uid(),io:pickedIO,cat:cat,amount,date,memo});
   }
-  save();closeModal('cashModal');renderCash();toast(editingCash?'更新しました':'記録しました');
+  save();closeModal('cashModal');renderCash();toast(T(editingCash?'更新しました':'記録しました'));
 }
-function delCash(id){askConfirm('この入出金の記録を削除します。この操作は取り消せません。',()=>{DB.cash=DB.cash.filter(x=>x.id!==id);save();renderCash();toast('削除しました');});}
+function delCash(id){askConfirm(T('この入出金の記録を削除します。この操作は取り消せません。'),()=>{DB.cash=DB.cash.filter(x=>x.id!==id);save();renderCash();toast(T('削除しました'));});}
 function renderCash(){
   const[y,m]=cashMonth.split('-');
   document.getElementById('cashMonthLbl').textContent=`${y}年 ${Number(m)}月`;
@@ -7156,7 +7269,7 @@ function applyRecurScope(scope){
     const sid=s.seriesId, from=s.date, id=s.id;
     if(scope==='one'){ bakeSchedMeta(id); DB.schedule=DB.schedule.filter(x=>x.id!==id); }
     else { DB.schedule.filter(x=>x.seriesId===sid&&x.date>=from).forEach(x=>bakeSchedMeta(x.id)); DB.schedule=DB.schedule.filter(x=>!(x.seriesId===sid && x.date>=from)); }
-    save();closeModal('recurScopeModal');closeModal('schedModal');renderSched();toast('削除しました');
+    save();closeModal('recurScopeModal');closeModal('schedModal');renderSched();toast(T('削除しました'));
     return;
   }
   const p=pendingSchedEdit; if(!p){closeModal('recurScopeModal');return;}
@@ -7172,7 +7285,7 @@ function applyRecurScope(scope){
     } });
   }
   pendingSchedEdit=null; schedYear=schedFY(s.date);
-  save();closeModal('recurScopeModal');closeModal('schedModal');renderSched();toast('保存しました');
+  save();closeModal('recurScopeModal');closeModal('schedModal');renderSched();toast(T('保存しました'));
 }
 function openSchedModal(id){
   editingSched=id||null;
@@ -7223,8 +7336,8 @@ function saveSched(){
   const placeFree=document.getElementById('schPlaceFree').value.trim();
   const place=placeFree||pickedSchPlace;
   const note=document.getElementById('schNote').value.trim();
-  if(!date){toast('日付を選んでください');return;}
-  if(!name){toast('種類を選んでください');return;}
+  if(!date){toast(T('日付を選んでください'));return;}
+  if(!name){toast(T('種類を選んでください'));return;}
   const fields={name,title,date,time,place,note,showMatch:pickedShowMatch,forId:pickedSchFor||''};
   // ① 既存のくり返し予定の編集 → 反映範囲を確認
   if(editingSched){
@@ -7243,14 +7356,14 @@ function saveSched(){
       made++;
     });
     schedYear=schedFY(date);
-    save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast(`${made}件の予定を登録しました`);
+    save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast(made+T('件の予定を登録しました'));
     return;
   }
   // ③ 通常の単発保存
   if(editingSched){ const s=DB.schedule.find(x=>x.id===editingSched); Object.assign(s,fields); }
   else{ DB.schedule.push(Object.assign({id:uid()},fields)); }
   schedYear=schedFY(date);
-  save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast(editingSched?'予定を更新しました':'予定を追加しました');
+  save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast(T(editingSched?'予定を更新しました':'予定を追加しました'));
 }
 function deleteSchedFromModal(){
   if(!editingSched)return;
@@ -7258,13 +7371,25 @@ function deleteSchedFromModal(){
   if(!s)return;
   if(s.seriesId){ openRecurScope('delete'); return; }
   const id=editingSched;
-  askConfirm(`「${esc(s.name)}（${s.date.replace(/-/g,'/')}）」を削除します。この操作は取り消せません。`,()=>{
+  askConfirm(T('「')+esc(s.name)+'（'+s.date.replace(/-/g,'/')+'）'+T('」を削除します。この操作は取り消せません。'),()=>{
     bakeSchedMeta(id);
+    schedCleanupEntries(id);                       // v258: 空の申込情報を残さない
     DB.schedule=DB.schedule.filter(x=>x.id!==id);
-    save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast('予定を削除しました');
+    save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast(T('予定を削除しました'));
   });
 }
-function delSched(id){bakeSchedMeta(id);DB.schedule=DB.schedule.filter(s=>s.id!==id);save();renderSched();toast('予定を削除しました');}
+// v258: 中身の無い申込情報が、開けない予定にぶら下がったまま残らないようにする
+function schedCleanupEntries(id){
+  if(!DB.entries||!DB.entries[id])return;
+  const e=DB.entries[id];
+  const has=Object.keys(e.parts||{}).length||(e.deadline||'')||(e.detail||'');
+  if(!has)delete DB.entries[id];
+}
+function delSched(id){
+  bakeSchedMeta(id);
+  schedCleanupEntries(id);
+  DB.schedule=DB.schedule.filter(s=>s.id!==id);save();renderSched();toast(T('予定を削除しました'));
+}
 
 /* ===== 試合結果 ===== */
 const RESULT_MARKS=['○','▲','×']; // 勝ち/負け/引分
@@ -7365,7 +7490,7 @@ function saveMatchPresets(){
   save(); closeModal('gradePresetModal');
   renderBRoundPicks(); renderBGradePicks();
   if(curCard&&document.getElementById('cardModal').classList.contains('show'))buildDetail();
-  toast('保存しました');
+  toast(T('保存しました'));
 }
 let boutPrefill=null;
 function copyBout(id){
@@ -7375,7 +7500,7 @@ function copyBout(id){
   // 選手・試合区分・回戦のみ引き継ぎ、対戦相手以下（勝敗・内容・決まり技・備考）は空にする
   boutPrefill={selfId:b.selfId,division:b.division||'',round:b.round||''};
   openBoutModal(null);
-  toast('コピーしました。対戦相手と結果を入力してください');
+  toast(T('コピーしました。対戦相手と結果を入力してください'));
 }
 // 選手プルダウンの属性絞り込み
 let bSelfCat='全員';
@@ -7511,8 +7636,8 @@ function saveBout(){
   const arr=m.individual;
   const selfId=document.getElementById('bSelfId').value;
   const oppId=pickedOppMate?document.getElementById('bOppId').value:'';
-  if(pickedOppMate&&!oppId){toast('対戦相手の仲間を選んでください');return;}
-  if(pickedOppMate&&oppId===selfId){toast('対戦相手には別の仲間を選んでください');return;}
+  if(pickedOppMate&&!oppId){toast(T('対戦相手の仲間を選んでください'));return;}
+  if(pickedOppMate&&oppId===selfId){toast(T('対戦相手には別の仲間を選んでください'));return;}
   const rec={
     id:editingBout||uid(),
     selfId:selfId,
@@ -7531,15 +7656,15 @@ function saveBout(){
   };
   if(editingBout){const idx=arr.findIndex(x=>x.id===editingBout);if(idx>=0)arr[idx]=rec;}
   else arr.push(rec);
-  save();closeModal('boutModal');renderMatchList();toast(editingBout?'更新しました':'追加しました');
+  save();closeModal('boutModal');renderMatchList();toast(T(editingBout?'更新しました':'追加しました'));
 }
 function deleteBout(){
   if(!editingBout)return;
   const id=editingBout;
-  askConfirm('この試合結果を削除します。この操作は取り消せません。',()=>{
+  askConfirm(T('この試合結果を削除します。この操作は取り消せません。'),()=>{
     const m=ensureMatch(curMatchSched);
     m.individual=m.individual.filter(x=>x.id!==id);
-    save();closeModal('boutModal');renderMatchList();toast('削除しました');
+    save();closeModal('boutModal');renderMatchList();toast(T('削除しました'));
   });
 }
 
@@ -7550,6 +7675,12 @@ const POS={
   5:['先鋒','次鋒','中堅','副将','大将'],
   7:['先鋒','二陣','三陣','中堅','五陣','副将','大将']
 };
+// v257: 対戦カードは1〜15人制まで作れる。3/5/7以外は「1人目…」の呼び方に揃える
+//       （POS[count] が undefined のまま indexOf すると、全員が先鋒の位置に入ってしまう）
+function posList(n){
+  n=Math.max(1,Math.min(15,Number(n)||5));
+  return POS[n]||Array.from({length:n},(_,i)=>(i+1)+'人目');
+}
 let curCard=null;     // 編集中カードの作業コピー
 let curCardId=null;   // 既存編集なら id、新規は null
 
@@ -7653,7 +7784,7 @@ function copyCard(cardId){
     bouts:(c.bouts||[]).map(b=>({id:uid(),selfId:b.selfId||'',result:'○',grade:'',waza:'',oppName:'',oppId:'',grip:'右',note:''}))
   };
   fillCardStep1('（コピー）');
-  toast('コピーしました。相手チームと結果を入力してください');
+  toast(T('コピーしました。相手チームと結果を入力してください'));
 }
 function showCardStep(n){
   document.getElementById('cardStep1').style.display=n===1?'block':'none';
@@ -7946,7 +8077,10 @@ function recalcTally(){
     `<div class="sc ${cls}">${scoreStr(r)}</div><div class="ct-note">${note}（引分はノーカウント）</div>`;
   // レギュラー戦が同点なら決着UIを表示
   document.getElementById('tiebreakWrap').style.display=r.regTied?'block':'none';
-  if(!r.regTied){curCard.tiebreak='';curCard.rep=null;}
+  // v258: まだ空いている枠があるうちは決着情報を消さない（他の選手の分が後から届くため）
+  const _all=(curCard.bouts||[]), _filled=_all.filter(b=>b&&b.selfId).length;
+  const _complete=(_all.length>0&&_filled===_all.length);
+  if(!r.regTied&&_complete){curCard.tiebreak='';curCard.rep=null;}
   renderTiebreakPick();
   renderRep();
 }
@@ -7977,21 +8111,27 @@ function saveCard(){
   (curCard.bouts||[]).forEach(stamp);
   if(curCard.rep)stamp(curCard.rep);
   // 整合性の整理：同点でなければ決着情報を消す
-  const reg=curCard.bouts||[];
+  // v257: teamCalc と同じく「選手を設定した枠」だけで数える。
+  //       空枠の既定○を数えていたため、代表戦だけのカードを開いて保存すると代表戦が消えていた。
+  const all=(curCard.bouts||[]);
+  const reg=all.filter(b=>b&&b.selfId);
   const sw=reg.filter(b=>b.result==='○').length, ow=reg.filter(b=>b.result==='▲').length;
-  if(sw!==ow){curCard.tiebreak='';curCard.rep=null;}
+  // v258: まだ空いている枠があるうちは「同点でない」と決めつけない（他の選手の分が後から届くため）。
+  //       全員そろっていて勝敗が付いているときだけ、決着情報を外す。
+  const complete=(reg.length===all.length&&all.length>0);
+  if(complete&&sw!==ow){curCard.tiebreak='';curCard.rep=null;}
   else if(curCard.tiebreak!=='rep'){curCard.rep=null;}
   if(curCardId){const idx=t.cards.findIndex(x=>x.id===curCardId);if(idx>=0)t.cards[idx]=curCard;else t.cards.push(curCard);}
   else t.cards.push(curCard);
-  save();closeModal('cardModal');renderMatchList();toast(curCardId?'更新しました':'追加しました');
+  save();closeModal('cardModal');renderMatchList();toast(T(curCardId?'更新しました':'追加しました'));
 }
 function deleteCard(){
   if(!curCardId){closeModal('cardModal');return;}
   const id=curCardId;
-  askConfirm('この対戦カード（団体戦）を削除します。含まれる各選手の結果もすべて消えます。この操作は取り消せません。',()=>{
+  askConfirm(T('この対戦カード（団体戦）を削除します。含まれる各選手の結果もすべて消えます。この操作は取り消せません。'),()=>{
     const t=ensureMatch(curMatchSched).team;
     t.cards=t.cards.filter(x=>x.id!==id);
-    save();closeModal('cardModal');renderMatchList();toast('削除しました');
+    save();closeModal('cardModal');renderMatchList();toast(T('削除しました'));
   });
 }
 /* ===== v161: 対戦カードの統合（同じ試合が複数カードに割れたときの復旧） ===== */
@@ -8009,7 +8149,7 @@ function mergeCardConfirm(){
   if(!targetId)return;
   const t=ensureMatch(curMatchSched).team;
   const dst=(t.cards||[]).find(c=>c.id===targetId); if(!dst)return;
-  askConfirm(`このカードの記入済みの選手を「${esc(impCardLabel(dst))}」へ移し、このカードは削除します。よろしいですか？`,()=>mergeCardInto(targetId),'統合する');
+  askConfirm(T('このカードの記入済みの選手を「')+esc(impCardLabel(dst))+T('」へ移し、このカードは削除します。よろしいですか？'),()=>mergeCardInto(targetId),'統合する');
 }
 function mergeCardInto(targetId){
   const t=ensureMatch(curMatchSched).team;
@@ -8017,29 +8157,40 @@ function mergeCardInto(targetId){
   const dst=(t.cards||[]).find(c=>c.id===targetId);
   if(!src||!dst)return;
   const sCount=src.count||5, dCount=dst.count||5;
-  const sPos=POS[sCount]||[], dPos=POS[dCount]||[];
+  const sPos=posList(sCount), dPos=posList(dCount);
   if(!Array.isArray(dst.bouts))dst.bouts=[];
   while(dst.bouts.length<dCount)dst.bouts.push(impEmptyBout());
-  let moved=0, skipped=0;
+  // v257: まず「全部移せるか」だけを調べる。
+  //   一部だけ移すと元カードの勝敗が実際と変わり、残った代表戦が次の保存で消えることもあるため、
+  //   埋まっている位置が1つでもあれば何もせず、先に空けてもらう。
+  const plan=[];
+  let blocked=0;
   (src.bouts||[]).forEach((b,i)=>{
     if(!b||!b.selfId)return;
     const nm=sPos[i]||'';
-    let di=dPos.indexOf(nm); if(di<0)di=i;
-    if(di<0||di>=dst.bouts.length){skipped++;return;}
-    if(dst.bouts[di]&&dst.bouts[di].selfId){skipped++;return;}   // 既に埋まっている位置は上書きしない
-    dst.bouts[di]=Object.assign({},b,{id:uid()}); moved++;
+    // v258: 人数がちがうカードへは、同じ役割が無い限り移さない（次鋒が中堅になっていた）
+    const di=dPos.indexOf(nm);
+    if(di<0){blocked++;return;}
+    if(di>=dst.bouts.length||(dst.bouts[di]&&dst.bouts[di].selfId)){blocked++;return;}
+    if(plan.some(p=>p.di===di)){blocked++;return;}
+    plan.push({di:di,b:b});
   });
-  if(src.tiebreak==='rep'&&src.rep&&src.rep.selfId){
-    if(!(dst.tiebreak==='rep'&&dst.rep&&dst.rep.selfId)){dst.tiebreak='rep';dst.rep=Object.assign({},src.rep,{id:uid()});moved++;}
-    else skipped++;
+  const hasRep=!!(src.tiebreak==='rep'&&src.rep&&src.rep.selfId);
+  if(hasRep&&dst.tiebreak==='rep'&&dst.rep&&dst.rep.selfId)blocked++;
+  if(blocked>0){
+    toast(T('すでに埋まっている位置があるため統合できません。先にどちらかを空けてください'));
+    return;
   }
+  plan.forEach(p=>{ dst.bouts[p.di]=Object.assign({},p.b,{id:uid()}); });
+  if(hasRep){ dst.tiebreak='rep'; dst.rep=Object.assign({},src.rep,{id:uid()}); }
+  const moved=plan.length+(hasRep?1:0);
   // 空欄のメタ情報を補完
   if(!(dst.oppTeam||'').trim()&&(src.oppTeam||'').trim())dst.oppTeam=src.oppTeam;
   if(!(dst.round||'').trim()&&(src.round||'').trim())dst.round=src.round;
   if(!(dst.division||'').trim()&&(src.division||'').trim())dst.division=src.division;
   t.cards=t.cards.filter(c=>c.id!==src.id);
   save();closeModal('cardModal');renderMatchList();
-  toast(moved+'件を統合しました'+(skipped?`（${skipped}件は位置が埋まっていたため見送り）`:''));
+  toast(moved+T('件を統合しました'));
 }
 // 全試合を選手ごとに集約（個人戦＋団体戦をまたぐ）
 function allBoutsBySelf(){
@@ -8401,28 +8552,80 @@ function rkCardHtml(ev,i){
 function rkSaveNote(el){const key=el.getAttribute('data-key'),v=el.value.trim();if(!DB.eventNotes)DB.eventNotes={};if(v)DB.eventNotes[key]=v;else delete DB.eventNotes[key];save();}
 /* ===== v160: 道場に送る＝個人モードの試合結果を、道場側の「テキストから取り込み」形式で書き出してLINE等で共有 ===== */
 let dojoSendCache='';
-function rkDojoText(ev){
+/* v257: 1つの大会に個人戦と団体戦（役割ちがい）が混ざりうる。
+   受け側の取り込み形式は「種別・人数・役割」を1組しか持てないため、
+   ひとまとまりずつに分けて送れるようにする（従来は全部まとめて「種別｜個人」で送っていた）。 */
+let dojoGroups=[], dojoGroupEv=null;
+// 団体戦の1試合から、元の対戦カードの「人数」と「役割（先鋒〜大将／代表戦）」を求める
+function rkTeamSlot(b){
+  const out={count:5,role:''};
+  try{
+    const mr=(DB.matchResults||{})[b.schedId]; if(!mr||!mr.team)return out;
+    const card=(mr.team.cards||[]).find(c=>c.id===b.cardId); if(!card)return out;
+    out.count=card.count||5;
+    if(card.tiebreak==='rep'&&card.rep&&card.rep.id===b.id){ out.role='代表戦'; return out; }
+    const pos=posList(out.count);
+    const idx=(card.bouts||[]).findIndex(x=>x&&x.id===b.id);
+    out.role=(idx>=0&&pos[idx])?pos[idx]:pos[0];
+  }catch(e){}
+  return out;
+}
+function rkDojoGroups(ev){
+  const gs=[];
+  (ev.bouts||[]).forEach(b=>{
+    let kind='個人',count=0,role='';
+    if(b.sheet==='団体戦'){ kind='団体'; const s=rkTeamSlot(b); count=s.count; role=s.role; }
+    const key=kind+'/'+count+'/'+role;
+    let g=gs.find(x=>x.key===key);
+    if(!g){ g={key:key,kind:kind,count:count,role:role,bouts:[]}; gs.push(g); }
+    g.bouts.push(b);
+  });
+  return gs;
+}
+function rkGroupLabel(g){
+  if(!g)return T('個人戦');
+  return g.kind==='個人' ? T('個人戦') : (T('団体戦')+'（'+g.count+T('人制')+'・'+T(g.role||'先鋒')+'）');
+}
+function rkDojoText(ev,g){
   const s=DB.students.find(x=>x.id===rkSelfId)||{name:''};
   const ti=rkTypeInfo(ev);
   const L=[];
   L.push('【My柔道 試合きろく】');
-  L.push('選手｜'+(s.name||''));
-  L.push('大会｜'+(ti.title||ev.name||''));
+  L.push('選手｜'+shareField(s.name||''));
+  L.push('大会｜'+shareField(ti.title||ev.name||''));
   L.push('日付｜'+((ev.date||'').replace(/-/g,'/')));
-  L.push('種別｜個人');
+  L.push('種別｜'+((g&&g.kind)||'個人'));
+  if(g&&g.kind==='団体'){ L.push('人数｜'+g.count); L.push('役割｜'+g.role); }
   L.push('--- 試合 ---');
-  (ev.bouts||[]).forEach(b=>{
-    const note=[b.note||'', (b.sheet==='団体戦'?'団体戦':'')].filter(Boolean).join(' / ');
-    L.push([b.result||'', b.waza||'', b.grip||'', b.grade||'', boutOppName(b)||'', b.oppAffil||'', b.round||'', note].join('｜'));
+  ((g&&g.bouts)||ev.bouts||[]).forEach(b=>{
+    // 代表戦は表示用に「2回戦・代表戦」と付けているが、送るときは回戦だけに戻す（受け側のカード照合がずれるため）
+    let round=b.round||'';
+    if(g&&g.role==='代表戦')round=round.replace(/[・･]?代表戦$/,'');
+    L.push([b.result||'', b.waza||'', b.grip||'', b.grade||'', boutOppName(b)||'', b.oppAffil||'', round, b.note||''].map(shareField).join('｜'));
   });
   return L.join('\n');
 }
 function rkSendToDojo(i){
   const ev=rkEvents[i]; if(!ev||ev.kind==='milestone')return;
   if(!(ev.bouts||[]).length){toast(T('送る試合結果がありません'));return;}
-  dojoSendCache=rkDojoText(ev);
+  dojoGroupEv=ev; dojoGroups=rkDojoGroups(ev);
+  const pick=document.getElementById('dojoGroupPick'), sel=document.getElementById('dojoGroupSel');
+  if(pick&&sel){
+    if(dojoGroups.length>1){
+      sel.innerHTML=dojoGroups.map((g,n)=>`<option value="${n}">${esc(rkGroupLabel(g))}（${g.bouts.length}${T('件')}）</option>`).join('');
+      sel.value='0'; pick.style.display='';
+    }else{ pick.style.display='none'; }
+  }
+  dojoSendCache=rkDojoText(ev,dojoGroups[0]);
   document.getElementById('dojoSendText').value=dojoSendCache;
   openModal('dojoSendModal'); dojoSetFmt('qr');
+}
+function dojoSetGroup(n){
+  const i=Math.max(0,parseInt(n,10)||0);
+  if(!dojoGroupEv||!dojoGroups[i])return;
+  dojoSendCache=rkDojoText(dojoGroupEv,dojoGroups[i]);
+  document.getElementById('dojoSendText').value=dojoSendCache;
+  dojoSetFmt(dojoFmt);
 }
 // v201: 送る内容はQR/テキストを切り替え。既定＝QR（会場受け渡しが主）。送る/コピーは選択形式で動作
 let dojoFmt='qr';
@@ -8439,6 +8642,7 @@ function dojoSetFmt(f){
   if(f==='qr'&&pv){
     // v242: 予定表と同じく700バイトずつに分割（試合数が多くてもQRが細かくなりすぎない）
     const parts=repShareParts(dojoSendCache);
+    if(!parts){ pv.innerHTML='<p class="list-mini" style="margin:0">'+T('内容が多すぎてQRにできません。テキストでお送りください。')+'</p>'; return; }
     const html=parts.map((p,i)=>{
       const svg=qrMakeSvg(p);
       const lbl=parts.length>1?'<div class="list-mini" style="font-weight:800;margin:8px 0 2px">QR '+(i+1)+' / '+parts.length+'</div>':'';
@@ -8448,19 +8652,53 @@ function dojoSetFmt(f){
   }
 }
 // v242: 試合きろくを700バイトずつのQRに分割（【My柔道 試合きろく i/n】を先頭に付ける）
+/* v258: 送受信の共通部品
+   ・shareField … 項目の中の「｜」「|」「改行」を消す（入れると受け側で項目がずれる）
+   ・shareIdOf  … 分割QRが同じ送信内容の断片かを見分ける短い印
+   ・shareChunks… 700バイトずつに分ける（1行が長すぎるときは行の途中でも切る） */
+function shareField(v){ return String(v==null?'':v).replace(/[｜|]/g,'／').replace(/[\r\n\u2028\u2029]/g,' ').trim(); }
+function shareBytes(x){ try{return unescape(encodeURIComponent(String(x))).length;}catch(e){return String(x).length*3;} }
+function shareIdOf(text){ let h=5381; for(let i=0;i<text.length;i++)h=((h*33)^text.charCodeAt(i))>>>0; return h.toString(36); }
+// 1行が長すぎてQRに収まらないか（収まらないときは分割せずテキストで送ってもらう。
+// 行の途中で切ると、受け取り側で別の行になり中身が落ちるため）
+function shareTooLongLine(text,max,reserve){
+  const room=Math.max(40,max-reserve);
+  return text.split('\n').some(l=>shareBytes(l)>room);
+}
+function shareChunks(text,max,reserve){
+  const room=Math.max(40,max-reserve);
+  const lines=text.split('\n');
+  const chunks=[]; let cur=[];
+  lines.forEach(l=>{ cur.push(l); if(shareBytes(cur.join('\n'))>room){ cur.pop(); if(cur.length)chunks.push(cur.join('\n')); cur=[l]; } });
+  if(cur.length)chunks.push(cur.join('\n'));
+  return chunks.length?chunks:[''];
+}
+// 受け取った断片から #ID を取り出し、本文からは外す
+function shareStripId(t){
+  const m=t.match(/(?:^|\n)#ID=([0-9a-z]+)[ \t]*$/);
+  return { id: m ? m[1] : '', body: t.replace(/(?:^|\n)#ID=[0-9a-z]+[ \t]*$/, '') };
+}
 function repShareParts(text){
   const MAX=700;
-  const bl=s=>{ try{return unescape(encodeURIComponent(s)).length;}catch(e){return s.length*3;} };
-  if(bl(text)<=MAX) return [text];
-  const lines=text.split('\n'), chunks=[]; let cur=[];
-  lines.forEach(l=>{ cur.push(l); if(bl(cur.join('\n'))>MAX-46){ cur.pop(); if(cur.length)chunks.push(cur.join('\n')); cur=[l]; } });
-  if(cur.length)chunks.push(cur.join('\n'));
-  const n=chunks.length;
-  return chunks.map((c,i)=>'【My柔道 試合きろく '+(i+1)+'/'+n+'】\n'+c);
+  if(shareBytes(text)<=MAX) return [text];
+  if(shareTooLongLine(text,MAX,60)) return null;       // v258: QRにできない（テキストで送ってもらう）
+  const chunks=shareChunks(text,MAX,60);
+  const n=chunks.length, sid=shareIdOf(text);
+  // v258: 断片に #ID を付ける。別の人のQRと混ざったまま復元されるのを防ぐ
+  //       （取り込み側は「｜」を含まない行を読み飛ばすので、古いアプリでも害にならない）
+  return chunks.map((c,i)=>'【My柔道 試合きろく '+(i+1)+'/'+n+'】\n'+c+'\n#ID='+sid);
 }
-function dojoQrPngBlob(){
+// v257: QRが複数枚に分かれたとき、1枚目だけを送ってしまわないように全部を画像にする
+function dojoQrCount(){ try{ return document.querySelectorAll('#dojoPrevQr svg').length; }catch(e){ return 0; } }
+async function dojoQrPngBlobs(){
+  const els=Array.from(document.querySelectorAll('#dojoPrevQr svg'));
+  const out=[];
+  for(let i=0;i<els.length;i++){ const b=await dojoQrPngBlob(els[i]); if(b)out.push(b); }
+  return out;
+}
+function dojoQrPngBlob(el){
   return new Promise(res=>{ try{
-    const svgEl=document.querySelector('#dojoPrevQr svg'); if(!svgEl){res(null);return;}
+    const svgEl=el||document.querySelector('#dojoPrevQr svg'); if(!svgEl){res(null);return;}
     const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgEl.outerHTML);
     const img=new Image();
     img.onload=()=>{ const S=720,cv=document.createElement('canvas'); cv.width=S; cv.height=S; const cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,S,S); cx.drawImage(img,0,0,S,S); cv.toBlob(b=>res(b),'image/png'); };
@@ -8469,16 +8707,27 @@ function dojoQrPngBlob(){
 }
 async function dojoSendShare(){
   const text=dojoSendCache;
+  if(dojoFmt==='qr'&&!repShareParts(dojoSendCache||'')){        // v258: QRにできない内容はテキストで
+    toast(T('内容が多すぎてQRにできません。テキストでお送りください。')); dojoSetFmt('text');
+  }
   if(dojoFmt==='qr'){
-    const b=await dojoQrPngBlob();
-    if(b){ const file=new File([b],'match-qr.png',{type:'image/png'});
-      if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file]}); return; }catch(e){ if(e&&e.name==='AbortError')return; } } }
+    // v257: 分割された全部のQRを送る（1枚目だけだと受け取る側が取り込めない）
+    const need=dojoQrCount();
+    const bs=await dojoQrPngBlobs();
+    if(bs.length&&bs.length===need){
+      const files=bs.map((b,i)=>new File([b],bs.length>1?('match-qr-'+(i+1)+'.png'):'match-qr.png',{type:'image/png'}));
+      if(navigator.canShare&&navigator.canShare({files})){ try{ await navigator.share({files}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
+    }
+    if(need>1||bs.length!==need){ toast(T('QRが複数枚になるため、テキストでお送りします')); dojoSetFmt('text'); }
     dojoSendCopy(); return;
   }
   if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
   dojoSendCopy();
 }
 async function dojoSendCopy(){
+  // v257: QRが複数枚のときは画像1枚のコピーでは足りないので、テキストのコピーに切り替える
+  if(dojoFmt==='qr'&&!repShareParts(dojoSendCache||'')){ toast(T('内容が多すぎてQRにできません。テキストでお送りください。')); dojoSetFmt('text'); }
+  else if(dojoFmt==='qr'&&dojoQrCount()>1){ toast(T('QRが複数枚になるため、テキストでコピーします')); dojoSetFmt('text'); }
   if(dojoFmt==='qr'){
     if(navigator.clipboard&&window.ClipboardItem){
       try{ const item=new ClipboardItem({'image/png':dojoQrPngBlob().then(b=>{if(!b)throw 0;return b;})}); await navigator.clipboard.write([item]); toast(T('QR画像をコピーしました')); return; }catch(e){}
@@ -8495,6 +8744,8 @@ async function dojoSendCopy(){
 let repMatches=[], repKind='個人', repCount=5, repRole='先鋒', repCache='';
 function repNewMatch(){return {id:uid(),res:'○',waza:'',grip:'右',grade:'',opp:'',affil:'',round:'',note:''};}
 function renderReport(){
+  // v258: アプリを開き直した最初の1回だけ、前回の入力しかけを戻す
+  if(!_repDraftDone){ _repDraftDone=true; try{ repDraftLoad(); }catch(e){} }
   const nameEl=document.getElementById('repName');
   if(nameEl&&!nameEl.value){ const self=DB.students.find(s=>s.isSelf)||DB.students[0]; if(self)nameEl.value=self.name; }
   const dEl=document.getElementById('repDate'); if(dEl&&!dEl.value)dEl.value=todayStr();
@@ -8520,7 +8771,13 @@ function applyReportIntro(){
 }
 function closeReportIntro(){ if(DB){DB.reportIntroClosed=true;save();} applyReportIntro(); }
 function openReportIntro(){ if(DB){DB.reportIntroClosed=false;save();} applyReportIntro(); }
+function repFilledCount(){
+  return repMatches.filter(m=>m&&((m.opp||'').trim()||(m.waza||'').trim()||(m.round||'').trim()||(m.affil||'').trim())).length;
+}
+let _repKindWarned=false;
 function repPickKind(k){
+  // v258: 種別は報告ぜんぶにかかる。入力済みがあるときは一度だけ知らせる
+  if(k!==repKind && !_repKindWarned && repFilledCount()>0){ _repKindWarned=true; toast(T('種別は、入力済みの試合すべてに適用されます')); }
   repKind=k;
   document.getElementById('repKindI').classList.toggle('on',k==='個人');
   document.getElementById('repKindT').classList.toggle('on',k==='団体');
@@ -8529,12 +8786,15 @@ function repPickKind(k){
 }
 function repRenderKind(){
   const cp=document.getElementById('repCountPick'); if(cp)cp.innerHTML=[3,5,7].map(n=>`<button class="${repCount===n?'on':''}" onclick="repPickCount(${n})">${n}人制</button>`).join('');
-  const roles=(POS[repCount]||POS[5]).concat(['代表戦']);
+  const roles=posList(repCount).concat(['代表戦']);
   if(!roles.includes(repRole))repRole=roles[0];
   const rp=document.getElementById('repRolePick'); if(rp)rp.innerHTML=roles.map(r=>`<button class="${repRole===r?'on':''}" onclick="repPickRole('${escJ(r)}')">${esc(r)}</button>`).join('');
 }
 function repPickCount(n){repCount=n;repRenderKind();repGen();}
-function repPickRole(r){repRole=r;repRenderKind();repGen();}
+function repPickRole(r){
+  if(r!==repRole && !_repKindWarned && repFilledCount()>0){ _repKindWarned=true; toast(T('役割は、入力済みの試合すべてに適用されます')); }
+  repRole=r;repRenderKind();repGen();
+}
 function repAddMatch(){repMatches.push(repNewMatch());repRenderMatches();repGen();}
 /* v246: 送信後に自動で消さない（メモリー登録に使うため）。消したいときだけこのボタンで。 */
 let _repResetArm=false;
@@ -8550,15 +8810,17 @@ function repResetAll(){
   _repResetArm=false;
   ['repName','repTaikai','repDate'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   repMatches=[repNewMatch()]; repKind='個人'; repCount=5; repRole='先鋒'; repRegSig='';
+  _repDupOk=false; _repNewName=''; _repMatchOk=''; _repSchedId=''; _repSchedSnap='';   // v257: 確認済みの状態も一緒に捨てる
+  _repKindWarned=false; repDraftClear();             // v258: 下書きも消す（戻ってこないように）
   repPickKind('個人');
   repRenderMatches(); repGen();
   const b=document.querySelector('.rep-reset'); if(b){b.classList.remove('arm');b.textContent=T('↺ 入力をリセット');}
   toast(T('入力内容をリセットしました'));
 }
 function repDel(id){repMatches=repMatches.filter(m=>m.id!==id);if(!repMatches.length)repMatches=[repNewMatch()];repRenderMatches();repGen();}
-function repSet(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;repRenderMatches();repGen();}}
-function repSetRaw(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;repGen();}}
-function repOpenWaza(id){const m=repMatches.find(x=>x.id===id);if(!m)return;openWazaPicker(function(v){m.waza=v;repRenderMatches();repGen();},m.waza);}
+function repSet(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;m.touched=true;repRenderMatches();repGen();}}
+function repSetRaw(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;m.touched=true;repGen();}}
+function repOpenWaza(id){const m=repMatches.find(x=>x.id===id);if(!m)return;openWazaPicker(function(v){m.waza=v;m.touched=true;repRenderMatches();repGen();},m.waza);}
 function repRenderMatches(){
   const ROUNDS=(DB.matchPresets&&DB.matchPresets.rounds)||['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
   const box=document.getElementById('repMatches'); if(!box)return;
@@ -8589,29 +8851,98 @@ function repRenderMatches(){
     </div>`;
   }).join('');
 }
+/* v258: 大会中にアプリを閉じたり落ちたりしても入力が消えないよう、下書きを端末に残す。
+   repGen() は入力のたびに呼ばれる唯一の入口なので、ここでまとめて保存する（書き込みは0.6秒まとめ）。 */
+let _repDraftTimer=null, _repDraftDone=false;
+function repDraftSnapshot(){
+  return { name:(document.getElementById('repName')||{}).value||'',
+           taikai:(document.getElementById('repTaikai')||{}).value||'',
+           date:(document.getElementById('repDate')||{}).value||'',
+           kind:repKind, count:repCount, role:repRole,
+           schedId:_repSchedId, schedSnap:_repSchedSnap,
+           matches:repMatches, at:Date.now() };
+}
+function repDraftHasInput(d){
+  if(!d)return false;
+  if((d.taikai||'').trim())return true;
+  if((d.matches||[]).length>1)return true;
+  // v258: 「負け」「分け」や組手だけを選んだ状態も入力済みとして扱う（repMatchIsBlank と同じ基準）
+  return (d.matches||[]).some(m=>m&&(m.touched||!repMatchIsBlank(m)));
+}
+function repDraftSave(){
+  if(demoMode)return;
+  clearTimeout(_repDraftTimer);
+  // v258: 中身が無くなったら下書きも消す（古い内容が後から復活しないように）
+  _repDraftTimer=setTimeout(()=>{ try{ const d=repDraftSnapshot();
+    if(repDraftHasInput(d)){ DB.repDraft=d; save(); }
+    else if(DB.repDraft){ delete DB.repDraft; save(); }
+  }catch(e){} },600);
+}
+function repDraftClear(){ clearTimeout(_repDraftTimer); try{ if(DB&&DB.repDraft){ delete DB.repDraft; save(); } }catch(e){} }
+function repDraftLoad(){
+  const d=DB&&DB.repDraft;
+  if(!repDraftHasInput(d))return false;
+  try{
+    repMatches=(d.matches||[]).map(m=>Object.assign(repNewMatch(),m));
+    if(!repMatches.length)repMatches=[repNewMatch()];
+    repKind=d.kind||'個人'; repCount=d.count||5; repRole=d.role||posList(repCount)[0];
+    _repSchedId=d.schedId||''; _repSchedSnap=d.schedSnap||'';
+    const set=(id,v)=>{ const e=document.getElementById(id); if(e&&v)e.value=v; };
+    set('repName',d.name); set('repTaikai',d.taikai); set('repDate',d.date);
+    // v258: 画面の見た目も合わせる（内部だけ団体に戻って、表示は個人戦のままになっていた）
+    const ki=document.getElementById('repKindI'), kt=document.getElementById('repKindT'), tr=document.getElementById('repTeamRow');
+    if(ki)ki.classList.toggle('on',repKind==='個人');
+    if(kt)kt.classList.toggle('on',repKind==='団体');
+    if(tr)tr.style.display=(repKind==='団体')?'block':'none';
+    if(typeof repRenderKind==='function')repRenderKind();
+    setTimeout(()=>toast(T('入力しかけの内容を戻しました')),400);
+    return true;
+  }catch(e){ return false; }
+}
 function repGen(){
   const name=(document.getElementById('repName').value||'').trim();
   const tk=(document.getElementById('repTaikai').value||'').trim();
   const hd=(document.getElementById('repDate').value||'').trim();
-  const L=['【My柔道 試合きろく】','選手｜'+name,'大会｜'+tk,'日付｜'+hd.replace(/-/g,'/'),'種別｜'+repKind];
+  const L=['【My柔道 試合きろく】','選手｜'+shareField(name),'大会｜'+shareField(tk),'日付｜'+hd.replace(/-/g,'/'),'種別｜'+repKind];
   if(repKind==='団体'){L.push('人数｜'+repCount);L.push('役割｜'+repRole);}
   L.push('--- 試合 ---');
-  repMatches.forEach(m=>{ const f=[m.res,(m.res==='×'?'':m.waza),m.grip,(m.res==='×'?'':m.grade),m.opp,m.affil,m.round,m.note]; L.push(f.join('｜')); });
+  repMatches.forEach(m=>{ const f=[m.res,(m.res==='×'?'':m.waza),m.grip,(m.res==='×'?'':m.grade),m.opp,m.affil,m.round,m.note]; L.push(f.map(shareField).join('｜')); });
   repCache=L.join('\n');
   const pv=document.getElementById('repPreview'); if(pv)pv.textContent=repCache;
+  repDraftSave();                       // v258: 入力のたびに下書きを残す
   return repCache;
+}
+// v258: 「＋試合を追加」だけ押して何も書かなかった最後の行は送らない（既定の○で勝ちが1つ増えていた）
+function repMatchIsBlank(m){
+  if(!m)return true;
+  if((m.res||'○')!=='○')return false;      // 「負け」「分け」を選んである＝入力済み
+  if((m.grip||'右')!=='右')return false;    // 組手を変えてある＝入力済み
+  return !((m.waza||'').trim()||(m.grade||'').trim()||(m.opp||'').trim()||(m.affil||'').trim()||(m.round||'').trim()||(m.note||'').trim());
+}
+function repTrimEmptyTail(){
+  // 「＋試合を追加」を押しただけの行だけを落とす。
+  // 自分で「勝ち」を押した試合（touched）も、中身のある試合も残す。
+  while(repMatches.length>1){
+    const m=repMatches[repMatches.length-1];
+    if(m&&!m.touched&&repMatchIsBlank(m))repMatches.pop(); else break;
+  }
 }
 function repToDojo(){
   const name=(document.getElementById('repName').value||'').trim();
   if(!name){ toast(T('選手のなまえを入れてください')); return; }
+  repTrimEmptyTail(); repRenderMatches();
   if(!repMatches.length){ toast(T('送る試合結果がありません')); return; }
   dojoSendCache=repGen();
+  dojoGroupEv=null; dojoGroups=[];                                              // v257: 報告タブからは分割しない
+  const _gp=document.getElementById('dojoGroupPick'); if(_gp)_gp.style.display='none';
   document.getElementById('dojoSendText').value=dojoSendCache;
   openModal('dojoSendModal'); dojoSetFmt('qr');
 }
 // ===== 報告→メモリー登録の導線（無料）。入力中の試合を自分(主役)のメモリーに残す =====
 let repRegSig='';   // 直前に登録した内容の署名（二重登録の防止）
 let _repDupOk=false; // v241: 既に登録済みの大会へ「追加」する意思確認（2度押し）
+let _repMatchOk=''; // v257: 部分一致の確認が済んだ「なまえ|選手ID」
+let _repNewName=''; // v257: 「登録のない名前を新しい主役として登録する」意思確認が済んだ名前
 function repCreateSelf(name){
   const parts=(name||'').split(/[\s　]+/).filter(Boolean);
   const grip='右';   // v201: 報告の組手欄は「相手の組手」のため、本人の組手既定は右のまま
@@ -8803,47 +9134,87 @@ function obFinish(dest){
 function repToMemory(){
   const name=(document.getElementById('repName').value||'').trim();
   if(!name){ toast(T('選手のなまえを入れてください')); return; }
+  repTrimEmptyTail();
   const bouts=repMatches.filter(m=>m&&m.res);
   if(!bouts.length){ toast(T('登録する試合結果がありません')); return; }
   const sig=repGen();
   if(sig&&sig===repRegSig){ toast(T('この試合はすでにメモリーに登録済みです')); return; }
   // v241: アプリを開き直しても、少し文言を直しても気づけるように「保存済みの内容」と照合する
   {
-    const _self=findStudentByName(name)||DB.students.find(s=>s.isSelf)||null;
+    const _self=findStudentByName(name)||null;   // v257: 一致しない名前を主役で代用しない
     const _dt=(document.getElementById('repDate').value||'').trim()||todayStr();
     const _tk=(document.getElementById('repTaikai').value||'').trim();
-    const _sched=DB.schedule.find(s=>s.date===_dt&&((s.title||'').trim()===_tk)&&s.showMatch)||null;
+    const _sched=repPickedSched()||DB.schedule.find(s=>s.date===_dt&&((s.title||'').trim()===_tk)&&s.showMatch)||null;
     if(_self&&_sched){
       const done=(allBoutsBySelf()[_self.id]||[]).filter(b=>b.schedId===_sched.id).length;
       if(done>0 && !_repDupOk){
         // v241: 追加でよいかを明示的に確認する（アプリを開き直しても二重登録に気づけるように）
         askConfirm(T('この大会にはすでに')+done+T('件の試合結果が登録されています。')+'<br>'+T('この内容を追加で登録しますか？'),
-          ()=>{ _repDupOk=true; repToMemory(); }, T('追加する'));
+          ()=>{ _repDupOk=true; repToMemory(); }, '追加する');
         return;
       }
     }
   }
   // 1) 対象の主役・大会を「まだ作らずに」特定
-  let self=findStudentByName(name)||DB.students.find(s=>s.isSelf)||null;
+  // v257: 名前が一致しないとき、これまでは主役へ無条件に紐づけていた（別人の戦績に混ざる）。
+  //       登録のある人がいる場合は、新しく登録してよいかを必ず確認する。
+  let self=findStudentExact(name);
+  if(!self){
+    // v257: 部分一致（姓だけ等）は、きょうだいなど別の人に付くことがあるので、2人以上いるときは確認する
+    const loose=findStudentByName(name);
+    if(loose && DB.students.length>=2 && _repMatchOk!==name+'|'+loose.id && _repMatchOk!=='__new__|'+name){
+      askChoice(T('「')+esc(name)+T('」は、登録されている「')+esc(loose.name)+T('」さんのことですか？'),
+        T('はい'), T('いいえ'),
+        ()=>{ _repMatchOk=name+'|'+loose.id; repToMemory(); },
+        ()=>{ _repMatchOk='__new__|'+name; repToMemory(); });
+      return;
+    }
+    if(loose && _repMatchOk!=='__new__|'+name) self=loose;
+  }
+  if(!self && DB.students.some(s=>s.isSelf)){
+    if(APP_EDITION==='personal' && !isPro()){ requirePro('ご家族など、複数の主役を登録できます'); return; }
+    if(_repNewName!==name){
+      askConfirm(T('「')+esc(name)+T('」はまだ登録されていません。')+'<br>'+T('新しい主役として登録して、この人の記録にしますか？')
+        +'<br><br>'+T('別の人の記録にしたいときは、「やめる」を押してなまえを直してください。'),
+        ()=>{ _repNewName=name; repToMemory(); }, '新しく登録する', '確認', 'var(--navy)');
+      return;
+    }
+  }
   const dt=(document.getElementById('repDate').value||'').trim()||todayStr();
   const tk=(document.getElementById('repTaikai').value||'').trim();
-  let sched=DB.schedule.find(s=>s.date===dt&&((s.title||'').trim()===tk)&&s.showMatch)||null;
+  let sched=repPickedSched()||DB.schedule.find(s=>s.date===dt&&((s.title||'').trim()===tk)&&s.showMatch)||null;
   // 2) 無料上限：新しいメモリーカードになる時だけ制限（既存カードへの追記は無制限）
   const addsNewCard = !( self && sched && (allBoutsBySelf()[self.id]||[]).some(b=>b.schedId===sched.id) );
   if(!isPro() && addsNewCard && memoryCardCount()>=FREE_MEMORY_LIMIT){ requirePro(memoryLimitMsg()); return; }
   // 3) ここから作成（主役→大会）
+  // v257: 保存に失敗したとき、途中まで作ったものを残さない（再試行で二重に増えていた）
+  const _bkStudents=DB.students.slice(), _bkSchedule=DB.schedule.slice();
+  const _bkSelfFlag=self?self.isSelf:null, _bkSelfRef=self;
+  const _bkMrKeys=Object.keys(DB.matchResults||{});
+  const _bkMr=(sched&&DB.matchResults&&DB.matchResults[sched.id])?JSON.parse(JSON.stringify(DB.matchResults[sched.id])):null;
+  const _bkMrId=sched?sched.id:'';
+  const _rollback=()=>{
+    DB.students=_bkStudents; DB.schedule=_bkSchedule;
+    if(_bkSelfRef)_bkSelfRef.isSelf=_bkSelfFlag;
+    Object.keys(DB.matchResults||{}).forEach(k=>{ if(_bkMrKeys.indexOf(k)<0)delete DB.matchResults[k]; });
+    if(_bkMrId&&_bkMr)DB.matchResults[_bkMrId]=_bkMr;
+  };
   if(!self){ self=repCreateSelf(name); }
-  else if(!self.isSelf&&APP_EDITION==='personal'){ self.isSelf=true; }
+  else if(!self.isSelf&&APP_EDITION==='personal'){
+    // v257: 仲間を主役に格上げするのも「主役が増える」ので、無料版はここでProの案内を出す
+    if(!isPro()&&DB.students.some(s=>s.isSelf)){ requirePro('ご家族など、複数の主役を登録できます'); return; }
+    self.isSelf=true;
+  }
   if(!sched){ sched={id:uid(),name:'大会',title:tk,date:dt,time:'',place:'',note:'',showMatch:true}; DB.schedule.push(sched); }
   const mr=ensureMatch(sched.id);
   // 3) 登録（個人戦／団体戦）
   if(repKind==='団体'){
-    const cnt=repCount||5, role=repRole||(POS[cnt]?POS[cnt][0]:'先鋒'), isRep=(role==='代表戦'||role==='代表');
+    const cnt=repCount||5, role=repRole||posList(cnt)[0], isRep=(role==='代表戦'||role==='代表');
     bouts.forEach(m=>{
       const ab={id:uid(),selfId:self.id,result:m.res,grade:m.res==='×'?'':(m.grade||''),waza:m.res==='×'?'':(m.waza||''),oppName:m.opp||'',oppId:'',grip:m.grip||'右',note:m.note||''};
       const card={id:uid(),count:cnt,division:'',round:m.round||'',oppTeam:m.affil||'',oppIsMate:false,tiebreak:'',rep:null,bouts:[]};
       while(card.bouts.length<cnt)card.bouts.push(impEmptyBout());
-      if(isRep){card.tiebreak='rep';card.rep=ab;} else {const idx=(POS[cnt]||[]).indexOf(role);card.bouts[idx>=0?idx:0]=ab;}
+      if(isRep){card.tiebreak='rep';card.rep=ab;} else {const idx=posList(cnt).indexOf(role);card.bouts[idx>=0?idx:0]=ab;}
       mr.team.cards.push(card);
     });
   }else{
@@ -8851,8 +9222,8 @@ function repToMemory(){
       mr.individual.push({id:uid(),selfId:self.id,division:'',round:m.round||'',result:m.res,grade:m.res==='×'?'':(m.grade||''),waza:m.res==='×'?'':(m.waza||''),oppIsMate:false,oppId:'',oppName:m.opp||'',oppAffil:m.affil||'',grip:m.grip||'',note:m.note||'',sheet:'individual'});
     });
   }
-  save();
-  repRegSig=sig; _repDupOk=false;
+  if(!save()){ _rollback(); return; }       // v257: 保存できなかったら元に戻す（再試行で二重に増えない）
+  repRegSig=sig; _repDupOk=false; _repNewName=''; _repMatchOk='';
   toast(bouts.length+T('件をメモリーに登録しました'));
   // 4) 誘導：メモリーへ移動してその選手を表示（＝戦績カードのシェアへ）
   rkSelfId=self.id; rkYear='all';
@@ -8882,6 +9253,7 @@ function requirePro(msg){
   if(isPro())return true;
   const el=document.getElementById('paywallMsg'); if(el&&msg)el.textContent=T(msg);   // v255: 案内文も翻訳
   openModal('paywallModal');
+  try{ refreshPaywallPrices(); }catch(e){}   // v257: 開くたびに実際のストア価格を取り直す
   return false;
 }
 // v169: 購入導線。App Store版では window.__iap（ネイティブ課金の差し込み口）が購入/復元を担う。
@@ -8924,6 +9296,7 @@ function officeGateCheck(){
   openModal('officePaywallModal');
   // v254: アプリ版は購入状況の確認が返るまでボタンを出さない（購入済みの人に購読画面が一瞬出て閉じるのを防ぐ）
   if(isNativeApp()){ officePaySetChecking(true); setTimeout(()=>officePaySetChecking(false),5000); }
+  try{ refreshPaywallPrices(); }catch(e){}   // v257: 起動時に取れなかったときのために、開くたびに取り直す
 }
 function isNativeApp(){ try{ return !!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()); }catch(e){ return false; } }
 function officePaySetChecking(on){
@@ -8959,19 +9332,53 @@ function officeShowHelp(){
   if(_officeFail>=2)el.classList.add('on');
 }
 // 起動時に実際のストア価格を反映（取得できないときは既定の表記のまま）
+// v257: 導入オファーが「0円」のときだけ無料と表示する。期間の単位（日／週／月／年）も見る
+function introFreeNum(iv){
+  if(!iv)return 0;
+  const n=Number(iv.periodNumberOfUnits||0); if(!n)return 0;
+  // 価格が数値で0のときだけ無料。取れていないときは無料と言い切らない
+  const pv=iv.price;
+  let free=false;
+  if(typeof pv==='number')free=(pv===0);
+  else if(typeof pv==='string'&&pv.trim()!=='')free=(Number(pv)===0);
+  else free=/^(無料|free|gratis|grátis|gratuit)$/i.test(String(iv.priceString||'').trim());
+  return free?n:0;
+}
+function introUnitKey(iv){
+  const u=String((iv&&iv.periodUnit)||'MONTH').toUpperCase();
+  return u==='DAY'?'日間':u==='WEEK'?'週間':u==='YEAR'?'年間':'ヶ月';
+}
+// v257: 価格が取れないときの表示（前回の「無料」表示を残さず、条件つきの書き方に戻す）
+let _lastStorePrice='';
+function paywallSetUnknown(){
+  const o=document.getElementById('officePayPrice');
+  if(o&&_lastStorePrice)o.textContent=T('年額')+' '+_lastStorePrice+'（'+T('初めてのご利用なら最初の')+'1'+T('ヶ月は無料')+'）';
+  const btn=document.getElementById('officeBuyBtn'); if(btn)btn.textContent=T('年額プランをはじめる');
+  const tm=document.getElementById('officePayTerms'); if(tm)tm.textContent=T('無料期間があるときは、その終了後から年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。');
+}
 async function refreshPaywallPrices(){
   try{
     if(!(window.__iap&&window.__iap.priceInfo))return;
-    const info=await window.__iap.priceInfo(); if(!info||!info.price)return;
+    const info=await window.__iap.priceInfo();
+    if(!info||!info.price){ paywallSetUnknown(); return; }   // v257: 前回の「無料」表示を残さない
     // v245: 無料トライアルを使い切っている人には「無料」と書かない（Appleも再付与しない）
-    const usedUp=(info.eligible===false);
-    const free=(!usedUp && info.intro && info.intro.periodNumberOfUnits)?info.intro.periodNumberOfUnits:0;
+    // v257: 「使える／使い切り／判定できない」の3つに分ける。判定できないときに無料と言い切らない
+    //       （オフラインや取得失敗では eligible が null になるため。正しい条件はAppleの購入画面に出る）
+    // v257: 導入オファーは必ずしも「無料」ではなく、期間の単位も月とは限らないので両方確かめる
+    _lastStorePrice=info.price;
+    const num=introFreeNum(info.intro), unit=introUnitKey(info.intro);
+    const st=!num?'none':(info.eligible===true?'yes':(info.eligible===false?'no':'unknown'));
     const o=document.getElementById('officePayPrice');
-    if(o)o.textContent=T('年額')+' '+info.price+(free?'（'+T('最初の')+free+T('ヶ月は無料')+'）':'');
+    if(o)o.textContent=T('年額')+' '+info.price+(
+      st==='yes' ? '（'+T('最初の')+num+T(unit+'は無料')+'）'
+      : st==='unknown' ? '（'+T('初めてのご利用なら最初の')+num+T(unit+'は無料')+'）'
+      : '');
     const btn=document.getElementById('officeBuyBtn');
-    if(btn)btn.textContent = free ? (free+T('ヶ月無料ではじめる')) : T('年額プランを購読する');
+    if(btn)btn.textContent = (st==='yes') ? (num+T(unit+'無料ではじめる')) : (st==='no' ? T('年額プランを購読する') : T('年額プランをはじめる'));
     const tm=document.getElementById('officePayTerms');
-    if(tm && !free)tm.textContent=T('年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。');
+    if(tm)tm.textContent = st==='yes' ? T('無料期間の終了後は年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。')
+      : st==='unknown' ? T('無料期間があるときは、その終了後から年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。')
+      : T('年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。');
     const p=document.getElementById('paywallPrice');
     if(p)p.textContent='Pro '+T('年額')+' '+info.price;
   }catch(e){}
@@ -9055,7 +9462,22 @@ function qrShow(text){
   else { box.innerHTML=''; err.style.display='block'; }
   openModal('qrShowModal');
 }
-function qrShowFromDojo(){ if(dojoSendCache)qrShow(dojoSendCache); }
+// v258: 分割されているときは、押した断片をそのまま拡大する（全文を作り直すと容量超過で失敗していた）
+function qrShowFromDojo(el){
+  const parts=repShareParts(dojoSendCache||'');
+  if(!parts){ toast(T('内容が多すぎてQRにできません。テキストでお送りください。')); dojoSetFmt('text'); return; }
+  if(parts.length<=1){ if(dojoSendCache)qrShow(dojoSendCache); return; }
+  let i=0;
+  try{
+    const svgs=Array.from(document.querySelectorAll('#dojoPrevQr svg'));
+    const hit=(el&&el.closest)?el.closest('svg'):null;
+    const k=hit?svgs.indexOf(hit):-1;
+    if(k>=0)i=k;
+  }catch(e){}
+  qrShow(parts[i]||parts[0]);
+  const lb=document.getElementById('qrShowSub');
+  if(lb){ lb.textContent='QR '+(i+1)+' / '+parts.length; lb.style.display=''; }
+}
 /* 受け取る側 */
 let qrStream=null, qrRAF=0, qrScanning=false;
 let qrScanMode='result', qrPartsBuf=null;   // v219: 'result'=試合結果 / 'sched'=予定表（複数QR対応）
@@ -9128,11 +9550,19 @@ function qrSchedDecoded(text){
   if(!m){ qrSetStatus(T('予定表のQRではありませんでした'),'err'); qrResume(); return; }
   if(!m[1]){ qrSchedComplete(text); return; }                       // 1枚で完結
   const i=+m[1], n=+m[2];
-  if(!qrPartsBuf||qrPartsBuf.n!==n)qrPartsBuf={n:n,parts:{}};
-  qrPartsBuf.parts[i]=text.replace(/^【[^】]*】\n?/,'');
+  // v258: 別の予定表のQRが混ざったまま復元されないよう、#ID が同じ断片だけを集める
+  const sp=shareStripId(text.replace(/^【[^】]*】\n?/,''));
+  const fresh=!qrPartsBuf||qrPartsBuf.kind!=='sched'||!Object.keys(qrPartsBuf.parts).length;
+  if(!fresh&&(qrPartsBuf.n!==n||qrPartsBuf.sid!==sp.id)){
+    // 別の予定表の断片。混ぜずに、1枚目から読み直してもらう
+    qrPartsBuf=null;
+    qrSetStatus(T('別の予定表のQRです。1枚目から読み直してください'),'err'); qrResume(); return;
+  }
+  if(fresh)qrPartsBuf={kind:'sched',n:n,sid:sp.id,parts:{}};
+  qrPartsBuf.parts[i]=sp.body;
   const got=Object.keys(qrPartsBuf.parts).length;
   if(got<n){ qrSetStatus(`${got} / ${n} ${T('読み取りました。次のQRをかざしてください')}`); qrResume(); return; }
-  qrSchedComplete(Array.from({length:n},(_,k)=>qrPartsBuf.parts[k+1]).join('\n'));
+  qrSchedComplete(Array.from({length:n},(_,k)=>qrPartsBuf.parts[k+1]||'').join('\n'));
 }
 function qrResume(){ if(qrScanning)setTimeout(()=>{ if(qrScanning)qrTick(); },900); else qrScanning=false; }
 function qrSchedComplete(fullText){
@@ -9147,11 +9577,19 @@ function qrOnDecoded(text){
   const m=text.match(/^【My柔道 試合きろく(?: (\d+)\/(\d+))?】/);
   if(m&&m[1]){
     const i=+m[1], n=+m[2];
-    if(!qrPartsBuf||qrPartsBuf.n!==n||qrPartsBuf.kind!=='result')qrPartsBuf={kind:'result',n:n,parts:{}};
-    qrPartsBuf.parts[i]=text.replace(/^【[^】]*】\n?/,'');
+    // v258: 別の選手のQRが混ざったまま復元されないよう、#ID が同じ断片だけを集める
+    const sp=shareStripId(text.replace(/^【[^】]*】\n?/,''));
+    const fresh=!qrPartsBuf||qrPartsBuf.kind!=='result'||!Object.keys(qrPartsBuf.parts).length;
+    if(!fresh&&(qrPartsBuf.n!==n||qrPartsBuf.sid!==sp.id)){
+      // 別の人の断片。混ぜずに、1枚目から読み直してもらう
+      qrPartsBuf=null;
+      qrSetStatus(T('別の人のQRです。1枚目から読み直してください'),'err'); qrResume(); return;
+    }
+    if(fresh)qrPartsBuf={kind:'result',n:n,sid:sp.id,parts:{}};
+    qrPartsBuf.parts[i]=sp.body;
     const got=Object.keys(qrPartsBuf.parts).length;
     if(got<n){ qrSetStatus(got+' / '+n+' '+T('読み取りました。次のQRをかざしてください')); qrResume(); return; }
-    const full=Array.from({length:n},(_,k)=>qrPartsBuf.parts[k+1]).join('\n');
+    const full=Array.from({length:n},(_,k)=>qrPartsBuf.parts[k+1]||'').join('\n');
     qrPartsBuf=null; qrResultComplete(full); return;
   }
   if(!/試合きろく|選手｜|--- 試合 ---/.test(text)){ qrSetStatus(T('試合結果のQRではありませんでした'),'err'); qrResume(); return; }
@@ -10606,7 +11044,7 @@ function keikoSave(okOverwrite){
   const K=keikoOf(gwSelfId);
   // v255: 日付を変えた先にすでに記録があるときは、黙って上書きせずに確認する
   if(okOverwrite!==true && kkEditKey && kkEditKey!==ds && K[ds]){
-    askConfirm(ds.replace(/-/g,'/')+' '+T('にはすでに稽古の記録があります。この内容で上書きしますか？'),()=>{ keikoSave(true); },T('上書きする'),'上書きの確認','var(--navy)');
+    askConfirm(ds.replace(/-/g,'/')+' '+T('にはすでに稽古の記録があります。この内容で上書きしますか？'),()=>{ keikoSave(true); },'上書きする','上書きの確認','var(--navy)');
     return;
   }
   const s=pickedKkScore;                       // v220: 顔の5段階（null=未記入）
@@ -10665,7 +11103,20 @@ function repPickSched(id){
   const s=DB.schedule.find(x=>x.id===id); if(!s)return;
   document.getElementById('repTaikai').value=s.title||s.name||'';
   document.getElementById('repDate').value=s.date||'';
+  // v258: 選んだ予定そのものに登録する。
+  //   従来は大会名と日付だけを入れ、保存時に title で照合し直していたため、
+  //   大会名が空の予定などでは別の予定が新しく作られていた。
+  _repSchedId=id; _repSchedSnap=(s.title||s.name||'')+'|'+(s.date||'');
   repGen(); toast(T('予定から入力しました'));
+}
+// 選んだ予定（入力欄を手で変えたら外す）
+let _repSchedId='', _repSchedSnap='';
+function repPickedSched(){
+  if(!_repSchedId)return null;
+  const tk=(document.getElementById('repTaikai').value||'').trim();
+  const dt=(document.getElementById('repDate').value||'').trim();
+  if(tk+'|'+dt!==_repSchedSnap){ _repSchedId=''; _repSchedSnap=''; return null; }
+  return DB.schedule.find(x=>x.id===_repSchedId)||null;
 }
 // ―― 分析：稽古ビュー（Pro）――
 function gwBarChart(pairs,color){    // pairs=[{l,v}]
@@ -10769,8 +11220,17 @@ function impResult(t){
   return '';
 }
 function impSplit(line){return line.split(/[｜|]/).map(s=>s.trim());}
+// v258: 組手は「右／左」以外（他・不明）もそのまま残す。空欄だけ未指定にする
+function impGrip(v){
+  const g=(v||'').trim(); if(!g)return '';
+  if(/左/.test(g))return '左';
+  if(/右/.test(g))return '右';
+  return (GRIP_OPTS.indexOf(g)>=0)?g:'';
+}
 // 氏名照合：空白（半角/全角）や全半角のゆれを吸収し「字が合えば」一致させる
 function normName(s){return (s||'').normalize('NFKC').replace(/[\s　]/g,'').toLowerCase();}
+// v257: 「山田」で「山田太郎」に当たるような部分一致と、完全一致を分けて扱えるようにする
+function findStudentExact(nm){ const t=normName(nm); if(!t)return null; return DB.students.find(s=>normName(s.name)===t)||null; }
 function findStudentByName(nm){
   const t=normName(nm); if(!t)return null;
   return DB.students.find(s=>normName(s.name)===t)                                   // 空白等を無視した一致
@@ -10781,35 +11241,82 @@ function impNormDate(v){v=(v||'').trim();const m=v.match(/(\d{4})\D+(\d{1,2})\D+
 function impDayDiff(a,b){if(!a||!b)return 9999;return Math.round((new Date(a+'T00:00')-new Date(b+'T00:00'))/86400000);}
 function parseImportText(raw){
   const lines=(raw||'').replace(/\r/g,'').split('\n').map(l=>l.trim()).filter(Boolean);
-  const head={self:'',taikai:'',date:'',kind:'個人',teamCount:5,role:''};
+  const head={self:'',taikai:'',date:'',kind:'個人',teamCount:5,role:'',selves:[],blocks:0};
   const bouts=[];
   lines.forEach(line=>{
-    if(/^【.*】$/.test(line))return;                  // タイトル行
+    if(/^【.*】$/.test(line)){ if(/試合きろく】$/.test(line))head.blocks++; return; }   // タイトル行
     if(/^[-—―]+\s*試合\s*[-—―]+$/.test(line))return; // 「--- 試合 ---」区切り
     const parts=impSplit(line);
     const r=impResult(parts[0]);
     if(r&&parts.length>=2){
       bouts.push({res:r,waza:(parts[1]||'').trim(),
-        grip:/左/.test(parts[2]||'')?'左':(/右/.test(parts[2]||'')?'右':''),
+        grip:impGrip(parts[2]),
         grade:(parts[3]||'').trim(),opp:(parts[4]||'').trim(),affil:(parts[5]||'').trim(),
         round:(parts[6]||'').trim(),note:(parts[7]||'').trim(),include:true});
       return;
     }
     if(parts.length>=2){
       const k=parts[0], v=parts.slice(1).join('｜').trim();
-      if(/選手|名前|なまえ/.test(k))head.self=v;
+      if(/選手|名前|なまえ/.test(k)){ head.self=v; if(v&&head.selves.indexOf(v)<0)head.selves.push(v); }
       else if(/大会|試合名/.test(k))head.taikai=v;
       else if(/日付|日づけ|日にち/.test(k))head.date=impNormDate(v);
       else if(/種別|区分/.test(k))head.kind=/団体/.test(v)?'団体':'個人';
-      else if(/人数/.test(k)){const n=parseInt(v,10);if([3,5,7].includes(n))head.teamCount=n;}
+      else if(/人数/.test(k)){const n=parseInt(v,10);if(n>=1&&n<=15)head.teamCount=n;}   // v257: 1〜15人制まで受け取る
       else if(/役割|ポジション|position/i.test(k))head.role=v;
     }
   });
   return {head,bouts};
 }
+// v258: すでに取り込んである試合かどうかを見分ける（再送・訂正版で二重に増えていた）
+function impBoutSig(o,kind,role){
+  // 組手は空欄と「右」が同じ意味（保存時に右へ寄せているため）。他の値はそのまま区別する
+  const grip=(o.grip||'').trim()||'右';
+  return [kind||'', role||'', o.res||o.result||'', o.waza||'', o.grade||'', grip, o.round||'',
+          (o.opp!=null?o.opp:o.oppName)||'', (o.affil!=null?o.affil:o.oppAffil)||''].map(x=>String(x).trim()).join('\u0001');
+}
+function impExistingSigs(selfId,schedId){
+  const out={};
+  if(!selfId||!schedId||schedId==='__new__')return out;
+  const mr=(DB.matchResults||{})[schedId]; if(!mr)return out;
+  (mr.individual||[]).forEach(b=>{ if(b.selfId===selfId){ const k=impBoutSig(b,'個人',''); out[k]=(out[k]||0)+1; } });
+  ((mr.team&&mr.team.cards)||[]).forEach(c=>{
+    const pos=posList(c.count||5);
+    const add=(b,role)=>{ if(b&&b.selfId===selfId){ const k=impBoutSig(Object.assign({},b,{round:c.round||'',oppAffil:c.oppTeam||''}),'団体',role); out[k]=(out[k]||0)+1; } };
+    (c.bouts||[]).forEach((b,i)=>add(b,pos[i]||''));
+    if(c.tiebreak==='rep'&&c.rep)add(c.rep,'代表戦');
+  });
+  return out;
+}
+function impMarkDuplicates(){
+  if(!importParsed)return 0;
+  const selfEl=document.getElementById('importSelf'), schedEl=document.getElementById('importSched');
+  const selfId=selfEl?selfEl.value:'', schedId=schedEl?schedEl.value:'';
+  const have=impExistingSigs(selfId,schedId);
+  const h=importParsed.head||{};
+  const kind=h.kind||'個人';
+  const role=(kind==='団体')?(h.role||posList(h.teamCount||5)[0]):'';
+  const seen={};
+  let n=0;
+  importParsed.bouts.forEach(b=>{
+    const k=impBoutSig(b,kind,role);
+    seen[k]=(seen[k]||0)+1;
+    const dup=(have[k]||0)>=seen[k];
+    b.dup=dup;
+    // v258: こちらで外したチェックだけを戻す（利用者が自分で外したものは触らない）
+    if(dup){ if(b.include){ b.include=false; b._autoOff=true; } n++; }
+    else if(b._autoOff){ b.include=true; b._autoOff=false; }
+  });
+  return n;
+}
 function analyzeImport(){
   const p=parseImportText(document.getElementById('importText').value);
   if(!p.bouts.length){toast(T('試合が読み取れませんでした。形式を確認してください'));return;}
+  // v258: 2人分をまとめて貼ると、全部の試合が最後の選手に付いてしまうため止める
+  if((p.head.blocks||0)>1||(p.head.selves||[]).length>1){
+    askConfirm(T('報告がまとめて貼られています。')+'<br>'+esc((p.head.selves||[]).join('／'))+'<br><br>'
+      +T('取り違えるおそれがあるため、1人分ずつ貼って取り込んでください。'),()=>{},T('わかりました'),'確認','var(--navy)');
+    return;
+  }
   importParsed=p;
   const matched=findStudentByName(p.head.self);
   const selEl=document.getElementById('importSelf');
@@ -10824,21 +11331,35 @@ function analyzeImport(){
     : T('（記入に選手名がありません）');
   // 試合結果設定あり（試合/大会・または結果済み）の予定だけに限定（通常稽古は出さない）
   const scheds=[...DB.schedule].filter(schedIsMatch).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  // v258: 日付だけでなく大会名も見る（同じ日に複数の大会があると別の予定に入っていた）
   let best=null;
-  if(p.head.date){best=scheds.find(s=>s.date===p.head.date)||scheds.find(s=>Math.abs(impDayDiff(s.date,p.head.date))<=3);}
+  const _tk=(p.head.taikai||'').trim();
+  const _same=(s)=>_tk&&((s.title||'').trim()===_tk||(s.name||'').trim()===_tk);
+  if(p.head.date){
+    best=scheds.find(s=>s.date===p.head.date&&_same(s))
+      || scheds.find(s=>Math.abs(impDayDiff(s.date,p.head.date))<=3&&_same(s))
+      || scheds.find(s=>s.date===p.head.date)
+      || scheds.find(s=>Math.abs(impDayDiff(s.date,p.head.date))<=3);
+  }
   document.getElementById('importSched').innerHTML=
     scheds.map(s=>`<option value="${s.id}" ${best&&best.id===s.id?'selected':''}>${esc(schedLabel(s))}／${(s.date||'').replace(/-/g,'/')}</option>`).join('')+
     `<option value="__new__" ${best?'':'selected'}>${T('＋ 新しい予定を作成')}</option>`;
   document.getElementById('importNewName').value=p.head.taikai||'';
   document.getElementById('importNewDate').value=p.head.date||'';
   onImportSchedChange();
+  impMarkDuplicates();      // v258: すでに入っている試合は最初からチェックを外す
   renderImportBouts();
   importShow('preview');
 }
 function onImportSchedChange(){
   document.getElementById('importNewSched').style.display=(document.getElementById('importSched').value==='__new__')?'block':'none';
-  if(importParsed&&importParsed.head.kind==='団体'){computeImportTargets();renderImportBouts();}
+  if(!importParsed)return;
+  if(importParsed.head.kind==='団体')computeImportTargets();
+  impMarkDuplicates();      // v258: 取り込み先を変えたら、重複の判定もやり直す
+  renderImportBouts();
 }
+// v258: 選手を選び直したときも重複を見直す
+function onImportSelfChange(){ if(!importParsed)return; impMarkDuplicates(); renderImportBouts(); }
 // 取り込み先の大会にある既存の対戦カード（対外戦のみ）
 function importTargetCards(){
   const sid=document.getElementById('importSched').value;
@@ -10848,7 +11369,7 @@ function importTargetCards(){
 }
 function impCardLabel(c){
   const filled=(c.bouts||[]).filter(b=>b.selfId).length+((c.tiebreak==='rep'&&c.rep&&c.rep.selfId)?1:0);
-  return (c.round||'回戦未設定')+'／'+(c.oppTeam||'(相手未入力)')+'（'+filled+'名記入済）';
+  return (c.round||'回戦未設定')+'／'+(c.oppTeam||'(相手未入力)')+'（'+(c.count||5)+'人制・'+filled+'名記入済）';
 }
 /* v161: 表記ゆれを吸収して取り込み先カードを判定（回戦の完全一致だけだとカードが乱立するため）
    ※「代表決定戦」はチームの1試合。同点時の個人「代表戦」とは別物なので寄せない。 */
@@ -10903,19 +11424,23 @@ function computeImportTargets(){
   });
 }
 function setImportTarget(i,v){if(importParsed&&importParsed.bouts[i]){importParsed.bouts[i].targetCardId=v;renderImportBouts();}}
-function toggleImportBout(i){if(importParsed&&importParsed.bouts[i])importParsed.bouts[i].include=!importParsed.bouts[i].include;renderImportBouts();}
+function toggleImportBout(i){
+  const b=importParsed&&importParsed.bouts[i];
+  if(b){ b.include=!b.include; b._autoOff=false; }   // v258: 手で操作したら、自動で戻す対象から外す
+  renderImportBouts();
+}
 function renderImportBouts(){
   const h=importParsed.head;
   const isTeam=(h.kind==='団体');
   const cards=isTeam?importTargetCards():[];
-  const role=h.role||(POS[h.teamCount||5]||[])[0]||'先鋒';
+  const role=h.role||posList(h.teamCount||5)[0];
   const note=isTeam
     ? `<div class="imp-hint">団体戦として取り込み（${h.teamCount||5}人制・役割：${esc(role)}）。各試合の<b>「取り込み先カード」を必ず選んでください</b>。既存カードを選べば、その${esc(role)}の位置に<b>まとめて登録（上書き）</b>されます。あとから対戦カードの「統合」でまとめ直すこともできます。</div>`
     : '';
   document.getElementById('importBouts').innerHTML=note+importParsed.bouts.map((b,i)=>{
     const mark=b.res==='○'?'win':b.res==='▲'?'lose':'draw';
     const rw={'○':'勝ち','▲':'負け','×':'分け'}[b.res]||'';
-    const roundChip=b.round?'<span class="imp-round">'+esc(b.round)+'</span>':'';
+    const roundChip=(b.round?'<span class="imp-round">'+esc(b.round)+'</span>':'');
     const rwWord='<span class="imp-rw '+mark+'">'+rw+'</span>';
     const chips=[];
     if(b.res!=='×'&&b.waza)chips.push('<span class="imp-waza">'+esc(b.waza)+(b.grade?'（'+esc(b.grade)+'）':'')+'</span>');
@@ -10923,6 +11448,7 @@ function renderImportBouts(){
     if(b.grip)chips.push('<span class="imp-grip">'+esc(b.grip)+'組</span>');   // 右→右組／左→左組
     const sub=chips.join('<span class="imp-sep">・</span>');
     const opp=b.opp?('<span class="imp-opp">vs '+esc(b.opp)+(b.affil?'（'+esc(b.affil)+'）':'')+'</span>'):'';
+    const dupTag=b.dup?'<span class="imp-tgt-b need">'+T('登録済み')+'</span>':'';   // v258
     let tgt='';
     if(isTeam&&b.include){
       const need=!b.targetCardId;                       // v162: 未選択なら必ず選ばせる
@@ -10952,6 +11478,39 @@ function doImport(){
   if(!importParsed)return;
   let selfId=document.getElementById('importSelf').value;
   if(!selfId){toast(T('選手を選んでください'));return;}
+  // v257: DBを触る前に、入力の不足をすべて確かめる。
+  //       従来は仲間や予定を先に作っていたため、エラーで中断しても空の予定・仲間だけが増えていた。
+  {
+    const picked0=importParsed.bouts.filter(b=>b.include);
+    if(!picked0.length){toast(T('取り込む試合がありません'));return;}
+    if(importParsed.head.kind==='団体'){
+      if(picked0.some(b=>!b.targetCardId)){toast(T('取り込み先のカードを選んでください'));return;}
+      // v257: 人数がちがうカードへ入れると、役割が見つからず先頭の選手を上書きしていた
+      const _cnt=importParsed.head.teamCount||5;
+      const _role=importParsed.head.role||posList(_cnt)[0];
+      if(_role!=='代表戦'&&_role!=='代表'){
+        const _mrT=(DB.matchResults||{})[document.getElementById('importSched').value];
+        const bad=picked0.some(b=>{
+          if(!b.targetCardId||b.targetCardId==='__new__')return false;
+          const c=((_mrT&&_mrT.team&&_mrT.team.cards)||[]).find(x=>x.id===b.targetCardId);
+          return c && posList(c.count||_cnt).indexOf(_role)<0;
+        });
+        if(bad){ toast(T('取り込み先のカードと人数がちがうため、この役割を入れられません')); return; }
+      }
+    }
+    if(selfId==='__newstu__'&&!((importParsed.head&&importParsed.head.self)||'').trim()){toast(T('選手のなまえが読み取れませんでした'));return;}
+    if(document.getElementById('importSched').value==='__new__'&&!document.getElementById('importNewDate').value){toast(T('新しい予定の日付を入れてください'));return;}
+  }
+  // v258: 保存できなかったときに元へ戻せるよう、何かを作る前の姿を控える
+  const _bkStu=DB.students.slice(), _bkSch=DB.schedule.slice();
+  const _bkMrKeys=Object.keys(DB.matchResults||{});
+  let _bkMrJson=null, _bkSchedId='';
+  const _impRollback=()=>{
+    DB.students=_bkStu; DB.schedule=_bkSch;
+    Object.keys(DB.matchResults||{}).forEach(k=>{ if(_bkMrKeys.indexOf(k)<0)delete DB.matchResults[k]; });
+    if(_bkSchedId&&_bkMrJson)DB.matchResults[_bkSchedId]=JSON.parse(_bkMrJson);
+    _importNewStuName='';
+  };
   // v246: 「新しく登録して取り込む」＝この場で仲間を作ってから取り込む
   if(selfId==='__newstu__'){
     const nm=((importParsed.head&&importParsed.head.self)||'').trim();
@@ -10975,16 +11534,19 @@ function doImport(){
     const sc={id:uid(),name:'大会',title:document.getElementById('importNewName').value.trim(),date:dt,time:'',place:'',note:'',showMatch:true};
     DB.schedule.push(sc); schedId=sc.id;
   }
+  _bkSchedId=schedId;
+  _bkMrJson=(DB.matchResults&&DB.matchResults[schedId])?JSON.stringify(DB.matchResults[schedId]):null;
   const mr=ensureMatch(schedId);
   const picked=importParsed.bouts.filter(b=>b.include);
-  if(!picked.length){toast(T('取り込む試合がありません'));return;}
+  if(!picked.length){_impRollback();toast(T('取り込む試合がありません'));return;}
+  let skippedRole=0;   // v257: 役割の位置が無くて入れられなかった数（通常は検証で止まるので0）
   if(importParsed.head.kind==='団体'){
     // v162: 取り込み先が未選択のまま進ませない（自動で新規カードを作らない）
-    if(picked.some(b=>!b.targetCardId)){toast(T('取り込み先のカードを選んでください'));return;}
+    if(picked.some(b=>!b.targetCardId)){_impRollback();toast(T('取り込み先のカードを選んでください'));return;}
     // 団体戦：対戦カード（同じ相手チーム＋回戦）に選手を役割の位置で登録。
     // 既存カードがあれば新規作成せず、その役割位置に上書き補完（後から他選手/再送分が来ても統合される）。
     const impCount=importParsed.head.teamCount||5;
-    const role=importParsed.head.role||(POS[impCount]?POS[impCount][0]:'先鋒');
+    const role=importParsed.head.role||posList(impCount)[0];
     const isRep=(role==='代表戦'||role==='代表');
     picked.forEach(b=>{
       const ab={id:uid(),selfId,result:b.res,grade:b.res==='×'?'':(b.grade||''),
@@ -11003,7 +11565,7 @@ function doImport(){
       if(!Array.isArray(card.bouts))card.bouts=[];
       while(card.bouts.length<cnt)card.bouts.push(impEmptyBout());
       if(isRep){card.tiebreak='rep';card.rep=ab;}                       // 代表戦は上書き
-      else{const idx=(POS[cnt]||[]).indexOf(role);card.bouts[idx>=0?idx:0]=ab;} // 役割位置に上書き補完
+      else{const idx=posList(cnt).indexOf(role); if(idx<0){skippedRole++;return;} card.bouts[idx]=ab;} // v257: 位置が無ければ入れない（先頭を潰さない）
     });
   }else{
     picked.forEach(b=>{
@@ -11012,14 +11574,15 @@ function doImport(){
         oppIsMate:false,oppId:'',oppName:b.opp||'',oppAffil:b.affil||'',grip:b.grip||'',note:b.note||'',sheet:'individual'});
     });
   }
-  save(); closeModal('importModal');
+  if(!save()){ _impRollback(); toast(T('保存できませんでした。取り込みは行われていません')); return; }   // v258
+  closeModal('importModal');
   if(typeof renderMatchSummary==='function')renderMatchSummary();
   if(typeof renderMates==='function')renderMates();
   if(_importNewStuName){
-    toast(T('「')+_importNewStuName+T('」を仲間に登録し、')+picked.length+T('件を取り込みました'));
+    toast(T('「')+_importNewStuName+T('」を仲間に登録し、')+(picked.length-skippedRole)+T('件を取り込みました'));
     _importNewStuName='';
   }else{
-    toast(picked.length+T('件を取り込みました'));
+    toast((picked.length-skippedRole)+T('件を取り込みました')+(skippedRole?'（'+skippedRole+T('件は取り込み先に位置がありませんでした')+'）':''));
   }
 }
 let _importNewStuName='';   // v246: 取り込みと同時に登録した仲間の名前（完了メッセージ用）
@@ -11334,7 +11897,7 @@ function renderEntryDone(){
       `<button class="btn ghost full" style="margin-top:8px" onclick="entryToggleDone()">完了を取り消す</button>`; }
   else { box.innerHTML=`<button class="btn full" style="background:var(--green);color:#fff" onclick="entryToggleDone()">✅ この大会の申込を完了にする</button>`; }
 }
-function entryToggleDone(){ const e=ensureEntry(curEntrySched); e.done=!e.done; e.doneDate=e.done?todayStr():''; save(); renderEntryDone(); updateSchedTabBadge(); toast(e.done?'申込を完了にしました':'完了を取り消しました'); }
+function entryToggleDone(){ const e=ensureEntry(curEntrySched); e.done=!e.done; e.doneDate=e.done?todayStr():''; save(); renderEntryDone(); updateSchedTabBadge(); toast(T(e.done?'申込を完了にしました':'完了を取り消しました')); }
 function renderEntrySummary(){
   const st=entryStats(curEntrySched)||{count:0,paid:0,paidSum:0,unpaid:0,unpaidSum:0};
   const el=document.getElementById('entSummary'); if(!el)return;
@@ -11385,8 +11948,28 @@ function entryOpenMemo(){ const e=ensureEntry(curEntrySched); e.showMemo=true; s
 function entryToggleMemoCol(){ const e=ensureEntry(curEntrySched); e.showMemo=!e.showMemo; save(); renderEntryParts(); }
 function entrySetFee(sid,val){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].fee=Math.max(0,Number(val)||0); save(); renderEntrySummary(); }
 function entryTogglePaid(sid){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].paid=!e.parts[sid].paid; save(); renderEntryParts(); }
-function entryRemovePart(sid){ const e=ensureEntry(curEntrySched); delete e.parts[sid]; save(); renderEntryParts(); }
-function entryApplyFeeAll(){ const e=ensureEntry(curEntrySched); const f=Math.max(0,Number(document.getElementById('entFee').value)||0); e.feeDefault=f; Object.keys(e.parts).forEach(sid=>e.parts[sid].fee=f); save(); renderEntryParts(); toast('出場者全員に ¥'+f.toLocaleString()+' を反映しました'); }
+// v258: 参加費・集金済み・メモが入っている人を、確認なしで消さない
+function entryPartHasInfo(p){ return !!(p&&((Number(p.fee)||0)>0||p.paid||(p.note||'').trim())); }
+function entryRemovePart(sid){
+  const e=ensureEntry(curEntrySched);
+  const p=e.parts[sid];
+  const go=()=>{ delete e.parts[sid]; entryReopenIfDone(); save(); renderEntryParts(); updateSchedTabBadge(); };
+  if(entryPartHasInfo(p)){
+    askConfirm(T('「')+esc(studentName(sid))+T('」を出場者から外します。')+'<br>'+T('入力した参加費・集金済み・メモも一緒に消えます。'),go,T('外す'));
+    return;
+  }
+  go();
+}
+// 申込を完了にしたあとで名簿が変わったら、完了を解いて締切の案内も戻す
+function entryReopenIfDone(){
+  const e=ensureEntry(curEntrySched);
+  if(!e.done)return false;
+  e.done=false; e.doneDate='';
+  if(typeof renderEntryDone==='function')renderEntryDone();
+  toast(T('出場者が変わったので、申込の完了を取り消しました'));
+  return true;
+}
+function entryApplyFeeAll(){ const e=ensureEntry(curEntrySched); const f=Math.max(0,Number(document.getElementById('entFee').value)||0); e.feeDefault=f; Object.keys(e.parts).forEach(sid=>e.parts[sid].fee=f); save(); renderEntryParts(); toast(T('出場者全員に')+' ¥'+f.toLocaleString()+' '+T('を反映しました')); }
 function openEntryPick(){
   const e=ensureEntry(curEntrySched), s=DB.schedule.find(x=>x.id===curEntrySched), ym=s&&s.date?s.date.slice(0,7):thisMonthStr();
   const roster=DB.students.filter(st=>!st.isSelf&&isEnrolledInMonth(st,ym));
@@ -11400,13 +11983,22 @@ function openEntryPick(){
   document.getElementById('entPickList').innerHTML=html||'<div class="ent-empty">この時期に在籍している仲間がいません。<br>「仲間」から登録してください。</div>';
   openModal('entryPickModal');
 }
-function entryPickApply(){
+function entryPickApply(_ok){
   const e=ensureEntry(curEntrySched);
   const boxes=[...document.querySelectorAll('#entPickList input[type=checkbox]')];
+  // v258: 参加費や集金済みが入っている人を外そうとしたら、先に確認する
+  const losing=boxes.filter(c=>!c.checked&&entryPartHasInfo(e.parts[c.value])).map(c=>c.value);
+  if(losing.length&&!_ok){
+    askConfirm(T('次の方を出場者から外します。')+'<br><b>'+esc(losing.map(studentName).join('、'))+'</b><br><br>'
+      +T('入力した参加費・集金済み・メモも一緒に消えます。'),()=>entryPickApply(true),T('外す'));
+    return;
+  }
+  let changed=false;
   boxes.forEach(c=>{ const id=c.value;
-    if(c.checked){ if(!e.parts[id])e.parts[id]={fee:e.feeDefault||0,paid:false}; }
-    else if(e.parts[id])delete e.parts[id];
+    if(c.checked){ if(!e.parts[id]){e.parts[id]={fee:e.feeDefault||0,paid:false};changed=true;} }
+    else if(e.parts[id]){delete e.parts[id];changed=true;}
   });
+  if(changed)entryReopenIfDone();
   save(); closeModal('entryPickModal'); renderEntryParts(); updateSchedTabBadge();
 }
 let schedFilter='all';                 // v133: 'all' | 'match'（試合のみ）
@@ -11489,78 +12081,134 @@ function schedShareText(ym){
   const withNote=(DB.shareNote!==false);            // v224: メモを送るか（既定=送る）
   const items=(DB.schedule||[]).filter(s=>s.date&&s.date.slice(0,7)===ym)
     .sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')));
-  const msg=(DB.ssMsg||'').trim().replace(/[\n｜]/g,' ');
+  const msg=shareField(DB.ssMsg||'');
   const L=['【My柔道 予定表】'];
   if(msg)L.push('ひとこと｜'+msg);
-  L.push('送り主｜'+sender,'月｜'+ym,'--- 予定 ---');
+  // v258: 件数を入れて、途中までしか貼れていない予定表で既存を消さないようにする
+  L.push('送り主｜'+shareField(sender),'月｜'+ym,'件数｜'+items.length,'--- 予定 ---');
   items.forEach(s=>{
     const inferred=/試合|大会/.test(s.name||'');
     const flag=(s.showMatch===true&&!inferred)?'M':((s.showMatch===false&&inferred)?'x':'');
-    const note=withNote?(s.note||'').replace(/[\n｜]/g,' '):'';
-    L.push([s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',note,flag].join('｜').replace(/｜+$/,''));
+    const note=withNote?shareField(s.note||''):'';
+    // v258: 送り元の予定IDも送る（同じ日に同じ名前の予定が2つあっても取り違えない／名前を直しても紐付きが切れない）
+    L.push([s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',note,flag].map(shareField).concat([shareField(s.id)]).join('｜').replace(/｜+$/,''));
   });
   const hasNote=items.some(s=>(s.note||'').trim());
   return {text:L.join('\n'), count:items.length, sender, ym, hasNote, msg};
 }
 function schedShareParts(text){
   const MAX=700;                                           // 1枚あたり約700byte＝画面越しでも読み取りやすいサイズ
-  const bl=s=>{ try{return unescape(encodeURIComponent(s)).length;}catch(e){return s.length*3;} };
-  if(bl(text)<=MAX) return [text];
-  const lines=text.split('\n'), chunks=[]; let cur=[];
-  lines.forEach(l=>{ cur.push(l); if(bl(cur.join('\n'))>MAX-40){ cur.pop(); if(cur.length)chunks.push(cur.join('\n')); cur=[l]; } });
-  if(cur.length)chunks.push(cur.join('\n'));
-  const n=chunks.length;
-  return chunks.map((c,i)=>'【My柔道 予定表 '+(i+1)+'/'+n+'】\n'+c);
+  if(shareBytes(text)<=MAX) return [text];
+  if(shareTooLongLine(text,MAX,56)) return null;           // v258: QRにできない（テキストで送ってもらう）
+  const chunks=shareChunks(text,MAX,56);
+  const n=chunks.length, sid=shareIdOf(text);
+  return chunks.map((c,i)=>'【My柔道 予定表 '+(i+1)+'/'+n+'】\n'+c+'\n#ID='+sid);
 }
 function schedShareParse(raw){
   const lines=(raw||'').replace(/\r/g,'').split('\n').map(l=>l.trim()).filter(Boolean);
-  let sender='',ym='',msg='',inBody=false; const items=[];
+  let sender='',ym='',msg='',inBody=false; const items=[]; let sawBody=false; let declared=null;
   lines.forEach(line=>{
     if(/^【.*】$/.test(line))return;
-    if(/^[-—―]+\s*予定\s*[-—―]+$/.test(line)){inBody=true;return;}
+    if(/^[-—―]+\s*予定\s*[-—―]+$/.test(line)){inBody=true;sawBody=true;return;}
     if(line.startsWith('ひとこと｜')){msg=line.slice(5).trim();return;}
     if(line.startsWith('送り主｜')){sender=line.slice(4).trim();return;}
     if(line.startsWith('月｜')){ym=line.slice(2).trim();return;}
+    if(line.startsWith('件数｜')){ const v=parseInt(line.slice(3).trim(),10); if(!isNaN(v))declared=v; return; }
     if(!inBody)return;
     const p=line.split('｜'); const dd=(p[0]||'').trim();
     if(!/^\d{1,2}$/.test(dd))return;
-    items.push({dd:dd.padStart(2,'0'),name:(p[1]||'').trim(),title:(p[2]||'').trim(),time:(p[3]||'').trim(),place:(p[4]||'').trim(),note:(p[5]||'').trim(),flag:(p[6]||'').trim()});
+    items.push({dd:dd.padStart(2,'0'),name:(p[1]||'').trim(),title:(p[2]||'').trim(),time:(p[3]||'').trim(),place:(p[4]||'').trim(),note:(p[5]||'').trim(),flag:(p[6]||'').trim(),sid:(p[7]||'').trim()});
   });
-  return {sender,ym,msg,items};
+  return {sender,ym,msg,items,sawBody,declared};
+}
+/* v258: 予定表の照合を1か所にまとめる。
+   取り込みと「何件消えるか」の予測が必ず同じ結果になるようにするため。
+   優先順位：①送り元IDで見つかる既存 ②対応表にあるID（消えていれば、そのIDで作り直す）
+             ③送り元IDの手がかりが無いときだけ、日付＋種類＋大会名で照合 */
+function schedMatchPlan(sender,ym,forId,items,mine,mineAll){
+  mine=mine||(DB.schedule||[]).filter(s=>s.src===sender&&(s.date||'').slice(0,7)===ym&&(s.forId||'')===forId);
+  mineAll=mineAll||(DB.schedule||[]).filter(s=>s.src===sender&&(s.forId||'')===forId);
+  const map=DB.schedSrcMap||{};
+  const mapKey=(sid)=>sender+'\u0001'+forId+'\u0001'+sid;
+  const bySid={}; mineAll.forEach(s=>{ if(s.srcId&&!bySid[s.srcId])bySid[s.srcId]=s; });
+  const keyOf=(d,n,t)=>d+'|'+(n||'')+'|'+(t||'');
+  const byKey={}; mine.forEach(s=>{ const k=keyOf(s.date,s.name,s.title); (byKey[k]=byKey[k]||[]).push(s); });
+  const used=new Set(), keep=new Set(), rows=[];
+  (items||[]).forEach(it=>{
+    const inferred=/試合|大会/.test(it.name||'');
+    const showMatch=it.flag==='M'?true:(it.flag==='x'?false:inferred);
+    const date=ym+'-'+it.dd, name=it.name||T('予定');
+    let old=null, reuseId='';
+    const known=it.sid?map[mapKey(it.sid)]:'';
+    if(it.sid&&bySid[it.sid]&&!used.has(bySid[it.sid].id))old=bySid[it.sid];
+    if(!old&&known){
+      const live=(DB.schedule||[]).find(x=>x.id===known);
+      if(live&&live.src===sender&&(live.forId||'')===forId&&!used.has(live.id))old=live;
+      else if(!live)reuseId=known;        // 対応先が消えている＝同じIDで作り直す（名称では照合しない）
+    }
+    if(!old&&!known){
+      const q=byKey[keyOf(date,name,it.title)]||[];
+      old=q.find(x=>!used.has(x.id)&&!(x.srcId&&it.sid&&x.srcId!==it.sid))||null;
+    }
+    if(old){ used.add(old.id); keep.add(old.id); }
+    rows.push({it:it,date:date,name:name,showMatch:showMatch,old:old,reuseId:reuseId});
+  });
+  return {rows:rows,keep:keep,used:used,mine:mine,del:mine.filter(s=>!keep.has(s.id)&&!used.has(s.id))};
 }
 function schedShareApply(parsed,forId){
   const {sender,ym,items,msg}=parsed; forId=forId||'';
   if(!sender||!/^\d{4}-\d{2}$/.test(ym))return -1;
+  if(parsed.declared!=null&&parsed.declared!==items.length)return -3;   // v258: 途中までの予定表では消さない
+  // v258: 保存できなかったときに元へ戻す
+  const _bkSchedJson=JSON.stringify(DB.schedule||[]);
+  const _bkSrcJson=JSON.stringify(DB.schedSrc||{});
+  const _bkMapJson=JSON.stringify(DB.schedSrcMap||{});
+  // bakeSchedMeta が試合結果へ焼き付ける大会名・日付も控える
+  const _bkMeta={}; Object.keys(DB.matchResults||{}).forEach(k=>{ const m=DB.matchResults[k]||{}; _bkMeta[k]={name:m.name,title:m.title,date:m.date}; });
   // v220: 置き換えは「同送り主×同月×同対象」単位（兄=部活・弟=道場のように同送り主でも対象別に共存できる）
   // v240: 同じ予定は「日付＋種類＋大会名」で照合して**IDを引き継ぐ**。
   //       （IDを作り直すと、その予定に紐づく試合結果・参加費・写真が迷子になるため）
   const mine=(DB.schedule||[]).filter(s=>s.src===sender&&(s.date||'').slice(0,7)===ym&&(s.forId||'')===forId);
-  const keyOf=(d,n,t)=>d+'|'+(n||'')+'|'+(t||'');
-  const oldMap={}; mine.forEach(s=>{ const k=keyOf(s.date,s.name,s.title); if(!oldMap[k])oldMap[k]=s; });
-  const keep=new Set();
-  items.forEach(it=>{
-    const inferred=/試合|大会/.test(it.name||'');
-    const showMatch=it.flag==='M'?true:(it.flag==='x'?false:inferred);
-    const date=ym+'-'+it.dd, name=it.name||T('予定');
-    const old=oldMap[keyOf(date,name,it.title)];
+  // v258: まず「送り元の予定ID」で照合する。
+  //   これで、同じ日に同じ名前の予定が2つあっても取り違えず、
+  //   道場側で大会名や日付を直しても、選手側の結果との紐付きが切れない。
+  //   IDが無い（古いアプリからの）予定表は、従来どおり日付＋種類＋大会名で照合するが、
+  //   一度使った予定は再利用しない（同じキーの2件目が消えていたため）。
+  // v258: 日付が別の月へ動いた予定も拾えるよう、送り元IDだけは月をまたいで探す
+  const mineAll=(DB.schedule||[]).filter(s=>s.src===sender&&(s.forId||'')===forId);
+  const plan=schedMatchPlan(sender,ym,forId,items,mine,mineAll);
+  const keep=plan.keep;
+  DB.schedSrcMap=DB.schedSrcMap||{};
+  const _mapKey=(sid)=>sender+'\u0001'+forId+'\u0001'+sid;
+  plan.rows.forEach(row=>{
+    const it=row.it, date=row.date, name=row.name, showMatch=row.showMatch;
+    const old=row.old;
     if(old){                                   // 既存の予定を「中身だけ」更新（IDは変えない）
-      keep.add(old.id);
+      old.date=date; old.name=name; old.title=it.title;
       old.time=it.time; old.place=it.place; old.note=it.note; old.showMatch=showMatch;
+      if(it.sid){ old.srcId=it.sid; DB.schedSrcMap[_mapKey(it.sid)]=old.id; }
       if(typeof bakeSchedMeta==='function')bakeSchedMeta(old.id);
     }else{
-      DB.schedule.push({id:'ss'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),
-        name:name,title:it.title,date:date,time:it.time,place:it.place,note:it.note,showMatch:showMatch,src:sender,forId:forId});
+      let nid=row.reuseId;
+      while(!nid||DB.schedule.some(x=>x.id===nid))nid='ss'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+      DB.schedule.push({id:nid,
+        name:name,title:it.title,date:date,time:it.time,place:it.place,note:it.note,showMatch:showMatch,src:sender,forId:forId,srcId:it.sid||''});
+      if(it.sid)DB.schedSrcMap[_mapKey(it.sid)]=nid;
     }
   });
   // 今回の予定表から消えたものだけを削除（結果が入っていれば大会名・日付を焼き付けてから）
-  const del=mine.filter(s=>!keep.has(s.id));
+  const del=plan.del;
   del.forEach(s=>{ if(typeof bakeSchedMeta==='function')bakeSchedMeta(s.id); });
   const delIds=new Set(del.map(s=>s.id));
   DB.schedule=(DB.schedule||[]).filter(s=>!delIds.has(s.id));
   // v237: 送り主ごとに「最後に取り込んだ月・ひとこと・日付・件数」を残す
   DB.schedSrc=DB.schedSrc||{};
   DB.schedSrc[sender]={ym:ym,msg:(msg||''),at:todayStr(),n:items.length};
-  save(); return items.length;
+  if(!save()){ try{
+    DB.schedule=JSON.parse(_bkSchedJson); DB.schedSrc=JSON.parse(_bkSrcJson); DB.schedSrcMap=JSON.parse(_bkMapJson);
+    Object.keys(_bkMeta).forEach(k=>{ const m=DB.matchResults&&DB.matchResults[k]; if(m){ m.name=_bkMeta[k].name; m.title=_bkMeta[k].title; m.date=_bkMeta[k].date; } });
+  }catch(e){} return -2; }
+  return items.length;
 }
 /* --- 送る側（事務） --- */
 let ssMonth=null;
@@ -11577,7 +12225,7 @@ function renderSchedShare(keepInput){
   const [y,m]=ssMonth.split('-');
   document.getElementById('ssMonthLbl').textContent=`${y}${T('年')} ${Number(m)}${T('月')}`;
   const r=schedShareText(ssMonth);
-  document.getElementById('ssCount').textContent=r.count?`${r.count}${T('件の予定を送ります')}`:T('この月に予定はありません');
+  document.getElementById('ssCount').textContent=r.count?`${r.count}${T('件の予定を送ります')}`:T('この月に予定はありません（送ると、受け取った側のこの月の予定が取り消されます）');
   // v224: メモがある月だけ「メモも送る」チェックを出す（プライバシー配慮・普段は表示しない）
   const nrow=document.getElementById('ssNoteRow'), nchk=document.getElementById('ssNoteChk');
   const showNoteRow=r.hasNote||(DB.shareNote===false);
@@ -11589,7 +12237,8 @@ function renderSchedShare(keepInput){
   const qb=document.getElementById('ssQrBtn'); if(qb)qb.textContent=T('📷 QRコードを表示');   // v221: 月を変えたらQRを畳んでボタンも戻す
 }
 async function ssSend(){
-  const r=schedShareText(ssMonth); if(!r.count){ toast(T('この月に予定はありません')); return; }
+  // v258: 0件でも送れる。「この月の予定はすべて取り消し」を伝えるため
+  const r=schedShareText(ssMonth);
   if(navigator.share){ try{ await navigator.share({text:r.text}); return; }catch(e){} }
   try{ await navigator.clipboard.writeText(r.text); toast(T('コピーしました。LINE等に貼り付けて送ってください')); }
   catch(e){ toast(T('コピーできませんでした')); }
@@ -11597,9 +12246,10 @@ async function ssSend(){
 function ssShowQr(){
   const box=document.getElementById('ssQrBox'), qb=document.getElementById('ssQrBtn');
   if(box.innerHTML){ box.innerHTML=''; if(qb)qb.textContent=T('📷 QRコードを表示'); return; }   // v221: 表示中はトグルで閉じる
-  const r=schedShareText(ssMonth); if(!r.count){ toast(T('この月に予定はありません')); return; }
+  const r=schedShareText(ssMonth);
   if(qb)qb.textContent=T('QRコードを閉じる');
   const parts=schedShareParts(r.text);
+  if(!parts){ box.innerHTML='<p class="list-mini">'+T('内容が多すぎてQRにできません。テキストでお送りください。')+'</p>'; return; }
   box.innerHTML=parts.map((p,i)=>{
     const svg=qrMakeSvg(p);
     const lbl=parts.length>1?`<div class="list-mini" style="font-weight:800;margin:8px 0 2px">QR ${i+1} / ${parts.length}</div>`:'';
@@ -11609,6 +12259,7 @@ function ssShowQr(){
 }
 /* --- 受け取る側（選手） --- */
 let srForId='';   // v220: 取り込み対象（''=全員）
+let _srZeroOk=false;   // v258: 0件（全件取消）の確認が済んだか
 function openSchedRecv(){ document.getElementById('srText').value=''; document.getElementById('srPreview').innerHTML=''; document.getElementById('srApplyBtn').style.display='none'; srForId=(!gwAllView&&gwSelfId)?gwSelfId:''; renderSrForPick(); renderSrSenders(); openModal('schedRecvModal'); }
 function renderSrForPick(){
   const row=document.getElementById('srForRow'); if(!row)return;
@@ -11624,19 +12275,51 @@ function srPickFor(id){ srForId=id; renderSrForPick(); schedRecvAnalyze(); }
 function schedRecvAnalyze(){
   const p=schedShareParse(document.getElementById('srText').value);
   const btn=document.getElementById('srApplyBtn'), pv=document.getElementById('srPreview');
-  if(!p.sender||!/^\d{4}-\d{2}$/.test(p.ym)||!p.items.length){ pv.innerHTML=''; btn.style.display='none'; return; }
+  // v258: 「--- 予定 ---」が無い＝途中までしか貼れていない。0件（全件取消）と区別する
+  if(!p.sender||!/^\d{4}-\d{2}$/.test(p.ym)||(!p.items.length&&!p.sawBody)){ pv.innerHTML=''; btn.style.display='none'; return; }
+  // v258: 件数が合わない＝途中までしか貼れていない。そのまま取り込むと残りの予定が消える
+  if(p.declared!=null&&p.declared!==p.items.length){
+    pv.innerHTML='<p class="list-mini" style="color:#c0392b;font-weight:800">'+T('予定表が途中までしか貼られていません（')+p.items.length+' / '+p.declared+T('件）。全部を貼り直してください。')+'</p>';
+    btn.style.display='none'; return;
+  }
   const exist=(DB.schedule||[]).filter(s=>s.src===p.sender&&(s.date||'').slice(0,7)===p.ym&&(s.forId||'')===srForId).length;
   const [y,m]=p.ym.split('-');
   const forName=srForId?studentName(srForId):T('全員');
   pv.innerHTML=`<div class="gw-field-row" style="border-bottom:none"><span class="nm"><b>${esc(p.sender)}</b>・${y}${T('年')} ${Number(m)}${T('月')}・${p.items.length}${T('件')}<span class="mate-tag" style="background:#33507e">${esc(forName)}</span></span></div>`+
     (p.msg?`<p class="list-mini" style="font-weight:800;color:var(--navy)">📣 ${esc(p.msg)}</p>`:'')+
-    (exist?`<p class="list-mini" style="color:#c77f0a;font-weight:700">${T('この送り主のこの月の予定')} ${exist}${T('件を置き換えます')}</p>`:'');
+    (exist?`<p class="list-mini" style="color:#c77f0a;font-weight:700">${T('この送り主のこの月の予定')} ${exist}${T('件を置き換えます')}</p>`:'')+
+    (!p.items.length?`<p class="list-mini" style="color:#c0392b;font-weight:800">${T('予定は0件です。この月の予定はすべて取り消しになります。')}</p>`:'');
   btn.style.display='';
   btn.dataset.ready='1';
 }
+// v258: 件数の無い古い形式では、貼り漏れかどうかを見分けられない。
+//        消える予定があるときだけ、件数を示して確認する。
+function schedRecvWouldDelete(p){
+  if(!p||!p.sender||!/^\d{4}-\d{2}$/.test(p.ym||''))return 0;
+  try{ return schedMatchPlan(p.sender,p.ym,srForId,p.items).del.length; }catch(e){ return 0; }
+}
 function schedRecvApply(){
   const p=schedShareParse(document.getElementById('srText').value);
+  // v258: 件数の無い古い形式で、消える予定があるときは確認する（貼り漏れで消さないため）
+  if(p.items.length && p.declared==null && !_srZeroOk){
+    const n=schedRecvWouldDelete(p);
+    if(n>0){
+      askConfirm(T('この予定表を取り込むと、いまある予定のうち')+n+T('件が消えます。')+'<br>'
+        +T('予定表の全部を貼れているか、もう一度ご確認ください。')+'<br><br>'+T('このまま取り込みますか？'),
+        ()=>{ _srZeroOk=true; schedRecvApply(); },T('取り込む'),'確認','var(--navy)');
+      return;
+    }
+  }
+  // v258: 0件＝全部取り消し。取り違えると予定が消えるので一度だけ確認する
+  if(!p.items.length && !_srZeroOk){
+    askConfirm(T('この予定表は0件です。')+'<br>'+esc(p.sender)+T('の')+p.ym.replace('-','/')+T('月の予定を、すべて取り消します。')+'<br><br>'+T('よろしいですか？'),
+      ()=>{ _srZeroOk=true; schedRecvApply(); },T('すべて取り消す'));
+    return;
+  }
+  _srZeroOk=false;
   const n=schedShareApply(p,srForId);
+  if(n===-3){ toast(T('予定表が途中までしか貼られていません。全部を貼り直してください')); return; }   // v258
+  if(n===-2){ toast(T('保存できませんでした。取り込みは行われていません')); return; }   // v258
   if(n<0){ toast(T('予定表を読み取れませんでした')); return; }
   closeModal('schedRecvModal');
   if(/^\d{4}-\d{2}$/.test(p.ym))gwMonth=p.ym;      // v241: 取り込んだ月を表示する（v255: \d の欠けを修正）
@@ -11658,7 +12341,12 @@ function renderSrSenders(){
 }
 function srDeleteSender(name){
   askConfirm(`${esc(name)} ${T('の予定をすべて削除しますか？（自分で登録した予定は消えません）')}`,()=>{
-    DB.schedule=(DB.schedule||[]).filter(s=>s.src!==name); if(DB.schedSrc)delete DB.schedSrc[name]; save();
+    // v258: 他の削除と同じく、試合結果に大会名・日付を残してから消す
+    (DB.schedule||[]).forEach(s=>{ if(s.src===name&&typeof bakeSchedMeta==='function')bakeSchedMeta(s.id); });
+    DB.schedule=(DB.schedule||[]).filter(s=>s.src!==name); if(DB.schedSrc)delete DB.schedSrc[name];
+    // v258: この送り主の対応表も片付ける（送り主ごと消したのに残り続けないように）
+    if(DB.schedSrcMap)Object.keys(DB.schedSrcMap).forEach(k=>{ if(k.split('\u0001')[0]===name)delete DB.schedSrcMap[k]; });
+    save();
     renderSrSenders();
     if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
     toast(T('削除しました'));
@@ -12372,12 +13060,12 @@ function doArchiveYear(){
   const inFY=(s)=> s&&s.length>=7 && fyOf(+s.slice(0,4),+s.slice(5,7))===fy;
   const st=archiveImgStat(fy);   // v252: 削除前に対象画像を確定させる（予定を消すと辿れなくなるため）
   const imgLine = st.total
-    ? `<br><br>この年度の<b>メモリー画像（写真${st.photos}枚・カード${st.cards}枚／${archiveSizeLabel(st.bytes)}）も一緒に外れます</b>。バックアップには画像も含まれるので、復元すればそのまま戻ります。`
+    ? '<br><br>'+T('この年度のメモリー画像も一緒に外れます（写真')+st.photos+T('枚・カード')+st.cards+T('枚／')+archiveSizeLabel(st.bytes)+T('）。バックアップには画像も含まれるので、復元すればそのまま戻ります。')
     : '';
-  askConfirm(`${fy}年度（${fyRangeLabel(fy)}）のデータをアプリ本体から外して容量を空けます。${imgLine}<br><br>先に復元用の全体バックアップを保存します。<b>保存できたときだけ</b>アーカイブを実行します。よろしいですか？`,async()=>{
+  askConfirm(T('AAAA年度（BBBB）のデータをアプリ本体から外して容量を空けます。').replace('AAAA',fy).replace('BBBB',fyRangeLabel(fy))+imgLine+'<br><br>'+T('先に復元用の全体バックアップを保存します。<b>保存できたときだけ</b>アーカイブを実行します。よろしいですか？'),async()=>{
     // ① 復元用フルバックアップを保存。保存できなければ何も外さない（v252）
     const saved=await archiveBackup(fy);
-    if(!saved){ toast('バックアップを保存できなかったため、アーカイブを中止しました'); return; }
+    if(!saved){ toast(T('バックアップを保存できなかったため、アーカイブを中止しました')); return; }
     // ①' v255: 外す前に、この年度の収支を繰越額として残す（期首残高が変わらないように。再アーカイブ分は加算）
     const net=fyNetBalance(fy);
     if(net){ if(!DB.archiveCarry||typeof DB.archiveCarry!=='object')DB.archiveCarry={}; DB.archiveCarry[fy]=(+DB.archiveCarry[fy]||0)+net; }
@@ -12395,7 +13083,7 @@ function doArchiveYear(){
     save();
     renderDataUsage(); renderArchiveOptions();
     [ 'renderMates','renderAtt','renderMoney','renderSched','renderList','renderRireki' ].forEach(fn=>{ try{ if(typeof window[fn]==='function') window[fn](); }catch(_){} });
-    toast(`${fy}年度をアーカイブしました`+(st.total?`（画像${st.total}枚・${archiveSizeLabel(st.bytes)}を解放）`:''));
+    toast(fy+T('年度をアーカイブしました')+(st.total?'（'+T('画像')+st.total+T('枚')+'・'+archiveSizeLabel(st.bytes)+T('を解放')+'）':''));
   },'バックアップして外す','アーカイブの確認','var(--navy)');
 }
 let showRetired=false;
@@ -12935,7 +13623,7 @@ function saveStudent(){
   const lastKana=document.getElementById('stLastKana').value.trim();
   const firstKana=document.getElementById('stFirstKana').value.trim();
   const name=[lastName,firstName].filter(Boolean).join(' ');
-  if(!name){toast('姓または名を入れてください');return;}
+  if(!name){toast(T('姓または名を入れてください'));return;}
   const kana=[lastKana,firstKana].filter(Boolean).join(' ');
   const startDate=document.getElementById('stStart').value||'';
   // 月謝金額：手入力があればそれを優先、なければ選択中のプリセット
@@ -12955,7 +13643,7 @@ function saveStudent(){
     endDate=document.getElementById('stEnd').value||todayStr();
   }else if(pickedStatus==='leave'){
     leaveStart=document.getElementById('stLeaveStart').value||'';
-    if(!leaveStart){toast('休会の開始（年月）を選んでください');return;}
+    if(!leaveStart){toast(T('休会の開始（年月）を選んでください'));return;}
     leaveEnd=pickedLeaveEnd?(document.getElementById('stLeaveEnd').value||''):'';
     leaveFee=Math.max(0,Number(document.getElementById('stLeaveFee').value)||0);
   }else{ // active：進行中の休会があれば前月で締めて履歴は残す
@@ -12987,9 +13675,9 @@ function saveStudent(){
     Object.keys(DB.feeOverrides||{}).forEach(ym=>{ if(DB.feeOverrides[ym]) delete DB.feeOverrides[ym][editingStudent]; });
   }
   refreshGrades();
-  save();closeModal('studentModal');renderMates();toast('保存しました');
+  save();closeModal('studentModal');renderMates();toast(T('保存しました'));
 }
-function delStudent(id){const s=DB.students.find(x=>x.id===id);if(!s)return;askConfirm(`「${esc(s.name)}」を削除します。この操作は取り消せません。`,()=>{DB.students=DB.students.filter(x=>x.id!==id);save();renderSettings();renderMates();toast('削除しました');});}
+function delStudent(id){const s=DB.students.find(x=>x.id===id);if(!s)return;askConfirm(T('「')+esc(s.name)+T('」を削除します。この操作は取り消せません。'),()=>{DB.students=DB.students.filter(x=>x.id!==id);save();renderSettings();renderMates();toast(T('削除しました'));});}
 let pendingDeleteId=null;
 let pendingDeleteSched=null;
 function deleteStudentFromModal(){
@@ -12997,14 +13685,14 @@ function deleteStudentFromModal(){
   const s=DB.students.find(x=>x.id===editingStudent);
   if(!s)return;
   const id=editingStudent;
-  askConfirm(`「${esc(s.name)}」を削除します。この操作は取り消せません。<br><br>過去の月謝や出欠の集計金額は保持されますが、集計表からこの方の名前は消えます。<br><br>名簿から見えなくしたいだけなら、削除せず「退会」に設定し、仲間タブの「退会した仲間を表示」をオフにする方法がおすすめです。`,()=>{
+  askConfirm(T('「')+esc(s.name)+T('」を削除します。この操作は取り消せません。')+'<br><br>'+T('過去の月謝や出欠の集計金額は保持されますが、集計表からこの方の名前は消えます。')+'<br><br>'+T('名簿から見えなくしたいだけなら、削除せず「退会」に設定し、仲間タブの「退会した仲間を表示」をオフにする方法がおすすめです。'),()=>{
     DB.students=DB.students.filter(x=>x.id!==id);
     // v240: この人にぶら下がる写真・デザインカード・稽古記録・節目も削除（残すと容量を圧迫し続けるため）
     purgeKeys(id+'|');
     if(DB.sharePhotoAdj){ Object.keys(DB.sharePhotoAdj).forEach(k=>{ if(k.indexOf('p|'+id+'|')===0)delete DB.sharePhotoAdj[k]; }); }
     if(DB.keiko)delete DB.keiko[id];
     if(DB.milestones)delete DB.milestones[id];
-    save();closeModal('studentModal');renderMates();toast('削除しました');
+    save();closeModal('studentModal');renderMates();toast(T('削除しました'));
   });
 }
 let _confirmCb=null;
@@ -13013,7 +13701,7 @@ let _confirmCb=null;
 function askConfirm(html,onYes,yesLabel,titleText,btnColor){
   document.getElementById('confirmText').innerHTML=html;
   const btn=document.getElementById('confirmYesBtn');
-  btn.textContent=yesLabel||'削除する'; btn.style.background=btnColor||'var(--red)';
+  btn.textContent=T(yesLabel||'削除する'); btn.style.background=btnColor||'var(--red)';
   const no=document.getElementById('confirmNoBtn'); if(no)no.style.display='none';
   const _h3=document.querySelector('#confirmModal h3');
   _h3.textContent=T(titleText||'削除の確認');
@@ -13060,9 +13748,9 @@ function _applyUploadedLogo(ev,which){
       ctx.drawImage(img,sx,sy,side,side,0,0,180,180);
       const data=canvas.toDataURL('image/png');
       if(which==='story')DB.storyLogo=data; else DB.logo=data;
-      save();applyLogo();toast('ロゴを設定しました');
+      save();applyLogo();toast(T('ロゴを設定しました'));
     };
-    img.onerror=()=>toast('画像を読めませんでした');
+    img.onerror=()=>toast(T('画像を読めませんでした'));
     img.src=e.target.result;
   };
   reader.readAsDataURL(file);
@@ -13070,8 +13758,8 @@ function _applyUploadedLogo(ev,which){
 }
 function uploadLogo(ev){_applyUploadedLogo(ev,'team');}
 function uploadStoryLogo(ev){_applyUploadedLogo(ev,'story');}
-function resetLogo(){DB.logo=BRAND_LOGO_OFFICE;save();applyLogo();renderLogoPreviews&&renderLogoPreviews();toast('標準のロゴに戻しました');}
-function resetStoryLogo(){DB.storyLogo=BRAND_LOGO_PLAYER;save();applyLogo();renderLogoPreviews&&renderLogoPreviews();toast('標準のロゴに戻しました');}
+function resetLogo(){DB.logo=BRAND_LOGO_OFFICE;save();applyLogo();renderLogoPreviews&&renderLogoPreviews();toast(T('標準のロゴに戻しました'));}
+function resetStoryLogo(){DB.storyLogo=BRAND_LOGO_PLAYER;save();applyLogo();renderLogoPreviews&&renderLogoPreviews();toast(T('標準のロゴに戻しました'));}
 /* ===================== 着せ替え（テーマ）===================== */
 const THEME_COLORS=[
   {id:'indigo',name:'藍紺',p:'#1a2b4a',a:'#c8a44d',cat:'solid'},
@@ -13220,7 +13908,7 @@ function lockSubmit(){
       lockCode=lockHash(lockBuf); lockEnabled=true; saveLock();
       hideLockScreen(); renderLockSettings();
       // v225: 設定直後に番号を明示し、メモ保管を強く促す（忘れると復元でしか戻せないため）
-      askConfirm(`${T('パスコードを設定しました')}<br><br><span style="font-size:34px;font-weight:900;letter-spacing:.3em;color:var(--navy)">${setCode}</span><br><br>${T('この番号を必ずお手元にメモして、大切に保管してください。忘れた場合はアプリ内で解除できず、アプリを削除して入れ直し、バックアップから復元する方法でのみ元に戻せます。')}`,()=>{},T('メモしました'));
+      askConfirm(`${T('パスコードを設定しました')}<br><br><span style="font-size:34px;font-weight:900;letter-spacing:.3em;color:var(--navy)">${setCode}</span><br><br>${T('この番号を必ずお手元にメモして、大切に保管してください。忘れた場合はアプリ内で解除できず、アプリを削除して入れ直し、バックアップから復元する方法でのみ元に戻せます。')}`,()=>{},'メモしました');
     }else{ lockMode='set1'; lockShake('一致しません。もう一度設定してください'); setLockTitle(); }
   }
 }
@@ -13239,7 +13927,7 @@ function setLockEnabled(on){
     if(lockCode){ lockEnabled=true; saveLock(); renderLockSettings(); }
     else startSetPasscode();          // 初回は設定フローへ
   }else{
-    lockEnabled=false; lockCode=''; saveLock(); renderLockSettings(); toast('ロックを解除しました');
+    lockEnabled=false; lockCode=''; saveLock(); renderLockSettings(); toast(T('ロックを解除しました'));
   }
 }
 function renderLockSettings(){
@@ -13283,7 +13971,7 @@ function saveFeeAmount(){const el=document.getElementById('feeAmount');if(!el)re
 function saveTeamName(){DB.team=document.getElementById('teamNameInput').value.trim()||'柔道チーム';save();updateHeaderIdentity();}
 function saveStoryName(){DB.storyName=document.getElementById('storyNameInput').value.trim();save();updateHeaderIdentity();}
 function addPlace(){const v=document.getElementById('newPlace').value.trim();if(!v)return;if(!DB.places.includes(v))DB.places.push(v);document.getElementById('newPlace').value='';save();renderSettings();}
-function delPlace(i){const nm=DB.places[i]||'この場所';askConfirm(`「${esc(nm)}」を場所の一覧から削除します。`,()=>{DB.places.splice(i,1);save();renderSettings();toast('削除しました');});}
+function delPlace(i){const nm=DB.places[i]||'この場所';askConfirm(T('「')+esc(nm)+T('」を場所の一覧から削除します。'),()=>{DB.places.splice(i,1);save();renderSettings();toast(T('削除しました'));});}
 
 /* バックアップ */
 function backupFilename(){return `judo_backup_${todayStr()}.json`;}
@@ -13320,7 +14008,7 @@ async function exportData(){
         await navigator.share({files:[file],title:'My柔道 バックアップ'});
         markBackedUp();
         // v226: 「このiPhone内」に保存すると端末故障時に一緒に失われるため、保存先を確認してもらう
-        askConfirm(`${T('バックアップを保存しました')}<br><br>${T('保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。')}`,()=>{},T('確認しました'));
+        askConfirm(`${T('バックアップを保存しました')}<br><br>${T('保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。')}`,()=>{},'確認しました');
       }catch(e){
         if(e&&e.name==='AbortError')return;   // ユーザーがキャンセル＝保存扱いにしない
         if(isNativeApp()){ backupNativeFail(); return; }   // v255: アプリ版はダウンロードでは保存されない
@@ -13386,8 +14074,8 @@ function importData(ev){
       const d=JSON.parse(e.target.result);
       if(!d || !Array.isArray(d.students))throw 0; // v125: 型検証を強化（別アプリ/壊れたJSONの誤取込を防止）
       pendingRestoreData=d;
-      askConfirm('バックアップから復元します。<br><br>今このアプリに入っているデータ（仲間・出欠・お金・予定など）は、すべてバックアップの内容に上書きされ、元には戻せません。<br><br>復元してよろしいですか？',doRestore,'復元する');
-    }catch(err){toast('ファイルを読めませんでした');}
+      askConfirm(T('バックアップから復元します。<br><br>今このアプリに入っているデータ（仲間・出欠・お金・予定など）は、すべてバックアップの内容に上書きされ、元には戻せません。<br><br>復元してよろしいですか？'),doRestore,'復元する');
+    }catch(err){toast(T('ファイルを読めませんでした'));}
   };
   r.readAsText(f);ev.target.value='';
 }
@@ -13415,7 +14103,7 @@ function doRestore(){
   }catch(err){
     try{ if(_rollback!==null)localStorage.setItem(STORE_KEY,_rollback); }catch(e){}
     closeModal('confirmModal');
-    try{ alert('⚠️ このファイルは復元できませんでした。\n元のデータはそのまま残しています。\n別のバックアップファイルをお試しください。'); }catch(e){}
+    try{ alert(T('⚠️ このファイルは復元できませんでした。\n元のデータはそのまま残しています。\n別のバックアップファイルをお試しください。')); }catch(e){}
     try{ location.reload(); }catch(e){}
   }
 }
