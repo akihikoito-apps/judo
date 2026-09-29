@@ -1909,7 +1909,8 @@ function applyUpdate(){
       <button class="rep-reset" onclick="repResetAll()">↺ 入力をリセット</button>
     </div>
     <label class="fld">選手のなまえ</label>
-    <input type="text" id="repName" placeholder="例：山本 蓮" oninput="repGen()">
+    <input type="text" id="repName" placeholder="例：山本 蓮" oninput="repOnNameInput()">
+    <div id="repNamePickWrap" style="display:none"><div class="cat-pick" id="repNamePick"></div></div>
     <div id="repSchedPickWrap" style="display:none"><label class="fld">予定から選ぶ</label><div class="cat-pick" id="repSchedPick"></div></div>
     <div style="display:flex;gap:8px">
       <div style="flex:1;min-width:0"><label class="fld">大会名</label><input type="text" id="repTaikai" placeholder="例：春季市民大会" oninput="repGen()" style="width:100%;min-width:0;box-sizing:border-box"></div>
@@ -5129,7 +5130,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v259'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v260'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -8859,6 +8860,12 @@ function renderReport(){
   const dEl=document.getElementById('repDate'); if(dEl&&!dEl.value)dEl.value=todayStr();
   if(!repMatches.length)repMatches=[repNewMatch()];
   applyReportIntro();
+  // v260: 自動で入れた名前も「選んだ人」として扱う（1人だけのときはこれで確定する）
+  if(nameEl&&nameEl.value&&!_repSelfId){
+    const st=(DB.students||[]).find(x=>x.isSelf&&x.name===nameEl.value);
+    if(st){ _repSelfId=st.id; _repSelfSnap=st.name; }
+  }
+  if(typeof renderRepNamePick==='function')renderRepNamePick();      // v260: なまえを登録済みから選べる
   if(typeof renderRepSchedPick==='function')renderRepSchedPick();   // v196: 予定の試合から大会名・日付を選べる
   const leftEl=document.getElementById('repMemLeft');
   if(leftEl){
@@ -8919,6 +8926,7 @@ function repResetAll(){
   ['repName','repTaikai','repDate'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   repMatches=[repNewMatch()]; repKind='個人'; repCount=5; repRole='先鋒'; repRegSig='';
   _repDupOk=false; _repNewName=''; _repMatchOk=''; _repSchedId=''; _repSchedSnap='';   // v257: 確認済みの状態も一緒に捨てる
+  _repSelfId=''; _repSelfSnap='';                    // v260: 選んだなまえも外す
   _repKindWarned=false; repDraftClear();             // v258: 下書きも消す（戻ってこないように）
   repPickKind('個人');
   repRenderMatches(); repGen();
@@ -8968,6 +8976,7 @@ function repDraftSnapshot(){
            date:(document.getElementById('repDate')||{}).value||'',
            kind:repKind, count:repCount, role:repRole,
            schedId:_repSchedId, schedSnap:_repSchedSnap,
+           selfId:_repSelfId, selfSnap:_repSelfSnap,
            matches:repMatches, at:Date.now() };
 }
 function repDraftHasInput(d){
@@ -8995,6 +9004,7 @@ function repDraftLoad(){
     if(!repMatches.length)repMatches=[repNewMatch()];
     repKind=d.kind||'個人'; repCount=d.count||5; repRole=d.role||posList(repCount)[0];
     _repSchedId=d.schedId||''; _repSchedSnap=d.schedSnap||'';
+    _repSelfId=d.selfId||''; _repSelfSnap=d.selfSnap||'';
     const set=(id,v)=>{ const e=document.getElementById(id); if(e&&v)e.value=v; };
     set('repName',d.name); set('repTaikai',d.taikai); set('repDate',d.date);
     // v258: 画面の見た目も合わせる（内部だけ団体に戻って、表示は個人戦のままになっていた）
@@ -9249,7 +9259,7 @@ function repToMemory(){
   if(sig&&sig===repRegSig){ toast(T('この試合はすでにメモリーに登録済みです')); return; }
   // v241: アプリを開き直しても、少し文言を直しても気づけるように「保存済みの内容」と照合する
   {
-    const _self=findStudentByName(name)||null;   // v257: 一致しない名前を主役で代用しない
+    const _self=repPickedSelf()||findStudentByName(name)||null;   // v257: 一致しない名前を主役で代用しない
     const _dt=(document.getElementById('repDate').value||'').trim()||todayStr();
     const _tk=(document.getElementById('repTaikai').value||'').trim();
     const _sched=repPickedSched()||DB.schedule.find(s=>s.date===_dt&&((s.title||'').trim()===_tk)&&s.showMatch)||null;
@@ -9266,7 +9276,8 @@ function repToMemory(){
   // 1) 対象の主役・大会を「まだ作らずに」特定
   // v257: 名前が一致しないとき、これまでは主役へ無条件に紐づけていた（別人の戦績に混ざる）。
   //       登録のある人がいる場合は、新しく登録してよいかを必ず確認する。
-  let self=findStudentExact(name);
+  // v260: 一覧から選んでもらっていれば、名前の照合はしない（取り違えが起きない）
+  let self=repPickedSelf()||findStudentExact(name);
   if(!self){
     // v257: 部分一致（姓だけ等）は、きょうだいなど別の人に付くことがあるので確認する
     // v259: 入力のほうが長いとき（佐藤 愛 が登録済みで「佐藤 愛子」と入力）は、
@@ -9335,6 +9346,7 @@ function repToMemory(){
   }
   if(!save()){ _rollback(); return; }       // v257: 保存できなかったら元に戻す（再試行で二重に増えない）
   repRegSig=sig; _repDupOk=false; _repNewName=''; _repMatchOk='';
+  _repSelfId=self.id; _repSelfSnap=self.name||'';    // v260: 登録した人を選んだ状態にしておく
   toast(bouts.length+T('件をメモリーに登録しました'));
   // 4) 誘導：メモリーへ移動してその選手を表示（＝戦績カードのシェアへ）
   rkSelfId=self.id; rkYear='all';
@@ -11214,6 +11226,37 @@ function repPickSched(id){
   //   大会名が空の予定などでは別の予定が新しく作られていた。
   _repSchedId=id; _repSchedSnap=(s.title||s.name||'')+'|'+(s.date||'');
   repGen(); toast(T('予定から入力しました'));
+}
+// v260: 選んだ「なまえ」（入力欄を手で変えたら外す）
+//   名前の文字を照合せずに済むので、似た名前の取り違えが起きない
+let _repSelfId='', _repSelfSnap='';
+function renderRepNamePick(){
+  const wrap=document.getElementById('repNamePickWrap'), box=document.getElementById('repNamePick');
+  if(!wrap||!box)return;
+  const stars=(DB.students||[]).filter(st=>st&&st.isSelf&&(st.name||'').trim());
+  if(!stars.length){ wrap.style.display='none'; box.innerHTML=''; return; }
+  const cur=(document.getElementById('repName')||{}).value||'';
+  wrap.style.display='block';
+  box.innerHTML=stars.slice(0,8).map(st=>
+    `<button class="${st.name===cur&&_repSelfId===st.id?'on':''}" onclick="repPickSelf('${escJ(st.id)}')">${esc(st.name)}</button>`).join('');
+}
+function repPickSelf(id){
+  const st=(DB.students||[]).find(x=>x.id===id); if(!st)return;
+  const el=document.getElementById('repName'); if(el)el.value=st.name||'';
+  _repSelfId=id; _repSelfSnap=st.name||'';
+  renderRepNamePick(); repGen();
+}
+// 入力欄を手で変えたら「選んだ人」は外す（別人になっているかもしれないため）
+function repOnNameInput(){
+  const v=(document.getElementById('repName')||{}).value||'';
+  if(_repSelfId&&v!==_repSelfSnap){ _repSelfId=''; _repSelfSnap=''; }
+  renderRepNamePick(); repGen();
+}
+function repPickedSelf(){
+  if(!_repSelfId)return null;
+  const v=(document.getElementById('repName')||{}).value||'';
+  if(v!==_repSelfSnap){ _repSelfId=''; _repSelfSnap=''; return null; }
+  return (DB.students||[]).find(x=>x.id===_repSelfId)||null;
 }
 // 選んだ予定（入力欄を手で変えたら外す）
 let _repSchedId='', _repSchedSnap='';
