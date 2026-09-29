@@ -271,18 +271,23 @@
   .cash-io-tag{font-size:calc(12px*var(--fs,1));color:#fff;padding:2px 7px;border-radius:7px;margin-right:6px;}
   /* 月/年度トグル */
   .view-toggle{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
-  .mate-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 16px;}
+  /* v262: 上段の「動作ボタン」。仲間タブと予定タブで同じ形・同じ色の意味にそろえる。
+     中身の長さに合わせた丸ピルを右から並べ、入りきらないときは行を折り返す（文字の中では折らない）。 */
+  .act-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 16px;justify-content:flex-end;}
   /* v261: 退会者を表示中であることの帯 */
   .retired-notice{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
     background:#fff6e0;border:1.5px solid #e6c77a;color:#7a5b00;border-radius:12px;
     padding:9px 12px;margin:-8px 0 14px;font-size:calc(13px*var(--fs,1));font-weight:700;}
   .retired-notice button{min-height:36px;padding:4px 12px;border:1.5px solid #b08a2a;background:#fff;color:#7a5b00;
     border-radius:10px;font-family:inherit;font-size:calc(13px*var(--fs,1));font-weight:700;cursor:pointer;}
-  .mate-actions.personal{grid-template-columns:repeat(3,1fr);}
-  .mate-actions button{min-height:48px;font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.25;padding:6px 6px;border:2px solid var(--line);background:#fff;color:var(--muted);overflow-wrap:anywhere;word-break:normal;line-break:strict;}
-  .mate-actions .act-toggle.on{background:#e8821e;color:#fff;border-color:#e8821e;}
-  .mate-actions .act-outline{border-color:var(--navy);color:var(--navy);}
-  .mate-actions .act-gold{border-color:var(--gold);background:var(--gold);color:#3a2e00;}
+  .act-row button{min-height:44px;padding:8px 13px;border-radius:999px;border:2px solid var(--line);
+    background:#fff;color:var(--muted);font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;
+    line-height:1.25;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    cursor:pointer;overflow-wrap:anywhere;word-break:normal;line-break:strict;}
+  /* 色の意味：灰の縁＝いまの状態を切り替える／紺の縁＝別の画面をひらく／金の塗り＝新しく足す */
+  .act-row .act-toggle.on{background:#e8821e;color:#fff;border-color:#e8821e;}
+  .act-row .act-outline{border-color:var(--navy);color:var(--navy);}
+  .act-row .act-gold{border-color:var(--gold);background:var(--gold);color:#3a2e00;}
   .view-toggle button{flex:1 1 22%;min-width:74px;min-height:48px;font-size:calc(14px*var(--fs,1));font-weight:700;font-family:inherit;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2;padding:4px 4px;word-break:break-word;overflow-wrap:anywhere;}
   .view-toggle button small{font-size:calc(11px*var(--fs,1));font-weight:600;opacity:.9;}
   .view-toggle button.on{background:var(--navy);color:#fff;}
@@ -545,7 +550,10 @@
   .member-table.has-grade thead th.gcol{background:var(--navy);color:#fff;z-index:3;}
   .member-table.has-grade th.namecell,.member-table.has-grade td.namecell{left:3.4em;}
   .set-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
-  .set-tabs button{flex:1 1 auto;min-height:44px;padding:8px 12px;font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;border-radius:10px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;white-space:nowrap;}
+  .set-tabs button{flex:1 1 auto;min-height:44px;padding:8px 12px;font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;border-radius:12px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer;white-space:nowrap;}
+  /* v262: 設定画面の項目は中身の幅で並べる（flex:1 1 auto のままだと最後の1つだけ全幅に伸びていた）。
+     モーダルの中の2〜3個の切替は、横いっぱいに広がったほうが分かりやすいのでそのまま。 */
+  #screen-set .set-tabs button{flex:0 1 auto;}
   .set-tabs button.on{background:var(--navy);color:#fff;}
   /* 見出し行に補助ボタンを右寄せで並べる（記録モーダル等） */
   .modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
@@ -775,6 +783,7 @@
   html[data-shape="sharp"] .io-pick button, html[data-shape="sharp"] .cat-pick button, html[data-shape="sharp"] .view-toggle button,
   html[data-shape="sharp"] .date-arrow, html[data-shape="sharp"] .today-btn, html[data-shape="sharp"] .month-nav button,
   html[data-shape="sharp"] .time-quick button, html[data-shape="sharp"] .ord-btn, html[data-shape="sharp"] .seg button,
+  html[data-shape="sharp"] .act-row button,
   html[data-shape="sharp"] .fee-status, html[data-shape="sharp"] .fee-amt-btn{border-radius:5px !important;}
   html[data-shape="sharp"] .tm-badge, html[data-shape="sharp"] .mate-tag, html[data-shape="sharp"] .grade-tag,
   html[data-shape="sharp"] .cat-tag, html[data-shape="sharp"] .bb-head .pos-no, html[data-shape="sharp"] .cash-io-tag,
@@ -797,6 +806,7 @@
   html[data-shape="pop"] .io-pick button, html[data-shape="pop"] .cat-pick button, html[data-shape="pop"] .view-toggle button,
   html[data-shape="pop"] .date-arrow, html[data-shape="pop"] .today-btn, html[data-shape="pop"] .month-nav button,
   html[data-shape="pop"] .time-quick button, html[data-shape="pop"] .ord-btn, html[data-shape="pop"] .seg button,
+  html[data-shape="pop"] .act-row button,
   html[data-shape="pop"] .fee-status, html[data-shape="pop"] .fee-amt-btn{border-radius:999px !important;}
   html[data-shape="pop"] .tm-badge, html[data-shape="pop"] .mate-tag, html[data-shape="pop"] .grade-tag,
   html[data-shape="pop"] .cat-tag, html[data-shape="pop"] .bb-head .pos-no, html[data-shape="pop"] .cash-io-tag,
@@ -884,7 +894,7 @@
   html[data-finish="relief"] .chip-toggle,
   html[data-finish="relief"] .filter-btn,
   html[data-finish="relief"] .result-btn,
-  html[data-finish="relief"] .mate-actions button,
+  html[data-finish="relief"] .act-row button,
   html[data-finish="relief"] .view-toggle button,
   html[data-finish="relief"] .seg button,
   html[data-finish="relief"] .ord-btn,
@@ -934,7 +944,7 @@
   html[data-finish="relief"] .chip-toggle:active,
   html[data-finish="relief"] .filter-btn:active,
   html[data-finish="relief"] .result-btn:active,
-  html[data-finish="relief"] .mate-actions button:active,
+  html[data-finish="relief"] .act-row button:active,
   html[data-finish="relief"] .view-toggle button:active,
   html[data-finish="relief"] .seg button:active,
   html[data-finish="relief"] .ord-btn:active,
@@ -984,7 +994,7 @@
   html[data-finish="metal"] .chip-toggle,
   html[data-finish="metal"] .filter-btn,
   html[data-finish="metal"] .result-btn,
-  html[data-finish="metal"] .mate-actions button,
+  html[data-finish="metal"] .act-row button,
   html[data-finish="metal"] .view-toggle button,
   html[data-finish="metal"] .seg button,
   html[data-finish="metal"] .ord-btn,
@@ -1035,7 +1045,7 @@
   html[data-finish="metal"] .chip-toggle:active,
   html[data-finish="metal"] .filter-btn:active,
   html[data-finish="metal"] .result-btn:active,
-  html[data-finish="metal"] .mate-actions button:active,
+  html[data-finish="metal"] .act-row button:active,
   html[data-finish="metal"] .view-toggle button:active,
   html[data-finish="metal"] .seg button:active,
   html[data-finish="metal"] .ord-btn:active,
@@ -1085,7 +1095,7 @@
   html[data-finish="minimal"] .chip-toggle,
   html[data-finish="minimal"] .filter-btn,
   html[data-finish="minimal"] .result-btn,
-  html[data-finish="minimal"] .mate-actions button,
+  html[data-finish="minimal"] .act-row button,
   html[data-finish="minimal"] .view-toggle button,
   html[data-finish="minimal"] .seg button,
   html[data-finish="minimal"] .ord-btn,
@@ -1133,7 +1143,7 @@
   html[data-finish="glass"] .chip-toggle,
   html[data-finish="glass"] .filter-btn,
   html[data-finish="glass"] .result-btn,
-  html[data-finish="glass"] .mate-actions button,
+  html[data-finish="glass"] .act-row button,
   html[data-finish="glass"] .view-toggle button,
   html[data-finish="glass"] .seg button,
   html[data-finish="glass"] .ord-btn,
@@ -1546,10 +1556,10 @@ function applyUpdate(){
 
 <!-- スケジュール -->
 <section id="screen-sched" class="screen">
-  <div class="section-head" style="justify-content:flex-end">
-    <button class="chip-btn" onclick="openSchedShare()">📤 予定を共有</button>
-    <button class="chip-btn" onclick="openPresetModal()">よく使う設定</button>
-    <button class="btn gold sm" onclick="openSchedModal()">＋ 予定を追加</button>
+  <div class="act-row">
+    <button class="act-outline" onclick="openSchedShare()">📤 予定を共有</button>
+    <button class="act-outline" onclick="openPresetModal()">よく使う設定</button>
+    <button class="act-gold" onclick="openSchedModal()">＋ 予定を追加</button>
   </div>
   <!-- v214: リスト表示は休止中（復活時は下2つの display:none を外し、renderSched の calMode 判定を旧式に戻す） -->
   <div class="view-toggle" style="margin-bottom:12px;display:none" id="schedViewSeg">
@@ -1576,7 +1586,7 @@ function applyUpdate(){
 
 <!-- 仲間 -->
 <section id="screen-mates" class="screen">
-  <div class="mate-actions">
+  <div class="act-row">
     <button class="act-toggle" id="reorderToggle" onclick="toggleReorder()">手動で並び替え</button>
     <button class="act-outline" onclick="openFeePresetModal()">よく使う設定</button>
     <button class="act-gold" onclick="openStudentModal()">＋仲間を追加</button>
@@ -13666,7 +13676,7 @@ function renderMates(){
       <button class="${mateView==='others'?'on':''}" onclick="setMateView('others')">👥 ${T('仲間')}</button>
     </div>`:'';
   // v158: 個人モードでは事務向けの「退会も表示」を隠し、ボタン列を詰める
-  const ma=document.querySelector('#screen-mates .mate-actions'); if(ma)ma.classList.toggle('personal',personal);
+  const ma=document.querySelector('#screen-mates .act-row'); if(ma)ma.classList.toggle('personal',personal);
   if(personal&&showRetiredOn()){ DB.showRetired=false; save(); }
   // v261: 退会者を出しているあいだは、気づけるように帯を出す
   const rn=document.getElementById('retiredNotice');
