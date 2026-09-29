@@ -271,9 +271,15 @@
   .cash-io-tag{font-size:calc(12px*var(--fs,1));color:#fff;padding:2px 7px;border-radius:7px;margin-right:6px;}
   /* 月/年度トグル */
   .view-toggle{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
-  .mate-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 16px;}
+  .mate-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 16px;}
+  /* v261: 退会者を表示中であることの帯 */
+  .retired-notice{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    background:#fff6e0;border:1.5px solid #e6c77a;color:#7a5b00;border-radius:12px;
+    padding:9px 12px;margin:-8px 0 14px;font-size:calc(13px*var(--fs,1));font-weight:700;}
+  .retired-notice button{min-height:36px;padding:4px 12px;border:1.5px solid #b08a2a;background:#fff;color:#7a5b00;
+    border-radius:10px;font-family:inherit;font-size:calc(13px*var(--fs,1));font-weight:700;cursor:pointer;}
   .mate-actions.personal{grid-template-columns:repeat(3,1fr);}
-  .mate-actions button{min-height:48px;font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;padding:6px 4px;border:2px solid var(--line);background:#fff;color:var(--muted);word-break:break-word;}
+  .mate-actions button{min-height:48px;font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.25;padding:6px 6px;border:2px solid var(--line);background:#fff;color:var(--muted);overflow-wrap:anywhere;word-break:normal;line-break:strict;}
   .mate-actions .act-toggle.on{background:#e8821e;color:#fff;border-color:#e8821e;}
   .mate-actions .act-outline{border-color:var(--navy);color:var(--navy);}
   .mate-actions .act-gold{border-color:var(--gold);background:var(--gold);color:#3a2e00;}
@@ -828,11 +834,7 @@
   html[data-finish="flat"] nav.tabbar{box-shadow:0 -2px 8px rgba(0,0,0,.06);}
 
   /* 浮き縁＝上辺に光、下辺に影。押せるところが分かる */
-  html[data-finish="relief"] .btn,
-  html[data-finish="relief"] .gw-nav{box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.22),0 3px 0 rgba(20,32,48,.15);}
   html[data-finish="relief"] .btn.ghost{box-shadow:inset 0 1px 0 #fff,inset 0 -2px 0 rgba(20,32,48,.1),0 3px 0 rgba(20,32,48,.12);}
-  html[data-finish="relief"] .btn:active,
-  html[data-finish="relief"] .gw-nav:active{transform:translateY(2px);box-shadow:inset 0 1px 3px rgba(0,0,0,.2);}
   html[data-finish="relief"] .card,
   html[data-finish="relief"] .gw-cal{box-shadow:0 3px 0 rgba(20,32,48,.06),0 5px 12px rgba(20,32,48,.04);}
   html[data-finish="relief"] nav.tabbar button.active{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 0 rgba(0,0,0,.2);}
@@ -843,16 +845,12 @@
     background:repeating-linear-gradient(0deg,rgba(0,0,0,.08) 0 1px,transparent 1px 3px),
       linear-gradient(115deg,rgba(0,0,0,.22),transparent 43%,rgba(0,0,0,.18) 58%,transparent);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -2px 0 rgba(0,0,0,.35);}
-  html[data-finish="metal"] .btn,
-  html[data-finish="metal"] .gw-nav{background-image:linear-gradient(175deg,transparent 0 45%,rgba(0,0,0,.12) 49%,transparent 100%);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 0 rgba(0,0,0,.3),0 2px 2px rgba(20,32,48,.18);}
   html[data-finish="metal"] .btn.ghost{background-image:linear-gradient(170deg,#fff,#eef1f3 46%,#dfe5e8 49%,#fff);}
   html[data-finish="metal"] .card,
   html[data-finish="metal"] .gw-cal{border-color:#b5bfc7;box-shadow:inset 0 1px 0 #fff,0 2px 0 #d5dce0,0 5px 10px rgba(20,32,48,.06);}
   html[data-finish="metal"] nav.tabbar{background:linear-gradient(#fff,#e5e9ec);border-top-color:#acb7c0;box-shadow:inset 0 1px 0 #fff,0 -3px 8px rgba(20,32,48,.08);}
   html[data-finish="metal"] nav.tabbar button.active{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 0 rgba(0,0,0,.25);}
-  html[data-finish="metal"] .btn:active,
-  html[data-finish="metal"] .gw-nav:active{transform:translateY(1px);box-shadow:inset 0 2px 3px rgba(0,0,0,.24);}
+
 
   /* 余白＝囲みの線を減らし、内容を見渡しやすく */
   html[data-finish="minimal"] header{box-shadow:none;}
@@ -861,7 +859,6 @@
   html[data-finish="minimal"] .gw-day:not(.today){border-color:transparent;}   /* 今日の枠は消さない */
   html[data-finish="minimal"] .gw-field-row{border-bottom-color:transparent;}
   html[data-finish="minimal"] .gw-field-row + .gw-field-row{margin-top:8px;}
-  html[data-finish="minimal"] .btn{box-shadow:none;}
   html[data-finish="minimal"] .btn.ghost{border-width:1px;}
   html[data-finish="minimal"] nav.tabbar{border-top-color:transparent;box-shadow:none;}
 
@@ -871,14 +868,315 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -8px 20px rgba(0,0,0,.12);}
   html[data-finish="glass"] .card,
   html[data-finish="glass"] .gw-cal{background:#fff;border-color:#fff;box-shadow:0 8px 22px rgba(30,50,65,.1),inset 0 0 0 1px rgba(30,50,65,.04);}
-  html[data-finish="glass"] .btn,
-  html[data-finish="glass"] .gw-nav{box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 3px 9px rgba(30,50,65,.13);}
   html[data-finish="glass"] nav.tabbar{background:#fff;border-top-color:#fff;box-shadow:0 -6px 22px rgba(30,50,65,.09);}
   @supports ((-webkit-backdrop-filter:blur(12px)) or (backdrop-filter:blur(12px))){
     html[data-finish="glass"] nav.tabbar{background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
   }
   @media (prefers-reduced-transparency:reduce){
     html[data-finish="glass"] nav.tabbar{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;}
+  }
+
+  /* ===== v261: 仕上げ（質感）を、すべての押せるボタンに行き渡らせる =====
+     v259 では .btn と .gw-nav にしか効いておらず、「＋仲間を追加」などが
+     平らなままだった。行やカードは対象にしない（立体にすると読みにくくなるため）。 */
+  html[data-finish="relief"] .btn,
+  html[data-finish="relief"] .chip-btn,
+  html[data-finish="relief"] .chip-toggle,
+  html[data-finish="relief"] .filter-btn,
+  html[data-finish="relief"] .result-btn,
+  html[data-finish="relief"] .mate-actions button,
+  html[data-finish="relief"] .view-toggle button,
+  html[data-finish="relief"] .seg button,
+  html[data-finish="relief"] .ord-btn,
+  html[data-finish="relief"] .cat-pick button,
+  html[data-finish="relief"] .io-pick button,
+  html[data-finish="relief"] .chips button,
+  html[data-finish="relief"] .wk-pick button,
+  html[data-finish="relief"] .date-arrow,
+  html[data-finish="relief"] .today-btn,
+  html[data-finish="relief"] .gw-nav,
+  html[data-finish="relief"] .time-quick button,
+  html[data-finish="relief"] .set-tabs button,
+  html[data-finish="relief"] .mem-seg button,
+  html[data-finish="relief"] .lang-pick button,
+  html[data-finish="relief"] .ana-range button,
+  html[data-finish="relief"] .rk-chips button,
+  html[data-finish="relief"] .rk-years button,
+  html[data-finish="relief"] .rk-actions button,
+  html[data-finish="relief"] .rk-add,
+  html[data-finish="relief"] .rk-op,
+  html[data-finish="relief"] .fin-sw,
+  html[data-finish="relief"] .font-size-row .fs-btn,
+  html[data-finish="relief"] .theme-shape-btn,
+  html[data-finish="relief"] .fee-status,
+  html[data-finish="relief"] .fee-amt-btn,
+  html[data-finish="relief"] .visit-btn,
+  html[data-finish="relief"] .ent-pay,
+  html[data-finish="relief"] .ent-memo-show,
+  html[data-finish="relief"] .ob-btn,
+  html[data-finish="relief"] .ebtn,
+  html[data-finish="relief"] .ra-fbtn,
+  html[data-finish="relief"] .ra-wlbtn,
+  html[data-finish="relief"] .sa-chip,
+  html[data-finish="relief"] .lock-key,
+  html[data-finish="relief"] .share-styles button,
+  html[data-finish="relief"] .share-adjseg button,
+  html[data-finish="relief"] .share-adv-btn,
+  html[data-finish="relief"] .kk-facepick button,
+  html[data-finish="relief"] .color-pick button,
+  html[data-finish="relief"] .mem-toggle,
+  html[data-finish="relief"] .rep-waza,
+  html[data-finish="relief"] .retired-notice button{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,0,0,.22),0 3px 0 rgba(20,32,48,.15);
+  }
+  html[data-finish="relief"] .btn:active,
+  html[data-finish="relief"] .chip-btn:active,
+  html[data-finish="relief"] .chip-toggle:active,
+  html[data-finish="relief"] .filter-btn:active,
+  html[data-finish="relief"] .result-btn:active,
+  html[data-finish="relief"] .mate-actions button:active,
+  html[data-finish="relief"] .view-toggle button:active,
+  html[data-finish="relief"] .seg button:active,
+  html[data-finish="relief"] .ord-btn:active,
+  html[data-finish="relief"] .cat-pick button:active,
+  html[data-finish="relief"] .io-pick button:active,
+  html[data-finish="relief"] .chips button:active,
+  html[data-finish="relief"] .wk-pick button:active,
+  html[data-finish="relief"] .date-arrow:active,
+  html[data-finish="relief"] .today-btn:active,
+  html[data-finish="relief"] .gw-nav:active,
+  html[data-finish="relief"] .time-quick button:active,
+  html[data-finish="relief"] .set-tabs button:active,
+  html[data-finish="relief"] .mem-seg button:active,
+  html[data-finish="relief"] .lang-pick button:active,
+  html[data-finish="relief"] .ana-range button:active,
+  html[data-finish="relief"] .rk-chips button:active,
+  html[data-finish="relief"] .rk-years button:active,
+  html[data-finish="relief"] .rk-actions button:active,
+  html[data-finish="relief"] .rk-add:active,
+  html[data-finish="relief"] .rk-op:active,
+  html[data-finish="relief"] .fin-sw:active,
+  html[data-finish="relief"] .font-size-row .fs-btn:active,
+  html[data-finish="relief"] .theme-shape-btn:active,
+  html[data-finish="relief"] .fee-status:active,
+  html[data-finish="relief"] .fee-amt-btn:active,
+  html[data-finish="relief"] .visit-btn:active,
+  html[data-finish="relief"] .ent-pay:active,
+  html[data-finish="relief"] .ent-memo-show:active,
+  html[data-finish="relief"] .ob-btn:active,
+  html[data-finish="relief"] .ebtn:active,
+  html[data-finish="relief"] .ra-fbtn:active,
+  html[data-finish="relief"] .ra-wlbtn:active,
+  html[data-finish="relief"] .sa-chip:active,
+  html[data-finish="relief"] .lock-key:active,
+  html[data-finish="relief"] .share-styles button:active,
+  html[data-finish="relief"] .share-adjseg button:active,
+  html[data-finish="relief"] .share-adv-btn:active,
+  html[data-finish="relief"] .kk-facepick button:active,
+  html[data-finish="relief"] .color-pick button:active,
+  html[data-finish="relief"] .mem-toggle:active,
+  html[data-finish="relief"] .rep-waza:active,
+  html[data-finish="relief"] .retired-notice button:active{
+    transform:translateY(2px);box-shadow:inset 0 1px 3px rgba(0,0,0,.2);
+  }
+  html[data-finish="metal"] .btn,
+  html[data-finish="metal"] .chip-btn,
+  html[data-finish="metal"] .chip-toggle,
+  html[data-finish="metal"] .filter-btn,
+  html[data-finish="metal"] .result-btn,
+  html[data-finish="metal"] .mate-actions button,
+  html[data-finish="metal"] .view-toggle button,
+  html[data-finish="metal"] .seg button,
+  html[data-finish="metal"] .ord-btn,
+  html[data-finish="metal"] .cat-pick button,
+  html[data-finish="metal"] .io-pick button,
+  html[data-finish="metal"] .chips button,
+  html[data-finish="metal"] .wk-pick button,
+  html[data-finish="metal"] .date-arrow,
+  html[data-finish="metal"] .today-btn,
+  html[data-finish="metal"] .gw-nav,
+  html[data-finish="metal"] .time-quick button,
+  html[data-finish="metal"] .set-tabs button,
+  html[data-finish="metal"] .mem-seg button,
+  html[data-finish="metal"] .lang-pick button,
+  html[data-finish="metal"] .ana-range button,
+  html[data-finish="metal"] .rk-chips button,
+  html[data-finish="metal"] .rk-years button,
+  html[data-finish="metal"] .rk-actions button,
+  html[data-finish="metal"] .rk-add,
+  html[data-finish="metal"] .rk-op,
+  html[data-finish="metal"] .fin-sw,
+  html[data-finish="metal"] .font-size-row .fs-btn,
+  html[data-finish="metal"] .theme-shape-btn,
+  html[data-finish="metal"] .fee-status,
+  html[data-finish="metal"] .fee-amt-btn,
+  html[data-finish="metal"] .visit-btn,
+  html[data-finish="metal"] .ent-pay,
+  html[data-finish="metal"] .ent-memo-show,
+  html[data-finish="metal"] .ob-btn,
+  html[data-finish="metal"] .ebtn,
+  html[data-finish="metal"] .ra-fbtn,
+  html[data-finish="metal"] .ra-wlbtn,
+  html[data-finish="metal"] .sa-chip,
+  html[data-finish="metal"] .lock-key,
+  html[data-finish="metal"] .share-styles button,
+  html[data-finish="metal"] .share-adjseg button,
+  html[data-finish="metal"] .share-adv-btn,
+  html[data-finish="metal"] .kk-facepick button,
+  html[data-finish="metal"] .color-pick button,
+  html[data-finish="metal"] .mem-toggle,
+  html[data-finish="metal"] .rep-waza,
+  html[data-finish="metal"] .retired-notice button{
+    background-image:linear-gradient(175deg,transparent 0 45%,rgba(0,0,0,.12) 49%,transparent 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 0 rgba(0,0,0,.3),0 2px 2px rgba(20,32,48,.18);
+  }
+  html[data-finish="metal"] .btn:active,
+  html[data-finish="metal"] .chip-btn:active,
+  html[data-finish="metal"] .chip-toggle:active,
+  html[data-finish="metal"] .filter-btn:active,
+  html[data-finish="metal"] .result-btn:active,
+  html[data-finish="metal"] .mate-actions button:active,
+  html[data-finish="metal"] .view-toggle button:active,
+  html[data-finish="metal"] .seg button:active,
+  html[data-finish="metal"] .ord-btn:active,
+  html[data-finish="metal"] .cat-pick button:active,
+  html[data-finish="metal"] .io-pick button:active,
+  html[data-finish="metal"] .chips button:active,
+  html[data-finish="metal"] .wk-pick button:active,
+  html[data-finish="metal"] .date-arrow:active,
+  html[data-finish="metal"] .today-btn:active,
+  html[data-finish="metal"] .gw-nav:active,
+  html[data-finish="metal"] .time-quick button:active,
+  html[data-finish="metal"] .set-tabs button:active,
+  html[data-finish="metal"] .mem-seg button:active,
+  html[data-finish="metal"] .lang-pick button:active,
+  html[data-finish="metal"] .ana-range button:active,
+  html[data-finish="metal"] .rk-chips button:active,
+  html[data-finish="metal"] .rk-years button:active,
+  html[data-finish="metal"] .rk-actions button:active,
+  html[data-finish="metal"] .rk-add:active,
+  html[data-finish="metal"] .rk-op:active,
+  html[data-finish="metal"] .fin-sw:active,
+  html[data-finish="metal"] .font-size-row .fs-btn:active,
+  html[data-finish="metal"] .theme-shape-btn:active,
+  html[data-finish="metal"] .fee-status:active,
+  html[data-finish="metal"] .fee-amt-btn:active,
+  html[data-finish="metal"] .visit-btn:active,
+  html[data-finish="metal"] .ent-pay:active,
+  html[data-finish="metal"] .ent-memo-show:active,
+  html[data-finish="metal"] .ob-btn:active,
+  html[data-finish="metal"] .ebtn:active,
+  html[data-finish="metal"] .ra-fbtn:active,
+  html[data-finish="metal"] .ra-wlbtn:active,
+  html[data-finish="metal"] .sa-chip:active,
+  html[data-finish="metal"] .lock-key:active,
+  html[data-finish="metal"] .share-styles button:active,
+  html[data-finish="metal"] .share-adjseg button:active,
+  html[data-finish="metal"] .share-adv-btn:active,
+  html[data-finish="metal"] .kk-facepick button:active,
+  html[data-finish="metal"] .color-pick button:active,
+  html[data-finish="metal"] .mem-toggle:active,
+  html[data-finish="metal"] .rep-waza:active,
+  html[data-finish="metal"] .retired-notice button:active{
+    transform:translateY(1px);box-shadow:inset 0 2px 3px rgba(0,0,0,.24);
+  }
+  html[data-finish="minimal"] .btn,
+  html[data-finish="minimal"] .chip-btn,
+  html[data-finish="minimal"] .chip-toggle,
+  html[data-finish="minimal"] .filter-btn,
+  html[data-finish="minimal"] .result-btn,
+  html[data-finish="minimal"] .mate-actions button,
+  html[data-finish="minimal"] .view-toggle button,
+  html[data-finish="minimal"] .seg button,
+  html[data-finish="minimal"] .ord-btn,
+  html[data-finish="minimal"] .cat-pick button,
+  html[data-finish="minimal"] .io-pick button,
+  html[data-finish="minimal"] .chips button,
+  html[data-finish="minimal"] .wk-pick button,
+  html[data-finish="minimal"] .date-arrow,
+  html[data-finish="minimal"] .today-btn,
+  html[data-finish="minimal"] .gw-nav,
+  html[data-finish="minimal"] .time-quick button,
+  html[data-finish="minimal"] .set-tabs button,
+  html[data-finish="minimal"] .mem-seg button,
+  html[data-finish="minimal"] .lang-pick button,
+  html[data-finish="minimal"] .ana-range button,
+  html[data-finish="minimal"] .rk-chips button,
+  html[data-finish="minimal"] .rk-years button,
+  html[data-finish="minimal"] .rk-actions button,
+  html[data-finish="minimal"] .rk-add,
+  html[data-finish="minimal"] .rk-op,
+  html[data-finish="minimal"] .fin-sw,
+  html[data-finish="minimal"] .font-size-row .fs-btn,
+  html[data-finish="minimal"] .theme-shape-btn,
+  html[data-finish="minimal"] .fee-status,
+  html[data-finish="minimal"] .fee-amt-btn,
+  html[data-finish="minimal"] .visit-btn,
+  html[data-finish="minimal"] .ent-pay,
+  html[data-finish="minimal"] .ent-memo-show,
+  html[data-finish="minimal"] .ob-btn,
+  html[data-finish="minimal"] .ebtn,
+  html[data-finish="minimal"] .ra-fbtn,
+  html[data-finish="minimal"] .ra-wlbtn,
+  html[data-finish="minimal"] .sa-chip,
+  html[data-finish="minimal"] .lock-key,
+  html[data-finish="minimal"] .share-styles button,
+  html[data-finish="minimal"] .share-adjseg button,
+  html[data-finish="minimal"] .share-adv-btn,
+  html[data-finish="minimal"] .kk-facepick button,
+  html[data-finish="minimal"] .color-pick button,
+  html[data-finish="minimal"] .mem-toggle,
+  html[data-finish="minimal"] .rep-waza,
+  html[data-finish="minimal"] .retired-notice button{ box-shadow:none; }
+  html[data-finish="glass"] .btn,
+  html[data-finish="glass"] .chip-btn,
+  html[data-finish="glass"] .chip-toggle,
+  html[data-finish="glass"] .filter-btn,
+  html[data-finish="glass"] .result-btn,
+  html[data-finish="glass"] .mate-actions button,
+  html[data-finish="glass"] .view-toggle button,
+  html[data-finish="glass"] .seg button,
+  html[data-finish="glass"] .ord-btn,
+  html[data-finish="glass"] .cat-pick button,
+  html[data-finish="glass"] .io-pick button,
+  html[data-finish="glass"] .chips button,
+  html[data-finish="glass"] .wk-pick button,
+  html[data-finish="glass"] .date-arrow,
+  html[data-finish="glass"] .today-btn,
+  html[data-finish="glass"] .gw-nav,
+  html[data-finish="glass"] .time-quick button,
+  html[data-finish="glass"] .set-tabs button,
+  html[data-finish="glass"] .mem-seg button,
+  html[data-finish="glass"] .lang-pick button,
+  html[data-finish="glass"] .ana-range button,
+  html[data-finish="glass"] .rk-chips button,
+  html[data-finish="glass"] .rk-years button,
+  html[data-finish="glass"] .rk-actions button,
+  html[data-finish="glass"] .rk-add,
+  html[data-finish="glass"] .rk-op,
+  html[data-finish="glass"] .fin-sw,
+  html[data-finish="glass"] .font-size-row .fs-btn,
+  html[data-finish="glass"] .theme-shape-btn,
+  html[data-finish="glass"] .fee-status,
+  html[data-finish="glass"] .fee-amt-btn,
+  html[data-finish="glass"] .visit-btn,
+  html[data-finish="glass"] .ent-pay,
+  html[data-finish="glass"] .ent-memo-show,
+  html[data-finish="glass"] .ob-btn,
+  html[data-finish="glass"] .ebtn,
+  html[data-finish="glass"] .ra-fbtn,
+  html[data-finish="glass"] .ra-wlbtn,
+  html[data-finish="glass"] .sa-chip,
+  html[data-finish="glass"] .lock-key,
+  html[data-finish="glass"] .share-styles button,
+  html[data-finish="glass"] .share-adjseg button,
+  html[data-finish="glass"] .share-adv-btn,
+  html[data-finish="glass"] .kk-facepick button,
+  html[data-finish="glass"] .color-pick button,
+  html[data-finish="glass"] .mem-toggle,
+  html[data-finish="glass"] .rep-waza,
+  html[data-finish="glass"] .retired-notice button{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 3px 9px rgba(30,50,65,.13);
   }
   /* ===================== テーマ選択UI ===================== */
   .theme-color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:6px 0 4px;}
@@ -887,6 +1185,8 @@
   .fin-sw{flex:1 1 30%;min-width:96px;min-height:44px;padding:9px 10px;border:2px solid var(--line);background:#fff;
     color:var(--ink);border-radius:12px;font-family:inherit;font-size:calc(14px*var(--fs,1));font-weight:700;cursor:pointer;}
   .fin-sw.on{border-color:var(--navy);background:var(--navy);color:#fff;}
+  /* v261: 入力欄のすぐ下に出す「ここから選べます」の小さな案内 */
+  .pick-hint{margin:6px 0 4px;font-size:calc(12px*var(--fs,1));color:var(--muted);font-weight:700;}
   .theme-cat-label{font-size:calc(13px*var(--fs,1));font-weight:700;color:var(--muted);margin:14px 0 2px;}
   .theme-cat-label:first-child{margin-top:4px;}
   .font-size-row{display:flex;gap:10px;margin:6px 0 4px;}
@@ -1277,10 +1577,14 @@ function applyUpdate(){
 <!-- 仲間 -->
 <section id="screen-mates" class="screen">
   <div class="mate-actions">
-    <button class="act-toggle" id="retiredToggle" onclick="toggleRetired()">退会も表示</button>
-    <button class="act-toggle" id="reorderToggle" onclick="toggleReorder()">並び替え</button>
+    <button class="act-toggle" id="reorderToggle" onclick="toggleReorder()">手動で並び替え</button>
     <button class="act-outline" onclick="openFeePresetModal()">よく使う設定</button>
     <button class="act-gold" onclick="openStudentModal()">＋仲間を追加</button>
+  </div>
+  <!-- v261: 退会者を表示しているときだけ出す帯。設定の中に隠れて気づけなくなるのを防ぐ -->
+  <div id="retiredNotice" class="retired-notice" style="display:none">
+    <span>退会した仲間も表示しています</span>
+    <button onclick="toggleRetired()">表示をもどす</button>
   </div>
   <div class="card">
     <div id="studentList"></div>
@@ -1910,12 +2214,12 @@ function applyUpdate(){
     </div>
     <label class="fld">選手のなまえ</label>
     <input type="text" id="repName" placeholder="例：山本 蓮" oninput="repOnNameInput()">
-    <div id="repNamePickWrap" style="display:none"><div class="cat-pick" id="repNamePick"></div></div>
-    <div id="repSchedPickWrap" style="display:none"><label class="fld">予定から選ぶ</label><div class="cat-pick" id="repSchedPick"></div></div>
+    <div id="repNamePickWrap" style="display:none"><p class="pick-hint">登録した選手から選ぶ</p><div class="cat-pick" id="repNamePick"></div></div>
     <div style="display:flex;gap:8px">
       <div style="flex:1;min-width:0"><label class="fld">大会名</label><input type="text" id="repTaikai" placeholder="例：春季市民大会" oninput="repGen()" style="width:100%;min-width:0;box-sizing:border-box"></div>
       <div style="flex:1;min-width:0"><label class="fld">日づけ</label><input type="date" id="repDate" oninput="repGen()" style="width:100%;min-width:0;box-sizing:border-box"></div>
     </div>
+    <div id="repSchedPickWrap" style="display:none"><p class="pick-hint">予定から選ぶ</p><div class="cat-pick" id="repSchedPick"></div></div>
     <label class="fld">種別</label>
     <div class="io-pick">
       <button id="repKindI" class="on" onclick="repPickKind('個人')">個人戦</button>
@@ -2279,7 +2583,7 @@ function applyUpdate(){
   <div class="modal">
     <h3>よく使う設定</h3>
     <div class="set-tabs" id="msTabs">
-      <button id="msTabSortB" class="on" onclick="setMemberSettingsTab('sort')">並び順</button>
+      <button id="msTabSortB" class="on" onclick="setMemberSettingsTab('sort')">表示</button>
       <button id="msTabGradeB" onclick="setMemberSettingsTab('grade')">学年機能・区分</button>
       <button id="msTabRankB" onclick="setMemberSettingsTab('rank')">段位 / 級</button>
       <button id="msTabFeeB" onclick="setMemberSettingsTab('fee')">月謝額</button>
@@ -2293,7 +2597,15 @@ function applyUpdate(){
           <button id="sortGradeBtn" onclick="setMateSort('grade')">学年順</button>
           <button id="sortKanaBtn" onclick="setMateSort('kana')">あいうえお</button>
         </div>
-        <p class="set-note">「学年順」は各区分の中を高学年→低学年で並べます（同じ学年の中は仲間タブの「並び替え」で手動入替できます）。「あいうえお順」はよみがなで並びます。</p>
+        <p class="set-note">「学年順」は各区分の中を高学年→低学年で並べます（同じ学年の中は仲間タブの「手動で並び替え」で入れ替えられます）。「あいうえお順」はよみがなで並びます。</p>
+      </div>
+      <div class="set-sec">
+        <div class="set-sec-title">退会した仲間</div>
+        <div class="mem-seg">
+          <button id="retiredHideBtn" onclick="setShowRetired(false)">かくす</button>
+          <button id="retiredShowBtn" onclick="setShowRetired(true)">表示する</button>
+        </div>
+        <p class="set-note">退会した仲間を一覧に出すかどうかを選べます。表示しているあいだは、仲間タブの上に案内が出ます。過去の月謝や出欠の記録は、かくしていても残っています。</p>
       </div>
     </div>
 
@@ -5130,7 +5442,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v260'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v261'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -5738,6 +6050,17 @@ Object.assign(DICT,{
   '課金機能を準備できませんでした（通信環境をご確認ください）':{en:'Purchases could not be prepared (please check your connection).',fr:'Les achats n’ont pas pu être préparés (vérifiez votre connexion).',pt:'Não foi possível preparar as compras (verifique sua conexão).'},
   '商品情報を取得できませんでした（時間をおいて再度お試しください）':{en:'Product information could not be loaded (please try again later).',fr:'Les informations produit n’ont pas pu être chargées (réessayez plus tard).',pt:'Não foi possível carregar as informações do produto (tente mais tarde).'},
   'このApple IDでのご購入が見つかりませんでした':{en:'No purchase was found for this Apple Account.',fr:'Aucun achat trouvé pour ce compte Apple.',pt:'Nenhuma compra encontrada para esta Conta Apple.'},
+  /* ===== v261 で追加した訳 ===== */
+  '手動で並び替え':{en:'Reorder by hand',fr:'Réordonner à la main',pt:'Reordenar à mão'},
+  '並び替えを終える':{en:'Done reordering',fr:'Terminer',pt:'Concluir'},
+  '表示':{en:'Display',fr:'Affichage',pt:'Exibição'},
+  '退会した仲間':{en:'Members who left',fr:'Membres partis',pt:'Membros que saíram'},
+  'かくす':{en:'Hide',fr:'Masquer',pt:'Ocultar'},
+  '退会した仲間も表示しています':{en:'Members who left are being shown',fr:'Les membres partis sont affichés',pt:'Mostrando também quem saiu'},
+  '表示をもどす':{en:'Hide them again',fr:'Les masquer',pt:'Ocultar de novo'},
+  '登録した選手から選ぶ':{en:'Pick a registered athlete',fr:'Choisir un athlète enregistré',pt:'Escolher um atleta cadastrado'},
+  '退会した仲間を一覧に出すかどうかを選べます。表示しているあいだは、仲間タブの上に案内が出ます。過去の月謝や出欠の記録は、かくしていても残っています。':{en:'Choose whether members who have left appear in the list. While they are shown, a note appears at the top of the Members tab. Past fees and attendance are kept either way.',fr:'Choisissez si les membres partis apparaissent dans la liste. Quand ils sont affichés, un rappel s’affiche en haut de l’onglet Membres. Les cotisations et présences passées sont conservées dans tous les cas.',pt:'Escolha se quem saiu aparece na lista. Enquanto aparecem, um aviso é exibido no topo da aba Membros. Mensalidades e presenças anteriores são mantidas de qualquer forma.'},
+  '「学年順」は各区分の中を高学年→低学年で並べます（同じ学年の中は仲間タブの「手動で並び替え」で入れ替えられます）。「あいうえお順」はよみがなで並びます。':{en:'“By school year” sorts each group from older to younger years (within the same year, use “Reorder by hand” on the Members tab). “Kana order” sorts by the reading of the name.',fr:'« Par année scolaire » trie chaque groupe du plus âgé au plus jeune (dans une même année, utilisez « Réordonner à la main »). « Ordre kana » trie selon la lecture du nom.',pt:'“Por ano escolar” ordena cada grupo do mais velho ao mais novo (dentro do mesmo ano, use “Reordenar à mão”). “Ordem kana” ordena pela leitura do nome.'},
   /* ===== v259 で追加した訳（デザイン）===== */
   '仕上げ（質感）':{en:'Finish',fr:'Finition',pt:'Acabamento'},
   'ボタンやカードの手ざわりを選べます。カラーとは別に選べるので、好きな色と自由に組み合わせられます。':{en:'Choose how buttons and cards feel. This is separate from the colour, so you can combine any pair you like.',fr:'Choisissez le rendu des boutons et des cartes. Indépendant de la couleur : combinez librement.',pt:'Escolha o acabamento de botões e cards. É separado da cor, então combine como quiser.'},
@@ -11825,6 +12148,7 @@ function openFeePresetModal(){
   for(let i=0;i<4;i++){const v=(arr[i]&&arr[i]>0)?arr[i]:'';h+=`<input type="number" inputmode="numeric" class="preset-inp fee-preset-inp" value="${v}" placeholder="金額 ${i+1}">`;}
   document.getElementById('feePresetInputs').innerHTML=h;
   const pvi=document.getElementById('perVisitFeeInput');if(pvi)pvi.value=(DB.perVisitFee>0)?DB.perVisitFee:'';
+  renderMemberSettings();          // v261: 退会者の表示の状態を反映する
   renderGradeSettings();
   openMemberSettingsEditors();
   updateSortUI();
@@ -11834,6 +12158,7 @@ function openFeePresetModal(){
   openModal('feePresetModal');
 }
 function setMemberSettingsTab(t){
+  if(t==='sort'&&typeof renderMemberSettings==='function')renderMemberSettings();
   const map={sort:'msPaneSort',grade:'msPaneGrade',rank:'msPaneRank',fee:'msPaneFee'};
   const btns={sort:'msTabSortB',grade:'msTabGradeB',rank:'msTabRankB',fee:'msTabFeeB'};
   Object.keys(map).forEach(k=>{
@@ -13245,12 +13570,19 @@ function doArchiveYear(){
     toast(fy+T('年度をアーカイブしました')+(st.total?'（'+T('画像')+st.total+T('枚')+'・'+archiveSizeLabel(st.bytes)+T('を解放')+'）':''));
   },'バックアップして外す','アーカイブの確認','var(--navy)');
 }
-let showRetired=false;
 let mateFilter='all';
-function toggleRetired(){
-  showRetired=!showRetired;
-  document.getElementById('retiredToggle').classList.toggle('on',showRetired);
-  renderMates();
+// v261: 退会者を出すかどうかは「よく使う設定 › 表示」で選ぶ。この端末に記憶する
+function showRetiredOn(){ return !!(DB&&DB.showRetired); }
+function setShowRetired(v){
+  DB.showRetired=!!v; save();
+  renderMemberSettings(); renderMates();
+}
+function toggleRetired(){ setShowRetired(!showRetiredOn()); }
+function renderMemberSettings(){
+  const on=showRetiredOn();
+  const h=document.getElementById('retiredHideBtn'), sw=document.getElementById('retiredShowBtn');
+  if(h)h.classList.toggle('on',!on);
+  if(sw)sw.classList.toggle('on',on);
 }
 function setMateFilter(f){
   mateFilter=f;
@@ -13335,13 +13667,16 @@ function renderMates(){
     </div>`:'';
   // v158: 個人モードでは事務向けの「退会も表示」を隠し、ボタン列を詰める
   const ma=document.querySelector('#screen-mates .mate-actions'); if(ma)ma.classList.toggle('personal',personal);
-  const rtog=document.getElementById('retiredToggle'); if(rtog)rtog.style.display=personal?'none':'';
-  if(personal&&showRetired){ showRetired=false; }
+  if(personal&&showRetiredOn()){ DB.showRetired=false; save(); }
+  // v261: 退会者を出しているあいだは、気づけるように帯を出す
+  const rn=document.getElementById('retiredNotice');
+  if(rn)rn.style.display=(!personal&&showRetiredOn())?'flex':'none';
   const canReorder=(effectiveSort()==='grade')&&!selfView;
   if(!canReorder&&reorderMode)reorderMode=false;
   const rt=document.getElementById('reorderToggle');
-  if(rt){ rt.textContent=T(reorderMode?'完了':'並び替え'); rt.classList.toggle('on',reorderMode); rt.style.display=canReorder?'':'none'; }
-  let visible=DB.students.filter(s=>showRetired||!s.endDate);
+  // v261: 「あいうえお順」などの並べ方とは別物なので、手で入れ替えることが分かる言葉にする
+  if(rt){ rt.textContent=T(reorderMode?'並び替えを終える':'手動で並び替え'); rt.classList.toggle('on',reorderMode); rt.style.display=canReorder?'':'none'; }
+  let visible=DB.students.filter(s=>showRetiredOn()||!s.endDate);
   if(personal) visible=visible.filter(s=> selfView ? s.isSelf : !s.isSelf );
   if(visible.length===0){
     let msg;

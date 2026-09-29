@@ -3,7 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>ja</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ja</string>
+		<string>en</string>
+		<string>fr</string>
+		<string>pt</string>
+	</array>
+	<key>CFBundleAllowMixedLocalizations</key>
+	<true/>
 	<key>CFBundleDisplayName</key>
         <string>My柔道(選手)</string>
 	<key>CFBundleExecutable</key>
