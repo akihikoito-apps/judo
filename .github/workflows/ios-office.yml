@@ -93,6 +93,9 @@ jobs:
           sed -i '' "s/CURRENT_PROJECT_VERSION = [0-9]*;/CURRENT_PROJECT_VERSION = ${{ github.run_number }};/g" \
             native/office/ios/App/App.xcodeproj/project.pbxproj
           grep -m1 CURRENT_PROJECT_VERSION native/office/ios/App/App.xcodeproj/project.pbxproj
+          MV=$(grep -m1 MARKETING_VERSION native/office/ios/App/App.xcodeproj/project.pbxproj | tr -d " 	;" | cut -d= -f2)
+          echo "::notice::このビルドは $MV (${{ github.run_number }}) です"
+          echo "※ App Store で公開済みのバージョン番号は使えません。公開したら MARKETING_VERSION を上げてください。"
 
       - name: www を生成して iOS 側へ同期（pod install もここで走る）
         working-directory: native/office
