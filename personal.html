@@ -9268,9 +9268,12 @@ function repToMemory(){
   //       登録のある人がいる場合は、新しく登録してよいかを必ず確認する。
   let self=findStudentExact(name);
   if(!self){
-    // v257: 部分一致（姓だけ等）は、きょうだいなど別の人に付くことがあるので、2人以上いるときは確認する
+    // v257: 部分一致（姓だけ等）は、きょうだいなど別の人に付くことがあるので確認する
+    // v259: 入力のほうが長いとき（佐藤 愛 が登録済みで「佐藤 愛子」と入力）は、
+    //       登録が1人だけでも別人の可能性が高いので必ず確認する
     const loose=findStudentByName(name);
-    if(loose && DB.students.length>=2 && _repMatchOk!==name+'|'+loose.id && _repMatchOk!=='__new__|'+name){
+    const longer=!!loose && normName(name).length>normName(loose.name).length;
+    if(loose && (longer||DB.students.length>=2) && _repMatchOk!==name+'|'+loose.id && _repMatchOk!=='__new__|'+name){
       askChoice(T('「')+esc(name)+T('」は、登録されている「')+esc(loose.name)+T('」さんのことですか？'),
         T('はい'), T('いいえ'),
         ()=>{ _repMatchOk=name+'|'+loose.id; repToMemory(); },
