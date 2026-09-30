@@ -273,7 +273,7 @@
   .view-toggle{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
   /* v262: 上段の「動作ボタン」。仲間タブと予定タブで同じ形・同じ色の意味にそろえる。
      中身の長さに合わせた丸ピルを右から並べ、入りきらないときは行を折り返す（文字の中では折らない）。 */
-  .act-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 16px;justify-content:flex-end;}
+  .act-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 16px;justify-content:flex-start;}
   /* v261: 退会者を表示中であることの帯 */
   .retired-notice{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
     background:#fff6e0;border:1.5px solid #e6c77a;color:#7a5b00;border-radius:12px;
@@ -284,13 +284,25 @@
     background:#fff;color:var(--muted);font-size:calc(13px*var(--fs,1));font-weight:700;font-family:inherit;
     line-height:1.25;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:6px;
     cursor:pointer;overflow-wrap:anywhere;word-break:normal;line-break:strict;}
-  /* 色の意味：灰の縁＝いまの状態を切り替える／紺の縁＝別の画面をひらく／金の塗り＝新しく足す */
+  /* v263: 色の意味は3つ。金の塗り＝新しく足す／紺の縁＝ふつうの操作／橙の塗り＝いま切り替え中。
+     「手動で並び替え」はふだんは紺の縁で「よく使う設定」とそろえ、押しているあいだだけ橙になる。 */
+  .act-row .act-outline, .act-row .act-toggle{border-color:var(--navy);color:var(--navy);}
   .act-row .act-toggle.on{background:#e8821e;color:#fff;border-color:#e8821e;}
-  .act-row .act-outline{border-color:var(--navy);color:var(--navy);}
   .act-row .act-gold{border-color:var(--gold);background:var(--gold);color:#3a2e00;}
   .view-toggle button{flex:1 1 22%;min-width:74px;min-height:48px;font-size:calc(14px*var(--fs,1));font-weight:700;font-family:inherit;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2;padding:4px 4px;word-break:break-word;overflow-wrap:anywhere;}
   .view-toggle button small{font-size:calc(11px*var(--fs,1));font-weight:600;opacity:.9;}
   .view-toggle button.on{background:var(--navy);color:#fff;}
+  /* v263: 集計タブの上段は「書類のつまみ」にする。選んだ項目が下の枠と地続きになり、
+     その中身が枠の中に入っていることが形だけで伝わる。動きや保存されるデータには触っていない。 */
+  #screen-list > .view-toggle{gap:4px;margin-bottom:0;position:relative;z-index:2;}
+  #screen-list > .view-toggle button{border-radius:12px 12px 0 0;border-bottom-width:0;min-height:46px;
+    background:rgba(0,0,0,.05);color:var(--muted);border-color:var(--line);}
+  #screen-list > .view-toggle button.on{background:var(--paper-card);color:var(--navy);border-color:var(--navy);
+    border-bottom:2px solid var(--paper-card);margin-bottom:-2px;box-shadow:none;}
+  .sheet-body{border:2px solid var(--navy);border-radius:0 12px 12px 12px;background:var(--paper-card);
+    padding:12px 8px 8px;margin-bottom:14px;}
+  /* 枠が増えたぶん中身が狭くなるので、中のカードの余白を少し詰めて取り戻す */
+  .sheet-body > .card{box-shadow:none;border:1px solid var(--line);padding:14px 11px;}
   /* 会計表 */
   .acct-section{margin-bottom:16px;}
   .acct-head{font-size:calc(16px*var(--fs,1));font-weight:800;color:#fff;padding:6px 12px;border-radius:8px;margin-bottom:6px;}
@@ -662,7 +674,8 @@
   .rk-chips button.on .rk-av{background:rgba(255,255,255,.22);color:#fff;}
   .rk-years{display:flex;gap:7px;overflow-x:auto;padding:0 0 10px;}
   .rk-years button{flex:0 0 auto;border:1.5px solid var(--line);background:#fff;color:var(--navy);border-radius:18px;padding:5px 14px;font-family:inherit;font-weight:700;font-size:calc(13px*var(--fs,1));cursor:pointer;white-space:nowrap;}
-  .rk-years button.on{background:var(--gold);color:#3a2b00;border-color:var(--gold);}
+  /* v265: 金の塗りは「新しく足す」に使うので、年度の選択は人物の選択と同じ紺にそろえる */
+  .rk-years button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
   .rk-year{font-size:calc(13px*var(--fs,1));font-weight:800;color:var(--muted);margin:8px 2px;}
   .rk-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 10px rgba(20,30,55,.07);}
   .rk-photo{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#22355f,#0e1830);display:flex;align-items:center;justify-content:center;overflow:hidden;}
@@ -1557,9 +1570,9 @@ function applyUpdate(){
 <!-- スケジュール -->
 <section id="screen-sched" class="screen">
   <div class="act-row">
-    <button class="act-outline" onclick="openSchedShare()">📤 予定を共有</button>
+    <button class="act-gold" onclick="openSchedModal()">＋予定を追加</button>
+    <button class="act-outline" onclick="openSchedShare()">予定を共有</button>
     <button class="act-outline" onclick="openPresetModal()">よく使う設定</button>
-    <button class="act-gold" onclick="openSchedModal()">＋ 予定を追加</button>
   </div>
   <!-- v214: リスト表示は休止中（復活時は下2つの display:none を外し、renderSched の calMode 判定を旧式に戻す） -->
   <div class="view-toggle" style="margin-bottom:12px;display:none" id="schedViewSeg">
@@ -1587,9 +1600,9 @@ function applyUpdate(){
 <!-- 仲間 -->
 <section id="screen-mates" class="screen">
   <div class="act-row">
+    <button class="act-gold" onclick="openStudentModal()">＋仲間を追加</button>
     <button class="act-toggle" id="reorderToggle" onclick="toggleReorder()">手動で並び替え</button>
     <button class="act-outline" onclick="openFeePresetModal()">よく使う設定</button>
-    <button class="act-gold" onclick="openStudentModal()">＋仲間を追加</button>
   </div>
   <!-- v261: 退会者を表示しているときだけ出す帯。設定の中に隠れて気づけなくなるのを防ぐ -->
   <div id="retiredNotice" class="retired-notice" style="display:none">
@@ -1611,7 +1624,7 @@ function applyUpdate(){
   </div>
 
   <!-- 出欠状況ビュー -->
-  <div id="listAttView">
+  <div id="listAttView" class="sheet-body">
     <div class="month-nav">
       <button onclick="changeFiscalYear(-1)">‹</button>
       <div class="lbl" id="attFyLbl"></div>
@@ -1634,7 +1647,7 @@ function applyUpdate(){
   </div>
 
   <!-- 会計ビュー -->
-  <div id="listAccountView" style="display:none">
+  <div id="listAccountView" class="sheet-body" style="display:none">
     <div class="month-nav">
       <button onclick="changeFiscalYear(-1)">‹</button>
       <div class="lbl" id="acctFyLbl"></div>
@@ -1665,7 +1678,7 @@ function applyUpdate(){
   </div>
 
   <!-- メンバービュー -->
-  <div id="listMemberView" style="display:none">
+  <div id="listMemberView" class="sheet-body" style="display:none">
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px;flex-wrap:wrap">
         <h3 style="margin:0;color:var(--navy);font-size:calc(18px*var(--fs,1))">仲間一覧</h3>
@@ -1681,7 +1694,7 @@ function applyUpdate(){
     </div>
   </div>
 
-  <div id="listMatchView" style="display:none">
+  <div id="listMatchView" class="sheet-body" style="display:none">
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px">
         <h3 style="margin:0;color:var(--navy);font-size:calc(18px*var(--fs,1))">試合結果</h3>
@@ -1985,9 +1998,12 @@ function applyUpdate(){
 
 <!-- 履歴（個人モード） -->
 <section id="screen-rireki" class="screen">
+  <!-- v265: ほかのタブと同じく、追加のボタンは上段の丸ピルにそろえる -->
+  <div class="act-row">
+    <button class="act-gold" id="mileAddBtn" onclick="mileOpenAdd()">＋節目を追加</button>
+  </div>
   <div class="rk-chips" id="rkChips"></div>
   <div class="rk-years" id="rkYears"></div>
-  <div class="rk-toolbar" style="display:flex;justify-content:flex-end;margin:2px 2px 10px"><button class="btn gold sm" id="mileAddBtn" onclick="mileOpenAdd()">＋ 節目を追加</button></div>
   <p class="list-mini" id="rkHint" style="margin:2px 2px 12px">大会ごとに1枚のカードで成長を振り返れます。昇級・昇段などの節目も追加でき、写真は「シェア画像」に載せてInstagram/LINEへ。</p>
   <div id="rkTimeline"></div>
 </section>
@@ -2257,20 +2273,19 @@ function applyUpdate(){
 </section>
 
 <section id="screen-growth" class="screen">
+  <!-- v264: 事務版の予定タブと同じ形・同じ並び（追加 → やりとり → 設定）で上段にそろえた。
+       「記録する項目」は「よく使う設定」の中に移した。 -->
+  <div class="act-row">
+    <button class="act-gold" onclick="openSchedModal()">＋予定を追加</button>
+    <button class="act-outline" onclick="openSchedRecv()">予定の取り込み</button>
+    <button class="act-outline" onclick="openPresetModal()">よく使う設定</button>
+  </div>
   <div class="rk-chips" id="gwChips"></div>
   <div class="gw-cal">
     <div class="gw-cal-head"><button class="gw-nav" onclick="gwMove(-1)">‹</button><b id="gwMonthLbl"></b><button class="gw-nav" onclick="gwMove(1)">›</button></div>
     <div class="gw-grid" id="gwGrid"></div>
   </div>
   <div id="gwCountdown"></div>
-  <div class="row" style="margin-top:10px">
-    <button class="btn ghost" onclick="openSchedModal()">📅 予定を追加</button>
-    <button class="btn ghost" onclick="gwOpenFields()">⚙️ 記録する項目</button>
-  </div>
-  <div class="row" style="margin-top:8px">
-    <button class="btn ghost" onclick="openPresetModal()">よく使う設定</button>
-    <button class="btn ghost" onclick="openSchedRecv()">📥 予定の取り込み</button>
-  </div>
 </section>
 
 <!-- v221: 仲間別の出席日一覧モーダル -->
@@ -2287,7 +2302,7 @@ function applyUpdate(){
 <div class="modal-bg" id="schedShareModal">
   <div class="modal">
     <h3>📤 予定をLINEで送る</h3>
-    <p class="list-mini">選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 📥 予定の取り込み」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。</p>
+    <p class="list-mini">選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 予定の取り込み」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。</p>
     <div class="month-nav" style="margin-top:10px">
       <button onclick="ssMove(-1)">‹</button>
       <div class="lbl" id="ssMonthLbl"></div>
@@ -2396,22 +2411,6 @@ function applyUpdate(){
       <button class="btn gold" onclick="keikoSave()">保存する</button>
     </div>
     <button class="btn del-full" id="kkDelBtn" style="display:none" onclick="keikoDelete()">この記録を削除する</button>
-  </div>
-</div>
-
-<!-- 記録する項目（任意記入欄）の設定 -->
-<div class="modal-bg" id="gwFieldsModal">
-  <div class="modal">
-    <h3>⚙️ 記録する項目</h3>
-    <p class="list-mini">稽古の記録に毎回表示する入力欄を選べます（例：体重）。よく使う項目をタップするか、自由に追加してください（最大6つ）。</p>
-    <div class="cat-pick" id="gwFieldPresets"></div>
-    <div id="gwFieldList" style="margin-top:10px"></div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <input type="text" id="gwFieldName" placeholder="項目名（例：体重）" style="flex:1;min-width:0">
-      <input type="text" id="gwFieldUnit" placeholder="単位" style="width:90px">
-      <button class="btn gold sm" onclick="gwFieldAdd()">追加</button>
-    </div>
-    <div class="row" style="margin-top:14px"><button class="btn ghost full" onclick="closeModal('gwFieldsModal')">とじる</button></div>
   </div>
 </div>
 
@@ -2814,6 +2813,7 @@ function applyUpdate(){
       <button id="psTabTypeB" class="on" onclick="setPresetTab('type')">種類</button>
       <button id="psTabTimeB" onclick="setPresetTab('time')">開始時間</button>
       <button id="psTabPlaceB" onclick="setPresetTab('place')">場所</button>
+      <button id="psTabFieldsB" onclick="setPresetTab('fields')" style="display:none">記録する項目</button>
     </div>
     <div class="ms-scroll">
       <div id="psPaneType">
@@ -2822,6 +2822,19 @@ function applyUpdate(){
           <div id="presetTypes"></div>
           <button class="btn ghost full" style="margin-top:4px" onclick="presetAdd('types')">＋ 追加</button>
           <p class="set-note">予定を追加するときにボタンで選べる候補です。種類ごとに色を設定でき、予定はその色で表示されます。いくつでも登録できます。</p>
+        </div>
+      </div>
+      <div id="psPaneFields" style="display:none">
+        <div class="set-sec">
+          <div class="set-sec-title">記録する項目</div>
+          <p class="set-note" style="margin-top:0">稽古の記録に毎回表示する入力欄を選べます（例：体重）。よく使う項目をタップするか、自由に追加してください（最大6つ）。</p>
+          <div class="cat-pick" id="gwFieldPresets"></div>
+          <div id="gwFieldList" style="margin-top:10px"></div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <input type="text" id="gwFieldName" placeholder="項目名（例：体重）" style="flex:1;min-width:0">
+            <input type="text" id="gwFieldUnit" placeholder="単位" style="width:90px">
+            <button class="btn gold sm" onclick="gwFieldAdd()">追加</button>
+          </div>
         </div>
       </div>
       <div id="psPaneTime" style="display:none">
@@ -5649,7 +5662,7 @@ const DICT={
   '予定タブで「試合結果」を設定した予定を選ぶと、その大会の入力ができます。':{en:'Choose an event that has “Match results” enabled in the Schedule tab to enter that tournament.',fr:'Choisissez dans l’agenda un événement avec « Résultats » activé pour le saisir.',pt:'Escolha na agenda um evento com “Resultados” ativado para preencher.'},
   '個人戦・団体戦のどちらにも対応しています。':{en:'Both individual and team matches are supported.',fr:'Les combats individuels et par équipe sont pris en charge.',pt:'Lutas individuais e por equipe são aceitas.'},
   '➡ 集計タブの「試合結果」で集計・分析されます。':{en:'➡ “Match results” in the Reports tab totals and analyses it.',fr:'➡ « Résultats » (onglet Bilans) totalise et analyse.',pt:'➡ “Resultados” na aba Relatórios totaliza e analisa.'},
-  '📥 試合結果を取り込む':{en:'📥 Importing match results',fr:'📥 Importer des résultats',pt:'📥 Importar resultados'},
+  '📥 試合結果を取り込む':{en:'📥 Importing match results',fr:'Importer des résultats',pt:'Importar resultados'},
   '集計タブの「試合結果」から「📋取り込み」を開きます。':{en:'Open “Import” from “Match results” in the Reports tab.',fr:'Ouvrez « Importer » depuis « Résultats » (onglet Bilans).',pt:'Abra “Importar” em “Resultados” na aba Relatórios.'},
   '「My柔道(選手)」から送られたQRコードを読み取るか、文字データを貼り付けるだけです。':{en:'Just scan the QR code sent from My柔道(Athlete), or paste the text.',fr:'Scannez le QR code envoyé par My柔道 (Athlète), ou collez le texte.',pt:'Basta ler o QR code enviado pelo My柔道 (Atleta) ou colar o texto.'},
   'まだ登録していない選手は、取り込みと同時に仲間へ追加できます。':{en:'An athlete who is not registered yet can be added as a member during the import.',fr:'Un athlète non encore enregistré peut être ajouté pendant l’import.',pt:'Um atleta ainda não cadastrado pode ser adicionado durante a importação.'},
@@ -5686,7 +5699,7 @@ const DICT={
   'この仲間を削除する':{en:'Delete this member',fr:'Supprimer ce membre',pt:'Excluir este membro'},
   // 予定
   '練習':{en:'Practice',fr:'Entraînement',pt:'Treino'},'大会':{en:'Tournament',fr:'Compétition',pt:'Competição'},'練習日':{en:'Practice day',fr:'Jour d’entraînement',pt:'Dia de treino'},
-  '予定を追加':{en:'Add event',fr:'Ajouter',pt:'Adicionar'},'＋ 予定を追加':{en:'＋ Add event',fr:'＋ Ajouter',pt:'＋ Adicionar'},'イベント名（任意）':{en:'Event name (optional)',fr:'Nom (facultatif)',pt:'Nome (opcional)'},
+  '予定を追加':{en:'Add event',fr:'Ajouter',pt:'Adicionar'},'＋予定を追加':{en:'＋ Add event',fr:'＋ Ajouter',pt:'＋ Adicionar'},'イベント名（任意）':{en:'Event name (optional)',fr:'Nom (facultatif)',pt:'Nome (opcional)'},
   '種類':{en:'Type',fr:'Type',pt:'Tipo'},'種類（4つ）':{en:'Types (up to 4)',fr:'Types (4)',pt:'Tipos (4)'},'場所':{en:'Place',fr:'Lieu',pt:'Local'},'場所（4つ）':{en:'Places (up to 4)',fr:'Lieux (4)',pt:'Locais (4)'},
   '開始時間':{en:'Start time',fr:'Heure de début',pt:'Horário'},'開始時間（4つ）':{en:'Start times (up to 4)',fr:'Heures (4)',pt:'Horários (4)'},'内容':{en:'Details',fr:'Détails',pt:'Detalhes'},'試合結果ボタン':{en:'Match-result button',fr:'Bouton résultats',pt:'Botão de resultados'},
   '予定を追加するときにボタンで選べる候補です。いくつでも登録できます。':{en:'Buttons you can pick from when adding an event. Add as many as you like.',fr:'Boutons proposés lors de l’ajout d’un événement. Ajoutez-en autant que vous voulez.',pt:'Botões para escolher ao adicionar um evento. Adicione quantos quiser.'},
@@ -6332,7 +6345,7 @@ Object.assign(DICT,{
 // ―― v193: 近年追加機能のUI多言語対応（試合申込・取り込み選択・報告オンボーディング・ペイウォール 等）――
 Object.assign(DICT,{
   // 取り込み（QR/文字を選ぶ）
-  '📥 試合結果の取り込み':{en:'📥 Import match results',fr:'📥 Importer les résultats',pt:'📥 Importar resultados'},
+  '📥 試合結果の取り込み':{en:'📥 Import match results',fr:'Importer les résultats',pt:'Importar resultados'},
   '保護者から届いた試合結果を、どちらの方法で取り込みますか？':{en:'How would you like to import the results a parent sent you?',fr:'Comment importer les résultats envoyés par un parent ?',pt:'Como deseja importar os resultados enviados por um responsável?'},
   '📷 QRで取り込む':{en:'📷 Import by QR',fr:'📷 Importer par QR',pt:'📷 Importar por QR'},
   '会場でその場で受け取る（カメラで読取）':{en:'Receive on the spot at the venue (scan with camera)',fr:'Recevoir sur place au tournoi (scan par caméra)',pt:'Receber na hora no local (ler com a câmera)'},
@@ -6388,7 +6401,7 @@ Object.assign(DICT,{
   'サブスクリプションは年ごとに自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'The subscription auto-renews yearly. Cancel anytime in iPhone Settings › Subscriptions.',fr:'L’abonnement se renouvelle automatiquement chaque année. Résiliable à tout moment dans Réglages › Abonnements.',pt:'A assinatura é renovada automaticamente a cada ano. Cancele quando quiser em Ajustes › Assinaturas.'},
   'ご利用ありがとうございます！':{en:'Thank you!',fr:'Merci !',pt:'Obrigado!'},
   // v219: 予定の共有（事務→選手）
-  '📤 予定を共有':{en:'📤 Share schedule',fr:'📤 Partager le planning',pt:'📤 Compartilhar agenda'},
+  '予定を共有':{en:'Share schedule',fr:'Partager le planning',pt:'Compartilhar agenda'},
   '📥 道場の予定':{en:'📥 Dojo schedule',fr:'📥 Planning du dojo',pt:'📥 Agenda do dojô'},
   '📤 予定をLINEで送る':{en:'📤 Send schedule via LINE',fr:'📤 Envoyer le planning via LINE',pt:'📤 Enviar agenda pelo LINE'},
   '選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 📥 道場の予定」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。':{en:'Send the selected month’s schedule to athletes and parents. They import it in the athlete app via “Plans & Records › 📥 Dojo schedule”. Re-sending the same month replaces it on their side.',fr:'Envoyez le planning du mois choisi aux athlètes et parents. Ils l’importent dans l’appli athlète via « Agenda & Notes › 📥 Planning du dojo ». Renvoyer le même mois le remplace chez eux.',pt:'Envie a agenda do mês escolhido para atletas e responsáveis. Eles importam no app do atleta em “Agenda e Registros › 📥 Agenda do dojô”. Reenviar o mesmo mês substitui a versão deles.'},
@@ -6398,11 +6411,11 @@ Object.assign(DICT,{
   'この月に予定はありません':{en:'No events in this month',fr:'Aucun événement ce mois-ci',pt:'Sem eventos neste mês'},
   '受け取る側は、順番に全部のQRを読み取ってください。':{en:'The receiver should scan all QR codes in order.',fr:'Le destinataire doit scanner tous les codes QR dans l’ordre.',pt:'O destinatário deve ler todos os códigos QR em ordem.'},
   'QRを作成できませんでした':{en:'Could not create QR',fr:'Impossible de créer le QR',pt:'Não foi possível criar o QR'},
-  '📥 道場の予定を取り込む':{en:'📥 Import dojo schedule',fr:'📥 Importer le planning du dojo',pt:'📥 Importar agenda do dojô'},
+  '📥 道場の予定を取り込む':{en:'📥 Import dojo schedule',fr:'Importer le planning du dojo',pt:'Importar agenda do dojô'},
   '道場から届いた「予定表」のテキストを貼り付けるか、QRを読み取ってください。取り込んだ予定には送り主名が付き、自分で登録した予定とは別に管理されます。':{en:'Paste the “schedule” text from your dojo, or scan the QR. Imported events are tagged with the sender’s name and kept separate from your own events.',fr:'Collez le texte « planning » reçu du dojo, ou scannez le QR. Les événements importés portent le nom de l’expéditeur et restent séparés des vôtres.',pt:'Cole o texto de “agenda” recebido do dojô ou leia o QR. Os eventos importados recebem o nome do remetente e ficam separados dos seus.'},
   '【My柔道 予定表】…をここに貼り付け':{en:'Paste “【My柔道 予定表】…” here',fr:'Collez ici « 【My柔道 予定表】… »',pt:'Cole aqui “【My柔道 予定表】…”'},
   '📷 QRで読み取る':{en:'📷 Scan QR',fr:'📷 Scanner le QR',pt:'📷 Ler QR'},
-  '📥 取り込む':{en:'📥 Import',fr:'📥 Importer',pt:'📥 Importar'},
+  '📥 取り込む':{en:'📥 Import',fr:'Importer',pt:'Importar'},
   '例：「来月の予定です」／「3日は出稽古になったので予定を更新しました」':{en:'e.g. “Next month’s schedule” / “Updated: the 3rd is now an away practice”',fr:'ex. « Planning du mois prochain » / « Mise à jour : le 3 est un entraînement extérieur »',pt:'ex.: “Agenda do próximo mês” / “Atualizado: dia 3 vira treino externo”'},
   '📣 ひとこと（LINEの先頭に表示されます）':{en:'📣 Message (shown at the top in LINE)',fr:'📣 Message (affiché en haut dans LINE)',pt:'📣 Recado (aparece no topo no LINE)'},
   '例：9/3の稽古はお休みです':{en:'e.g. No practice on Sep 3',fr:'ex. Pas d’entraînement le 3/9',pt:'ex.: sem treino em 3/9'},
@@ -6423,10 +6436,10 @@ Object.assign(DICT,{
   'コピーできませんでした':{en:'Could not copy',fr:'Copie impossible',pt:'Não foi possível copiar'},
   '件':{en:' items',fr:' élém.',pt:' itens'},
   // v220: 取り込みの対象者・文言変更・顔5段階
-  '📥 予定の取り込み':{en:'📥 Import schedule',fr:'📥 Importer un planning',pt:'📥 Importar agenda'},
-  '📥 予定を取り込む':{en:'📥 Import schedule',fr:'📥 Importer un planning',pt:'📥 Importar agenda'},
+  '予定の取り込み':{en:'Import schedule',fr:'Importer un planning',pt:'Importar agenda'},
+  '📥 予定を取り込む':{en:'Import schedule',fr:'Importer un planning',pt:'Importar agenda'},
   '道場や部活から届いた「予定表」のテキストを貼り付けるか、QRを読み取ってください。取り込んだ予定には送り主名が付き、自分で登録した予定とは別に管理されます。':{en:'Paste the “schedule” text from your dojo or school club, or scan the QR. Imported events are tagged with the sender’s name and kept separate from your own events.',fr:'Collez le texte « planning » reçu du dojo ou du club, ou scannez le QR. Les événements importés portent le nom de l’expéditeur et restent séparés des vôtres.',pt:'Cole o texto de “agenda” do dojô ou do clube, ou leia o QR. Os eventos importados recebem o nome do remetente e ficam separados dos seus.'},
-  '選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 📥 予定の取り込み」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。':{en:'Send the selected month’s schedule to athletes and parents. They import it in the athlete app via “Plans & Records › 📥 Import schedule”. Re-sending the same month replaces it on their side.',fr:'Envoyez le planning du mois choisi aux athlètes et parents. Ils l’importent dans l’appli athlète via « Agenda & Notes › 📥 Importer un planning ». Renvoyer le même mois le remplace chez eux.',pt:'Envie a agenda do mês escolhido para atletas e responsáveis. Eles importam no app do atleta em “Agenda e Registros › 📥 Importar agenda”. Reenviar o mesmo mês substitui a versão deles.'},
+  '選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 予定の取り込み」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。':{en:'Send the selected month’s schedule to athletes and parents. They import it in the athlete app via “Plans & Records › Import schedule”. Re-sending the same month replaces it on their side.',fr:'Envoyez le planning du mois choisi aux athlètes et parents. Ils l’importent dans l’appli athlète via « Agenda & Notes › Importer un planning ». Renvoyer le même mois le remplace chez eux.',pt:'Envie a agenda do mês escolhido para atletas e responsáveis. Eles importam no app do atleta em “Agenda e Registros › Importar agenda”. Reenviar o mesmo mês substitui a versão deles.'},
   'この予定はだれのもの？':{en:'Whose schedule is this?',fr:'À qui est ce planning ?',pt:'De quem é esta agenda?'},
   'きょうの調子（タップで5段階・任意）':{en:'How was today? (tap a face, optional)',fr:'La forme du jour ? (touchez un visage, facultatif)',pt:'Como foi hoje? (toque um rosto, opcional)'},
   '平均の調子':{en:'Avg. mood',fr:'Forme moy.',pt:'Média'},
@@ -6480,7 +6493,7 @@ Object.assign(DICT,{
   'グレー':{en:'Gray',fr:'Gris',pt:'Cinza'},
   '繰越金':{en:'Carryover',fr:'Report',pt:'Saldo anterior'},
   // メモリー・設定（個人）
-  '＋ 節目を追加':{en:'＋ Add milestone',fr:'＋ Ajouter une étape',pt:'＋ Adicionar marco'},
+  '＋節目を追加':{en:'＋ Add milestone',fr:'＋ Ajouter une étape',pt:'＋ Adicionar marco'},
   '大会ごとに1枚のカードで成長を振り返れます。昇級・昇段などの節目も追加でき、写真は「シェア画像」に載せてInstagram/LINEへ。':{en:'Look back on growth with one card per tournament. Add milestones like grade promotions, and put photos on a “share image” for Instagram/LINE.',fr:'Retracez la progression avec une carte par tournoi. Ajoutez des étapes (passages de grade) et placez des photos sur une « image à partager » pour Instagram/LINE.',pt:'Reveja a evolução com um card por torneio. Adicione marcos (promoções de faixa) e coloque fotos em uma “imagem de compartilhamento” para Instagram/LINE.'},
   'はじめの案内':{en:'Getting started',fr:'Premiers pas',pt:'Primeiros passos'},
   '最初のご案内（ようこそ → お名前 → 使い方3ステップ）を、もう一度見られます。':{en:'See the intro again (Welcome → Your name → 3-step guide).',fr:'Revoir l’intro (Bienvenue → Votre nom → guide en 3 étapes).',pt:'Ver a introdução de novo (Bem-vindo → Seu nome → guia em 3 passos).'},
@@ -6583,7 +6596,7 @@ Object.assign(DICT,{
   '写真を入れて、テーマ・構図・スタンプでデコレーション':{en:'Add a photo, then decorate with themes, layouts and stamps',fr:'Ajoutez une photo, puis décorez (thèmes, mises en page, tampons)',pt:'Adicione uma foto e decore com temas, layouts e carimbos'},
   'InstagramやLINEにそのままシェア':{en:'Share straight to Instagram or LINE',fr:'Partagez directement sur Instagram ou LINE',pt:'Compartilhe direto no Instagram ou LINE'},
   '道場の予定も受け取れます':{en:'Receive your dojo’s schedule',fr:'Recevez le planning du dojo',pt:'Receba a agenda do dojô'},
-  '先生から届いた予定表を「予定・記録 › 📥 予定の取り込み」で貼り付けるか、QRを読み取るだけ。':{en:'Paste the schedule your teacher sent, or scan the QR, in “Schedule & Log › 📥 Import schedule”.',fr:'Collez le planning reçu, ou scannez le QR, dans « Planning & Journal › 📥 Importer ».',pt:'Cole a agenda recebida, ou leia o QR, em “Agenda e Registro › 📥 Importar”.'},
+  '先生から届いた予定表を「予定・記録 › 予定の取り込み」で貼り付けるか、QRを読み取るだけ。':{en:'Paste the schedule your teacher sent, or scan the QR, in “Schedule & Log › Import schedule”.',fr:'Collez le planning reçu, ou scannez le QR, dans « Planning & Journal › Importer ».',pt:'Cole a agenda recebida, ou leia o QR, em “Agenda e Registro › Importar”.'},
   '大会までのカウントダウンも自動で出ます。':{en:'A countdown to the next tournament appears automatically.',fr:'Un compte à rebours vers la prochaine compétition s’affiche.',pt:'Uma contagem regressiva até a próxima competição aparece.'},
   '準備ができました！':{en:'You’re all set!',fr:'Tout est prêt !',pt:'Tudo pronto!'},
   'データはこの端末の中だけに保存されます。':{en:'Your data stays only on this device.',fr:'Vos données restent uniquement sur cet appareil.',pt:'Seus dados ficam somente neste aparelho.'},
@@ -6674,7 +6687,7 @@ Object.assign(DICT,{
   '「予定・記録」タブから記録できます':{en:'Log them from the Growth tab',fr:'Notez-les depuis l’onglet Progrès',pt:'Registre na aba Evolução'},
   'からだの記録':{en:'Body tracking',fr:'Suivi du corps',pt:'Registro do corpo'},
   'まだ記録する項目がありません':{en:'No tracked fields yet',fr:'Aucun champ suivi',pt:'Nenhum campo registrado'},
-  '「予定・記録」タブ →「⚙️記録する項目」で体重などを追加できます':{en:'Add weight etc. via Growth tab → “⚙️ Tracked fields”.',fr:'Ajoutez le poids etc. via Progrès → « ⚙️ Champs suivis ».',pt:'Adicione peso etc. em Evolução → “⚙️ Campos registrados”.'},
+  '「予定・記録」タブ →「よく使う設定」→「記録する項目」で体重などを追加できます':{en:'Add weight etc. via Planner tab → “Frequently used” → “Tracked fields”.',fr:'Ajoutez le poids etc. via Agenda → « Réglages fréquents » → « Champs suivis ».',pt:'Adicione peso etc. em Agenda → “Ajustes frequentes” → “Campos registrados”.'},
   'まだ記録がありません':{en:'No entries yet',fr:'Pas encore de données',pt:'Sem dados ainda'},
   '点':{en:' pts',fr:' pts',pt:' pts'},
   '「選手」から主役を登録してください':{en:'Register a star from the Members tab first',fr:'Enregistrez d’abord un profil dans Membres',pt:'Cadastre um protagonista em Membros primeiro'},
@@ -6751,14 +6764,14 @@ Object.assign(DICT,{
   '「試合報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。':{en:'“Report” and “Memory” (records & share images) stay free forever.',fr:'« Rapport » et « Souvenirs » (cartes à partager incluses) restent gratuits.',pt:'“Relatório” e “Memória” (com imagens) continuam grátis.'},
   '結果は試合報告タブから':{en:'report via the Report tab',fr:'à saisir via l’onglet Rapport',pt:'informe pela aba Relatório'},
   '「予定・記録」タブから記録できます':{en:'Log them from the Planner tab',fr:'Notez-les depuis l’onglet Agenda',pt:'Registre na aba Agenda'},
-  '「予定・記録」タブ →「⚙️記録する項目」で体重などを追加できます':{en:'Add weight etc. via Planner tab → “⚙️ Tracked fields”.',fr:'Ajoutez le poids etc. via Agenda → « ⚙️ Champs suivis ».',pt:'Adicione peso etc. em Agenda → “⚙️ Campos registrados”.'},
+  '「予定・記録」タブ →「よく使う設定」→「記録する項目」で体重などを追加できます':{en:'Add weight etc. via Planner tab → “Frequently used” → “Tracked fields”.',fr:'Ajoutez le poids etc. via Agenda → « Réglages fréquents » → « Champs suivis ».',pt:'Adicione peso etc. em Agenda → “Ajustes frequentes” → “Campos registrados”.'},
   '「選手」から主役を登録してください':{en:'Register a star from the Players tab first',fr:'Enregistrez d’abord un profil dans Athlètes',pt:'Cadastre um protagonista em Atletas primeiro'},
   '💡 この「試合報告」は無料でずっと使えます。自分の試合を':{en:'💡 This “Report” is always free. To ',fr:'💡 Ce « Rapport » est toujours gratuit. Pour ',pt:'💡 Este “Relatório” é sempre grátis. Para '},
   // v201
   '相手の組手':{en:'Opponent’s grip',fr:'Garde de l’adversaire',pt:'Pegada do adversário'},
   '1回戦がシード等の場合は、2回戦以降の報告をしてください。':{en:'If Round 1 was a bye (seed), report from Round 2 onward.',fr:'Si le 1er tour était exempté, déclarez à partir du 2e tour.',pt:'Se a 1ª fase foi bye, informe a partir da 2ª fase.'},
   '📩 道場に送る（QR / テキスト）':{en:'📩 Send to dojo (QR / text)',fr:'📩 Envoyer au dojo (QR / texte)',pt:'📩 Enviar ao dojô (QR / texto)'},
-  '道場の担当者に送ってください。道場アプリの「集計 › 試合結果 › 📥取り込み」から、QRでもテキストでもそのまま登録できます。':{en:'Send this to your dojo staff. In the dojo app, they can register it as-is — QR or text — via “Stats › Match results › 📥 Import”.',fr:'Envoyez ceci au responsable du dojo. Dans l’appli dojo, il peut l’enregistrer tel quel — QR ou texte — via « Stats › Résultats › 📥 Importer ».',pt:'Envie ao responsável do dojô. No app do dojô, ele registra como está — QR ou texto — em “Resumo › Resultados › 📥 Importar”.'},
+  '道場の担当者に送ってください。道場アプリの「集計 › 試合結果 › 📥取り込み」から、QRでもテキストでもそのまま登録できます。':{en:'Send this to your dojo staff. In the dojo app, they can register it as-is — QR or text — via “Stats › Match results › 📥 Import”.',fr:'Envoyez ceci au responsable du dojo. Dans l’appli dojo, il peut l’enregistrer tel quel — QR ou texte — via « Stats › Résultats › Importer ».',pt:'Envie ao responsável do dojô. No app do dojô, ele registra como está — QR ou texto — em “Resumo › Resultados › Importar”.'},
   '📷 QRコード':{en:'📷 QR code',fr:'📷 QR code',pt:'📷 QR code'},
   '📝 テキスト':{en:'📝 Text',fr:'📝 Texte',pt:'📝 Texto'},
   'タップで大きく表示できます。会場では、この画面をそのまま読み取ってもらえます。':{en:'Tap to enlarge. At the venue, staff can scan this screen directly.',fr:'Touchez pour agrandir. Sur place, le responsable peut scanner cet écran.',pt:'Toque para ampliar. No local, o responsável pode ler esta tela.'},
@@ -9470,7 +9483,7 @@ function obRender(){
   }else if(obStep===5){
     h=`<div class="ob-emoji">📥</div>
        <h3 class="ob-h">${T('道場の予定も受け取れます')}</h3>
-       <p class="ob-p">${T('先生から届いた予定表を「予定・記録 › 📥 予定の取り込み」で貼り付けるか、QRを読み取るだけ。')}<br>${T('大会までのカウントダウンも自動で出ます。')}</p>
+       <p class="ob-p">${T('先生から届いた予定表を「予定・記録 › 予定の取り込み」で貼り付けるか、QRを読み取るだけ。')}<br>${T('大会までのカウントダウンも自動で出ます。')}</p>
        <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
   }else{
     h=`<div class="ob-emoji">🎉</div>
@@ -11513,29 +11526,31 @@ function keikoDelete(){
 }
 // ―― 記録する項目（任意記入欄）――
 const GW_FIELD_PRESETS=[['体重','kg'],['体脂肪率','%'],['身長','cm'],['睡眠','時間']];
-function gwOpenFields(){ renderGwFields(); openModal('gwFieldsModal'); }
+// v264: 画面に出すのは下書き（presetEdit.fields）。保存するまで DB は変えない
+function gwDraftFields(){ if(!Array.isArray(presetEdit.fields))presetEdit.fields=[]; return presetEdit.fields; }
 function renderGwFields(){
-  const list=gwFields();
+  const list=gwDraftFields();
   document.getElementById('gwFieldPresets').innerHTML=GW_FIELD_PRESETS.map(([n,u])=>
     list.some(f=>f.name===n)?'':`<button onclick="gwFieldAddPreset('${n}','${u}')">${T(n)} (${u})</button>`).join('');
   document.getElementById('gwFieldList').innerHTML=list.length?list.map(f=>
     `<div class="gw-field-row"><span class="nm">${esc(f.name)}${f.unit?'（'+esc(f.unit)+'）':''}</span><button class="ent-del" onclick="gwFieldDel('${f.id}')">×</button></div>`).join('')
     :`<p class="list-mini" style="margin:0">${T('まだ項目がありません')}</p>`;
 }
-function gwFieldAddPreset(n,u){ if(gwFields().length>=6){toast(T('項目は6つまでです'));return;} if(!Array.isArray(DB.growthFields))DB.growthFields=[]; DB.growthFields.push({id:uid(),name:n,unit:u}); save(); renderGwFields(); }
+function gwFieldAddPreset(n,u){ const L=gwDraftFields(); if(L.length>=6){toast(T('項目は6つまでです'));return;} L.push({id:uid(),name:n,unit:u}); renderGwFields(); }
 function gwFieldAdd(){
   const n=document.getElementById('gwFieldName').value.trim(); if(!n){toast(T('項目名を入れてください'));return;}
-  if(gwFields().length>=6){toast(T('項目は6つまでです'));return;}
-  if(!Array.isArray(DB.growthFields))DB.growthFields=[];
-  DB.growthFields.push({id:uid(),name:n,unit:document.getElementById('gwFieldUnit').value.trim()});
+  const L=gwDraftFields();
+  if(L.length>=6){toast(T('項目は6つまでです'));return;}
+  L.push({id:uid(),name:n,unit:document.getElementById('gwFieldUnit').value.trim()});
   document.getElementById('gwFieldName').value=''; document.getElementById('gwFieldUnit').value='';
-  save(); renderGwFields();
+  renderGwFields();
 }
 function gwFieldDel(id){
-  const f=gwFields().find(x=>x.id===id); if(!f)return;
+  const f=gwDraftFields().find(x=>x.id===id); if(!f)return;
   // v241: 消すと過去の数値が見られなくなるため確認する
+  // v264: 実際に消えるのは「保存する」を押したとき
   askConfirm(T('「')+esc(f.name)+T('」を記録する項目から削除します。これまでに入力した数値は見られなくなります。'),()=>{
-    DB.growthFields=gwFields().filter(x=>x.id!==id); save(); renderGwFields(); toast(T('削除しました'));
+    presetEdit.fields=gwDraftFields().filter(x=>x.id!==id); renderGwFields();
   },T('削除する'));
 }
 // ―― 報告タブ：予定から大会を選ぶ ――
@@ -11670,7 +11685,7 @@ function anaKeikoHtml(){
 function anaBodyHtml(){
   const K=keikoOf(anaSelfId), dates=Object.keys(K).sort();
   const fields=gwFields();
-  if(!fields.length)return `<div class="rk-empty">${T('まだ記録する項目がありません')}<div class="list-mini" style="margin-top:6px">${T('「予定・記録」タブ →「⚙️記録する項目」で体重などを追加できます')}</div></div>`;
+  if(!fields.length)return `<div class="rk-empty">${T('まだ記録する項目がありません')}<div class="list-mini" style="margin-top:6px">${T('「予定・記録」タブ →「よく使う設定」→「記録する項目」で体重などを追加できます')}</div></div>`;
   let html=`<div class="ana-sec"><div class="ra-secttl"><span class="ra-ico">💪</span> ${T('からだの記録')}</div>`;
   fields.forEach(fd=>{
     const pts=dates.map(d=>({l:d.slice(5).replace('-','/'),v:parseFloat((K[d].f||{})[fd.id])})).filter(p=>!isNaN(p.v)).slice(-30);
@@ -12103,25 +12118,36 @@ function runMatchSearch(){
 }
 /* よく使う設定 */
 let presetEdit=null;
-function openPresetModal(){
+function openPresetModal(tab){
   const P=DB.schedPresets||{types:[],times:[],places:[]};
   const tc=P.typeColors||{};
   presetEdit={
     types:(P.types||[]).map((n,idx)=>({name:n, color:tc[n]||SCHED_COLORS[idx%SCHED_COLORS.length]})),
     times:[...(P.times||[])],
-    places:[...(P.places||[])]
+    places:[...(P.places||[])],
+    // v264: 記録する項目も、ほかの設定と同じく「保存する」を押すまで決まらない下書きにする
+    fields:gwFields().map(f=>({id:f.id,name:f.name,unit:f.unit||''}))
   };
   renderPresetEditors();
-  setPresetTab('type');
+  // v264: 「記録する項目」は選手モードだけの設定なので、そのときだけタブを出す
+  const fb=document.getElementById('psTabFieldsB');
+  const personal=(DB.mode==='personal');
+  if(fb)fb.style.display=personal?'':'none';
+  if(personal)renderGwFields();
+  setPresetTab((personal&&tab)?tab:'type');
   openModal('presetModal');
 }
+// v264: 以前の「⚙️ 記録する項目」から来た場合も、同じ場所が開くようにしておく
+function gwOpenFields(){ openPresetModal('fields'); }
 function setPresetTab(t){
-  const map={type:'psPaneType',time:'psPaneTime',place:'psPanePlace'};
-  const btns={type:'psTabTypeB',time:'psTabTimeB',place:'psTabPlaceB'};
+  const map={type:'psPaneType',time:'psPaneTime',place:'psPanePlace',fields:'psPaneFields'};
+  const btns={type:'psTabTypeB',time:'psTabTimeB',place:'psTabPlaceB',fields:'psTabFieldsB'};
   Object.keys(map).forEach(k=>{
     const pane=document.getElementById(map[k]);if(pane)pane.style.display=(k===t)?'':'none';
     const b=document.getElementById(btns[k]);if(b)b.classList.toggle('on',k===t);
   });
+  // v264: タブを切り替えたとき、前のタブのスクロール位置が残らないようにする
+  const sc=document.querySelector('#presetModal .ms-scroll'); if(sc)sc.scrollTop=0;
 }
 function renderPresetEditors(){
   // 種類：名前＋色スウォッチ
@@ -12150,7 +12176,13 @@ function savePresets(){
   const types=[], typeColors={};
   presetEdit.types.forEach(o=>{const n=(o.name||'').trim(); if(n){types.push(n); typeColors[n]=o.color||SCHED_GRAY;}});
   DB.schedPresets={types, typeColors, times:clean(presetEdit.times), places:clean(presetEdit.places)};
+  // v264: 記録する項目も同じ「保存する」で決める（選手モードのときだけ）
+  if(DB.mode==='personal'&&Array.isArray(presetEdit.fields)){
+    DB.growthFields=presetEdit.fields.filter(f=>(f.name||'').trim())
+      .map(f=>({id:f.id,name:f.name.trim(),unit:(f.unit||'').trim()}));
+  }
   save();closeModal('presetModal');toast(T('保存しました'));
+  if(typeof renderGrowth==='function'&&document.getElementById('screen-growth')&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
 }
 function openFeePresetModal(){
   const arr=DB.feePresets||[2000,3000,0,0];
@@ -13663,15 +13695,22 @@ function buildMemberGroups(visible){
 let reorderMode=false;
 function toggleReorder(){ reorderMode=!reorderMode; renderMates(); }
 /* v147: 個人モードの「自分（主役）↔仲間」切替 */
+// v265: 選手版では「仲間」を新しく作れないようにした。ただし、すでに仲間を登録している人の
+//       データを画面から消してしまわないよう、その人にだけ切替を残す（移行のための措置）。
+//       isSelf が入っていない古いデータも「仲間」側なので、=== false ではなく !isSelf で見る。
+function hasMateEntries(){ return (DB.students||[]).some(s=>!s.isSelf); }
 let mateView='self';
 function setMateView(v){ mateView=v; reorderMode=false; renderMates(); }
 function renderMates(){
   const list=document.getElementById('studentList');
   updateSortUI();
   const personal=(DB.mode==='personal');
+  // v265: 仲間が1人もいなければ切替そのものを出さず、主役だけの一覧にする
+  const showMateView=(personal&&hasMateEntries());
+  if(personal&&!showMateView&&mateView!=='self'){ mateView='self'; }
   const selfView=(personal&&mateView==='self');
   // 個人モードのトグル（自分＝主役／仲間）。自分ビューは並び替え不要
-  const toggleHtml=personal?`<div class="view-toggle mate-view-toggle" style="margin-bottom:12px">
+  const toggleHtml=showMateView?`<div class="view-toggle mate-view-toggle" style="margin-bottom:12px">
       <button class="${mateView==='self'?'on':''}" onclick="setMateView('self')">⭐ ${T('自分（主役）')}</button>
       <button class="${mateView==='others'?'on':''}" onclick="setMateView('others')">👥 ${T('仲間')}</button>
     </div>`:'';
@@ -14081,7 +14120,8 @@ function openStudentModal(id){
     pickedStSelf=!!s.isSelf;
   }else{
     document.getElementById('studentModalTitle').textContent=T('仲間を追加');
-    pickedStSelf=(DB.mode==='personal'&&mateView==='self');
+    // v265: 選手版の新規は必ず主役。仲間の一覧を開いているときだけ、そのまま仲間として足せる。
+    pickedStSelf=(DB.mode==='personal')?(mateView==='self'||!hasMateEntries()):false;
     ['stLastName','stFirstName','stLastKana','stFirstKana'].forEach(id=>document.getElementById(id).value='');
     pickedCat='小学生';
     pickedGrade='';
@@ -14104,7 +14144,9 @@ function openStudentModal(id){
     document.getElementById('stNote').value='';
     document.getElementById('stRole').value='';
   }
-  document.getElementById('stSelfRow').style.display=(DB.mode==='personal')?'':'none';
+  // v265: 「仲間」か「主役」かの選択は、すでに仲間がいる人にだけ出す。
+  //        いない人には出さず、登録は必ず主役になる。
+  document.getElementById('stSelfRow').style.display=(DB.mode==='personal'&&hasMateEntries())?'':'none';
   document.getElementById('stOfficeOnly').style.display=(DB.mode==='personal')?'none':'';   // 個人モードは事務項目（月謝・在籍）を隠す
   pickStSelf(pickedStSelf);
   renderCatPick();
