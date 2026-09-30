@@ -667,11 +667,22 @@
   .bk-where div{margin-top:5px;}
   .bk-stack{flex-direction:column;gap:1px;padding-top:8px;padding-bottom:9px;}   /* v222: 主文＋補足を1行ずつ縦に */
   /* v144: 履歴タブ */
-  .rk-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;}
-  .rk-chips button{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:#fff;color:var(--navy);border-radius:22px;padding:7px 14px 7px 9px;font-family:inherit;font-weight:700;font-size:calc(14px*var(--fs,1));cursor:pointer;}
-  .rk-chips button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
-  .rk-chips .rk-av{width:26px;height:26px;border-radius:50%;background:var(--paper);display:inline-flex;align-items:center;justify-content:center;font-size:calc(13px*var(--fs,1));color:var(--navy);font-weight:800;}
-  .rk-chips button.on .rk-av{background:rgba(255,255,255,.22);color:#fff;}
+  /* v268: 「だれの記録を見るか」の列。上段の動作ボタン（丸ピル）と見分けがつくよう、
+     縁も背景もない丸い顔＋名前にする。人が増えても横に流れるだけで形が崩れない。 */
+  .rk-chips{display:flex;gap:14px;overflow-x:auto;padding:2px 0 12px;align-items:flex-start;
+    -webkit-overflow-scrolling:touch;}
+  .rk-chips button{flex:0 0 auto;display:inline-flex;flex-direction:column;align-items:center;gap:6px;
+    border:none;background:none;box-shadow:none;padding:2px;border-radius:0;
+    width:calc(64px*var(--fs,1));color:var(--muted);font-family:inherit;font-weight:700;
+    font-size:calc(12px*var(--fs,1));line-height:1.25;text-align:center;cursor:pointer;
+    overflow-wrap:anywhere;word-break:normal;line-break:strict;}
+  .rk-chips .rk-av{width:calc(52px*var(--fs,1));height:calc(52px*var(--fs,1));border-radius:50%;
+    border:2px solid var(--line);background:var(--paper-card);display:inline-flex;
+    align-items:center;justify-content:center;font-size:calc(21px*var(--fs,1));
+    color:var(--navy);font-weight:800;flex:0 0 auto;}
+  .rk-chips button.on{color:var(--navy);font-weight:800;}
+  .rk-chips button.on .rk-av{border-color:var(--navy);background:var(--navy);color:#fff;
+    box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--navy);}
   .rk-years{display:flex;gap:7px;overflow-x:auto;padding:0 0 10px;}
   .rk-years button{flex:0 0 auto;border:1.5px solid var(--line);background:#fff;color:var(--navy);border-radius:18px;padding:5px 14px;font-family:inherit;font-weight:700;font-size:calc(13px*var(--fs,1));cursor:pointer;white-space:nowrap;}
   /* v265: 金の塗りは「新しく足す」に使うので、年度の選択は人物の選択と同じ紺にそろえる */
@@ -925,7 +936,6 @@
   html[data-finish="relief"] .mem-seg button,
   html[data-finish="relief"] .lang-pick button,
   html[data-finish="relief"] .ana-range button,
-  html[data-finish="relief"] .rk-chips button,
   html[data-finish="relief"] .rk-years button,
   html[data-finish="relief"] .rk-actions button,
   html[data-finish="relief"] .rk-add,
@@ -975,7 +985,6 @@
   html[data-finish="relief"] .mem-seg button:active,
   html[data-finish="relief"] .lang-pick button:active,
   html[data-finish="relief"] .ana-range button:active,
-  html[data-finish="relief"] .rk-chips button:active,
   html[data-finish="relief"] .rk-years button:active,
   html[data-finish="relief"] .rk-actions button:active,
   html[data-finish="relief"] .rk-add:active,
@@ -1025,7 +1034,6 @@
   html[data-finish="metal"] .mem-seg button,
   html[data-finish="metal"] .lang-pick button,
   html[data-finish="metal"] .ana-range button,
-  html[data-finish="metal"] .rk-chips button,
   html[data-finish="metal"] .rk-years button,
   html[data-finish="metal"] .rk-actions button,
   html[data-finish="metal"] .rk-add,
@@ -1076,7 +1084,6 @@
   html[data-finish="metal"] .mem-seg button:active,
   html[data-finish="metal"] .lang-pick button:active,
   html[data-finish="metal"] .ana-range button:active,
-  html[data-finish="metal"] .rk-chips button:active,
   html[data-finish="metal"] .rk-years button:active,
   html[data-finish="metal"] .rk-actions button:active,
   html[data-finish="metal"] .rk-add:active,
@@ -1126,7 +1133,6 @@
   html[data-finish="minimal"] .mem-seg button,
   html[data-finish="minimal"] .lang-pick button,
   html[data-finish="minimal"] .ana-range button,
-  html[data-finish="minimal"] .rk-chips button,
   html[data-finish="minimal"] .rk-years button,
   html[data-finish="minimal"] .rk-actions button,
   html[data-finish="minimal"] .rk-add,
@@ -1174,7 +1180,6 @@
   html[data-finish="glass"] .mem-seg button,
   html[data-finish="glass"] .lang-pick button,
   html[data-finish="glass"] .ana-range button,
-  html[data-finish="glass"] .rk-chips button,
   html[data-finish="glass"] .rk-years button,
   html[data-finish="glass"] .rk-actions button,
   html[data-finish="glass"] .rk-add,
@@ -2813,9 +2818,7 @@ function applyUpdate(){
 <div class="modal-bg" id="rkSettingsModal">
   <div class="modal">
     <h3>よく使う設定</h3>
-    <div class="set-tabs">
-      <button class="on">表示</button>
-    </div>
+    <!-- v268: 中身が「表示」1つだけなので、見出しのタブは置かない -->
     <div class="ms-scroll">
       <div class="set-sec">
         <div class="set-sec-title">表示する年度</div>
@@ -8953,7 +8956,8 @@ function renderRireki(){
   // v203: 日付なし（大会予定を削除した記録など）は年度チップに出さない（「すべて」で見られる）
   const years=[...new Set(allEvents.map(ev=>schedFY(ev.date||'')).filter(y=>isFinite(y)&&y>1990))].sort((a,b)=>b-a);
   if(rkYear!=='all'&&(rkYear==null||!years.includes(rkYear)))rkYear=years.length?years[0]:'all';
-  if(yearsEl)yearsEl.innerHTML=years.map(y=>`<button class="${rkYear===y?'on':''}" onclick="rkSetYear(${y})">${y}年度</button>`).join('')+`<button class="${rkYear==='all'?'on':''}" onclick="rkSetYear('all')">${T('すべて')}</button>`;
+  // v268: 「すべて」を先頭に置き、そのあと近い年度から並べる（years は新しい順）
+  if(yearsEl)yearsEl.innerHTML=`<button class="${rkYear==='all'?'on':''}" onclick="rkSetYear('all')">${T('すべて')}</button>`+years.map(y=>`<button class="${rkYear===y?'on':''}" onclick="rkSetYear(${y})">${y}${T('年度')}</button>`).join('');
   // v267: 年度の列を設定の中に移したので、いま何年度を見ているかは一覧の上に出す
   if(nowYear){
     if(rkYear==='all'||years.length<2){ nowYear.style.display='none'; }
