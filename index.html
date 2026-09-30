@@ -677,6 +677,8 @@
   /* v265: 金の塗りは「新しく足す」に使うので、年度の選択は人物の選択と同じ紺にそろえる */
   .rk-years button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
   .rk-year{font-size:calc(13px*var(--fs,1));font-weight:800;color:var(--muted);margin:8px 2px;}
+  /* v267: いま何年度を見ているか（年度の列を設定の中に移したため） */
+  .rk-nowyear{font-size:calc(13px*var(--fs,1));font-weight:800;color:var(--muted);margin:0 2px 10px;}
   .rk-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 10px rgba(20,30,55,.07);}
   .rk-photo{position:relative;width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#22355f,#0e1830);display:flex;align-items:center;justify-content:center;overflow:hidden;}
   .rk-photo .ph{color:rgba(255,255,255,.7);font-size:calc(13.5px*var(--fs,1));font-weight:700;text-align:center;}
@@ -1600,7 +1602,7 @@ function applyUpdate(){
 <!-- 仲間 -->
 <section id="screen-mates" class="screen">
   <div class="act-row">
-    <button class="act-gold" onclick="openStudentModal()">＋仲間を追加</button>
+    <button class="act-gold" id="mateAddBtn" onclick="openStudentModal()">＋仲間を追加</button>
     <button class="act-toggle" id="reorderToggle" onclick="toggleReorder()">手動で並び替え</button>
     <button class="act-outline" onclick="openFeePresetModal()">よく使う設定</button>
   </div>
@@ -2001,10 +2003,12 @@ function applyUpdate(){
   <!-- v265: ほかのタブと同じく、追加のボタンは上段の丸ピルにそろえる -->
   <div class="act-row">
     <button class="act-gold" id="mileAddBtn" onclick="mileOpenAdd()">＋節目を追加</button>
+    <button class="act-outline" onclick="openRkSettings()">よく使う設定</button>
   </div>
   <div class="rk-chips" id="rkChips"></div>
-  <div class="rk-years" id="rkYears"></div>
   <p class="list-mini" id="rkHint" style="margin:2px 2px 12px">大会ごとに1枚のカードで成長を振り返れます。昇級・昇段などの節目も追加でき、写真は「シェア画像」に載せてInstagram/LINEへ。</p>
+  <!-- v267: 年度の絞り込みは「よく使う設定 → 表示」に移した。いま何年度を見ているかは一覧のすぐ上に出す -->
+  <div class="rk-nowyear" id="rkNowYear" style="display:none"></div>
   <div id="rkTimeline"></div>
 </section>
 
@@ -2802,6 +2806,26 @@ function applyUpdate(){
     <button class="btn ghost full" style="margin-bottom:10px" onclick="applyRecurScope('one')">この予定だけ</button>
     <button class="btn full" id="recurScopeFollowBtn" style="margin-bottom:14px" onclick="applyRecurScope('following')">この予定以降すべて</button>
     <button class="btn ghost full" onclick="closeModal('recurScopeModal')">やめる</button>
+  </div>
+</div>
+
+<!-- v267: メモリーのよく使う設定（いまは「表示」だけ） -->
+<div class="modal-bg" id="rkSettingsModal">
+  <div class="modal">
+    <h3>よく使う設定</h3>
+    <div class="set-tabs">
+      <button class="on">表示</button>
+    </div>
+    <div class="ms-scroll">
+      <div class="set-sec">
+        <div class="set-sec-title">表示する年度</div>
+        <div class="rk-years" id="rkYears"></div>
+        <p class="set-note">「すべて」を選ぶと、年度ごとの見出しを付けて全部まとめて表示します。</p>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn ghost full" onclick="closeModal('rkSettingsModal')">とじる</button>
+    </div>
   </div>
 </div>
 
@@ -5766,7 +5790,7 @@ Object.assign(DICT,{
   '自分（主役）':{en:'Me (main)',fr:'Moi (vedette)',pt:'Eu (principal)'},
   'この人は':{en:'This person is',fr:'Cette personne est',pt:'Esta pessoa é'},
   '自分・家族（主役）':{en:'Me / family (main)',fr:'Moi / famille (vedette)',pt:'Eu / família (principal)'},
-  '「＋仲間を追加」から自分や家族（主役）を登録できます':{en:'Add yourself or family (main) via "+ Add member"',fr:'Ajoutez-vous ou votre famille (vedette) via « + Ajouter un membre »',pt:'Adicione você ou a família (principal) em "+ Adicionar membro"'},
+  '「＋選手を追加」から自分や家族（主役）を登録できます':{en:'Add yourself or family (main) via "+ Add athlete"',fr:'Ajoutez-vous ou votre famille (vedette) via « + Ajouter un athlète »',pt:'Adicione você ou a família (principal) em "+ Adicionar atleta"'},
   'まだ主役がいません':{en:'No main person yet',fr:'Aucune vedette pour le moment',pt:'Ainda não há principal'},
   'まだ仲間がいません（主役以外）':{en:'No teammates yet',fr:'Aucun coéquipier pour le moment',pt:'Ainda não há colegas'},
   'まだ予定がありません':{en:'No events yet',fr:'Aucun événement pour le moment',pt:'Ainda não há eventos'},
@@ -6073,6 +6097,11 @@ Object.assign(DICT,{
   '課金機能を準備できませんでした（通信環境をご確認ください）':{en:'Purchases could not be prepared (please check your connection).',fr:'Les achats n’ont pas pu être préparés (vérifiez votre connexion).',pt:'Não foi possível preparar as compras (verifique sua conexão).'},
   '商品情報を取得できませんでした（時間をおいて再度お試しください）':{en:'Product information could not be loaded (please try again later).',fr:'Les informations produit n’ont pas pu être chargées (réessayez plus tard).',pt:'Não foi possível carregar as informações do produto (tente mais tarde).'},
   'このApple IDでのご購入が見つかりませんでした':{en:'No purchase was found for this Apple Account.',fr:'Aucun achat trouvé pour ce compte Apple.',pt:'Nenhuma compra encontrada para esta Conta Apple.'},
+  /* ===== v267 で追加した訳 ===== */
+  '表示する年度':{en:'Year to show',fr:'Année à afficher',pt:'Ano a exibir'},
+  '「すべて」を選ぶと、年度ごとの見出しを付けて全部まとめて表示します。':{en:'Choosing “All” shows everything at once, grouped by year.',fr:'En choisissant « Tout », tout s’affiche d’un coup, groupé par année.',pt:'Ao escolher “Tudo”, tudo aparece de uma vez, agrupado por ano.'},
+  /* ===== v266 で追加した訳 ===== */
+  '＋選手を追加':{en:'＋ Add athlete',fr:'＋ Ajouter un athlète',pt:'＋ Adicionar atleta'},
   /* ===== v261 で追加した訳 ===== */
   '手動で並び替え':{en:'Reorder by hand',fr:'Réordonner à la main',pt:'Reordenar à mão'},
   '並び替えを終える':{en:'Done reordering',fr:'Terminer',pt:'Concluir'},
@@ -8902,7 +8931,8 @@ function renderRireki(){
   const selfStudents=selfStars();
   const withB=selfStudents.length?selfStudents:DB.students.filter(hasHist);
   const chips=document.getElementById('rkChips'), yearsEl=document.getElementById('rkYears'), tl=document.getElementById('rkTimeline');
-  if(!withB.length){chips.innerHTML='';yearsEl.innerHTML='';tl.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
+  const nowYear=document.getElementById('rkNowYear');
+  if(!withB.length){chips.innerHTML='';if(yearsEl)yearsEl.innerHTML='';if(nowYear)nowYear.style.display='none';tl.innerHTML=`<div class="rk-empty">${T('まだ試合結果がありません')}</div>`;return;}
   if(withB.length<2)rkAllView=false;
   if(!rkSelfId||!withB.some(s=>s.id===rkSelfId)){rkSelfId=withB[0].id;rkYear=null;}
   chips.innerHTML=(withB.length>1?`<button class="${rkAllView?'on':''}" onclick="rkSelectAll()"><span class="rk-av">👥</span>${T('全員')}</button>`:'')+
@@ -8923,7 +8953,12 @@ function renderRireki(){
   // v203: 日付なし（大会予定を削除した記録など）は年度チップに出さない（「すべて」で見られる）
   const years=[...new Set(allEvents.map(ev=>schedFY(ev.date||'')).filter(y=>isFinite(y)&&y>1990))].sort((a,b)=>b-a);
   if(rkYear!=='all'&&(rkYear==null||!years.includes(rkYear)))rkYear=years.length?years[0]:'all';
-  yearsEl.innerHTML=years.map(y=>`<button class="${rkYear===y?'on':''}" onclick="rkSetYear(${y})">${y}年度</button>`).join('')+`<button class="${rkYear==='all'?'on':''}" onclick="rkSetYear('all')">${T('すべて')}</button>`;
+  if(yearsEl)yearsEl.innerHTML=years.map(y=>`<button class="${rkYear===y?'on':''}" onclick="rkSetYear(${y})">${y}年度</button>`).join('')+`<button class="${rkYear==='all'?'on':''}" onclick="rkSetYear('all')">${T('すべて')}</button>`;
+  // v267: 年度の列を設定の中に移したので、いま何年度を見ているかは一覧の上に出す
+  if(nowYear){
+    if(rkYear==='all'||years.length<2){ nowYear.style.display='none'; }
+    else { nowYear.style.display=''; nowYear.textContent=rkYear+T('年度'); }
+  }
   // 絞り込み
   rkEvents=(rkYear==='all')?allEvents:allEvents.filter(ev=>schedFY(ev.date||'')===rkYear);
   let html='',curFy='';
@@ -8937,6 +8972,7 @@ function rkSelect(id){rkSelfId=id;rkAllView=false;rkYear=null;renderRireki();}
 function rkSelectAll(){rkAllView=true;rkYear=null;renderRireki();}
 // v197: 全員表示のカードから操作するとき、そのカードの主役に切り替えてから実行する
 function rkSetStar(i){ const ev=rkEvents[i]; if(ev&&ev.selfId)rkSelfId=ev.selfId; }
+// v267: 設定の中から選ぶので、選んだら閉じて一覧に戻る
 function rkSetYear(y){rkYear=y;renderRireki();}
 function rkStats(ev){
   let w=0,l=0,d=0;const wz={};
@@ -12184,6 +12220,8 @@ function savePresets(){
   save();closeModal('presetModal');toast(T('保存しました'));
   if(typeof renderGrowth==='function'&&document.getElementById('screen-growth')&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
 }
+// v267: メモリーの「よく使う設定」
+function openRkSettings(){ renderRireki(); openModal('rkSettingsModal'); }
 function openFeePresetModal(){
   const arr=DB.feePresets||[2000,3000,0,0];
   let h='';
@@ -13722,6 +13760,9 @@ function renderMates(){
   if(rn)rn.style.display=(!personal&&showRetiredOn())?'flex':'none';
   const canReorder=(effectiveSort()==='grade')&&!selfView;
   if(!canReorder&&reorderMode)reorderMode=false;
+  // v266: 選手版では仲間を登録しないので、追加ボタンは「＋選手を追加」にする
+  const ab=document.getElementById('mateAddBtn');
+  if(ab)ab.textContent=T(personal?'＋選手を追加':'＋仲間を追加');
   const rt=document.getElementById('reorderToggle');
   // v261: 「あいうえお順」などの並べ方とは別物なので、手で入れ替えることが分かる言葉にする
   if(rt){ rt.textContent=T(reorderMode?'並び替えを終える':'手動で並び替え'); rt.classList.toggle('on',reorderMode); rt.style.display=canReorder?'':'none'; }
@@ -13729,7 +13770,7 @@ function renderMates(){
   if(personal) visible=visible.filter(s=> selfView ? s.isSelf : !s.isSelf );
   if(visible.length===0){
     let msg;
-    if(selfView) msg=DB.students.some(s=>s.isSelf)?'表示する主役がいません':`${T('まだ主役がいません')}<div class="list-mini" style="margin-top:6px">${T('「＋仲間を追加」から自分や家族（主役）を登録できます')}</div>`;
+    if(selfView) msg=DB.students.some(s=>s.isSelf)?'表示する主役がいません':`${T('まだ主役がいません')}<div class="list-mini" style="margin-top:6px">${T('「＋選手を追加」から自分や家族（主役）を登録できます')}</div>`;
     else if(personal) msg=DB.students.some(s=>!s.isSelf)?'表示する仲間がいません':T('まだ仲間がいません（主役以外）');
     else msg=(DB.students.length?'表示する仲間がいません':'まだ仲間がいません');
     list.innerHTML=toggleHtml+'<div class="empty" style="padding:16px">'+msg+'</div>';
@@ -14119,7 +14160,7 @@ function openStudentModal(id){
     document.getElementById('stRole').value=s.role||'';
     pickedStSelf=!!s.isSelf;
   }else{
-    document.getElementById('studentModalTitle').textContent=T('仲間を追加');
+    document.getElementById('studentModalTitle').textContent=T((DB.mode==='personal')?'選手を追加':'仲間を追加');
     // v265: 選手版の新規は必ず主役。仲間の一覧を開いているときだけ、そのまま仲間として足せる。
     pickedStSelf=(DB.mode==='personal')?(mateView==='self'||!hasMateEntries()):false;
     ['stLastName','stFirstName','stLastKana','stFirstKana'].forEach(id=>document.getElementById(id).value='');
