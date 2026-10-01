@@ -17,7 +17,7 @@ name: Android 事務アプリ → AAB
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, android-prep]
     paths:
       - 'native/office/**'
       - 'native/build-www.js'

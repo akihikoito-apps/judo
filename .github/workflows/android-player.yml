@@ -17,7 +17,7 @@ name: Android 選手アプリ → AAB
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, android-prep]
     paths:
       - 'native/player/**'
       - 'native/build-www.js'
