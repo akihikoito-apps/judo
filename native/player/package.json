@@ -8,12 +8,12 @@
     "sync": "node ../build-www.js player && npx cap sync ios"
   },
   "dependencies": {
-    "@capacitor/android": "^7.6.8",
-    "@capacitor/core": "^7.0.0",
-    "@capacitor/ios": "^7.0.0",
-    "@revenuecat/purchases-capacitor": "^11.0.0"
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2",
+    "@revenuecat/purchases-capacitor": "^13.6.1"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.0.0"
+    "@capacitor/cli": "^8.5.2"
   }
 }
