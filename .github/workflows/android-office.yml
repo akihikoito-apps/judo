@@ -51,7 +51,7 @@ jobs:
           java-version: '21'
 
       - name: Android SDK を用意
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: 依存パッケージを入れる
         working-directory: native/office
