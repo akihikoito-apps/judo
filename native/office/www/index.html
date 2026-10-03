@@ -2151,7 +2151,7 @@ function applyUpdate(){
       <div class="list-mini">・メモリーの保存が無制限（無料は10件まで）</div>
       <div class="list-mini">・試合結果の分析（勝率・決まり技レーダー・組手別/技別）</div>
       <div class="list-mini">・シェア画像の全デザイン（テーマ10・構図14・フレーム・文字エフェクト・スタンプ）</div>
-      <div class="list-mini">・複数の主役（家族）を登録</div>
+      <div class="list-mini">・主役（家族）を人数の制限なく登録</div>
     </div>
     <p class="list-mini" style="margin-top:12px">「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。</p>
     <p class="list-mini" id="paywallPrice" style="margin-top:12px;font-weight:800;color:var(--navy)">Pro 年額 ¥2,200</p>
@@ -6516,7 +6516,7 @@ Object.assign(DICT,{
   '・メモリーの保存が無制限（無料は10件まで）':{en:'• Unlimited memory saves (free is up to 10)',fr:'• Souvenirs illimités (10 max en gratuit)',pt:'• Memórias ilimitadas (grátis até 10)'},
   '・試合結果の分析（勝率・決まり技レーダー・組手別/技別）':{en:'• Match analysis (win rate, technique radar, by grip/technique)',fr:'• Analyse des combats (taux de victoire, radar des techniques, par garde/technique)',pt:'• Análise das lutas (taxa de vitória, radar de técnicas, por pegada/técnica)'},
   '・シェア画像の全デザイン（テーマ10・構図14・フレーム・文字エフェクト・スタンプ）':{en:'• All share-image designs (10 themes, 14 layouts, frames, text effects, stamps)',fr:'• Tous les visuels à partager (10 thèmes, 14 mises en page, cadres, effets de texte, tampons)',pt:'• Todos os designs de imagem (10 temas, 14 layouts, molduras, efeitos de texto, carimbos)'},
-  '・複数の主役（家族）を登録':{en:'• Register multiple stars (family)',fr:'• Enregistrer plusieurs profils (famille)',pt:'• Cadastrar vários protagonistas (família)'},
+  '・主役（家族）を人数の制限なく登録':{en:'• Register as many people (family) as you like',fr:'• Enregistrer autant de profils (famille) que voulu',pt:'• Cadastrar quantos protagonistas (família) quiser'},
   '「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。':{en:'“Report” and “Memory” (recording & sharing) stay free forever.',fr:'« Rapport » et « Souvenirs » (enregistrement et partage) restent gratuits.',pt:'“Relatório” e “Memória” (registrar e compartilhar) continuam grátis.'},
   '⭐ Proにする（年額）':{en:'⭐ Get Pro (yearly)',fr:'⭐ Passer à Pro (annuel)',pt:'⭐ Assinar o Pro (anual)'},
   '購入を復元する':{en:'Restore purchase',fr:'Restaurer l’achat',pt:'Restaurar compra'},
@@ -6578,6 +6578,7 @@ Object.assign(DICT,{
   // レーダー説明
   '説明':{en:'Info',fr:'Infos',pt:'Info'},
   '仲間をタップすると、その人の試合結果がすべて表示されます。一覧の試合をタップすると登録内容を開いて修正・削除できます。「📋取り込み」で保護者からのLINE記入テキストをまとめて登録できます。':{en:'Tap a member to see all their results. Tap a bout in the list to open and edit or delete it. Use “📋 Import” to register LINE reports from parents in bulk.',fr:'Touchez un membre pour voir tous ses résultats. Touchez un combat pour l’ouvrir, le modifier ou le supprimer. « 📋 Importer » enregistre en lot les rapports LINE des parents.',pt:'Toque em um membro para ver todos os resultados. Toque em uma luta na lista para abrir, editar ou excluir. Use “📋 Importar” para registrar em lote os relatos do LINE.'},
+  '軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。':{en:'Axes = the 4 most-used throws (filled from Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi if fewer) + other throws, combinations, groundwork (hold/strangle/joint), fouls & decisions (shido/foul/decision/superiority), and walkover/withdrawal. Even if the technique is blank, it’s judged from the “Content” field.',fr:'Axes = les 4 projections les plus fréquentes (complétées par Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + autres projections, combinaisons, sol (immobilisation/étranglement/luxation), fautes & décisions (shido/faute/décision/supériorité), et forfait/abandon. Même sans technique, le champ « Contenu » sert au classement.',pt:'Eixos = os 4 golpes mais usados (completados por Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + outros golpes, combinações, solo (imobilização/estrangulamento/chave), faltas & decisões (shido/falta/decisão/superioridade) e W.O./desistência. Mesmo sem técnica, usa-se o campo “Conteúdo”.'},
   '軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。':{en:'Axes = the 4 most-used throws (filled from Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi if fewer) + other throws, combinations, groundwork (hold/strangle/joint), fouls & decisions (shido/foul/decision/superiority), and walkover/withdrawal. Even if the technique is blank, it’s judged from the “Content” field. Gold dashed line = whole dojo.',fr:'Axes = les 4 projections les plus fréquentes (complétées par Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + autres projections, combinaisons, sol (immobilisation/étranglement/luxation), fautes & décisions (shido/faute/décision/supériorité), et forfait/abandon. Même sans technique, le champ « Contenu » sert au classement. Ligne dorée en pointillés = tout le dojo.',pt:'Eixos = os 4 golpes mais usados (completados por Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + outros golpes, combinações, solo (imobilização/estrangulamento/chave), faltas & decisões (shido/falta/decisão/superioridade) e W.O./desistência. Mesmo sem técnica, usa-se o campo “Conteúdo”. Linha dourada tracejada = todo o dojô.'},
   // 初回オンボーディング
   'My柔道（事務）へ':{en:'to My Judo (Office)',fr:'à My Judo (Bureau)',pt:'ao My Judo (Gestão)'},
@@ -6817,6 +6818,7 @@ Object.assign(DICT,{
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
   // v193: 試合申込・報告の数値入り表示
+  [/^無料で登録できる主役は(\d+)人までです。Proにすると人数の制限がなくなります。$/, (m,L)=>({en:'The free plan allows up to '+m[1]+' main people. Pro removes the limit.',fr:'La version gratuite permet jusqu\u2019\u00e0 '+m[1]+' profils principaux. Pro supprime cette limite.',pt:'O plano gratuito permite at\u00e9 '+m[1]+' protagonistas. O Pro remove o limite.'}[L])],
   [/^(\d+)試合目$/, (m,L)=>({en:'Match '+m[1],fr:'Combat '+m[1],pt:'Luta '+m[1]}[L])],                     // 1試合目
   [/^🥋 (.+)まで あと(\d+)日！！$/, (m,L)=>({en:'🥋 '+m[2]+' days until '+m[1]+'!!',fr:'🥋 J-'+m[2]+' avant '+m[1]+' !!',pt:'🥋 '+m[2]+' dias para '+m[1]+'!!'}[L])],  // カウントダウン
   [/^🥋 (.+)は きょう！！$/, (m,L)=>({en:'🥋 Today: '+m[1]+'!!',fr:'🥋 Aujourd’hui : '+m[1]+' !!',pt:'🥋 Hoje: '+m[1]+'!!'}[L])],
@@ -8464,17 +8466,21 @@ function raRadarSVG(ax,series,scaleMax,subCol){
 function raSectionHtml(bs,teamBs){
   const isWin=(matchRaResult!=='▲');             // v129: 勝ち/負けを1枚で切替
   const ax=raSelectAxes(bs,isWin?'○':'▲');
-  const pv=raPct(bs,isWin?'○':'▲',ax.keys),tv=raPct(teamBs,isWin?'○':'▲',ax.keys);
-  const mx=Math.max(1,...pv.arr,...tv.arr);
+  // v272: 選手用アプリに「道場全体」は無い。出ていたのは自分の家族ぶんの合計で、意味を持たなかった。
+  const solo=(APP_EDITION==='personal');
+  const pv=raPct(bs,isWin?'○':'▲',ax.keys),tv=solo?null:raPct(teamBs,isWin?'○':'▲',ax.keys);
+  const mx=Math.max(1,...pv.arr,...(tv?tv.arr:[]));
   const col=isWin?'#2e9e5b':'#d24a34',fil=isWin?'rgba(46,158,91,.22)':'rgba(210,74,52,.20)',subCol=isWin?'#2e7d4f':'#c0392b';
-  const svg=raRadarSVG(ax,[{values:pv.arr,color:col,fill:fil},{values:tv.arr,color:'#c8a44d',fill:'rgba(200,164,77,.12)',dash:true}],mx,subCol);
+  const series=[{values:pv.arr,color:col,fill:fil}];
+  if(tv)series.push({values:tv.arr,color:'#c8a44d',fill:'rgba(200,164,77,.12)',dash:true});
+  const svg=raRadarSVG(ax,series,mx,subCol);
   const wl=`<div class="ra-wl-toggle"><button class="ra-wlbtn win ${isWin?'on':''}" onclick="setMatchRaResult('○')">勝ち技</button><button class="ra-wlbtn lose ${!isWin?'on':''}" onclick="setMatchRaResult('▲')">負け技</button></div>`;
   return `<div class="ana-sec ra-sec">
     <div class="ra-secttl ra-secttl-row"><span><span class="ra-ico">📊</span> ${T('決まり技レーダー')}</span><button type="button" class="ra-help-btn" onclick="raToggleNote(this)">ⓘ ${T('説明')}</button></div>
     ${wl}
     <div class="ra-single">${svg}</div>
-    <div class="ra-legend"><span><i style="background:${col}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>
-    <div class="ra-note" style="display:none">軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。</div>
+    ${solo?'':`<div class="ra-legend"><span><i style="background:${col}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>`}
+    <div class="ra-note" style="display:none">${solo?'軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。':'軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。'}</div>
   </div>`;
 }
 function raToggleNote(btn){
@@ -9311,15 +9317,20 @@ function repResetAll(){
     return;
   }
   _repResetArm=false;
+  repRegSig='';                                      // 手で消したときは二重登録の見張りも外す
+  repClearForm();
+  const b=document.querySelector('.rep-reset'); if(b){b.classList.remove('arm');b.textContent=T('↺ 入力をリセット');}
+  toast(T('入力内容をリセットしました'));
+}
+// v272: 入力欄をまっさらに戻す。手動リセットと、メモリー登録のあとで共用する。
+function repClearForm(){
   ['repName','repTaikai','repDate'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  repMatches=[repNewMatch()]; repKind='個人'; repCount=5; repRole='先鋒'; repRegSig='';
+  repMatches=[repNewMatch()]; repKind='個人'; repCount=5; repRole='先鋒';
   _repDupOk=false; _repNewName=''; _repMatchOk=''; _repSchedId=''; _repSchedSnap='';   // v257: 確認済みの状態も一緒に捨てる
   _repSelfId=''; _repSelfSnap='';                    // v260: 選んだなまえも外す
   _repKindWarned=false; repDraftClear();             // v258: 下書きも消す（戻ってこないように）
   repPickKind('個人');
   repRenderMatches(); repGen();
-  const b=document.querySelector('.rep-reset'); if(b){b.classList.remove('arm');b.textContent=T('↺ 入力をリセット');}
-  toast(T('入力内容をリセットしました'));
 }
 function repDel(id){repMatches=repMatches.filter(m=>m.id!==id);if(!repMatches.length)repMatches=[repNewMatch()];repRenderMatches();repGen();}
 function repSet(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;m.touched=true;repRenderMatches();repGen();}}
@@ -9682,7 +9693,7 @@ function repToMemory(){
     if(loose && _repMatchOk!=='__new__|'+name) self=loose;
   }
   if(!self && DB.students.some(s=>s.isSelf)){
-    if(APP_EDITION==='personal' && !isPro()){ requirePro('ご家族など、複数の主役を登録できます'); return; }
+    if(APP_EDITION==='personal' && !isPro() && selfCount()>=FREE_SELF_LIMIT){ requirePro(selfLimitMsg()); return; }
     if(_repNewName!==name){
       askConfirm(T('「')+esc(name)+T('」はまだ登録されていません。')+'<br>'+T('新しい主役として登録して、この人の記録にしますか？')
         +'<br><br>'+T('別の人の記録にしたいときは、「やめる」を押してなまえを直してください。'),
@@ -9712,7 +9723,7 @@ function repToMemory(){
   if(!self){ self=repCreateSelf(name); }
   else if(!self.isSelf&&APP_EDITION==='personal'){
     // v257: 仲間を主役に格上げするのも「主役が増える」ので、無料版はここでProの案内を出す
-    if(!isPro()&&DB.students.some(s=>s.isSelf)){ requirePro('ご家族など、複数の主役を登録できます'); return; }
+    if(!isPro()&&selfCount()>=FREE_SELF_LIMIT){ requirePro(selfLimitMsg()); return; }
     self.isSelf=true;
   }
   if(!sched){ sched={id:uid(),name:'大会',title:tk,date:dt,time:'',place:'',note:'',showMatch:true}; DB.schedule.push(sched); }
@@ -9736,6 +9747,10 @@ function repToMemory(){
   repRegSig=sig; _repDupOk=false; _repNewName=''; _repMatchOk='';
   _repSelfId=self.id; _repSelfSnap=self.name||'';    // v260: 登録した人を選んだ状態にしておく
   toast(bouts.length+T('件をメモリーに登録しました'));
+  // v272: 登録が済んだら入力欄を空に戻す。※repRegSig は残すので、同じ内容の二重登録は引き続き止まる。
+  //       （v246 で「送信しても消さない」としたのは、送信のあとメモリー登録に使うため。
+  //         メモリー登録はその最後の工程なので、ここで消してよい。）
+  repClearForm();
   // 4) 誘導：メモリーへ移動してその選手を表示（＝戦績カードのシェアへ）
   rkSelfId=self.id; rkYear='all';
   switchTab('rireki');
@@ -9746,6 +9761,10 @@ function isPro(){ return (APP_EDITION!=='personal') || !!(DB&&DB.pro); }
 function setPro(v){ DB.pro=!!v; save(); }
 // 無料版のメモリー保存上限（11件目からPro）。※既存の閲覧・シェア・編集は一切制限しない。
 const FREE_MEMORY_LIMIT=10;
+// v271: 無料版の主役（自分・家族）の上限。※すでに登録済みの人は、上限を超えていてもそのまま使える。
+const FREE_SELF_LIMIT=5;
+function selfCount(){ return ((typeof DB!=='undefined'&&DB.students)||[]).filter(s=>s.isSelf).length; }
+function selfLimitMsg(){ return '無料で登録できる主役は'+FREE_SELF_LIMIT+'人までです。Proにすると人数の制限がなくなります。'; }
 function memoryCardCount(){
   const map=allBoutsBySelf();
   const selfIds=DB.students.filter(s=>s.isSelf).map(s=>s.id);
@@ -14237,10 +14256,10 @@ function saveStudent(){
   const visitBase=Math.max(0,Number(document.getElementById('stVisitBase').value)||0);
   const feeAmount=(pickedFeeReq&&feeType==='monthly')?(manual>0?manual:pickedFeeAmt):0;
   const cur=(editingStudent)?DB.students.find(x=>x.id===editingStudent):null;
-  // v241: 無料版は主役（自分・家族）1人まで。Proの説明と実装を一致させる
+  // v241/v271: 無料版は主役（自分・家族）を FREE_SELF_LIMIT 人まで。Proの説明と実装を一致させる
   if(APP_EDITION==='personal' && pickedStSelf && !isPro()){
     const others=DB.students.filter(s=>s.isSelf && (!cur||s.id!==cur.id)).length;
-    if(others>=1){ requirePro(T('ご家族など、複数の主役を登録できます')); return; }
+    if(others>=FREE_SELF_LIMIT){ requirePro(selfLimitMsg()); return; }
   }
   // 在籍状況（在籍中／休会／退会）
   let endDate='', leaveStart=(cur&&cur.leaveStart)||'', leaveEnd=(cur&&cur.leaveEnd)||'', leaveFee=(cur&&cur.leaveFee!=null)?cur.leaveFee:0;
