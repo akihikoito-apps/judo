@@ -6578,6 +6578,7 @@ Object.assign(DICT,{
   // レーダー説明
   '説明':{en:'Info',fr:'Infos',pt:'Info'},
   '仲間をタップすると、その人の試合結果がすべて表示されます。一覧の試合をタップすると登録内容を開いて修正・削除できます。「📋取り込み」で保護者からのLINE記入テキストをまとめて登録できます。':{en:'Tap a member to see all their results. Tap a bout in the list to open and edit or delete it. Use “📋 Import” to register LINE reports from parents in bulk.',fr:'Touchez un membre pour voir tous ses résultats. Touchez un combat pour l’ouvrir, le modifier ou le supprimer. « 📋 Importer » enregistre en lot les rapports LINE des parents.',pt:'Toque em um membro para ver todos os resultados. Toque em uma luta na lista para abrir, editar ou excluir. Use “📋 Importar” para registrar em lote os relatos do LINE.'},
+  '軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。':{en:'Axes = the 4 most-used throws (filled from Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi if fewer) + other throws, combinations, groundwork (hold/strangle/joint), fouls & decisions (shido/foul/decision/superiority), and walkover/withdrawal. Even if the technique is blank, it’s judged from the “Content” field.',fr:'Axes = les 4 projections les plus fréquentes (complétées par Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + autres projections, combinaisons, sol (immobilisation/étranglement/luxation), fautes & décisions (shido/faute/décision/supériorité), et forfait/abandon. Même sans technique, le champ « Contenu » sert au classement.',pt:'Eixos = os 4 golpes mais usados (completados por Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + outros golpes, combinações, solo (imobilização/estrangulamento/chave), faltas & decisões (shido/falta/decisão/superioridade) e W.O./desistência. Mesmo sem técnica, usa-se o campo “Conteúdo”.'},
   '軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。':{en:'Axes = the 4 most-used throws (filled from Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi if fewer) + other throws, combinations, groundwork (hold/strangle/joint), fouls & decisions (shido/foul/decision/superiority), and walkover/withdrawal. Even if the technique is blank, it’s judged from the “Content” field. Gold dashed line = whole dojo.',fr:'Axes = les 4 projections les plus fréquentes (complétées par Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + autres projections, combinaisons, sol (immobilisation/étranglement/luxation), fautes & décisions (shido/faute/décision/supériorité), et forfait/abandon. Même sans technique, le champ « Contenu » sert au classement. Ligne dorée en pointillés = tout le dojo.',pt:'Eixos = os 4 golpes mais usados (completados por Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + outros golpes, combinações, solo (imobilização/estrangulamento/chave), faltas & decisões (shido/falta/decisão/superioridade) e W.O./desistência. Mesmo sem técnica, usa-se o campo “Conteúdo”. Linha dourada tracejada = todo o dojô.'},
   // 初回オンボーディング
   'My柔道（事務）へ':{en:'to My Judo (Office)',fr:'à My Judo (Bureau)',pt:'ao My Judo (Gestão)'},
@@ -8465,17 +8466,21 @@ function raRadarSVG(ax,series,scaleMax,subCol){
 function raSectionHtml(bs,teamBs){
   const isWin=(matchRaResult!=='▲');             // v129: 勝ち/負けを1枚で切替
   const ax=raSelectAxes(bs,isWin?'○':'▲');
-  const pv=raPct(bs,isWin?'○':'▲',ax.keys),tv=raPct(teamBs,isWin?'○':'▲',ax.keys);
-  const mx=Math.max(1,...pv.arr,...tv.arr);
+  // v272: 選手用アプリに「道場全体」は無い。出ていたのは自分の家族ぶんの合計で、意味を持たなかった。
+  const solo=(APP_EDITION==='personal');
+  const pv=raPct(bs,isWin?'○':'▲',ax.keys),tv=solo?null:raPct(teamBs,isWin?'○':'▲',ax.keys);
+  const mx=Math.max(1,...pv.arr,...(tv?tv.arr:[]));
   const col=isWin?'#2e9e5b':'#d24a34',fil=isWin?'rgba(46,158,91,.22)':'rgba(210,74,52,.20)',subCol=isWin?'#2e7d4f':'#c0392b';
-  const svg=raRadarSVG(ax,[{values:pv.arr,color:col,fill:fil},{values:tv.arr,color:'#c8a44d',fill:'rgba(200,164,77,.12)',dash:true}],mx,subCol);
+  const series=[{values:pv.arr,color:col,fill:fil}];
+  if(tv)series.push({values:tv.arr,color:'#c8a44d',fill:'rgba(200,164,77,.12)',dash:true});
+  const svg=raRadarSVG(ax,series,mx,subCol);
   const wl=`<div class="ra-wl-toggle"><button class="ra-wlbtn win ${isWin?'on':''}" onclick="setMatchRaResult('○')">勝ち技</button><button class="ra-wlbtn lose ${!isWin?'on':''}" onclick="setMatchRaResult('▲')">負け技</button></div>`;
   return `<div class="ana-sec ra-sec">
     <div class="ra-secttl ra-secttl-row"><span><span class="ra-ico">📊</span> ${T('決まり技レーダー')}</span><button type="button" class="ra-help-btn" onclick="raToggleNote(this)">ⓘ ${T('説明')}</button></div>
     ${wl}
     <div class="ra-single">${svg}</div>
-    <div class="ra-legend"><span><i style="background:${col}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>
-    <div class="ra-note" style="display:none">軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。</div>
+    ${solo?'':`<div class="ra-legend"><span><i style="background:${col}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>`}
+    <div class="ra-note" style="display:none">${solo?'軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。':'軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。'}</div>
   </div>`;
 }
 function raToggleNote(btn){
@@ -9312,15 +9317,20 @@ function repResetAll(){
     return;
   }
   _repResetArm=false;
+  repRegSig='';                                      // 手で消したときは二重登録の見張りも外す
+  repClearForm();
+  const b=document.querySelector('.rep-reset'); if(b){b.classList.remove('arm');b.textContent=T('↺ 入力をリセット');}
+  toast(T('入力内容をリセットしました'));
+}
+// v272: 入力欄をまっさらに戻す。手動リセットと、メモリー登録のあとで共用する。
+function repClearForm(){
   ['repName','repTaikai','repDate'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  repMatches=[repNewMatch()]; repKind='個人'; repCount=5; repRole='先鋒'; repRegSig='';
+  repMatches=[repNewMatch()]; repKind='個人'; repCount=5; repRole='先鋒';
   _repDupOk=false; _repNewName=''; _repMatchOk=''; _repSchedId=''; _repSchedSnap='';   // v257: 確認済みの状態も一緒に捨てる
   _repSelfId=''; _repSelfSnap='';                    // v260: 選んだなまえも外す
   _repKindWarned=false; repDraftClear();             // v258: 下書きも消す（戻ってこないように）
   repPickKind('個人');
   repRenderMatches(); repGen();
-  const b=document.querySelector('.rep-reset'); if(b){b.classList.remove('arm');b.textContent=T('↺ 入力をリセット');}
-  toast(T('入力内容をリセットしました'));
 }
 function repDel(id){repMatches=repMatches.filter(m=>m.id!==id);if(!repMatches.length)repMatches=[repNewMatch()];repRenderMatches();repGen();}
 function repSet(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;m.touched=true;repRenderMatches();repGen();}}
@@ -9737,6 +9747,10 @@ function repToMemory(){
   repRegSig=sig; _repDupOk=false; _repNewName=''; _repMatchOk='';
   _repSelfId=self.id; _repSelfSnap=self.name||'';    // v260: 登録した人を選んだ状態にしておく
   toast(bouts.length+T('件をメモリーに登録しました'));
+  // v272: 登録が済んだら入力欄を空に戻す。※repRegSig は残すので、同じ内容の二重登録は引き続き止まる。
+  //       （v246 で「送信しても消さない」としたのは、送信のあとメモリー登録に使うため。
+  //         メモリー登録はその最後の工程なので、ここで消してよい。）
+  repClearForm();
   // 4) 誘導：メモリーへ移動してその選手を表示（＝戦績カードのシェアへ）
   rkSelfId=self.id; rkYear='all';
   switchTab('rireki');
