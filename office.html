@@ -2151,7 +2151,7 @@ function applyUpdate(){
       <div class="list-mini">・メモリーの保存が無制限（無料は10件まで）</div>
       <div class="list-mini">・試合結果の分析（勝率・決まり技レーダー・組手別/技別）</div>
       <div class="list-mini">・シェア画像の全デザイン（テーマ10・構図14・フレーム・文字エフェクト・スタンプ）</div>
-      <div class="list-mini">・複数の主役（家族）を登録</div>
+      <div class="list-mini">・主役（家族）を人数の制限なく登録</div>
     </div>
     <p class="list-mini" style="margin-top:12px">「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。</p>
     <p class="list-mini" id="paywallPrice" style="margin-top:12px;font-weight:800;color:var(--navy)">Pro 年額 ¥2,200</p>
@@ -6516,7 +6516,7 @@ Object.assign(DICT,{
   '・メモリーの保存が無制限（無料は10件まで）':{en:'• Unlimited memory saves (free is up to 10)',fr:'• Souvenirs illimités (10 max en gratuit)',pt:'• Memórias ilimitadas (grátis até 10)'},
   '・試合結果の分析（勝率・決まり技レーダー・組手別/技別）':{en:'• Match analysis (win rate, technique radar, by grip/technique)',fr:'• Analyse des combats (taux de victoire, radar des techniques, par garde/technique)',pt:'• Análise das lutas (taxa de vitória, radar de técnicas, por pegada/técnica)'},
   '・シェア画像の全デザイン（テーマ10・構図14・フレーム・文字エフェクト・スタンプ）':{en:'• All share-image designs (10 themes, 14 layouts, frames, text effects, stamps)',fr:'• Tous les visuels à partager (10 thèmes, 14 mises en page, cadres, effets de texte, tampons)',pt:'• Todos os designs de imagem (10 temas, 14 layouts, molduras, efeitos de texto, carimbos)'},
-  '・複数の主役（家族）を登録':{en:'• Register multiple stars (family)',fr:'• Enregistrer plusieurs profils (famille)',pt:'• Cadastrar vários protagonistas (família)'},
+  '・主役（家族）を人数の制限なく登録':{en:'• Register as many people (family) as you like',fr:'• Enregistrer autant de profils (famille) que voulu',pt:'• Cadastrar quantos protagonistas (família) quiser'},
   '「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。':{en:'“Report” and “Memory” (recording & sharing) stay free forever.',fr:'« Rapport » et « Souvenirs » (enregistrement et partage) restent gratuits.',pt:'“Relatório” e “Memória” (registrar e compartilhar) continuam grátis.'},
   '⭐ Proにする（年額）':{en:'⭐ Get Pro (yearly)',fr:'⭐ Passer à Pro (annuel)',pt:'⭐ Assinar o Pro (anual)'},
   '購入を復元する':{en:'Restore purchase',fr:'Restaurer l’achat',pt:'Restaurar compra'},
@@ -6817,6 +6817,7 @@ Object.assign(DICT,{
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
   // v193: 試合申込・報告の数値入り表示
+  [/^無料で登録できる主役は(\d+)人までです。Proにすると人数の制限がなくなります。$/, (m,L)=>({en:'The free plan allows up to '+m[1]+' main people. Pro removes the limit.',fr:'La version gratuite permet jusqu\u2019\u00e0 '+m[1]+' profils principaux. Pro supprime cette limite.',pt:'O plano gratuito permite at\u00e9 '+m[1]+' protagonistas. O Pro remove o limite.'}[L])],
   [/^(\d+)試合目$/, (m,L)=>({en:'Match '+m[1],fr:'Combat '+m[1],pt:'Luta '+m[1]}[L])],                     // 1試合目
   [/^🥋 (.+)まで あと(\d+)日！！$/, (m,L)=>({en:'🥋 '+m[2]+' days until '+m[1]+'!!',fr:'🥋 J-'+m[2]+' avant '+m[1]+' !!',pt:'🥋 '+m[2]+' dias para '+m[1]+'!!'}[L])],  // カウントダウン
   [/^🥋 (.+)は きょう！！$/, (m,L)=>({en:'🥋 Today: '+m[1]+'!!',fr:'🥋 Aujourd’hui : '+m[1]+' !!',pt:'🥋 Hoje: '+m[1]+'!!'}[L])],
@@ -9682,7 +9683,7 @@ function repToMemory(){
     if(loose && _repMatchOk!=='__new__|'+name) self=loose;
   }
   if(!self && DB.students.some(s=>s.isSelf)){
-    if(APP_EDITION==='personal' && !isPro()){ requirePro('ご家族など、複数の主役を登録できます'); return; }
+    if(APP_EDITION==='personal' && !isPro() && selfCount()>=FREE_SELF_LIMIT){ requirePro(selfLimitMsg()); return; }
     if(_repNewName!==name){
       askConfirm(T('「')+esc(name)+T('」はまだ登録されていません。')+'<br>'+T('新しい主役として登録して、この人の記録にしますか？')
         +'<br><br>'+T('別の人の記録にしたいときは、「やめる」を押してなまえを直してください。'),
@@ -9712,7 +9713,7 @@ function repToMemory(){
   if(!self){ self=repCreateSelf(name); }
   else if(!self.isSelf&&APP_EDITION==='personal'){
     // v257: 仲間を主役に格上げするのも「主役が増える」ので、無料版はここでProの案内を出す
-    if(!isPro()&&DB.students.some(s=>s.isSelf)){ requirePro('ご家族など、複数の主役を登録できます'); return; }
+    if(!isPro()&&selfCount()>=FREE_SELF_LIMIT){ requirePro(selfLimitMsg()); return; }
     self.isSelf=true;
   }
   if(!sched){ sched={id:uid(),name:'大会',title:tk,date:dt,time:'',place:'',note:'',showMatch:true}; DB.schedule.push(sched); }
@@ -9746,6 +9747,10 @@ function isPro(){ return (APP_EDITION!=='personal') || !!(DB&&DB.pro); }
 function setPro(v){ DB.pro=!!v; save(); }
 // 無料版のメモリー保存上限（11件目からPro）。※既存の閲覧・シェア・編集は一切制限しない。
 const FREE_MEMORY_LIMIT=10;
+// v271: 無料版の主役（自分・家族）の上限。※すでに登録済みの人は、上限を超えていてもそのまま使える。
+const FREE_SELF_LIMIT=5;
+function selfCount(){ return ((typeof DB!=='undefined'&&DB.students)||[]).filter(s=>s.isSelf).length; }
+function selfLimitMsg(){ return '無料で登録できる主役は'+FREE_SELF_LIMIT+'人までです。Proにすると人数の制限がなくなります。'; }
 function memoryCardCount(){
   const map=allBoutsBySelf();
   const selfIds=DB.students.filter(s=>s.isSelf).map(s=>s.id);
@@ -14237,10 +14242,10 @@ function saveStudent(){
   const visitBase=Math.max(0,Number(document.getElementById('stVisitBase').value)||0);
   const feeAmount=(pickedFeeReq&&feeType==='monthly')?(manual>0?manual:pickedFeeAmt):0;
   const cur=(editingStudent)?DB.students.find(x=>x.id===editingStudent):null;
-  // v241: 無料版は主役（自分・家族）1人まで。Proの説明と実装を一致させる
+  // v241/v271: 無料版は主役（自分・家族）を FREE_SELF_LIMIT 人まで。Proの説明と実装を一致させる
   if(APP_EDITION==='personal' && pickedStSelf && !isPro()){
     const others=DB.students.filter(s=>s.isSelf && (!cur||s.id!==cur.id)).length;
-    if(others>=1){ requirePro(T('ご家族など、複数の主役を登録できます')); return; }
+    if(others>=FREE_SELF_LIMIT){ requirePro(selfLimitMsg()); return; }
   }
   // 在籍状況（在籍中／休会／退会）
   let endDate='', leaveStart=(cur&&cur.leaveStart)||'', leaveEnd=(cur&&cur.leaveEnd)||'', leaveFee=(cur&&cur.leaveFee!=null)?cur.leaveFee:0;
