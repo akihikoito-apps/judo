@@ -14866,6 +14866,38 @@ if(lockEnabled&&lockCode){showLockScreen('unlock');}
     document.head.appendChild(link);
   }catch(e){}
 })();
+/* ===== v273: 指で拡大したとき、タブの帯を画面の下に貼り直す =====
+   iPhone/iPad の Safari は、指でつまんで拡大すると position:fixed の要素を
+   「画面」ではなく拡大前の紙に貼り付けたままにする。そのため画面を動かすと、
+   タブの帯が画面の途中に浮いて一緒に流れてしまう。
+   （meta viewport の user-scalable=no は iOS 10 以降、無視される）
+   拡大しているあいだだけ、見えている範囲の下端に合わせ直す。
+   拡大していないとき（scale=1）は何もしないので、ふだんの動きは変わらない。 */
+(function(){
+  var vv = window.visualViewport;
+  if(!vv) return;                      // 対応していないブラウザでは何もしない
+  var pending = false;
+  function place(){
+    pending = false;
+    var bar = document.querySelector('nav.tabbar');
+    if(!bar) return;
+    var z = vv.scale || 1;
+    if(z <= 1.01){                     // 等倍にもどったら、付けた指定を外す
+      if(bar.style.transform){ bar.style.transform=''; bar.style.transformOrigin=''; }
+      return;
+    }
+    // 見えている範囲の左下に、帯の左下を合わせる（大きさも見た目が変わらないよう戻す）
+    var tx = vv.offsetLeft;
+    var ty = (vv.offsetTop + vv.height) - window.innerHeight;
+    bar.style.transformOrigin = '0 100%';
+    bar.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + (1/z).toFixed(4) + ')';
+  }
+  function ask(){ if(!pending){ pending = true; requestAnimationFrame(place); } }
+  vv.addEventListener('resize', ask);
+  vv.addEventListener('scroll', ask);
+  window.addEventListener('orientationchange', ask);
+  ask();
+})();
 /* Service Worker 登録は上部（案3・バージョン管理付き）に一本化済み。
    ここでの二重登録は競合の原因になるため撤去。 */
 </script>
