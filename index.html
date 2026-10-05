@@ -2787,7 +2787,8 @@ function applyUpdate(){
     <div id="entParts"></div>
     <div id="entDoneBox" style="margin-top:18px"></div>
     <div class="row" style="margin-top:12px">
-      <button class="btn ghost full" onclick="closeEntryModal()">とじる</button>
+      <button class="btn ghost" onclick="entryDiscardClose()">破棄してとじる</button>
+      <button class="btn gold" onclick="entrySaveClose()">✅ 保存してとじる</button>
     </div>
   </div>
 </div>
@@ -6498,6 +6499,12 @@ Object.assign(DICT,{
   '📝 個人メモ欄：表示中':{en:'📝 Personal memo: shown',fr:'📝 Mémo individuel : affiché',pt:'📝 Memo individual: exibido'},
   'まだ出場者がいません。':{en:'No entrants yet.',fr:'Aucun participant pour l’instant.',pt:'Nenhum participante ainda.'},
   '「＋出場者を追加」から選んでください。':{en:'Add them from “＋ Add entrant”.',fr:'Ajoutez-les via « ＋ Ajouter un participant ».',pt:'Adicione em “＋ Adicionar participante”.'},
+  '✅ 保存してとじる':{en:'✅ Save and close',fr:'✅ Enregistrer et fermer',pt:'✅ Salvar e fechar'},
+  '破棄してとじる':{en:'Discard and close',fr:'Abandonner et fermer',pt:'Descartar e fechar'},
+  '保存しないでとじる':{en:'Close without saving',fr:'Fermer sans enregistrer',pt:'Fechar sem salvar'},
+  '申込の内容を保存しました':{en:'Entry details saved',fr:'Inscription enregistrée',pt:'Inscrição salva'},
+  '入力した内容を取り消しました':{en:'Your changes were discarded',fr:'Vos modifications ont été abandonnées',pt:'Suas alterações foram descartadas'},
+  'この画面で入力した内容を、保存せずにとじます。<br>開いたときの状態に戻りますが、よろしいですか？':{en:'Close without saving what you entered here.<br>It will go back to how it was when you opened it. Is that OK?',fr:'Fermer sans enregistrer ce que vous avez saisi ici.<br>Tout reviendra à l’état d’ouverture. Est-ce correct ?',pt:'Fechar sem salvar o que você digitou aqui.<br>Voltará ao estado de quando abriu. Tudo bem?'},
   '✅ この大会の申込を完了にする':{en:'✅ Mark this tournament’s entry as complete',fr:'✅ Marquer l’inscription comme terminée',pt:'✅ Concluir a inscrição deste torneio'},
   '完了を取り消す':{en:'Undo completion',fr:'Annuler la finalisation',pt:'Desfazer conclusão'},
   '出場者をえらぶ':{en:'Choose entrants',fr:'Choisir les participants',pt:'Escolher participantes'},
@@ -11525,7 +11532,10 @@ function gwOpenDay(ds){
     (sc.length?sc.map(s=>{ const isM=schedIsMatch(s);
       const tgt=(many&&s.forId)?`<span class="mate-tag" style="background:#33507e">${esc(studentName(s.forId))}</span>`:'';
       const srcTag=s.src?`<span class="mate-tag" style="background:#7d6a2e">${esc(s.src)}</span>`:'';
-      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayEditSched('${s.id}')"><span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${tgt}${srcTag}</span><button class="chip-btn" onclick="event.stopPropagation();gwDayEditSched('${s.id}')">${T('編集')}</button></div>`; }).join('')
+      // v274: 稽古・試合の場所とメモは、その場で見たい情報。事務用の日別シートには出ていたのに、選手用には出ていなかった
+      const where=s.place?`<span class="list-mini" style="display:block">📍 ${esc(s.place)}</span>`:'';
+      const memo=s.note?`<span class="list-mini" style="display:block">📝 ${esc(s.note)}</span>`:'';
+      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayEditSched('${s.id}')"><span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${tgt}${srcTag}${where}${memo}</span><button class="chip-btn" onclick="event.stopPropagation();gwDayEditSched('${s.id}')">${T('編集')}</button></div>`; }).join('')
     :`<p class="list-mini" style="margin:4px 0">${T('この日の予定はありません')}</p>`)+`</div>`;
   openModal('gwDayModal');
 }
@@ -12457,8 +12467,12 @@ function updateSchedTabBadge(){
   const n=(DB.mode!=='personal')?DB.schedule.filter(s=>entryNeedsAttention(s.id)).length:0;
   if(n>0){ b.textContent=n>99?'99+':n; b.style.display='block'; } else { b.style.display='none'; }
 }
+let entrySnapJson=null;   // v274: 申込モーダルを開いたときの中身（「破棄してとじる」で戻すため）
 function openEntryModal(schedId){
-  curEntrySched=schedId; const e=ensureEntry(schedId); const s=DB.schedule.find(x=>x.id===schedId);
+  curEntrySched=schedId;
+  // v274: ensureEntry より前に控える。開く前に無かった申込は、破棄したら作らなかったことにする
+  try{ entrySnapJson=JSON.stringify((DB.entries&&DB.entries[schedId])||null); }catch(e){ entrySnapJson=null; }
+  const e=ensureEntry(schedId); const s=DB.schedule.find(x=>x.id===schedId);
   document.getElementById('entryModalTitle').innerHTML='🏷️ 試合申込 <span style="font-weight:600;font-size:14px;color:var(--muted)">'+(s?esc(schedLabel(s))+'／'+(s.date||'').replace(/-/g,'/'):'')+'</span>';
   document.getElementById('entDeadline').value=e.deadline||'';
   document.getElementById('entFee').value=e.feeDefault||'';
@@ -12466,7 +12480,36 @@ function openEntryModal(schedId){
   entryCheckDeadline(); renderEntryDone(); renderEntryParts();
   openModal('entryModal');
 }
-function closeEntryModal(){ closeModal('entryModal'); if(document.getElementById('screen-sched').classList.contains('active'))renderSched(); }
+function closeEntryModal(){ entrySnapJson=null; closeModal('entryModal'); if(document.getElementById('screen-sched').classList.contains('active'))renderSched(); }
+/* v274: 「とじる」だけでは保存されたか分からない、という声。実際には入力のたびに保存しているが、
+   それが見えないので不安になる。保存したことを言い切るボタンと、取り消せるボタンを並べる。 */
+function entryFlushInputs(){
+  // 入力中の欄から指を離させて、打ちかけの値も確定させる（onchange は blur で走る）
+  try{ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
+  try{ entryMetaSave(); }catch(e){}
+}
+function entrySaveClose(){
+  entryFlushInputs();
+  closeEntryModal();
+  toast(T('申込の内容を保存しました'));
+}
+function entryDiscardClose(){
+  entryFlushInputs();
+  askConfirm(T('この画面で入力した内容を、保存せずにとじます。<br>開いたときの状態に戻りますが、よろしいですか？'),
+    ()=>{
+      try{
+        const prev=(entrySnapJson==null)?undefined:JSON.parse(entrySnapJson);
+        if(prev!==undefined){
+          if(!DB.entries)DB.entries={};
+          if(prev===null)delete DB.entries[curEntrySched]; else DB.entries[curEntrySched]=prev;
+          save();
+        }
+      }catch(e){}
+      updateSchedTabBadge();
+      closeEntryModal();
+      toast(T('入力した内容を取り消しました'));
+    }, '破棄してとじる', '保存しないでとじる', 'var(--red)');
+}
 function entryMetaSave(){
   if(!curEntrySched)return; const e=ensureEntry(curEntrySched);
   e.deadline=document.getElementById('entDeadline').value||'';
