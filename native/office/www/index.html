@@ -2787,7 +2787,8 @@ function applyUpdate(){
     <div id="entParts"></div>
     <div id="entDoneBox" style="margin-top:18px"></div>
     <div class="row" style="margin-top:12px">
-      <button class="btn ghost full" onclick="closeEntryModal()">とじる</button>
+      <button class="btn ghost" onclick="entryDiscardClose()">破棄してとじる</button>
+      <button class="btn gold" onclick="entrySaveClose()">✅ 保存してとじる</button>
     </div>
   </div>
 </div>
@@ -6498,6 +6499,12 @@ Object.assign(DICT,{
   '📝 個人メモ欄：表示中':{en:'📝 Personal memo: shown',fr:'📝 Mémo individuel : affiché',pt:'📝 Memo individual: exibido'},
   'まだ出場者がいません。':{en:'No entrants yet.',fr:'Aucun participant pour l’instant.',pt:'Nenhum participante ainda.'},
   '「＋出場者を追加」から選んでください。':{en:'Add them from “＋ Add entrant”.',fr:'Ajoutez-les via « ＋ Ajouter un participant ».',pt:'Adicione em “＋ Adicionar participante”.'},
+  '✅ 保存してとじる':{en:'✅ Save and close',fr:'✅ Enregistrer et fermer',pt:'✅ Salvar e fechar'},
+  '破棄してとじる':{en:'Discard and close',fr:'Abandonner et fermer',pt:'Descartar e fechar'},
+  '保存しないでとじる':{en:'Close without saving',fr:'Fermer sans enregistrer',pt:'Fechar sem salvar'},
+  '申込の内容を保存しました':{en:'Entry details saved',fr:'Inscription enregistrée',pt:'Inscrição salva'},
+  '入力した内容を取り消しました':{en:'Your changes were discarded',fr:'Vos modifications ont été abandonnées',pt:'Suas alterações foram descartadas'},
+  'この画面で入力した内容を、保存せずにとじます。<br>開いたときの状態に戻りますが、よろしいですか？':{en:'Close without saving what you entered here.<br>It will go back to how it was when you opened it. Is that OK?',fr:'Fermer sans enregistrer ce que vous avez saisi ici.<br>Tout reviendra à l’état d’ouverture. Est-ce correct ?',pt:'Fechar sem salvar o que você digitou aqui.<br>Voltará ao estado de quando abriu. Tudo bem?'},
   '✅ この大会の申込を完了にする':{en:'✅ Mark this tournament’s entry as complete',fr:'✅ Marquer l’inscription comme terminée',pt:'✅ Concluir a inscrição deste torneio'},
   '完了を取り消す':{en:'Undo completion',fr:'Annuler la finalisation',pt:'Desfazer conclusão'},
   '出場者をえらぶ':{en:'Choose entrants',fr:'Choisir les participants',pt:'Escolher participantes'},
@@ -6824,6 +6831,7 @@ const PATTERNS=[
   [/^🥋 (.+)は きょう！！$/, (m,L)=>({en:'🥋 Today: '+m[1]+'!!',fr:'🥋 Aujourd’hui : '+m[1]+' !!',pt:'🥋 Hoje: '+m[1]+'!!'}[L])],
   [/^集金済 ¥(.+)$/, (m,L)=>({en:'Collected ¥'+m[1],fr:'Collecté ¥'+m[1],pt:'Recolhido ¥'+m[1]}[L])],       // 集金済 ¥3,000
   [/^未集金 ¥(.+)$/, (m,L)=>({en:'Not collected ¥'+m[1],fr:'Non collecté ¥'+m[1],pt:'A recolher ¥'+m[1]}[L])],// 未集金 ¥3,000
+  [/^ほか(\d+)人$/, (m,L)=>({en:'and '+m[1]+' more',fr:'et '+m[1]+' autres',pt:'e mais '+m[1]}[L])],   // v275: 載せきれなかった出場者
   [/^出場(\d+)人$/, (m,L)=>({en:m[1]+' entrants',fr:m[1]+' inscrits',pt:m[1]+' inscritos'}[L])],           // 出場5人
   [/^未集金(\d+)人$/, (m,L)=>({en:m[1]+' unpaid',fr:m[1]+' impayés',pt:m[1]+' sem pagar'}[L])],             // 未集金2人
   [/^締切あと(\d+)日$/, (m,L)=>({en:m[1]+' days to deadline',fr:'J-'+m[1]+' avant clôture',pt:m[1]+' dias p/ prazo'}[L])], // 締切あと3日
@@ -11525,9 +11533,26 @@ function gwOpenDay(ds){
     (sc.length?sc.map(s=>{ const isM=schedIsMatch(s);
       const tgt=(many&&s.forId)?`<span class="mate-tag" style="background:#33507e">${esc(studentName(s.forId))}</span>`:'';
       const srcTag=s.src?`<span class="mate-tag" style="background:#7d6a2e">${esc(s.src)}</span>`:'';
-      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayEditSched('${s.id}')"><span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${tgt}${srcTag}</span><button class="chip-btn" onclick="event.stopPropagation();gwDayEditSched('${s.id}')">${T('編集')}</button></div>`; }).join('')
+      // v274: 稽古・試合の場所とメモは、その場で見たい情報。事務用の日別シートには出ていたのに、選手用には出ていなかった
+      const where=s.place?`<span class="list-mini" style="display:block">📍 ${esc(s.place)}</span>`:'';
+      const memo=s.note?`<span class="list-mini" style="display:block">📝 ${esc(s.note)}</span>`:'';
+      // v275: 道場から届いた出場者。自分や家族の名前は太字にして、出るかどうかを見つけやすくする
+      const mem=s.members?`<span class="list-mini" style="display:block">👥 ${T('出場')} ${gwMarkOwnNames(s.members)}</span>`:'';
+      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayEditSched('${s.id}')"><span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${tgt}${srcTag}${where}${memo}${mem}</span><button class="chip-btn" onclick="event.stopPropagation();gwDayEditSched('${s.id}')">${T('編集')}</button></div>`; }).join('')
     :`<p class="list-mini" style="margin:4px 0">${T('この日の予定はありません')}</p>`)+`</div>`;
   openModal('gwDayModal');
+}
+/* v275: 出場者の並びのうち、自分や家族の名前を目立たせる */
+function gwMarkOwnNames(txt){
+  const mine=(DB.students||[]).filter(x=>x.isSelf).map(x=>(x.name||'').trim()).filter(Boolean);
+  return String(txt).split('・').map(n=>{
+    const t=n.trim();
+    // 「ほか5人」だけ訳す。名前そのものは訳さない（たまたま辞書に当たるのを防ぐ）
+    const body=/^ほか\d+人$/.test(t) ? esc(T(t))
+             : (mine.some(m=>m===t) ? ('<b style="color:var(--navy)">'+esc(t)+'</b>') : esc(t));
+    // 1人の名前が行の途中で切れないようにする（「後藤／駿」のような折れ方を防ぐ）
+    return '<span style="white-space:nowrap">'+body+'</span>';
+  }).join('・');
 }
 function gwDayAttend(sid){
   if(gwAttendFor(sid,gwDayDs)){ toast(T('出席をつけました')+' 🔥'); renderGrowth(); gwOpenDay(gwDayDs); }  // モーダルは開いたまま＝連続タップ可
@@ -12457,8 +12482,12 @@ function updateSchedTabBadge(){
   const n=(DB.mode!=='personal')?DB.schedule.filter(s=>entryNeedsAttention(s.id)).length:0;
   if(n>0){ b.textContent=n>99?'99+':n; b.style.display='block'; } else { b.style.display='none'; }
 }
+let entrySnapJson=null;   // v274: 申込モーダルを開いたときの中身（「破棄してとじる」で戻すため）
 function openEntryModal(schedId){
-  curEntrySched=schedId; const e=ensureEntry(schedId); const s=DB.schedule.find(x=>x.id===schedId);
+  curEntrySched=schedId;
+  // v274: ensureEntry より前に控える。開く前に無かった申込は、破棄したら作らなかったことにする
+  try{ entrySnapJson=JSON.stringify((DB.entries&&DB.entries[schedId])||null); }catch(e){ entrySnapJson=null; }
+  const e=ensureEntry(schedId); const s=DB.schedule.find(x=>x.id===schedId);
   document.getElementById('entryModalTitle').innerHTML='🏷️ 試合申込 <span style="font-weight:600;font-size:14px;color:var(--muted)">'+(s?esc(schedLabel(s))+'／'+(s.date||'').replace(/-/g,'/'):'')+'</span>';
   document.getElementById('entDeadline').value=e.deadline||'';
   document.getElementById('entFee').value=e.feeDefault||'';
@@ -12466,7 +12495,36 @@ function openEntryModal(schedId){
   entryCheckDeadline(); renderEntryDone(); renderEntryParts();
   openModal('entryModal');
 }
-function closeEntryModal(){ closeModal('entryModal'); if(document.getElementById('screen-sched').classList.contains('active'))renderSched(); }
+function closeEntryModal(){ entrySnapJson=null; closeModal('entryModal'); if(document.getElementById('screen-sched').classList.contains('active'))renderSched(); }
+/* v274: 「とじる」だけでは保存されたか分からない、という声。実際には入力のたびに保存しているが、
+   それが見えないので不安になる。保存したことを言い切るボタンと、取り消せるボタンを並べる。 */
+function entryFlushInputs(){
+  // 入力中の欄から指を離させて、打ちかけの値も確定させる（onchange は blur で走る）
+  try{ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
+  try{ entryMetaSave(); }catch(e){}
+}
+function entrySaveClose(){
+  entryFlushInputs();
+  closeEntryModal();
+  toast(T('申込の内容を保存しました'));
+}
+function entryDiscardClose(){
+  entryFlushInputs();
+  askConfirm(T('この画面で入力した内容を、保存せずにとじます。<br>開いたときの状態に戻りますが、よろしいですか？'),
+    ()=>{
+      try{
+        const prev=(entrySnapJson==null)?undefined:JSON.parse(entrySnapJson);
+        if(prev!==undefined){
+          if(!DB.entries)DB.entries={};
+          if(prev===null)delete DB.entries[curEntrySched]; else DB.entries[curEntrySched]=prev;
+          save();
+        }
+      }catch(e){}
+      updateSchedTabBadge();
+      closeEntryModal();
+      toast(T('入力した内容を取り消しました'));
+    }, '破棄してとじる', '保存しないでとじる', 'var(--red)');
+}
 function entryMetaSave(){
   if(!curEntrySched)return; const e=ensureEntry(curEntrySched);
   e.deadline=document.getElementById('entDeadline').value||'';
@@ -12679,10 +12737,33 @@ function schedShareText(ym){
     const flag=(s.showMatch===true&&!inferred)?'M':((s.showMatch===false&&inferred)?'x':'');
     const note=withNote?shareField(s.note||''):'';
     // v258: 送り元の予定IDも送る（同じ日に同じ名前の予定が2つあっても取り違えない／名前を直しても紐付きが切れない）
-    L.push([s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',note,flag].map(shareField).concat([shareField(s.id)]).join('｜').replace(/｜+$/,''));
+    const base=[s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',note,flag].map(shareField).concat([shareField(s.id)]);
+    // v275: 申込管理で登録した出場者の「名前だけ」を足す。参加費・集金・個人メモは送らない
+    const mem=schedShareMembers(s.id, shareBytes(base.join('｜')));
+    L.push((mem?base.concat([mem]):base).join('｜').replace(/｜+$/,''));
   });
   const hasNote=items.some(s=>(s.note||'').trim());
   return {text:L.join('\n'), count:items.length, sender, ym, hasNote, msg};
+}
+/* v275: 出場者の名前を、QRの1行上限を超えない範囲だけ載せる。
+   超えそうなときは「・ほかN人」に丸めて、QRが作れなくなるのを防ぐ。
+   やりとりの形式はもともと日本語なので、ここも日本語のまま送り、表示するときに訳す。 */
+function schedShareMembers(schedId, usedBytes){
+  const ent=(DB.entries||{})[schedId];
+  if(!ent||!ent.parts)return '';
+  const names=Object.keys(ent.parts).map(id=>shareField(studentName(id))).filter(Boolean);
+  if(!names.length)return '';
+  const ROOM=Math.max(0, 644-usedBytes-3);          // 1行は700-56=644バイト、区切りの｜で3バイト
+  const out=[];
+  for(let i=0;i<names.length;i++){
+    const rest=names.length-(i+1);
+    const tail=rest>0?('・ほか'+rest+'人'):'';
+    if(shareBytes(out.concat([names[i]]).join('・')+tail)>ROOM)break;
+    out.push(names[i]);
+  }
+  if(!out.length)return '';
+  const rest=names.length-out.length;
+  return out.join('・')+(rest>0?('・ほか'+rest+'人'):'');
 }
 function schedShareParts(text){
   const MAX=700;                                           // 1枚あたり約700byte＝画面越しでも読み取りやすいサイズ
@@ -12705,7 +12786,7 @@ function schedShareParse(raw){
     if(!inBody)return;
     const p=line.split('｜'); const dd=(p[0]||'').trim();
     if(!/^\d{1,2}$/.test(dd))return;
-    items.push({dd:dd.padStart(2,'0'),name:(p[1]||'').trim(),title:(p[2]||'').trim(),time:(p[3]||'').trim(),place:(p[4]||'').trim(),note:(p[5]||'').trim(),flag:(p[6]||'').trim(),sid:(p[7]||'').trim()});
+    items.push({dd:dd.padStart(2,'0'),name:(p[1]||'').trim(),title:(p[2]||'').trim(),time:(p[3]||'').trim(),place:(p[4]||'').trim(),note:(p[5]||'').trim(),flag:(p[6]||'').trim(),sid:(p[7]||'').trim(),members:(p[8]||'').trim()});
   });
   return {sender,ym,msg,items,sawBody,declared};
 }
@@ -12786,14 +12867,14 @@ function schedShareApply(parsed,forId){
     const old=row.old;
     if(old){                                   // 既存の予定を「中身だけ」更新（IDは変えない）
       old.date=date; old.name=name; old.title=it.title;
-      old.time=it.time; old.place=it.place; old.note=it.note; old.showMatch=showMatch;
+      old.time=it.time; old.place=it.place; old.note=it.note; old.showMatch=showMatch; old.members=it.members||'';
       if(it.sid){ old.srcId=it.sid; DB.schedSrcMap[_mapKey(it.sid)]=old.id; }
       if(typeof bakeSchedMeta==='function')bakeSchedMeta(old.id);
     }else{
       let nid=row.reuseId;
       while(!nid||DB.schedule.some(x=>x.id===nid))nid='ss'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
       DB.schedule.push({id:nid,
-        name:name,title:it.title,date:date,time:it.time,place:it.place,note:it.note,showMatch:showMatch,src:sender,forId:forId,srcId:it.sid||''});
+        name:name,title:it.title,date:date,time:it.time,place:it.place,note:it.note,showMatch:showMatch,src:sender,forId:forId,srcId:it.sid||'',members:it.members||''});
       if(it.sid)DB.schedSrcMap[_mapKey(it.sid)]=nid;
     }
   });
@@ -14865,6 +14946,38 @@ if(lockEnabled&&lockCode){showLockScreen('unlock');}
     link.rel='manifest';link.href=url;
     document.head.appendChild(link);
   }catch(e){}
+})();
+/* ===== v273: 指で拡大したとき、タブの帯を画面の下に貼り直す =====
+   iPhone/iPad の Safari は、指でつまんで拡大すると position:fixed の要素を
+   「画面」ではなく拡大前の紙に貼り付けたままにする。そのため画面を動かすと、
+   タブの帯が画面の途中に浮いて一緒に流れてしまう。
+   （meta viewport の user-scalable=no は iOS 10 以降、無視される）
+   拡大しているあいだだけ、見えている範囲の下端に合わせ直す。
+   拡大していないとき（scale=1）は何もしないので、ふだんの動きは変わらない。 */
+(function(){
+  var vv = window.visualViewport;
+  if(!vv) return;                      // 対応していないブラウザでは何もしない
+  var pending = false;
+  function place(){
+    pending = false;
+    var bar = document.querySelector('nav.tabbar');
+    if(!bar) return;
+    var z = vv.scale || 1;
+    if(z <= 1.01){                     // 等倍にもどったら、付けた指定を外す
+      if(bar.style.transform){ bar.style.transform=''; bar.style.transformOrigin=''; }
+      return;
+    }
+    // 見えている範囲の左下に、帯の左下を合わせる（大きさも見た目が変わらないよう戻す）
+    var tx = vv.offsetLeft;
+    var ty = (vv.offsetTop + vv.height) - window.innerHeight;
+    bar.style.transformOrigin = '0 100%';
+    bar.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + (1/z).toFixed(4) + ')';
+  }
+  function ask(){ if(!pending){ pending = true; requestAnimationFrame(place); } }
+  vv.addEventListener('resize', ask);
+  vv.addEventListener('scroll', ask);
+  window.addEventListener('orientationchange', ask);
+  ask();
 })();
 /* Service Worker 登録は上部（案3・バージョン管理付き）に一本化済み。
    ここでの二重登録は競合の原因になるため撤去。 */
