@@ -2157,7 +2157,7 @@ function applyUpdate(){
       <div class="list-mini">・シェア画像の全デザイン（テーマ10・構図14・フレーム・文字エフェクト・スタンプ）</div>
       <div class="list-mini">・主役（家族）を人数の制限なく登録</div>
     </div>
-    <p class="list-mini" style="margin-top:12px">「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。</p>
+    <p class="list-mini" style="margin-top:12px">「試合報告」はずっと無料です。メモリーは10件まで、主役は5人まで無料で登録できます（登録したメモリーを見る・シェアするのはずっと無料）。</p>
     <p class="list-mini" id="paywallPrice" style="margin-top:12px;font-weight:800;color:var(--navy)">Pro 年額 ¥2,200</p>
     <p class="list-mini">サブスクリプションは年ごとに自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。</p>
     <button class="btn gold full" style="margin-top:10px" id="paywallBuyBtn" onclick="purchasePro()">⭐ Proにする（年額）</button>
@@ -5499,7 +5499,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v277'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v278'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -6079,7 +6079,7 @@ Object.assign(DICT,{
   '試合結果の分析は':{en:'Match analysis is',fr:'L’analyse des combats est',pt:'A análise de lutas está'},
   '有料版（Pro）で':{en:'part of Pro',fr:'incluse dans Pro',pt:'no Pro'},
   'あなたの柔道を数字で深掘り。':{en:'Dig into your judo with numbers. ',fr:'Analysez votre judo en chiffres. ',pt:'Aprofunde seu judô em números. '},
-  '「試合報告」と「メモリー」は無料':{en:'Match Report and Memories stay free',fr:'Le rapport de combat et les souvenirs restent gratuits',pt:'Relatório de luta e Memórias continuam grátis'},
+  '「試合報告」とメモリー10件までは無料':{en:'Match Report and up to 10 Memories stay free',fr:'Le rapport de combat et jusqu’à 10 souvenirs restent gratuits',pt:'Relatório de luta e até 10 Memórias continuam grátis'},
   'のまま、Proでは分析が使えます。':{en:'; Pro adds the analysis.',fr:' ; Pro ajoute l’analyse.',pt:'; o Pro adiciona a análise.'},
   '勝率・決まり技レーダー':{en:'Win rate & scoring-technique radar',fr:'Taux de victoire et radar des techniques',pt:'Taxa de vitória e radar de técnicas'},
   'どの技で勝てているかが一目でわかる':{en:'see at a glance which techniques win for you',fr:'voyez d’un coup d’œil les techniques qui vous font gagner',pt:'veja de relance quais técnicas te dão vitórias'},
@@ -6535,7 +6535,7 @@ Object.assign(DICT,{
   '・試合結果の分析（勝率・決まり技レーダー・組手別/技別）':{en:'• Match analysis (win rate, technique radar, by grip/technique)',fr:'• Analyse des combats (taux de victoire, radar des techniques, par garde/technique)',pt:'• Análise das lutas (taxa de vitória, radar de técnicas, por pegada/técnica)'},
   '・シェア画像の全デザイン（テーマ10・構図14・フレーム・文字エフェクト・スタンプ）':{en:'• All share-image designs (10 themes, 14 layouts, frames, text effects, stamps)',fr:'• Tous les visuels à partager (10 thèmes, 14 mises en page, cadres, effets de texte, tampons)',pt:'• Todos os designs de imagem (10 temas, 14 layouts, molduras, efeitos de texto, carimbos)'},
   '・主役（家族）を人数の制限なく登録':{en:'• Register as many people (family) as you like',fr:'• Enregistrer autant de profils (famille) que voulu',pt:'• Cadastrar quantos protagonistas (família) quiser'},
-  '「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。':{en:'“Report” and “Memory” (recording & sharing) stay free forever.',fr:'« Rapport » et « Souvenirs » (enregistrement et partage) restent gratuits.',pt:'“Relatório” e “Memória” (registrar e compartilhar) continuam grátis.'},
+  '「試合報告」はずっと無料です。メモリーは10件まで、主役は5人まで無料で登録できます（登録したメモリーを見る・シェアするのはずっと無料）。':{en:'“Report” is free forever. Free users can save up to 10 Memories and register up to 5 people (viewing and sharing saved Memories stays free).',fr:'« Rapport » reste gratuit pour toujours. En gratuit : jusqu’à 10 souvenirs et 5 profils (voir et partager les souvenirs enregistrés reste gratuit).',pt:'“Relatório” é grátis para sempre. No plano grátis: até 10 Memórias e 5 protagonistas (ver e compartilhar as Memórias salvas continua grátis).'},
   '⭐ Proにする（年額）':{en:'⭐ Get Pro (yearly)',fr:'⭐ Passer à Pro (annuel)',pt:'⭐ Assinar o Pro (anual)'},
   '購入を復元する':{en:'Restore purchase',fr:'Restaurer l’achat',pt:'Restaurar compra'},
   // 予定：よく使う設定・くり返し
@@ -6642,8 +6642,8 @@ Object.assign(DICT,{
   '試合結果は、道場にそのまま報告':{en:'Send match results straight to your dojo',fr:'Envoyez vos résultats directement au dojo',pt:'Envie os resultados direto ao dojô'},
   '「試合報告」タブで入力して、LINE等やQRで送るだけ。':{en:'Fill in the “Report” tab and send by LINE or QR.',fr:'Remplissez l’onglet « Rapport » et envoyez par LINE ou QR.',pt:'Preencha a aba “Relato” e envie por LINE ou QR.'},
   '先生が My柔道（事務）で取り込めば、伝え間違いがありません。':{en:'Your teacher imports it in My Judo (Office) — nothing gets lost in translation.',fr:'Votre professeur l’importe dans My Judo (Bureau) — aucune erreur de transmission.',pt:'O professor importa no My Judo (Gestão) — sem erros de recado.'},
-  '報告した試合は、自分の記録にも残ります':{en:'Reported matches stay in your own record too',fr:'Les combats envoyés restent aussi dans votre historique',pt:'As lutas enviadas também ficam no seu histórico'},
-  '「試合報告」と「メモリー」は、ずっと無料です':{en:'“Report” and “Memories” are free forever',fr:'« Rapport » et « Souvenirs » restent gratuits',pt:'“Relato” e “Memórias” são sempre grátis'},
+  '自分の記録に残すときは「この試合をメモリーに登録する」を押します':{en:'To keep matches in your own record, tap “Save this match to Memory”',fr:'Pour garder les combats dans votre historique, touchez « Enregistrer ce combat dans Souvenirs »',pt:'Para manter as lutas no seu histórico, toque em “Salvar esta luta na Memória”'},
+  '「試合報告」はずっと無料。メモリーは10件、主役は5人まで無料です':{en:'“Report” is free forever; Memories (up to 10) and people (up to 5) are free',fr:'« Rapport » reste gratuit ; souvenirs (jusqu’à 10) et profils (jusqu’à 5) gratuits',pt:'“Relatório” é sempre grátis; Memórias (até 10) e protagonistas (até 5) grátis'},
   '思い出はカードにしてシェア':{en:'Memories become shareable cards',fr:'Vos souvenirs deviennent des cartes à partager',pt:'Memórias viram cards para compartilhar'},
   '「メモリー」タブに、大会や昇級・昇段などの節目が1枚のカードでたまります。':{en:'Tournaments and belt promotions collect as cards in the “Memories” tab.',fr:'Compétitions et passages de grade s’accumulent en cartes dans « Souvenirs ».',pt:'Competições e graduações viram cards na aba “Memórias”.'},
   '写真を入れて、テーマ・構図・スタンプでデコレーション':{en:'Add a photo, then decorate with themes, layouts and stamps',fr:'Ajoutez une photo, puis décorez (thèmes, mises en page, tampons)',pt:'Adicione uma foto e decore com temas, layouts e carimbos'},
@@ -6813,8 +6813,6 @@ Object.assign(DICT,{
   '試合報告':{en:'Report',fr:'Rapport',pt:'Relatório'},
   '予定・記録':{en:'Planner',fr:'Agenda',pt:'Agenda'},
   '日付なし':{en:'No date',fr:'Sans date',pt:'Sem data'},
-  '「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。':{en:'“Report” and “Memory” (recording & sharing) stay free forever.',fr:'« Rapport » et « Souvenirs » restent gratuits pour toujours.',pt:'“Relatório” e “Memória” continuam grátis para sempre.'},
-  '「試合報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。':{en:'“Report” and “Memory” (records & share images) stay free forever.',fr:'« Rapport » et « Souvenirs » (cartes à partager incluses) restent gratuits.',pt:'“Relatório” e “Memória” (com imagens) continuam grátis.'},
   '結果は試合報告タブから':{en:'report via the Report tab',fr:'à saisir via l’onglet Rapport',pt:'informe pela aba Relatório'},
   '「予定・記録」タブから記録できます':{en:'Log them from the Planner tab',fr:'Notez-les depuis l’onglet Agenda',pt:'Registre na aba Agenda'},
   '「予定・記録」タブ →「よく使う設定」→「記録する項目」で体重などを追加できます':{en:'Add weight etc. via Planner tab → “Frequently used” → “Tracked fields”.',fr:'Ajoutez le poids etc. via Agenda → « Réglages fréquents » → « Champs suivis ».',pt:'Adicione peso etc. em Agenda → “Ajustes frequentes” → “Campos registrados”.'},
@@ -9540,8 +9538,8 @@ function obRender(){
        <h3 class="ob-h">${T('試合結果は、道場にそのまま報告')}</h3>
        <p class="ob-p">${T('「試合報告」タブで入力して、LINE等やQRで送るだけ。')}<br>${T('先生が My柔道（事務）で取り込めば、伝え間違いがありません。')}</p>
        <div class="ob-steps">
-         <div class="ob-step"><span class="ob-no">✓</span><div>${T('報告した試合は、自分の記録にも残ります')}</div></div>
-         <div class="ob-step"><span class="ob-no">✓</span><div>${T('「試合報告」と「メモリー」は、ずっと無料です')}</div></div>
+         <div class="ob-step"><span class="ob-no">✓</span><div>${T('自分の記録に残すときは「この試合をメモリーに登録する」を押します')}</div></div>
+         <div class="ob-step"><span class="ob-no">✓</span><div>${T('「試合報告」はずっと無料。メモリーは10件、主役は5人まで無料です')}</div></div>
        </div>
        <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
   }else if(obStep===4){
@@ -11366,14 +11364,14 @@ function analysisLockHtml(){
   return `<div class="ana-lock">
     <div class="al-emoji">🔒📈</div>
     <h3 class="al-h">${T('試合結果の分析は')}<br>${T('有料版（Pro）で')}</h3>
-    <p class="al-p">${T('あなたの柔道を数字で深掘り。')}<b>${T('「試合報告」と「メモリー」は無料')}</b>${T('のまま、Proでは分析が使えます。')}</p>
+    <p class="al-p">${T('あなたの柔道を数字で深掘り。')}<b>${T('「試合報告」とメモリー10件までは無料')}</b>${T('のまま、Proでは分析が使えます。')}</p>
     <div class="al-feat">
       <div class="al-item"><span>📊</span><div><b>${T('勝率・決まり技レーダー')}</b>——${T('どの技で勝てているかが一目でわかる')}</div></div>
       <div class="al-item"><span>🤼</span><div><b>${T('組手（右/左）別・技別')}</b>${T('の傾向')}</div></div>
       <div class="al-item"><span>📈</span><div>${T('直近の調子や対戦の振り返り')}</div></div>
     </div>
     <button class="btn gold full" onclick="requirePro('試合結果の分析（勝率・決まり技レーダー）')">${T('⭐ 有料版（Pro）にする')}</button>
-    <p class="al-note">${T('「試合報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。')}</p>
+    <p class="al-note">${T('「試合報告」はずっと無料です。メモリーは10件まで、主役は5人まで無料で登録できます（登録したメモリーを見る・シェアするのはずっと無料）。')}</p>
   </div>`;
 }
 let anaView='match';   // v196: 分析ビュー 'match'|'keiko'|'body'
