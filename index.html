@@ -5495,7 +5495,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v261'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v276'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -7167,6 +7167,7 @@ function normalizeDB(){
     DB.ranks=[...(DB.ranks.kyu||[]),...(DB.ranks.dan||[])];
   }
   if(!Array.isArray(DB.ranks))DB.ranks=['三級','二級','一級','初段','弍段','三段','四段'];
+  if(typeof fixGradeEntryFY==='function')fixGradeEntryFY();   // v276: 学年が1年早かった人を直す（1回だけ）
   if(typeof refreshGrades==='function')refreshGrades();
 }
 function seedIfEmpty(){
@@ -8972,7 +8973,7 @@ function renderRireki(){
   // v203: 日付なし（大会予定を削除した記録など）は年度チップに出さない（「すべて」で見られる）
   const years=[...new Set(allEvents.map(ev=>schedFY(ev.date||'')).filter(y=>isFinite(y)&&y>1990))].sort((a,b)=>b-a);
   if(rkYear!=='all'&&(rkYear==null||!years.includes(rkYear)))rkYear=years.length?years[0]:'all';
-  // v268: 「すべて」を先頭に置き、そのあと近い年度から並べる（years は新しい順）
+  // v268: 「すべて」を先頭に置き、そのあと近い年度から並べる（years は新しい順）
   if(yearsEl)yearsEl.innerHTML=`<button class="${rkYear==='all'?'on':''}" onclick="rkSetYear('all')">${T('すべて')}</button>`+years.map(y=>`<button class="${rkYear===y?'on':''}" onclick="rkSetYear(${y})">${y}${T('年度')}</button>`).join('');
   // v267: 年度の列を設定の中に移したので、いま何年度を見ているかは一覧の上に出す
   if(nowYear){
@@ -14077,11 +14078,52 @@ function updateGradePicker(){
 }
 function currentFY(){return schoolFY();}   // 学年の年度＝進級月ベース
 // 生年月日から「小1入学年度」を算出（進級月=4月＝日本の学齢ルール時のみ使用）
-function entryFYFromBirth(birth){
+// v276: 4/2〜12/31 生まれは生年+7、1/1〜4/1 生まれは生年+6 の4月に入学（以前は1年早かった）
+function entryFYFromBirth(birth,oldRule){
   if(!birth)return null;
   const y=+birth.slice(0,4),m=+birth.slice(5,7),d=+birth.slice(8,10);
   const afterApr2=(m>4)||(m===4&&d>=2);
-  return afterApr2?y+6:y+5;
+  const efy=afterApr2?y+7:y+6;
+  return oldRule?efy-1:efy;   // oldRule：v275 までの式（移行で「自動で付けた年度か」を見分けるときだけ使う）
+}
+/* v276: v275 までの式で「自動で小1にした人」の入学年度を1年あとへ直す（1回だけ）。
+   手で学年を選んで保存した人（gradeTouchedFY が gradeBaseFY 以上）は正しい値なので触らない。
+   直す前の値は DB.gradeEntryFixBackup に控え、起動後に知らせて「元に戻す」を選べるようにする。 */
+function fixGradeEntryFY(){
+  if(DB.gradeEntryFix)return;
+  if(!DB.gradeEnabled||gradeStart()!==4)return;   // 自動の小1は進級月4月のときしか作られない。印も付けない
+  const fy=currentFY(), items=[];
+  (DB.students||[]).forEach(s=>{
+    if(!s||!s.birth||s.gradeFixed||s.gradeBaseLevel!==1||s.gradeBaseFY==null)return;
+    const oldEfy=entryFYFromBirth(s.birth,true);
+    if(!(oldEfy>0)||s.gradeBaseFY!==oldEfy)return;
+    if(s.gradeTouchedFY!=null&&s.gradeTouchedFY>=s.gradeBaseFY)return;   // 小1になったあとに手で保存した人
+    items.push({id:s.id,name:s.name||'',gradeBaseFY:s.gradeBaseFY,gradeBaseLevel:s.gradeBaseLevel,category:s.category,grade:s.grade});
+    const efy=oldEfy+1;
+    if(efy>fy){ s.gradeBaseFY=null;s.gradeBaseLevel=null;s.grade='';s.category='未就学'; }   // まだ未就学のはずの人
+    else s.gradeBaseFY=efy;
+  });
+  if(items.length)DB.gradeEntryFixBackup={date:todayStr(),items,noticed:false};
+  DB.gradeEntryFix=1;
+}
+// 起動後に1回だけ、直した人を名前つきで知らせる（控えに印を付けるので2回目は出ない）
+function noticeGradeEntryFix(){
+  const b=DB.gradeEntryFixBackup;
+  if(!b||b.noticed||b.undone||!Array.isArray(b.items)||!b.items.length)return;
+  b.noticed=true; save();
+  const names=b.items.map(i=>esc(i.name||T('(名前なし)'))).join('、');
+  askChoice(T('生年月日からの学年の計算が1年早かったため、次の人の学年を直しました。')+'<br><br>'+names+'<br><br>'+T('手で直した学年は変えていません。'),
+    T('このままにする'),T('元に戻す'),null,undoGradeEntryFix);
+  const h3=document.querySelector('#confirmModal h3'); h3.textContent=T('学年を直しました'); h3.style.color='var(--navy)';
+}
+function undoGradeEntryFix(){
+  const b=DB.gradeEntryFixBackup; if(!b||!Array.isArray(b.items))return;
+  b.items.forEach(i=>{
+    const s=(DB.students||[]).find(x=>x.id===i.id); if(!s)return;
+    s.gradeBaseFY=i.gradeBaseFY;s.gradeBaseLevel=i.gradeBaseLevel;s.category=i.category;s.grade=i.grade;
+  });
+  b.undone=true;   // 済みの印（DB.gradeEntryFix）は残すので、自動ではもう直さない
+  refreshGrades();save();renderMates();toast(T('元に戻しました'));
 }
 function gradeInfo(s,fy){
   if(!DB.gradeEnabled)return null;
@@ -14918,7 +14960,7 @@ function initUI(){
 }
 load();
   if(loadFailed){ initUI(); showLoadFailure(); }        // v240: 壊れたデータを空DBで上書きしない
-  else { seedIfEmpty();save();initUI(); }
+  else { seedIfEmpty();save();initUI(); setTimeout(()=>{ try{ noticeGradeEntryFix(); }catch(e){} },900); }   // v276: 学年を直した人のお知らせ
 loadLock();
 if(lockEnabled&&lockCode){showLockScreen('unlock');}
 /* PWA manifest を動的生成（v227: ホーム画面アイコンはMy柔道のブランドロゴ固定） */
