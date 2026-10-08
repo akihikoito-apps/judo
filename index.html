@@ -2594,7 +2594,7 @@ function applyUpdate(){
     <h3 style="color:var(--red);margin-top:0">削除の確認</h3>
     <p id="confirmText" style="font-size:calc(16px*var(--fs,1));line-height:1.6;margin:12px 0 20px"></p>
     <div class="row">
-      <button class="btn ghost" onclick="closeModal('confirmModal')">やめる</button>
+      <button class="btn ghost" id="confirmCancelBtn" onclick="closeModal('confirmModal')">やめる</button>
       <button class="btn ghost" id="confirmNoBtn" style="display:none" onclick="confirmChoiceNo()">保存しない</button>
       <button class="btn" id="confirmYesBtn" style="background:var(--red);color:#fff" onclick="confirmDeleteYes()">削除する</button>
     </div>
@@ -2643,7 +2643,7 @@ function applyUpdate(){
     <div class="ms-scroll">
     <div id="msPaneSort">
       <div class="set-sec">
-        <div class="set-sec-title">並び順</div>
+        <div class="set-sec-title">並び順<span class="set-sec-sub">すぐ反映されます</span></div>
         <div class="mem-seg">
           <button id="sortGradeBtn" onclick="setMateSort('grade')">学年順</button>
           <button id="sortKanaBtn" onclick="setMateSort('kana')">あいうえお</button>
@@ -2651,7 +2651,7 @@ function applyUpdate(){
         <p class="set-note">「学年順」は各区分の中を高学年→低学年で並べます（同じ学年の中は仲間タブの「手動で並び替え」で入れ替えられます）。「あいうえお順」はよみがなで並びます。</p>
       </div>
       <div class="set-sec">
-        <div class="set-sec-title">退会した仲間</div>
+        <div class="set-sec-title">退会した仲間<span class="set-sec-sub">すぐ反映されます</span></div>
         <div class="mem-seg">
           <button id="retiredHideBtn" onclick="setShowRetired(false)">かくす</button>
           <button id="retiredShowBtn" onclick="setShowRetired(true)">表示する</button>
@@ -2662,14 +2662,15 @@ function applyUpdate(){
 
     <div id="msPaneGrade" style="display:none">
       <div class="set-sec">
-        <div class="set-sec-title">学年機能</div>
+        <div class="set-sec-title">学年機能<span class="set-sec-sub">すぐ反映されます</span></div>
         <div class="io-pick">
           <button id="gradeOnBtn" onclick="setGradeEnabled(true)">オン</button>
           <button id="gradeOffBtn" onclick="setGradeEnabled(false)">オフ</button>
         </div>
         <p class="set-note">オフにすると学年の自動進級を行わず、区分だけで管理します（海外運用など）。</p>
+        <p class="set-note">学年機能と進級月は、押した時点で保存され、全員の学年がその場で計算し直されます（下の「やめる」では元に戻りません）。下の「保存する」は区分の変更を保存するボタンです。</p>
         <div id="gradeMonthWrap" style="margin-top:10px">
-          <div class="set-sec-title">進級月（学年が上がる月）</div>
+          <div class="set-sec-title">進級月（学年が上がる月）<span class="set-sec-sub">すぐ反映されます</span></div>
           <select id="gradeStartSelect" onchange="saveGradeStart()" style="width:100%"></select>
         </div>
       </div>
@@ -2704,9 +2705,13 @@ function applyUpdate(){
     </div>
     </div>
 
-    <div class="row">
+    <!-- v288: 「表示」タブは押した瞬間に保存されるので「とじる」だけにする（点検 U-3） -->
+    <div class="row" id="msSaveRow" style="display:none">
       <button class="btn ghost" onclick="closeModal('feePresetModal')">やめる</button>
       <button class="btn gold" onclick="saveFeePresets()">保存する</button>
+    </div>
+    <div class="row" id="msCloseRow">
+      <button class="btn ghost" onclick="closeModal('feePresetModal')">とじる</button>
     </div>
   </div>
 </div>
@@ -2741,15 +2746,16 @@ function applyUpdate(){
         <div class="recur-box">
           <label class="fld" style="margin-top:0">くり返し方</label>
           <div class="io-pick">
-            <button type="button" id="ruDay" class="on" onclick="pickRecurUnit('day')">日おき</button>
-            <button type="button" id="ruWeek" onclick="pickRecurUnit('week')">曜日</button>
+            <button type="button" id="ruDay" onclick="pickRecurUnit('day')">○日ごと</button>
+            <button type="button" id="ruWeek" class="on" onclick="pickRecurUnit('week')">曜日</button>
             <button type="button" id="ruMonth" onclick="pickRecurUnit('month')">毎月</button>
           </div>
-          <div id="ruDayOpt" class="recur-opt">
+          <div id="ruDayOpt" class="recur-opt" style="display:none">
             <label class="fld">間隔</label>
-            <div style="display:flex;align-items:center;gap:8px"><input type="number" id="recurEvery" min="1" value="1" inputmode="numeric" style="max-width:120px" oninput="renderRecurPreview()"><span>日おきに登録</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><input type="number" id="recurEvery" min="1" value="1" inputmode="numeric" style="max-width:120px" oninput="renderRecurPreview()"><span>日ごとに登録</span></div>
+            <p class="list-mini" style="margin-top:6px">1日ごと＝毎日、2日ごと＝1日あけて登録します。</p>
           </div>
-          <div id="ruWeekOpt" class="recur-opt" style="display:none">
+          <div id="ruWeekOpt" class="recur-opt">
             <label class="fld">くり返す曜日</label>
             <div class="wk-pick" id="recurWeekdays"></div>
           </div>
@@ -2759,7 +2765,7 @@ function applyUpdate(){
           <label class="fld">終了日（同じ年度内まで）</label>
           <input type="date" id="recurEnd" onchange="renderRecurPreview()">
           <p class="list-mini" id="recurFyNote" style="margin-top:6px"></p>
-          <p class="list-mini" id="recurPreview" style="margin-top:6px;font-weight:800;color:var(--navy)"></p>
+          <p class="list-mini" id="recurPreview" style="margin-top:8px;font-weight:800;color:var(--navy);font-size:calc(16px*var(--fs,1))"></p>
         </div>
       </div>
     </div>
@@ -5526,7 +5532,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v287'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v288'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -5668,6 +5674,29 @@ const DICT={
   '記入されている名前と完全には一致しません。結果を付ける選手を選んでください。':{en:'The written name does not match exactly. Choose the athlete to attach these results to.',fr:'Le nom saisi ne correspond pas exactement. Choisissez l’athlète à qui attribuer ces résultats.',pt:'O nome informado não confere exatamente. Escolha o atleta que receberá estes resultados.'},
   '同じ名前の仲間が複数います。結果を付ける選手を選んでください。':{en:'Several members share this name. Choose the athlete to attach these results to.',fr:'Plusieurs membres portent ce nom. Choisissez l’athlète à qui attribuer ces résultats.',pt:'Vários membros têm este nome. Escolha o atleta que receberá estes resultados.'},
   '別の人として新しく登録する':{en:'Add as a different, new member',fr:'Ajouter comme un autre membre (nouveau)',pt:'Cadastrar como outra pessoa (novo membro)'},
+  // v288: 点検 U-2・U-3・U-4・U-7
+  '○日ごと':{en:'Every N days',fr:'Tous les N jours',pt:'A cada N dias'},
+  '日ごとに登録':{en:'-day interval',fr:'jour(s) d’intervalle',pt:'dia(s) de intervalo'},
+  '1日ごと＝毎日、2日ごと＝1日あけて登録します。':{en:'1 = every day, 2 = every other day.',fr:'1 = tous les jours, 2 = un jour sur deux.',pt:'1 = todo dia, 2 = dia sim, dia não.'},
+  '予定を':{en:'This will add',fr:'Cela va ajouter',pt:'Isto vai adicionar'},
+  'まとめて登録します。':{en:'events at once.',fr:'événements d’un coup.',pt:'eventos de uma vez.'},
+  '登録する':{en:'Add',fr:'Ajouter',pt:'Adicionar'},
+  '登録件数の確認':{en:'Confirm number of events',fr:'Confirmer le nombre d’événements',pt:'Confirmar número de eventos'},
+  'すぐ反映されます':{en:'Applies immediately',fr:'Appliqué immédiatement',pt:'Aplicado na hora'},
+  '学年機能と進級月は、押した時点で保存され、全員の学年がその場で計算し直されます（下の「やめる」では元に戻りません）。下の「保存する」は区分の変更を保存するボタンです。':{en:'The grade feature and promotion month are saved as soon as you tap them, and everyone’s grade is recalculated right away (“Cancel” below does not undo this). “Save” below saves changes to the categories.',fr:'La fonction de niveau scolaire et le mois de passage sont enregistrés dès que vous appuyez, et le niveau de chacun est recalculé aussitôt (« Annuler » ci-dessous ne l’annule pas). « Enregistrer » ci-dessous enregistre les modifications des catégories.',pt:'O recurso de série e o mês de promoção são salvos assim que você toca, e a série de todos é recalculada na hora (“Cancelar” abaixo não desfaz). “Salvar” abaixo salva as mudanças nas categorias.'},
+  '外れるもの：':{en:'What will be removed:',fr:'Ce qui sera retiré :',pt:'O que será removido:'},
+  '日分':{en:' days',fr:' jours',pt:' dias'},
+  '月謝・都度払い':{en:'Monthly / per-visit fees',fr:'Cotisations mensuelles / à la séance',pt:'Mensalidades / por aula'},
+  'か月分':{en:' months',fr:' mois',pt:' meses'},
+  '大会分':{en:' tournaments',fr:' compétitions',pt:' torneios'},
+  '勝率などの集計からも外れます':{en:'also removed from win-rate and other stats',fr:'également retirés du taux de victoire et des statistiques',pt:'também saem da taxa de vitórias e das estatísticas'},
+  '名簿と設定は残ります。':{en:'The member list and settings are kept. ',fr:'La liste des membres et les réglages sont conservés. ',pt:'A lista de membros e as configurações são mantidas. '},
+  '元に戻すには全体のバックアップから復元するしかなく、そのときは今のデータもすべてバックアップの内容に上書きされます。':{en:'The only way to bring it back is to restore the full backup, which also overwrites all of your current data with the backup.',fr:'Le seul moyen de les récupérer est de restaurer la sauvegarde complète, ce qui remplace aussi toutes vos données actuelles par celles de la sauvegarde.',pt:'A única forma de recuperar é restaurar o backup completo, o que também substitui todos os dados atuais pelo conteúdo do backup.'},
+  '追加の確認':{en:'Confirm adding',fr:'Confirmer l’ajout',pt:'Confirmar adição'},
+  'カードの統合':{en:'Merge cards',fr:'Fusionner les feuilles',pt:'Unir cartões'},
+  'パスコードの設定':{en:'Passcode set',fr:'Code d’accès défini',pt:'Senha definida'},
+  '保存先の確認':{en:'Check where it was saved',fr:'Vérifier l’emplacement',pt:'Confira onde salvou'},
+  '復元の確認':{en:'Confirm restore',fr:'Confirmer la restauration',pt:'Confirmar restauração'},
   'この選手で決める':{en:'Use this athlete',fr:'Choisir cet athlète',pt:'Usar este atleta'},
   '候補':{en:'Suggested',fr:'Suggestion',pt:'Sugestão'},
   'どれか1つを選んでください':{en:'Please choose one',fr:'Veuillez en choisir un',pt:'Escolha uma opção'},
@@ -7760,7 +7789,8 @@ function pickSchType(v){pickedSchType=v;if(!showMatchTouched){pickedShowMatch=/�
 function pickSchTime(v){pickedSchTime=v;renderSchedPicks();}
 function pickSchPlace(v){pickedSchPlace=v;renderSchedPicks();}
 // ===== くり返し登録 =====
-let pendingSchedEdit=null, recurScopeMode='edit', recurUnit='day', recurWeekdaysSel=[];
+let pendingSchedEdit=null, recurScopeMode='edit', recurUnit='week', recurWeekdaysSel=[];
+const RECUR_CONFIRM_N=60;   // v288: これ以上の件数を一度に登録するときは確認する（点検 U-2）
 function pad2(n){return String(n).padStart(2,'0');}
 function isoOf(d){return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
 function fyEndDateOf(dateStr){
@@ -7794,13 +7824,14 @@ function genRecurDates(baseISO,cfg){
   if(!out.includes(baseISO)) out.push(baseISO);
   return [...new Set(out)].sort();
 }
+// v288: 初期値は「その日の曜日」（毎日・年度末までだと、うっかり300件以上できるため。点検 U-2）
 function initRecurDefaults(){
-  recurUnit='day';
+  recurUnit='week';
   const baseISO=document.getElementById('schDate').value||todayStr();
   document.getElementById('recurEvery').value='1';
   recurWeekdaysSel=[new Date(baseISO+'T00:00').getDay()];
   renderRecurWeekdays();
-  pickRecurUnit('day');
+  pickRecurUnit('week');
   refreshRecurForDate();
 }
 function refreshRecurForDate(){
@@ -7843,7 +7874,9 @@ function renderRecurPreview(){
   const baseISO=document.getElementById('schDate').value; const el=document.getElementById('recurPreview');
   if(!el)return; if(!baseISO){el.textContent='';return;}
   const dates=genRecurDates(baseISO,getRecurCfg());
-  el.textContent=`この設定で ${dates.length}件 登録されます（同じ年度内）。`;
+  // v288: 件数を大きく見せる。多いときは色を変えて気づけるようにする（点検 U-2）
+  const many=dates.length>=RECUR_CONFIRM_N;
+  el.innerHTML=`この設定で <span style="font-size:1.6em;color:${many?'var(--red)':'var(--navy)'}">${dates.length}件</span> 登録されます（同じ年度内）。`;
 }
 function openRecurScope(mode){
   recurScopeMode=mode;
@@ -7940,14 +7973,25 @@ function saveSched(){
   const creating=document.getElementById('recurCreateWrap').style.display!=='none';
   if(rt&&rt.checked&&creating){
     const dates=genRecurDates(date,getRecurCfg());
-    const seriesId=uid(); let made=0;
-    dates.forEach(dt=>{
-      if(editingSched&&dt===date){ const s=DB.schedule.find(x=>x.id===editingSched); Object.assign(s,fields,{date:dt,seriesId}); }
-      else{ DB.schedule.push(Object.assign({id:uid(),seriesId},fields,{date:dt})); }
-      made++;
-    });
-    schedYear=schedFY(date);
-    save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast(made+T('件の予定を登録しました'));
+    const editId=editingSched;
+    const doCreate=()=>{
+      const seriesId=uid(); let made=0;
+      dates.forEach(dt=>{
+        if(editId&&dt===date){ const s=DB.schedule.find(x=>x.id===editId); Object.assign(s,fields,{date:dt,seriesId}); }
+        else{ DB.schedule.push(Object.assign({id:uid(),seriesId},fields,{date:dt})); }
+        made++;
+      });
+      schedYear=schedFY(date);
+      save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast(made+T('件の予定を登録しました'));
+    };
+    // v288: 件数が多いときは、登録する前に件数と期間を見せて確認する（点検 U-2）
+    if(dates.length>=RECUR_CONFIRM_N){
+      askConfirm(T('予定を')+' <b style="font-size:1.4em">'+dates.length+T('件')+'</b> '+T('まとめて登録します。')+'<br>'
+        +dates[0].replace(/-/g,'/')+' 〜 '+dates[dates.length-1].replace(/-/g,'/')+'<br><br>'+T('よろしいですか？'),
+        doCreate,'登録する','登録件数の確認','var(--navy)');
+      return;
+    }
+    doCreate();
     return;
   }
   // ③ 通常の単発保存
@@ -8777,7 +8821,7 @@ function mergeCardConfirm(){
   if(!targetId)return;
   const t=ensureMatch(curMatchSched).team;
   const dst=(t.cards||[]).find(c=>c.id===targetId); if(!dst)return;
-  askConfirm(T('このカードの記入済みの選手を「')+esc(impCardLabel(dst))+T('」へ移し、このカードは削除します。よろしいですか？'),()=>mergeCardInto(targetId),'統合する');
+  askConfirm(T('このカードの記入済みの選手を「')+esc(impCardLabel(dst))+T('」へ移し、このカードは削除します。よろしいですか？'),()=>mergeCardInto(targetId),'統合する','カードの統合','var(--navy)');
 }
 function mergeCardInto(targetId){
   const t=ensureMatch(curMatchSched).team;
@@ -9819,7 +9863,7 @@ function repToMemory(){
       if(done>0 && !_repDupOk){
         // v241: 追加でよいかを明示的に確認する（アプリを開き直しても二重登録に気づけるように）
         askConfirm(T('この大会にはすでに')+done+T('件の試合結果が登録されています。')+'<br>'+T('この内容を追加で登録しますか？'),
-          ()=>{ _repDupOk=true; repToMemory(); }, '追加する');
+          ()=>{ _repDupOk=true; repToMemory(); }, '追加する', '追加の確認', 'var(--navy)');
         return;
       }
     }
@@ -12123,7 +12167,7 @@ function analyzeImport(){
   // v258: 2人分をまとめて貼ると、全部の試合が最後の選手に付いてしまうため止める
   if((p.head.blocks||0)>1||(p.head.selves||[]).length>1){
     askConfirm(T('報告がまとめて貼られています。')+'<br>'+esc((p.head.selves||[]).join('／'))+'<br><br>'
-      +T('取り違えるおそれがあるため、1人分ずつ貼って取り込んでください。'),()=>{},T('わかりました'),'確認','var(--navy)');
+      +T('取り違えるおそれがあるため、1人分ずつ貼って取り込んでください。'),()=>{},T('わかりました'),'確認','var(--navy)',true);
     return;
   }
   importParsed=p;
@@ -12551,6 +12595,10 @@ function setMemberSettingsTab(t){
     const pane=document.getElementById(map[k]);if(pane)pane.style.display=(k===t)?'':'none';
     const b=document.getElementById(btns[k]);if(b)b.classList.toggle('on',k===t);
   });
+  // v288: 「表示」タブは押した瞬間に保存されるので「とじる」だけ。ほかのタブは「やめる／保存する」（点検 U-3）
+  const sr=document.getElementById('msSaveRow'), cr=document.getElementById('msCloseRow');
+  if(sr)sr.style.display=(t==='sort')?'none':'';
+  if(cr)cr.style.display=(t==='sort')?'':'none';
 }
 function renderGradeSettings(){
   const on=!!DB.gradeEnabled;
@@ -12690,7 +12738,10 @@ function entryStats(id){
 function entryDeadlineInfo(deadline){ if(!deadline)return null; const days=Math.round((new Date(deadline+'T00:00')-new Date(todayStr()+'T00:00'))/86400000); return {days,overdue:days<0,today:days===0,soon:days>0&&days<=3}; }
 function entryHasData(id){ const st=entryStats(id); return !!(st&&(st.count||st.deadline)); }
 // 要対応＝未完了で締切7日以内（超過含む）
-function entryNeedsAttention(id){ const e=entryOf(id); if(!e||e.done)return false; const di=entryDeadlineInfo(e.deadline); return !!(di&&di.days<=7); }
+// v288: 試合日（予定の日付）を過ぎたものは数えない。締切超過のまま試合が終わっても赤バッジが消えなかったため（点検 U-6）
+function entryNeedsAttention(id){ const e=entryOf(id); if(!e||e.done)return false;
+  const s=(DB.schedule||[]).find(x=>x.id===id); if(s&&s.date&&s.date<todayStr())return false;
+  const di=entryDeadlineInfo(e.deadline); return !!(di&&di.days<=7); }
 function entryDotHtml(id){ const e=entryOf(id); if(!e)return ''; const st=entryStats(id);
   if(e.done)return '<span class="result-dot" style="background:#2e9e5b"></span>';
   const di=entryDeadlineInfo(st.deadline), alert=(st.unpaid>0)||(di&&di.days<=7);
@@ -14007,7 +14058,22 @@ function doArchiveYear(){
   const imgLine = st.total
     ? '<br><br>'+T('この年度のメモリー画像も一緒に外れます（写真')+st.photos+T('枚・カード')+st.cards+T('枚／')+archiveSizeLabel(st.bytes)+T('）。バックアップには画像も含まれるので、復元すればそのまま戻ります。')
     : '';
-  askConfirm(T('AAAA年度（BBBB）のデータをアプリ本体から外して容量を空けます。').replace('AAAA',fy).replace('BBBB',fyRangeLabel(fy))+imgLine+'<br><br>'+T('先に復元用の全体バックアップを保存します。<b>保存できたときだけ</b>アーカイブを実行します。よろしいですか？'),async()=>{
+  // v288: 外れる項目と件数を並べて見せる（画像のことしか書いておらず、出欠や試合結果まで消えると分からなかったため。点検 U-4）
+  const fyKeys=k=>(DB[k]&&typeof DB[k]==='object')?Object.keys(DB[k]).filter(key=>{ const m=(key.match(/\d{4}-\d{2}/)||[])[0]; return m&&inFY(m); }):[];
+  const evFY=(DB.schedule||[]).filter(e=>inFY(e.date));
+  const feeMonths=new Set([...fyKeys('fees'),...fyKeys('visitFees'),...fyKeys('visitLog'),...fyKeys('feeOverrides')].map(k=>(k.match(/\d{4}-\d{2}/)||[])[0]));
+  const nAtt=fyKeys('attendance').length;
+  const nCash=(DB.cash||[]).filter(c=>inFY(c.date)).length;
+  const nMatch=evFY.filter(e=>{ const mr=DB.matchResults&&DB.matchResults[e.id]; return mr&&(((mr.individual||[]).length)||((mr.team&&mr.team.cards)||[]).length); }).length;
+  const nEntry=evFY.filter(e=>DB.entries&&DB.entries[e.id]).length;
+  const goneLine='<br><br>'+T('外れるもの：')+'<br>'
+    +'・'+T('出欠')+' '+nAtt+T('日分')+'<br>'
+    +'・'+T('月謝・都度払い')+' '+feeMonths.size+T('か月分')+'<br>'
+    +'・'+T('入出金')+' '+nCash+T('件')+'<br>'
+    +'・'+T('予定')+' '+evFY.length+T('件')+(nEntry?'（'+T('申込')+' '+nEntry+T('件')+'）':'')+'<br>'
+    +'・'+T('試合結果')+' '+nMatch+T('大会分')+(nMatch?'（'+T('勝率などの集計からも外れます')+'）':'')
+    +'<br><br>'+T('名簿と設定は残ります。')+'<b>'+T('元に戻すには全体のバックアップから復元するしかなく、そのときは今のデータもすべてバックアップの内容に上書きされます。')+'</b>';
+  askConfirm(T('AAAA年度（BBBB）のデータをアプリ本体から外して容量を空けます。').replace('AAAA',fy).replace('BBBB',fyRangeLabel(fy))+goneLine+imgLine+'<br><br>'+T('先に復元用の全体バックアップを保存します。<b>保存できたときだけ</b>アーカイブを実行します。よろしいですか？'),async()=>{
     // ① 復元用フルバックアップを保存。保存できなければ何も外さない（v252）
     const saved=await archiveBackup(fy);
     if(!saved){ toast(T('バックアップを保存できなかったため、アーカイブを中止しました')); return; }
@@ -14716,12 +14782,14 @@ function deleteStudentFromModal(){
 }
 let _confirmCb=null;
 /* v252: 見出しとボタン色も渡せるようにした（省略時はこれまでどおり「削除の確認／赤」）。
-   アーカイブのように、消すのではなく外す操作を削除と読ませないため。 */
-function askConfirm(html,onYes,yesLabel,titleText,btnColor){
+   アーカイブのように、消すのではなく外す操作を削除と読ませないため。
+   v288: infoOnly=true は知らせるだけの画面。「やめる」を隠す（点検 U-7） */
+function askConfirm(html,onYes,yesLabel,titleText,btnColor,infoOnly){
   document.getElementById('confirmText').innerHTML=html;
   const btn=document.getElementById('confirmYesBtn');
   btn.textContent=T(yesLabel||'削除する'); btn.style.background=btnColor||'var(--red)';
   const no=document.getElementById('confirmNoBtn'); if(no)no.style.display='none';
+  const cancel=document.getElementById('confirmCancelBtn'); if(cancel)cancel.style.display=infoOnly?'none':'';
   const _h3=document.querySelector('#confirmModal h3');
   _h3.textContent=T(titleText||'削除の確認');
   _h3.style.color=btnColor||'var(--red)';   // v252: 見出しの色もボタンに合わせる（削除でない操作を赤で出さない）
@@ -14735,7 +14803,9 @@ function askChoice(html,yesLabel,noLabel,onYes,onNo){
   const y=document.getElementById('confirmYesBtn'), n=document.getElementById('confirmNoBtn');
   y.textContent=yesLabel; y.style.background='var(--navy)';
   n.textContent=noLabel; n.style.display='';
-  document.querySelector('#confirmModal h3').textContent=T('確認');
+  const cancel=document.getElementById('confirmCancelBtn'); if(cancel)cancel.style.display='';
+  const _h3=document.querySelector('#confirmModal h3');
+  _h3.textContent=T('確認'); _h3.style.color='var(--navy)';   // v288: 前の削除確認の赤が残らないように（点検 U-7）
   _confirmCb=onYes; _confirmNoCb=onNo;
   openModal('confirmModal');
 }
@@ -14982,7 +15052,7 @@ function lockSubmit(){
       lockCode=lockHash(lockBuf); lockEnabled=true; lockUnlocked=true; saveLock();
       hideLockScreen(); renderLockSettings();
       // v225: 設定直後に番号を明示し、メモ保管を強く促す（忘れると復元でしか戻せないため）
-      askConfirm(`${T('パスコードを設定しました')}<br><br><span style="font-size:34px;font-weight:900;letter-spacing:.3em;color:var(--navy)">${setCode}</span><br><br>${T('この番号を必ずお手元にメモして、大切に保管してください。忘れた場合はアプリ内で解除できず、アプリを削除して入れ直し、バックアップから復元する方法でのみ元に戻せます。')}`,()=>{},'メモしました');
+      askConfirm(`${T('パスコードを設定しました')}<br><br><span style="font-size:34px;font-weight:900;letter-spacing:.3em;color:var(--navy)">${setCode}</span><br><br>${T('この番号を必ずお手元にメモして、大切に保管してください。忘れた場合はアプリ内で解除できず、アプリを削除して入れ直し、バックアップから復元する方法でのみ元に戻せます。')}`,()=>{},'メモしました','パスコードの設定','var(--navy)',true);
     }else{ lockMode='set1'; lockShake('一致しません。もう一度設定してください'); setLockTitle(); }
   }
 }
@@ -15087,7 +15157,7 @@ async function exportData(){
         await navigator.share({files:[file],title:'My柔道 バックアップ'});
         markBackedUp();
         // v226: 「このiPhone内」に保存すると端末故障時に一緒に失われるため、保存先を確認してもらう
-        askConfirm(`${T('バックアップを保存しました')}<br><br>${T('保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。')}`,()=>{},'確認しました');
+        askConfirm(`${T('バックアップを保存しました')}<br><br>${T('保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。')}`,()=>{},'確認しました','保存先の確認','var(--navy)',true);
       }catch(e){
         if(e&&e.name==='AbortError')return;   // ユーザーがキャンセル＝保存扱いにしない
         if(isNativeApp()){ backupNativeFail(); return; }   // v255: アプリ版はダウンロードでは保存されない
@@ -15196,7 +15266,7 @@ function importData(ev){
       const d=JSON.parse(e.target.result);
       if(!d || !Array.isArray(d.students))throw 0; // v125: 型検証を強化（別アプリ/壊れたJSONの誤取込を防止）
       pendingRestoreData=d;
-      askConfirm(T('バックアップから復元します。<br><br>今このアプリに入っているデータ（仲間・出欠・お金・予定など）は、すべてバックアップの内容に上書きされ、元には戻せません。<br><br>復元してよろしいですか？'),doRestore,'復元する');
+      askConfirm(T('バックアップから復元します。<br><br>今このアプリに入っているデータ（仲間・出欠・お金・予定など）は、すべてバックアップの内容に上書きされ、元には戻せません。<br><br>復元してよろしいですか？'),doRestore,'復元する','復元の確認');
     }catch(err){toast(T('ファイルを読めませんでした'));}
   };
   r.readAsText(f);ev.target.value='';
