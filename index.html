@@ -5499,7 +5499,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v283'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v284'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -6070,6 +6070,19 @@ Object.assign(DICT,{
   '読み取れなかったデータを、そのままの形で書き出します。このファイルからは復元できません。お問い合わせのときにお送りください。':{en:'Exports the data that could not be read, as is. It cannot be used to restore. Please send it with your support request.',fr:'Exporte telles quelles les données illisibles. Ce fichier ne permet pas de restaurer. Joignez-le à votre demande d’assistance.',pt:'Exporta os dados ilegíveis como estão. Este arquivo não serve para restaurar. Envie-o ao pedir suporte.'},
   '退避データはありません':{en:'There is no unreadable data to export',fr:'Aucune donnée illisible à exporter',pt:'Não há dados ilegíveis para exportar'},
   '退避データをコピーしました。メモ帳などに貼り付けて残してください':{en:'Unreadable data copied. Paste it into Notes or similar to keep it.',fr:'Données illisibles copiées. Collez-les dans Notes pour les conserver.',pt:'Dados ilegíveis copiados. Cole-os no Notas para guardá-los.'},
+  '復元できました。':{en:'Restore complete.',fr:'Restauration terminée.',pt:'Restauração concluída.'},
+  '端末内に、以前読み取れなかったデータ（退避データ）が残っています':{en:'Data that could not be read earlier (unreadable data) is still kept on this device',fr:'Des données illisibles (mises de côté plus tôt) restent sur cet appareil',pt:'Dados ilegíveis guardados anteriormente ainda estão neste aparelho'},
+  '消して容量を空けますか？':{en:'Delete it to free up space?',fr:'Les supprimer pour libérer de l’espace ?',pt:'Apagar para liberar espaço?'},
+  'まだ残しておきたい場合は「やめる」を押し、「設定 › データ管理」から書き出してください。消すと元に戻せません。':{en:'To keep it, tap Cancel and export it from Settings › Data. Deleting cannot be undone.',fr:'Pour les garder, touchez Annuler et exportez-les depuis Réglages › Données. La suppression est définitive.',pt:'Para mantê-los, toque em Cancelar e exporte em Ajustes › Dados. Apagar não pode ser desfeito.'},
+  '退避データを消す':{en:'Delete unreadable data',fr:'Supprimer les données illisibles',pt:'Apagar dados ilegíveis'},
+  '退避データの確認':{en:'Unreadable data',fr:'Données illisibles',pt:'Dados ilegíveis'},
+  '退避データを消しました':{en:'Unreadable data deleted',fr:'Données illisibles supprimées',pt:'Dados ilegíveis apagados'},
+  'バックアップのファイルを保存できましたか？':{en:'Was the backup file saved?',fr:'Le fichier de sauvegarde a-t-il été enregistré ?',pt:'O arquivo de backup foi salvo?'},
+  'ダウンロードの一覧や「ファイル」で、ファイルがあることを確かめてください。':{en:'Check that the file is in your downloads or the Files app. ',fr:'Vérifiez que le fichier se trouve dans vos téléchargements ou dans Fichiers. ',pt:'Confira se o arquivo está nos downloads ou no app Arquivos. '},
+  '保存できていないまま外すと、この年度のデータは元に戻せません。':{en:'If it was not saved, this year’s data cannot be recovered after removal.',fr:'S’il n’a pas été enregistré, les données de cette année seront perdues après le retrait.',pt:'Se não foi salvo, os dados deste ano não poderão ser recuperados após a remoção.'},
+  '保存できていなければ「やめる」を押してください（何も外しません）。':{en:'If not, tap Cancel (nothing will be removed).',fr:'Sinon, touchez Annuler (rien ne sera retiré).',pt:'Se não, toque em Cancelar (nada será removido).'},
+  '保存できた・外す':{en:'Saved – remove',fr:'Enregistré – retirer',pt:'Salvo – remover'},
+  '保存の確認':{en:'Confirm save',fr:'Confirmer l’enregistrement',pt:'Confirmar salvamento'},
   '退避データを書き出しました':{en:'Unreadable data exported',fr:'Données illisibles exportées',pt:'Dados ilegíveis exportados'},
   '退避データを書き出せませんでした。もう一度お試しください。':{en:'The unreadable data could not be exported. Please try again.',fr:'Impossible d’exporter les données illisibles. Réessayez.',pt:'Não foi possível exportar os dados ilegíveis. Tente novamente.'},
   '保存できていません（容量オーバー）。タップして「データ管理」へ':{en:'Not saved (storage full). Tap to open Data management.',fr:'Non enregistré (stockage plein). Touchez pour ouvrir Données.',pt:'Não salvo (armazenamento cheio). Toque para abrir Dados.'},
@@ -7092,7 +7105,7 @@ function showSaveError(on){
 // 画像を追加する前の容量チェック（追加してから溢れて消えるのを防ぐ）
 function canStoreMore(extraBytes){
   try{
-    const now=dbByteSize();
+    const now=storageUsedBytes();   // v284: 退避データなど本体以外の保存分も数える（点検 D-4）
     return (now+(extraBytes||0)) < STORAGE_BUDGET*0.92;      // 5MBの92%を上限とする
   }catch(e){ return true; }
 }
@@ -13794,9 +13807,18 @@ function setSetView(v){
 // ―― データ使用量の表示（localStorage 目安 5MB に対する割合）――
 const STORAGE_BUDGET=5*1024*1024;
 function dbByteSize(){ try{ return new Blob([JSON.stringify(DB)]).size; }catch(e){ return (JSON.stringify(DB)||'').length; } }
+// v284: 同じ端末の保存領域を分け合う、本体以外のキー（退避データ _broken など）の大きさ（点検 D-4）
+function storageKeyBytes(k){ try{ const v=localStorage.getItem(k); if(v==null)return 0; try{ return new Blob([k+v]).size; }catch(e){ return (k+v).length; } }catch(e){ return 0; } }
+function otherStorageBytes(){
+  let n=0;
+  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k!=null&&k!==STORE_KEY) n+=storageKeyBytes(k); } }catch(e){}
+  return n;
+}
+function storageUsedBytes(){ return dbByteSize()+otherStorageBytes(); }
 function renderDataUsage(){
   const box=document.getElementById('dataUsageBox'); if(!box)return;
-  const bytes=dbByteSize();
+  const bytes=storageUsedBytes();   // v284: 本体の DB だけでなく、退避データなど他の保存分も含める（点検 D-4）
+  const brokenBytes=storageKeyBytes(STORE_KEY+'_broken');
   const mb=bytes/1024/1024;
   const pct=Math.min(100, Math.round(bytes/STORAGE_BUDGET*100));
   const warn=pct>=70;
@@ -13807,6 +13829,7 @@ function renderDataUsage(){
       <b style="color:${barColor}">${mb<0.1?('約 '+Math.round(bytes/1024)+' KB'):('約 '+mb.toFixed(1)+' MB')} / 5MB</b>
     </div>
     <div style="height:10px;border-radius:6px;background:#eee;overflow:hidden;margin-top:6px"><div style="height:100%;width:${pct}%;background:${barColor}"></div></div>
+    ${brokenBytes?`<p class="list-mini" style="margin-top:6px">うち、読み取れなかったデータの退避分が ${archiveSizeLabel(brokenBytes)} あります。バックアップから復元できたあとに、消すかどうかを確認します。</p>`:''}
     ${warn?`<p class="list-mini" style="margin-top:6px;color:${barColor}">残り容量が少なくなっています。下の「古い年度をアーカイブ」で空き容量を確保できます。</p>`:''}`;
 }
 // ―― 年度アーカイブ ――
@@ -13868,7 +13891,8 @@ async function archiveBackup(fy){
     }
   }catch(e){}
   if(isNativeApp())return false;   // v255: アプリ版はダウンロードで保存できない（何も起きない）ので、保存できなかった扱いにして何も外さない
-  try{ downloadFullBackup('judo_archive_before_FY'+fy); markBackedUp(); return true; }catch(e){ return false; }
+  // v284: Web版のダウンロードは「始めただけ」で保存できたかは分からない。'download' を返し、外す前に本人に確かめる（点検 D-13）
+  try{ downloadFullBackup('judo_archive_before_FY'+fy); return 'download'; }catch(e){ return false; }
 }
 function renderArchiveOptions(){
   const box=document.getElementById('archiveBox'); if(!box)return;
@@ -13900,6 +13924,14 @@ function doArchiveYear(){
     // ① 復元用フルバックアップを保存。保存できなければ何も外さない（v252）
     const saved=await archiveBackup(fy);
     if(!saved){ toast(T('バックアップを保存できなかったため、アーカイブを中止しました')); return; }
+    // ①'' v284: Web版のダウンロードは、保存できたことを本人に確かめてから外す（点検 D-13）
+    if(saved==='download'){
+      askConfirm(T('バックアップのファイルを保存できましたか？')+'<br><br>'+T('ダウンロードの一覧や「ファイル」で、ファイルがあることを確かめてください。')+'<b>'+T('保存できていないまま外すと、この年度のデータは元に戻せません。')+'</b><br><br>'+T('保存できていなければ「やめる」を押してください（何も外しません）。'),()=>{ markBackedUp(); runArchive(); },'保存できた・外す','保存の確認','var(--navy)');
+      return;
+    }
+    runArchive();
+  },'バックアップして外す','アーカイブの確認','var(--navy)');
+  function runArchive(){
     // ①' v255: 外す前に、この年度の収支を繰越額として残す（期首残高が変わらないように。再アーカイブ分は加算）
     const net=fyNetBalance(fy);
     if(net){ if(!DB.archiveCarry||typeof DB.archiveCarry!=='object')DB.archiveCarry={}; DB.archiveCarry[fy]=(+DB.archiveCarry[fy]||0)+net; }
@@ -13912,13 +13944,15 @@ function doArchiveYear(){
     if(Array.isArray(DB.schedule)) DB.schedule=DB.schedule.filter(e=>!inFY(e.date));
     if(Array.isArray(DB.cash)) DB.cash=DB.cash.filter(c=>!inFY(c.date));
     if(DB.matchResults&&typeof DB.matchResults==='object'){ evIds.forEach(id=>{ delete DB.matchResults[id]; }); }
+    // ③' v284: この年度の予定の申込データも外す。残すと一覧から辿れず、容量だけ占め続けるため（点検 D-13）
+    if(DB.entries&&typeof DB.entries==='object'){ evIds.forEach(id=>{ delete DB.entries[id]; }); }
     // ④ v252: この年度のメモリー画像も外す。残しても一覧から辿れず、容量だけ占め続けるため
     st.keys.forEach(([store,k])=>{ if(DB[store])delete DB[store][k]; });
     save();
     renderDataUsage(); renderArchiveOptions();
     [ 'renderMates','renderAtt','renderMoney','renderSched','renderList','renderRireki' ].forEach(fn=>{ try{ if(typeof window[fn]==='function') window[fn](); }catch(_){} });
     toast(fy+T('年度をアーカイブしました')+(st.total?'（'+T('画像')+st.total+T('枚')+'・'+archiveSizeLabel(st.bytes)+T('を解放')+'）':''));
-  },'バックアップして外す','アーカイブの確認','var(--navy)');
+  }
 }
 let mateFilter='all';
 // v261: 退会者を出すかどうかは「よく使う設定 › 表示」で選ぶ。この端末に記憶する
@@ -15008,6 +15042,18 @@ async function exportBrokenData(){
   }
   try{ alert('⚠️ '+T('退避データを書き出せませんでした。もう一度お試しください。')); }catch(e){}
 }
+/* v284: 退避データは一度書くと消されず、本体と同じ大きさを抱え続けて容量オーバーの原因になる（点検 D-4）。
+   バックアップからの復元に成功したときだけ、確認をはさんで消す。「やめる」なら残す（書き出しもそのまま使える）。 */
+function askDropBroken(){
+  const bytes=storageKeyBytes(STORE_KEY+'_broken');
+  if(!bytes)return;
+  askConfirm(T('復元できました。')+'<br><br>'+T('端末内に、以前読み取れなかったデータ（退避データ）が残っています')+'（'+archiveSizeLabel(bytes)+'）。'+T('消して容量を空けますか？')+'<br><br>'+T('まだ残しておきたい場合は「やめる」を押し、「設定 › データ管理」から書き出してください。消すと元に戻せません。'),()=>{
+    try{ localStorage.removeItem(STORE_KEY+'_broken'); }catch(e){}
+    loadFailedRaw='';
+    renderBrokenExport(); renderDataUsage();
+    toast(T('退避データを消しました'));
+  },'退避データを消す','退避データの確認');
+}
 // v255: アプリ版で共有シートが使えなかったとき。保存できたことにしない（最終バックアップ日を記録しない）
 function backupNativeFail(){
   try{ alert('⚠️ '+T('バックアップを保存できませんでした。もう一度お試しください。解決しない場合は、アプリを再起動してからお試しください。')); }catch(e){}
@@ -15089,6 +15135,7 @@ function doRestore(){
       return;
     }
     toast(T('復元しました'));
+    askDropBroken();   // v284: 復元できたら、残っている退避データを消すか聞く（点検 D-4）
   }catch(err){
     try{ if(_rollback!==null)localStorage.setItem(STORE_KEY,_rollback); }catch(e){}
     closeModal('confirmModal');
