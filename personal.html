@@ -5499,7 +5499,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v281'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v282'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -6288,6 +6288,10 @@ Object.assign(DICT,{
   '保存する':{en:'Save',fr:'Enregistrer',pt:'Salvar'},
   '保存しない':{en:'Don’t save',fr:'Ne pas enregistrer',pt:'Não salvar'},
   '確認':{en:'Confirm',fr:'Confirmation',pt:'Confirmação'},
+  '人数を変えると、次の枠の記入内容が消えます。よろしいですか？':{en:'Changing the team size will erase the entries in these positions. Continue?',fr:'Changer le nombre de joueurs effacera les saisies de ces positions. Continuer ?',pt:'Mudar o número de atletas apagará os dados destas posições. Continuar?'},
+  '人数を変える':{en:'Change size',fr:'Changer',pt:'Alterar'},
+  '選手未選択':{en:'No player selected',fr:'Aucun joueur choisi',pt:'Nenhum atleta escolhido'},
+  '取り込み先の位置に、別の選手の結果がすでに入っています。上書きすると消えます。よろしいですか？':{en:'Another player’s result is already in this position. Overwriting will erase it. Continue?',fr:'Le résultat d’un autre joueur occupe déjà cette position. Le remplacer l’effacera. Continuer ?',pt:'Já há o resultado de outro atleta nesta posição. Substituir vai apagá-lo. Continuar?'},
   '削除の確認':{en:'Confirm deletion',fr:'Confirmer la suppression',pt:'Confirmar exclusão'},
   'デザインを編集':{en:'Edit design',fr:'Modifier le design',pt:'Editar design'},
   'デザインを外す':{en:'Remove design',fr:'Retirer le design',pt:'Remover design'},
@@ -8341,15 +8345,48 @@ function onTeamSelfChange(key,val){
     else document.getElementById('boutBlocks').innerHTML=curCard.bouts.map((bb,i)=>boutBlockHtml(bb,String(i),false)).join('');
   }
 }
+// v282: 記入済みの枠か（選手・相手・内容・技・メモのどれかが入っている）
+function cardBoutFilled(b){return !!(b&&(b.selfId||(b.oppName||'').trim()||b.oppId||b.grade||(b.waza||'').trim()||(b.note||'').trim()));}
+// v282: 人数を変えたときは「何番目」ではなく役割の名前で並べ直す（統合 mergeCardInto と同じ考え方）。
+//       同じ役割が無い記入済みの枠は、空いた位置へ元の順のまま詰める。入りきらない枠は dropped に返す
+function remapCardBouts(bouts,oldCount,newCount){
+  const oPos=posList(oldCount), nPos=posList(newCount);
+  const out=new Array(newCount).fill(null), rest=[];
+  bouts.forEach((b,i)=>{
+    const di=nPos.indexOf(oPos[i]);
+    if(di>=0&&!out[di])out[di]=b;
+    else if(cardBoutFilled(b))rest.push({b:b,pos:oPos[i]});
+  });
+  const dropped=[];
+  rest.forEach(r=>{
+    const di=out.findIndex(x=>!cardBoutFilled(x));
+    if(di>=0)out[di]=r.b; else dropped.push(r);
+  });
+  return {bouts:out.map(x=>x||newBout()),dropped:dropped};
+}
 function cardNext(){
-  curCard.count=Math.max(1,Math.min(15,Number(document.getElementById('cdCount').value)||5));
-  curCard.division=document.getElementById('cdDivision').value.trim();
-  curCard.round=document.getElementById('cdRound').value.trim();
-  curCard.oppTeam=document.getElementById('cdOppTeam').value.trim();
+  const newCount=Math.max(1,Math.min(15,Number(document.getElementById('cdCount').value)||5));
   if(!Array.isArray(curCard.bouts))curCard.bouts=[];
-  while(curCard.bouts.length<curCard.count)curCard.bouts.push(newBout());
-  if(curCard.bouts.length>curCard.count)curCard.bouts=curCard.bouts.slice(0,curCard.count);
-  showCardStep(2);
+  const apply=(bouts)=>{
+    curCard.count=newCount;
+    curCard.division=document.getElementById('cdDivision').value.trim();
+    curCard.round=document.getElementById('cdRound').value.trim();
+    curCard.oppTeam=document.getElementById('cdOppTeam').value.trim();
+    if(bouts){curCard.bouts=bouts;teamSelfCat={};}
+    while(curCard.bouts.length<curCard.count)curCard.bouts.push(newBout());
+    if(curCard.bouts.length>curCard.count)curCard.bouts=curCard.bouts.slice(0,curCard.count);
+    showCardStep(2);
+  };
+  const oldCount=curCard.bouts.length;
+  if(!oldCount||oldCount===newCount){apply(null);return;}
+  const r=remapCardBouts(curCard.bouts,oldCount,newCount);
+  if(!r.dropped.length){apply(r.bouts);return;}
+  // 記入済みの枠が消えるときは、どの枠かを出して確かめる
+  const names=r.dropped.map(d=>{
+    const s=d.b.selfId?DB.students.find(x=>x.id===d.b.selfId):null;
+    return esc(T(d.pos))+'：'+esc(s?s.name:(d.b.oppName||T('選手未選択')));
+  }).join('<br>');
+  askConfirm(T('人数を変えると、次の枠の記入内容が消えます。よろしいですか？')+'<br><br>'+names,()=>apply(r.bouts),'人数を変える','確認');
 }
 function boutByKey(key){return key==='rep'?curCard.rep:curCard.bouts[Number(key)];}
 function pre(key){return key==='rep'?'rep':'b'+key;}
@@ -12103,7 +12140,7 @@ function renderImportBouts(){
     </div>${tgt}</div>`;
   }).join('');
 }
-function doImport(){
+function doImport(forced){
   if(!importParsed)return;
   let selfId=document.getElementById('importSelf').value;
   if(!selfId){toast(T('選手を選んでください'));return;}
@@ -12129,6 +12166,30 @@ function doImport(){
     }
     if(selfId==='__newstu__'&&!((importParsed.head&&importParsed.head.self)||'').trim()){toast(T('選手のなまえが読み取れませんでした'));return;}
     if(document.getElementById('importSched').value==='__new__'&&!document.getElementById('importNewDate').value){toast(T('新しい予定の日付を入れてください'));return;}
+    // v282: 取り込み先の位置に別の選手の結果がすでにあるときは、名前を出して確かめる（黙って上書きしない）
+    if(!forced&&importParsed.head.kind==='団体'){
+      const _mrC=(DB.matchResults||{})[document.getElementById('importSched').value];
+      const _cards=(_mrC&&_mrC.team&&_mrC.team.cards)||[];
+      const _cnt=importParsed.head.teamCount||5;
+      const _role=importParsed.head.role||posList(_cnt)[0];
+      const _isRep=(_role==='代表戦'||_role==='代表');
+      let _sid=selfId;
+      if(_sid==='__newstu__'){const _d=findStudentExact(((importParsed.head&&importParsed.head.self)||'').trim());_sid=_d?_d.id:'';}
+      const conflicts=[];
+      picked0.forEach(b=>{
+        if(!b.targetCardId||b.targetCardId==='__new__')return;
+        const c=_cards.find(x=>x.id===b.targetCardId); if(!c)return;
+        const cur=_isRep?(c.tiebreak==='rep'?c.rep:null):(c.bouts||[])[posList(c.count||_cnt).indexOf(_role)];
+        if(!cardBoutFilled(cur)||(_sid&&cur.selfId===_sid))return;
+        const s=cur.selfId?DB.students.find(x=>x.id===cur.selfId):null;
+        const line=esc(impCardLabel(c))+'・'+esc(T(_isRep?'代表戦':_role))+'：'+esc(s?s.name:(cur.oppName||T('選手未選択')));
+        if(conflicts.indexOf(line)<0)conflicts.push(line);
+      });
+      if(conflicts.length){
+        askConfirm(T('取り込み先の位置に、別の選手の結果がすでに入っています。上書きすると消えます。よろしいですか？')+'<br><br>'+conflicts.join('<br>'),()=>doImport(true),'上書きする','確認');
+        return;
+      }
+    }
   }
   // v258: 保存できなかったときに元へ戻せるよう、何かを作る前の姿を控える
   const _bkStu=DB.students.slice(), _bkSch=DB.schedule.slice();
