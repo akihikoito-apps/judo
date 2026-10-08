@@ -5499,7 +5499,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v282'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v283'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -5634,6 +5634,16 @@ const DICT={
   '記入：':{en:'Written: ',fr:'Saisi : ',pt:'Informado: '},
   '（自動一致）':{en:'(matched automatically)',fr:'(correspondance automatique)',pt:'(correspondência automática)'},
   '（一致者なし。選ぶか、新しく登録してください）':{en:'(no match — choose someone, or add a new member)',fr:'(aucune correspondance — choisissez ou ajoutez un membre)',pt:'(sem correspondência — escolha ou cadastre um membro)'},
+  'を別の人として新しく登録して取り込む':{en:'— add as a different, new member and import',fr:'— ajouter comme un autre membre (nouveau) et importer',pt:'— cadastrar como outra pessoa (novo membro) e importar'},
+  '（名前が似ている仲間がいます。取り込む前に、どの選手か確かめてください）':{en:'(members with similar names exist — confirm who this is before importing)',fr:'(des membres ont un nom proche — confirmez de qui il s’agit avant d’importer)',pt:'(há membros com nomes parecidos — confirme quem é antes de importar)'},
+  '（同じ名前の仲間が複数います。取り込む前に、どの選手か確かめてください）':{en:'(several members share this name — confirm who this is before importing)',fr:'(plusieurs membres portent ce nom — confirmez de qui il s’agit avant d’importer)',pt:'(vários membros têm este nome — confirme quem é antes de importar)'},
+  'この選手で合っていますか？':{en:'Is this the right athlete?',fr:'Est-ce le bon athlète ?',pt:'É este o atleta certo?'},
+  '記入されている名前と完全には一致しません。結果を付ける選手を選んでください。':{en:'The written name does not match exactly. Choose the athlete to attach these results to.',fr:'Le nom saisi ne correspond pas exactement. Choisissez l’athlète à qui attribuer ces résultats.',pt:'O nome informado não confere exatamente. Escolha o atleta que receberá estes resultados.'},
+  '同じ名前の仲間が複数います。結果を付ける選手を選んでください。':{en:'Several members share this name. Choose the athlete to attach these results to.',fr:'Plusieurs membres portent ce nom. Choisissez l’athlète à qui attribuer ces résultats.',pt:'Vários membros têm este nome. Escolha o atleta que receberá estes resultados.'},
+  '別の人として新しく登録する':{en:'Add as a different, new member',fr:'Ajouter comme un autre membre (nouveau)',pt:'Cadastrar como outra pessoa (novo membro)'},
+  'この選手で決める':{en:'Use this athlete',fr:'Choisir cet athlète',pt:'Usar este atleta'},
+  '候補':{en:'Suggested',fr:'Suggestion',pt:'Sugestão'},
+  'どれか1つを選んでください':{en:'Please choose one',fr:'Veuillez en choisir un',pt:'Escolha uma opção'},
   '（記入に選手名がありません）':{en:'(no athlete name in the text)',fr:'(aucun nom d’athlète dans le texte)',pt:'(sem nome de atleta no texto)'},
   '選手のなまえが読み取れませんでした':{en:'Could not read the athlete’s name',fr:'Impossible de lire le nom de l’athlète',pt:'Não foi possível ler o nome do atleta'},
   '「':{en:'“',fr:'« ',pt:'“'},
@@ -11903,6 +11913,39 @@ function findStudentByName(nm){
       || DB.students.find(s=>{const n=normName(s.name);return n&&(n.includes(t)||t.includes(n));}) // 姓のみ等の部分一致
       || null;
 }
+// v283: 取り込みの名前照合。自動で決めてよいのは「完全一致が1人だけ」のときだけ。
+//       部分一致（名字だけ等）や同じ名前が複数いるときは候補として返し、必ず確認してから選ばせる
+function impSelfCandidates(nm){
+  const t=normName(nm); if(!t)return {auto:null,cands:[],sameName:false};
+  const exact=DB.students.filter(s=>normName(s.name)===t);
+  if(exact.length===1)return {auto:exact[0],cands:[],sameName:false};
+  const loose=DB.students.filter(s=>{const n=normName(s.name);return n&&n!==t&&(n.includes(t)||t.includes(n));})
+    .sort((a,b)=>Math.abs(normName(a.name).length-t.length)-Math.abs(normName(b.name).length-t.length));
+  return {auto:null,cands:exact.concat(loose),sameName:exact.length>1};
+}
+// v283: 「この選手で合っていますか？」…候補の選手か「別の人として新しく登録する」を選ばせる
+function impAskSelf(onDone){
+  if(!importParsed)return;
+  const c=(importParsed._selfCands||[]).slice(), nm=((importParsed.head&&importParsed.head.self)||'').trim();
+  const cur=document.getElementById('importSelf').value;
+  if(cur&&cur!=='__newstu__'&&c.indexOf(cur)<0&&DB.students.some(s=>s.id===cur))c.push(cur);   // 一覧で候補以外を選んだときは、その人も並べる
+  const row=(v,label,sub)=>`<label style="display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--line);cursor:pointer"><input type="radio" name="impSelfPick" value="${v}" ${cur===v?'checked':''} style="width:20px;height:20px;flex:none"><span>${label}${sub?'<br><span style="font-size:13px;color:var(--muted,#888)">'+sub+'</span>':''}</span></label>`;
+  const list=c.map((id,i)=>{const s=DB.students.find(x=>x.id===id); if(!s)return '';
+      const sub=[i===0&&!importParsed._selfSameName?T('候補'):'',s.category?esc(T(s.category)):'',s.rank?esc(s.rank):''].filter(Boolean).join('・');
+      return row(s.id,esc(s.name),sub);}).join('')
+    +row('__newstu__',T('別の人として新しく登録する'),'「'+esc(nm)+'」');
+  askConfirm(T('記入：')+'<b>'+esc(nm)+'</b><br>'
+    +T(importParsed._selfSameName?'同じ名前の仲間が複数います。結果を付ける選手を選んでください。':'記入されている名前と完全には一致しません。結果を付ける選手を選んでください。')
+    +'<span style="display:block;margin-top:8px">'+list+'</span>',
+    ()=>{
+      const r=document.querySelector('input[name="impSelfPick"]:checked');
+      if(!r){ toast(T('どれか1つを選んでください')); impAskSelf(onDone); return; }
+      document.getElementById('importSelf').value=r.value;
+      importParsed._selfOk=r.value;
+      onImportSelfChange();
+      if(typeof onDone==='function')onDone();
+    },'この選手で決める','この選手で合っていますか？','var(--navy)');
+}
 function impNormDate(v){v=(v||'').trim();const m=v.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);return m?`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`:'';}
 function impDayDiff(a,b){if(!a||!b)return 9999;return Math.round((new Date(a+'T00:00')-new Date(b+'T00:00'))/86400000);}
 function parseImportText(raw){
@@ -11984,16 +12027,20 @@ function analyzeImport(){
     return;
   }
   importParsed=p;
-  const matched=findStudentByName(p.head.self);
+  // v283: 自動で選ぶのは完全一致が1人だけのとき。部分一致・同名複数は選ばずに確認へ回す
+  const _mc=impSelfCandidates(p.head.self);
+  const matched=_mc.auto;
+  p._selfCands=_mc.cands.map(s=>s.id); p._selfSameName=_mc.sameName; p._selfOk='';
+  const _ask=!matched&&_mc.cands.length>0;
   const selEl=document.getElementById('importSelf');
   // v246: 一致する仲間がいないとき、その場で新しく登録できる選択肢を出す（結果と一緒に登録できる）
   const newName=(p.head.self||'').trim();
-  const newOpt=newName?`<option value="__newstu__" ${matched?'':'selected'}>${T('＋')} 「${esc(newName)}」${T('を新しく登録して取り込む')}</option>`:'';
+  const newOpt=newName?`<option value="__newstu__" ${(matched||_ask)?'':'selected'}>${T('＋')} 「${esc(newName)}」${T((matched||_ask)?'を別の人として新しく登録して取り込む':'を新しく登録して取り込む')}</option>`:'';
   selEl.innerHTML='<option value="">'+T('（選手を選ぶ）')+'</option>'
     +DB.students.map(s=>`<option value="${s.id}" ${matched&&matched.id===s.id?'selected':''}>${esc(s.name)}</option>`).join('')
     +newOpt;
   document.getElementById('importSelfHint').textContent = p.head.self
-    ? (T('記入：')+p.head.self+(matched?T('（自動一致）'):T('（一致者なし。選ぶか、新しく登録してください）')))
+    ? (T('記入：')+p.head.self+(matched?T('（自動一致）'):_ask?T(_mc.sameName?'（同じ名前の仲間が複数います。取り込む前に、どの選手か確かめてください）':'（名前が似ている仲間がいます。取り込む前に、どの選手か確かめてください）'):T('（一致者なし。選ぶか、新しく登録してください）')))
     : T('（記入に選手名がありません）');
   // 試合結果設定あり（試合/大会・または結果済み）の予定だけに限定（通常稽古は出さない）
   const scheds=[...DB.schedule].filter(schedIsMatch).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
@@ -12016,6 +12063,7 @@ function analyzeImport(){
   impMarkDuplicates();      // v258: すでに入っている試合は最初からチェックを外す
   renderImportBouts();
   importShow('preview');
+  if(_ask)impAskSelf();     // v283: 部分一致・同名複数は、その場で「この選手で合っていますか？」を出す
 }
 function onImportSchedChange(){
   document.getElementById('importNewSched').style.display=(document.getElementById('importSched').value==='__new__')?'block':'none';
@@ -12144,6 +12192,8 @@ function doImport(forced){
   if(!importParsed)return;
   let selfId=document.getElementById('importSelf').value;
   if(!selfId){toast(T('選手を選んでください'));return;}
+  // v283: 名前が部分一致・同名複数のときは、確認画面で選んだものでなければ取り込まない（一覧で選び直したときも確かめる）
+  if((importParsed._selfCands||[]).length&&importParsed._selfOk!==selfId){ impAskSelf(()=>doImport(forced)); return; }
   // v257: DBを触る前に、入力の不足をすべて確かめる。
   //       従来は仲間や予定を先に作っていたため、エラーで中断しても空の予定・仲間だけが増えていた。
   {
@@ -12174,7 +12224,7 @@ function doImport(forced){
       const _role=importParsed.head.role||posList(_cnt)[0];
       const _isRep=(_role==='代表戦'||_role==='代表');
       let _sid=selfId;
-      if(_sid==='__newstu__'){const _d=findStudentExact(((importParsed.head&&importParsed.head.self)||'').trim());_sid=_d?_d.id:'';}
+      if(_sid==='__newstu__')_sid='';   // v283: 新しく登録する人は、まだどの位置にもいない
       const conflicts=[];
       picked0.forEach(b=>{
         if(!b.targetCardId||b.targetCardId==='__new__')return;
@@ -12205,9 +12255,8 @@ function doImport(forced){
   if(selfId==='__newstu__'){
     const nm=((importParsed.head&&importParsed.head.self)||'').trim();
     if(!nm){toast(T('選手のなまえが読み取れませんでした'));return;}
-    const dup=findStudentExact(nm);      // v258: 部分一致で別人に振り替えない（佐藤 愛子→佐藤 愛）
-    if(dup){ selfId=dup.id; }
-    else{
+    // v283: 「新しく登録」を選んだときは、同じ名前の仲間がいても既存の人へ振り替えない（別の人として登録する）
+    {
       const parts=nm.split(/[\s　]+/).filter(Boolean);
       const st={id:uid(),name:nm,lastName:parts[0]||nm,firstName:parts.slice(1).join(' '),lastKana:'',firstKana:'',kana:'',
         role:'',category:(cats()[0]||{}).name||'',gradeBaseFY:null,gradeBaseLevel:null,gradeFixed:false,gradeTouchedFY:null,
