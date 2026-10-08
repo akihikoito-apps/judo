@@ -5499,7 +5499,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v279'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v280'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -6237,6 +6237,7 @@ Object.assign(DICT,{
   '無料期間があるときは、その終了後から年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'If a free period applies, the yearly price renews automatically once it ends. You can cancel any time in Settings › Subscriptions on your iPhone.',fr:'Si une période gratuite s’applique, le tarif annuel se renouvelle automatiquement à son terme. Résiliation à tout moment dans Réglages › Abonnements.',pt:'Se houver período gratuito, a renovação anual automática começa ao fim dele. Cancele quando quiser em Ajustes › Assinaturas.'},
   '画像':{en:'Images',fr:'Images',pt:'Imagens'},
   '登録する試合結果がありません':{en:'There are no results to save.',fr:'Aucun résultat à enregistrer.',pt:'Não há resultados para salvar.'},
+  '試合結果を入力してください':{en:'Please enter a match result.',fr:'Veuillez saisir un résultat.',pt:'Insira um resultado.'},
   '種類を選んでください':{en:'Choose a type.',fr:'Choisissez un type.',pt:'Escolha um tipo.'},
   '編集':{en:'Edit',fr:'Modifier',pt:'Editar'},
   '調整しました':{en:'Adjusted.',fr:'Ajusté.',pt:'Ajustado.'},
@@ -8821,7 +8822,8 @@ function raTeamBouts(){
   const out=[],M={};(DB.schedule||[]).forEach(s=>M[s.id]=s);
   Object.keys(DB.matchResults||{}).forEach(k=>{const mr=DB.matchResults[k]||{},date=(M[k]||{}).date||'';
     (mr.individual||[]).forEach(b=>out.push(Object.assign({},b,{schedDate:date})));
-    if(mr.team&&mr.team.cards)mr.team.cards.forEach(c=>{(c.bouts||[]).forEach(b=>out.push(Object.assign({},b,{schedDate:date})));if(c.tiebreak==='rep'&&c.rep)out.push(Object.assign({},c.rep,{schedDate:date}));});});
+    // v280: 団体戦の空き枠（選手なし・既定の○）を勝ちとして数えない
+    if(mr.team&&mr.team.cards)mr.team.cards.forEach(c=>{(c.bouts||[]).forEach(b=>{if(b&&b.selfId)out.push(Object.assign({},b,{schedDate:date}));});if(c.tiebreak==='rep'&&c.rep&&c.rep.selfId)out.push(Object.assign({},c.rep,{schedDate:date}));});});
   return out;
 }
 function matchAnalysisHtml(bouts){
@@ -9464,11 +9466,14 @@ function repTrimEmptyTail(){
     if(m&&!m.touched&&repMatchIsBlank(m))repMatches.pop(); else break;
   }
 }
+// v280: 最後の1行は必ず残るので、名前だけで押すと既定の○が空の「勝ち」として記録・送信されていた
+function repAllBlank(){ return !repMatches.some(m=>m&&(m.touched||!repMatchIsBlank(m))); }
 function repToDojo(){
   const name=(document.getElementById('repName').value||'').trim();
   if(!name){ toast(T('選手のなまえを入れてください')); return; }
   repTrimEmptyTail(); repRenderMatches();
   if(!repMatches.length){ toast(T('送る試合結果がありません')); return; }
+  if(repAllBlank()){ toast(T('試合結果を入力してください')); return; }
   dojoSendCache=repGen();
   dojoGroupEv=null; dojoGroups=[];                                              // v257: 報告タブからは分割しない
   const _gp=document.getElementById('dojoGroupPick'); if(_gp)_gp.style.display='none';
@@ -9672,6 +9677,7 @@ function repToMemory(){
   const name=(document.getElementById('repName').value||'').trim();
   if(!name){ toast(T('選手のなまえを入れてください')); return; }
   repTrimEmptyTail();
+  if(repAllBlank()){ toast(T('試合結果を入力してください')); return; }
   const bouts=repMatches.filter(m=>m&&m.res);
   if(!bouts.length){ toast(T('登録する試合結果がありません')); return; }
   const sig=repGen();
