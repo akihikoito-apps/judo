@@ -1871,6 +1871,10 @@ function applyUpdate(){
       <label class="btn full ghost" style="margin-top:10px;cursor:pointer">📂 バックアップから復元
         <input type="file" accept=".json" style="display:none" onchange="importData(event)">
       </label>
+      <div id="brokenExportBox" style="display:none;margin-top:10px">
+        <button class="btn full ghost" onclick="exportBrokenData()">🧯 退避データを書き出す（共有・コピー）</button>
+        <p class="list-mini">読み取れなかったデータを、そのままの形で書き出します。このファイルからは復元できません。お問い合わせのときにお送りください。</p>
+      </div>
       <label class="fld" style="margin-top:16px">保存のリマインド</label>
       <div class="cat-pick" id="bkRemindPick"></div>
       <p class="list-mini">前回の保存から選んだ日数が過ぎると、画面上部でお知らせします。</p>
@@ -5495,7 +5499,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v276'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v277'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -6051,6 +6055,13 @@ Object.assign(DICT,{
   'タイトルの文字エフェクト':{en:'Title text effect',fr:'Effet du titre',pt:'Efeito do título'},
   'スタンプ':{en:'Stamp',fr:'Tampon',pt:'Carimbo'},
   '写真':{en:'Photo',fr:'Photo',pt:'Foto'},
+  '保存できていません（データを読み取れませんでした）。タップして「データ管理」へ':{en:'Not saved (your data could not be read). Tap to open Data management.',fr:'Non enregistré (données illisibles). Touchez pour ouvrir Données.',pt:'Não salvo (não foi possível ler os dados). Toque para abrir Dados.'},
+  '🧯 退避データを書き出す（共有・コピー）':{en:'🧯 Export unreadable data (share/copy)',fr:'🧯 Exporter les données illisibles (partager/copier)',pt:'🧯 Exportar dados ilegíveis (compartilhar/copiar)'},
+  '読み取れなかったデータを、そのままの形で書き出します。このファイルからは復元できません。お問い合わせのときにお送りください。':{en:'Exports the data that could not be read, as is. It cannot be used to restore. Please send it with your support request.',fr:'Exporte telles quelles les données illisibles. Ce fichier ne permet pas de restaurer. Joignez-le à votre demande d’assistance.',pt:'Exporta os dados ilegíveis como estão. Este arquivo não serve para restaurar. Envie-o ao pedir suporte.'},
+  '退避データはありません':{en:'There is no unreadable data to export',fr:'Aucune donnée illisible à exporter',pt:'Não há dados ilegíveis para exportar'},
+  '退避データをコピーしました。メモ帳などに貼り付けて残してください':{en:'Unreadable data copied. Paste it into Notes or similar to keep it.',fr:'Données illisibles copiées. Collez-les dans Notes pour les conserver.',pt:'Dados ilegíveis copiados. Cole-os no Notas para guardá-los.'},
+  '退避データを書き出しました':{en:'Unreadable data exported',fr:'Données illisibles exportées',pt:'Dados ilegíveis exportados'},
+  '退避データを書き出せませんでした。もう一度お試しください。':{en:'The unreadable data could not be exported. Please try again.',fr:'Impossible d’exporter les données illisibles. Réessayez.',pt:'Não foi possível exportar os dados ilegíveis. Tente novamente.'},
   '保存できていません（容量オーバー）。タップして「データ管理」へ':{en:'Not saved (storage full). Tap to open Data management.',fr:'Non enregistré (stockage plein). Touchez pour ouvrir Données.',pt:'Não salvo (armazenamento cheio). Toque para abrir Dados.'},
   '保存容量がいっぱいです。':{en:'Storage is full.',fr:'Le stockage est plein.',pt:'O armazenamento está cheio.'},
   '「設定 › データ管理」で、いらない写真を削除するか「古い年度をアーカイブ」してから、もう一度お試しください。':{en:'In Settings › Data, delete unneeded photos or archive an old year, then try again.',fr:'Dans Réglages › Données, supprimez des photos ou archivez une ancienne année, puis réessayez.',pt:'Em Ajustes › Dados, apague fotos ou arquive um ano antigo e tente novamente.'},
@@ -7034,7 +7045,7 @@ function uid(){
 let saveErrorShown=false;
 function save(){
   if(demoMode)return true;                                  // v242: デモの入力は保存しない（本物のデータを守る）
-  if(loadFailed)return false;                               // 壊れたデータを上書きしない
+  if(loadFailed){ showSaveError(true); return false; }      // 壊れたデータを上書きしない（v277: 保存できないことを帯で出し続ける）
   try{
     localStorage.setItem(STORE_KEY,JSON.stringify(DB));
     saveErrorShown=false; showSaveError(false);
@@ -7058,7 +7069,7 @@ function showSaveError(on){
     el.onclick=()=>{ try{ switchTab('set'); setSetView('data'); }catch(e){} };
     document.body.appendChild(el);
   }
-  el.textContent='⚠️ '+T('保存できていません（容量オーバー）。タップして「データ管理」へ');
+  el.textContent='⚠️ '+(loadFailed?T('保存できていません（データを読み取れませんでした）。タップして「データ管理」へ'):T('保存できていません（容量オーバー）。タップして「データ管理」へ'));   // v277: 読み込み失敗中は理由を分けて出す
   el.style.display='';
 }
 // 画像を追加する前の容量チェック（追加してから溢れて消えるのを防ぐ）
@@ -14794,6 +14805,36 @@ async function exportData(){
   if(isNativeApp()){ backupNativeFail(); return; }
   downloadBackup(json,fname);
 }
+// v277: 読み取れなかったデータ（退避データ）を書き出す。共有シート → コピー → ダウンロードの順に試す。バックアップ済みの扱いにはしない
+function brokenRaw(){
+  if(loadFailedRaw)return loadFailedRaw;
+  try{ return localStorage.getItem(STORE_KEY+'_broken')||''; }catch(e){ return ''; }
+}
+function renderBrokenExport(){
+  const box=document.getElementById('brokenExportBox'); if(!box)return;
+  box.style.display=brokenRaw()?'':'none';
+}
+async function exportBrokenData(){
+  const raw=brokenRaw();
+  if(!raw){ toast(T('退避データはありません')); return; }
+  const fname=`judo_unreadable_${todayStr()}.txt`;
+  try{
+    const file=new File([raw],fname,{type:'text/plain'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file],title:'My柔道 退避データ'}); return; }
+      catch(e){ if(e&&e.name==='AbortError')return; }
+    }
+  }catch(e){}
+  try{ await navigator.clipboard.writeText(raw); toast(T('退避データをコピーしました。メモ帳などに貼り付けて残してください')); return; }catch(e){}
+  if(!isNativeApp()){
+    try{
+      const url=URL.createObjectURL(new Blob([raw],{type:'text/plain'}));
+      const a=document.createElement('a'); a.href=url; a.download=fname; a.click(); URL.revokeObjectURL(url);
+      toast(T('退避データを書き出しました')); return;
+    }catch(e){}
+  }
+  try{ alert('⚠️ '+T('退避データを書き出せませんでした。もう一度お試しください。')); }catch(e){}
+}
 // v255: アプリ版で共有シートが使えなかったとき。保存できたことにしない（最終バックアップ日を記録しない）
 function backupNativeFail(){
   try{ alert('⚠️ '+T('バックアップを保存できませんでした。もう一度お試しください。解決しない場合は、アプリを再起動してからお試しください。')); }catch(e){}
@@ -14814,6 +14855,7 @@ function renderBkRemindPick(){
   el.innerHTML=BACKUP_REMIND_OPTS.map(d=>`<button class="${cur===d?'on':''}" onclick="setBackupRemind(${d})">${d?d+T('日ごと'):T('お知らせしない')}</button>`).join('');
 }
 function renderBackupStatus(){
+  renderBrokenExport();   // v277
   const box=document.getElementById('backupStatus'); if(!box)return;
   renderBkRemindPick();
   const BACKUP_REMIND_DAYS=backupRemindDays()||99999;
@@ -14959,7 +15001,7 @@ function initUI(){
   setTimeout(()=>{ if(typeof shrinkOldCards==='function')shrinkOldCards(); },1500);  // v252: 旧サイズのカードを縮めて容量を返す（初回のみ・描画を邪魔しないよう遅延）
 }
 load();
-  if(loadFailed){ initUI(); showLoadFailure(); }        // v240: 壊れたデータを空DBで上書きしない
+  if(loadFailed){ initUI(); showSaveError(true); showLoadFailure(); }        // v240: 壊れたデータを空DBで上書きしない（v277: 保存できないことを帯で出し続ける）
   else { seedIfEmpty();save();initUI(); setTimeout(()=>{ try{ noticeGradeEntryFix(); }catch(e){} },900); }   // v276: 学年を直した人のお知らせ
 loadLock();
 if(lockEnabled&&lockCode){showLockScreen('unlock');}
