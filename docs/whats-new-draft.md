@@ -48,7 +48,7 @@ CHANGELOG ファイルはリポジトリにないため、コミット 9cadfaa�
 ```text
 What's new in version 1.2
 
-• Entry admin now has "Save and close" and "Discard and close" buttons. Discard asks first, then puts the entry back the way it was when you opened it. Your input is still saved as you type, so nothing is lost if the app closes unexpectedly.
+• Entry admin now has "Save and close" and "Discard and close" buttons. Discard asks first, then puts the entry back the way it was when you opened it. As before, each field is saved once you finish entering it.
 • When you share the schedule, the names of the athletes entered for each tournament go with it, so each athlete can see whether they are competing. Only names are sent: fees, payment status and private notes stay on your device. If the list is too long for the QR code, it ends with "and N more". Athletes need My Judo History 1.3 to see the names; older versions simply ignore them.
 • Fixed: after zooming in with two fingers, the tab bar could float in the middle of the screen.
 ```
@@ -58,7 +58,7 @@ What's new in version 1.2
 ```text
 Nouveautés de la version 1.2
 
-• Gestion inscriptions propose maintenant deux boutons : « Enregistrer et fermer » et « Abandonner et fermer ». Abandonner demande une confirmation, puis remet l’inscription dans l’état où elle était à l’ouverture. La saisie reste enregistrée au fil de l’eau : rien n’est perdu si l’application se ferme d’un coup.
+• Gestion inscriptions propose maintenant deux boutons : « Enregistrer et fermer » et « Abandonner et fermer ». Abandonner demande une confirmation, puis remet l’inscription dans l’état où elle était à l’ouverture. Comme avant, chaque champ est enregistré dès que vous validez la saisie.
 • Quand vous partagez le planning, les noms des judokas inscrits à chaque compétition sont joints, pour que chacun sache s’il combat. Seuls les noms sont envoyés : tarifs, encaissements et notes personnelles restent sur votre appareil. Si la liste est trop longue pour le QR code, elle se termine par « et N autres ». Les judokas ont besoin de My Judo History 1.3 pour voir les noms ; les versions plus anciennes les ignorent simplement.
 • Correction : après un zoom à deux doigts, la barre d’onglets pouvait flotter au milieu de l’écran.
 ```
@@ -68,7 +68,7 @@ Nouveautés de la version 1.2
 ```text
 Novidades da versão 1.2
 
-• A Gestão de inscrições agora tem os botões "Salvar e fechar" e "Descartar e fechar". Descartar pede confirmação e volta a inscrição para como estava quando você abriu. O que você digita continua sendo salvo na hora, então nada se perde se o aplicativo fechar de repente.
+• A Gestão de inscrições agora tem os botões "Salvar e fechar" e "Descartar e fechar". Descartar pede confirmação e volta a inscrição para como estava quando você abriu. Como antes, cada campo é salvo assim que você termina de preenchê-lo.
 • Ao compartilhar a agenda, os nomes dos atletas inscritos em cada campeonato vão junto, para cada um saber se vai lutar. Só os nomes são enviados: valores, situação de pagamento e anotações pessoais ficam no seu aparelho. Se a lista não couber no QR code, ela termina com "e mais N". Os atletas precisam do My Judo History 1.3 para ver os nomes; as versões anteriores simplesmente os ignoram.
 • Corrigido: depois de ampliar com dois dedos, a barra de abas podia ficar flutuando no meio da tela.
 ```
@@ -112,5 +112,10 @@ Novidades da versão 1.3
 ## オーナーに決めてほしいこと（文章での提案のみ）
 
 - 1 行目の見出し（「What's new in version 1.2」など）は、App Store がバージョン番号を別に表示するので、なくてもよい。短くしたいなら消してかまわない。
-- 事務用の「選手側は 1.3 が必要」の一文は、選手用 1.3 が公開される前に事務用 1.2 が出る場合に意味がある。2 本を同時に出すなら消してもよい。
-- 選手用の「事務用 1.2 から送られた予定のとき」も同じ考え方。
+- 事務用の「選手側は 1.3 が必要」の一文と、選手用の「事務用 1.2 から送られた予定のとき」の一文は、同時に公開する場合も残す（選手が古いアプリのままだったり、道場側が古い事務用のままだったりすることがあるため）。レビューの指摘で「同時公開なら消してよい」という提案は取り下げた。
+
+## 修正の記録
+
+- 2026-10-08 レビューの指摘 2 件に対応。
+  - ① 事務用の「入力中も保存され、突然終了しても失われない」という言い方は、実際の保存が入力を確定したとき（onchange）なので言い過ぎ。3 言語とも「入力を確定すると保存される」という意味の文に直した（en「each field is saved once you finish entering it」／fr「chaque champ est enregistré dès que vous validez la saisie」／pt「cada campo é salvo assim que você termina de preenchê-lo」）。文字数は少し減っただけで合否は変わらない。
+  - ② 必要バージョンの説明は消さずに残す（上の「決めてほしいこと」を書き直した）。
