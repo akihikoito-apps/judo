@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1a2b4a">
@@ -38,6 +38,7 @@
     color:var(--ink);
     font-size:calc(18px*var(--fs,1));line-height:1.6;
     padding-bottom:calc(112px*var(--fs,1) + env(safe-area-inset-bottom));
+    padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);   /* v287: 点検I-3。viewport-fit=cover で横向きのノッチに文字がかからないように */
     -webkit-text-size-adjust:100%;
     min-height:100vh;
   }
@@ -45,7 +46,7 @@
   html[data-font="mid"]{--fs:1.5;}
   html[data-font="large"]{--fs:2;}
   header{
-    background:var(--header-bg,var(--navy));color:#fff;padding:10px 16px;
+    background:var(--header-bg,var(--navy));color:#fff;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top));   /* v287: 点検I-3 */
     position:sticky;top:0;z-index:10;box-shadow:0 1px 5px rgba(0,0,0,.1);
   }
   header .title{display:flex;align-items:center;gap:12px;}
@@ -625,11 +626,13 @@
   #recurScopeModal{z-index:72;}
   #wazaModal{z-index:66;}
   #schedModal{z-index:55;}
-  .modal{background:#fff;width:100%;max-width:680px;border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;}
+  .modal{background:#fff;width:100%;max-width:680px;border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;max-height:90dvh;overflow-y:auto;}   /* v287: 点検I-2。dvh が使える端末は見えている高さで */
   .modal h3{font-size:calc(21px*var(--fs,1));margin:0 0 12px;color:var(--navy);}
   .modal .row{display:flex;gap:10px;margin-top:18px;}
   .modal .row>.btn{flex:1 1 0;min-width:0;}   /* フッターのボタンは均等幅で縮小可（長い訳語でも枠内に収める） */
   .modal .row .btn{flex:1;}
+  /* v287: 点検I-2。入力欄の多い画面（仲間・予定）は「保存する」の行を下に固定し、キーボードを出しても長くスクロールせずに押せるようにする */
+  .modal .row.sticky-save{position:sticky;bottom:0;z-index:2;background:inherit;padding:10px 0;margin-top:8px;box-shadow:0 -8px 10px -8px rgba(0,0,0,.18);}
 
   .toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:14px 22px;border-radius:30px;font-size:calc(16px*var(--fs,1));z-index:100;opacity:0;transition:opacity .25s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.3);}
   .toast.show{opacity:1;}
@@ -1318,9 +1321,9 @@
   .theme-shape-btn .shape-desc{font-size:calc(12px*var(--fs,1));color:var(--muted);}
 
   /* ===================== パスコードロック画面 ===================== */
-  #lockScreen{display:none;position:fixed;inset:0;z-index:9999;background:var(--navy);color:#fff;align-items:center;justify-content:center;padding:24px;}
+  #lockScreen{display:none;position:fixed;inset:0;z-index:9999;background:var(--navy);color:#fff;align-items:center;justify-content:center;padding:24px;overflow-y:auto;-webkit-overflow-scrolling:touch;}   /* v287: 点検I-1。収まらないときは縦にスクロールできる */
   #lockScreen.show{display:flex;}
-  .lock-inner{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;}
+  .lock-inner{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;margin:auto;}   /* margin:auto：はみ出しても上側が切れない */
   .lock-logo{width:64px;height:64px;border-radius:14px;background-size:cover;background-position:center;margin-bottom:14px;}
   .lock-title{font-size:calc(19px*var(--fs,1));font-weight:700;margin-bottom:20px;letter-spacing:.03em;}
   .lock-dots{display:flex;gap:18px;margin-bottom:10px;}
@@ -1334,6 +1337,15 @@
   .lock-key:active{background:rgba(255,255,255,.25);transform:scale(.95);}
   .lock-key.blank{border:none;background:none;cursor:default;}
   .lock-key.fn{font-size:calc(17px*var(--fs,1));font-weight:700;border-color:transparent;background:none;}
+  /* v287: 点検I-1。横向きなど高さが足りない画面では、キーを min(22vh,90px) に抑えて詰める */
+  @media (max-height:600px){
+    #lockScreen{padding:12px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));}
+    .lock-logo{display:none;}
+    .lock-title{margin-bottom:10px;}
+    .lock-msg{margin-bottom:8px;}
+    .lock-keypad{grid-template-columns:repeat(3,min(22vh,90px));justify-content:center;gap:8px 16px;}
+    .lock-cancel{margin-top:10px !important;}
+  }
   .lock-cancel{margin-top:22px;background:none;border:none;color:rgba(255,255,255,.85);font-size:calc(16px*var(--fs,1));font-weight:700;font-family:inherit;cursor:pointer;text-decoration:underline;}
   /* v126: 出欠状況ビュー（属性/月で折りたたみ） */
   tr.att-ghead{cursor:pointer;-webkit-tap-highlight-color:transparent;}
@@ -1478,7 +1490,7 @@
   });
 })();
 /* 「更新あり」バナーの操作（グローバル関数：onclickから呼ぶ） */
-function showUpdateBanner(){var b=document.getElementById('updateBanner');if(b)b.style.display='flex';}
+function showUpdateBanner(){var b=document.getElementById('updateBanner');if(b)b.style.display='flex';var bk=document.getElementById('backupBanner');if(bk)bk.style.display='none';}   /* v287: 点検I-4。同じ位置のバックアップの帯と重ならないよう隠す */
 function dismissUpdate(){var b=document.getElementById('updateBanner');if(b)b.style.display='none';}
 function applyUpdate(){
   var b=document.getElementById('updateBanner');if(b)b.style.display='none';
@@ -2568,7 +2580,7 @@ function applyUpdate(){
     </div>
     <label class="fld">備考（任意）</label>
     <input type="text" id="stNote" placeholder="例：アレルギーあり／〇〇大会出場予定">
-    <div class="row">
+    <div class="row sticky-save">
       <button class="btn ghost" onclick="closeModal('studentModal')">やめる</button>
       <button class="btn gold" onclick="saveStudent()">保存する</button>
     </div>
@@ -2776,7 +2788,7 @@ function applyUpdate(){
     <label class="fld">備考（任意）</label>
     <input type="text" id="schNote" placeholder="例：上履き持参／集合は15分前">
     <p class="list-mini" id="recurSeriesInfo" style="display:none;margin-top:14px;background:#f3eef8;border-radius:10px;padding:10px">🔁 この予定はくり返し登録の一部です。保存・削除のときに「この予定だけ」か「この予定以降すべて」を選べます。</p>
-    <div class="row">
+    <div class="row sticky-save">
       <button class="btn ghost" onclick="closeModal('schedModal')">やめる</button>
       <button class="btn gold" onclick="saveSched()">保存する</button>
     </div>
@@ -5514,7 +5526,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v286'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v287'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
