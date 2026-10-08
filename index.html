@@ -5541,7 +5541,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v289'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v290'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -6935,17 +6935,26 @@ Object.assign(DICT,{
   '内容が多すぎてQRにできません。テキストでお送りください。':{en:'Too much content for a QR. Please send as text.',fr:'Contenu trop long pour un QR. Envoyez en texte.',pt:'Conteúdo grande demais para QR. Envie como texto.'},
   'QR画像をコピーしました':{en:'QR image copied',fr:'Image QR copiée',pt:'Imagem do QR copiada'},
   '「送る」でLINEなどへ文字として送れます。「コピーする」で貼り付け用にコピーできます。':{en:'“Send” shares it as text via LINE etc. “Copy” copies it for pasting.',fr:'« Envoyer » partage le texte via LINE, etc. « Copier » le copie pour le coller.',pt:'“Enviar” compartilha como texto via LINE etc. “Copiar” copia para colar.'},
-  '画像コピー非対応のため表示しました。スクショで送れます。':{en:'Image copy unsupported — showing the QR (send a screenshot).',fr:'Copie d’image non prise en charge — QR affiché (envoyez une capture).',pt:'Cópia de imagem não suportada — QR exibido (envie um print).'}
+  '画像コピー非対応のため表示しました。スクショで送れます。':{en:'Image copy unsupported — showing the QR (send a screenshot).',fr:'Copie d’image non prise en charge — QR affiché (envoyez une capture).',pt:'Cópia de imagem não suportada — QR exibido (envie um print).'},
+  // v290: くり返し登録の件数（「N件」は PATTERNS で訳す・点検 U-10）
+  'この設定で':{en:'This setting adds',fr:'Ce réglage ajoute',pt:'Esta configuração adiciona'},
+  '登録されます（同じ年度内）。':{en:'(within the same fiscal year).',fr:'(dans le même exercice).',pt:'(no mesmo ano fiscal).'}
 });
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
   // v193: 試合申込・報告の数値入り表示
   [/^無料で登録できる主役は(\d+)人までです。Proにすると人数の制限がなくなります。$/, (m,L)=>({en:'The free plan allows up to '+m[1]+' main people. Pro removes the limit.',fr:'La version gratuite permet jusqu\u2019\u00e0 '+m[1]+' profils principaux. Pro supprime cette limite.',pt:'O plano gratuito permite at\u00e9 '+m[1]+' protagonistas. O Pro remove o limite.'}[L])],
   [/^(\d+)試合目$/, (m,L)=>({en:'Match '+m[1],fr:'Combat '+m[1],pt:'Luta '+m[1]}[L])],                     // 1試合目
-  [/^🥋 (.+)まで あと(\d+)日！！$/, (m,L)=>({en:'🥋 '+m[2]+' days until '+m[1]+'!!',fr:'🥋 J-'+m[2]+' avant '+m[1]+' !!',pt:'🥋 '+m[2]+' dias para '+m[1]+'!!'}[L])],  // カウントダウン
-  [/^🥋 (.+)は きょう！！$/, (m,L)=>({en:'🥋 Today: '+m[1]+'!!',fr:'🥋 Aujourd’hui : '+m[1]+' !!',pt:'🥋 Hoje: '+m[1]+'!!'}[L])],
-  [/^集金済 ¥(.+)$/, (m,L)=>({en:'Collected ¥'+m[1],fr:'Collecté ¥'+m[1],pt:'Recolhido ¥'+m[1]}[L])],       // 集金済 ¥3,000
-  [/^未集金 ¥(.+)$/, (m,L)=>({en:'Not collected ¥'+m[1],fr:'Non collecté ¥'+m[1],pt:'A recolher ¥'+m[1]}[L])],// 未集金 ¥3,000
+  // v290: 点検 U-10。予定名は日本語のまま差し込み、ここで訳す（言語を切り替えても追従する）
+  [/^🥋 (.+)まで あと(\d+)日！！$/, (m,L)=>{const n=tr(m[1],L);return {en:'🥋 '+m[2]+' days until '+n+'!!',fr:'🥋 J-'+m[2]+' avant '+n+' !!',pt:'🥋 '+m[2]+' dias para '+n+'!!'}[L];}],  // カウントダウン
+  [/^🥋 (.+)は きょう！！$/, (m,L)=>{const n=tr(m[1],L);return {en:'🥋 Today: '+n+'!!',fr:'🥋 Aujourd’hui : '+n+' !!',pt:'🥋 Hoje: '+n+'!!'}[L];}],
+  // v290: 点検 U-10。金額は通貨記号を問わずそのまま出す（¥ 以外の通貨でも訳す）
+  [/^集金済 (.+)$/, (m,L)=>({en:'Collected '+m[1],fr:'Collecté '+m[1],pt:'Recolhido '+m[1]}[L])],       // 集金済 ¥3,000
+  [/^未集金 (.+)$/, (m,L)=>({en:'Not collected '+m[1],fr:'Non collecté '+m[1],pt:'A recolher '+m[1]}[L])],// 未集金 ¥3,000
+  // v290: 点検 U-10。くり返し登録・月謝の調整の数字入りの文
+  [/^毎月 (\d{1,2})日 に登録します。その日が無い月はスキップします。$/, (m,L)=>({en:'Adds on day '+m[1]+' of every month. Months without that day are skipped.',fr:'Ajouté le '+m[1]+' de chaque mois. Les mois sans ce jour sont ignorés.',pt:'Adiciona no dia '+m[1]+' de cada mês. Meses sem esse dia são pulados.'}[L])],
+  [/^※ (\d{4})年度（〜(.+)）まで登録できます。$/, (m,L)=>({en:'※ You can add events through FY '+m[1]+' (until '+m[2]+').',fr:'※ Ajout possible jusqu’à la fin de l’exercice '+m[1]+' (jusqu’au '+m[2]+').',pt:'※ Pode adicionar até o fim do ano '+m[1]+' (até '+m[2]+').'}[L])],
+  [/^(?:(.*)　)?(\d{4})年(\d{1,2})月（この月だけに反映／登録額 (.+)）$/, (m,L)=>{const ym=MON[L][+m[3]]+' '+m[2];const p=m[1]?m[1]+'　':'';return p+{en:ym+' (this month only / registered fee '+m[4]+')',fr:ym+' (ce mois uniquement / montant enregistré '+m[4]+')',pt:ym+' (só este mês / valor cadastrado '+m[4]+')'}[L];}],
   [/^ほか(\d+)人$/, (m,L)=>({en:'and '+m[1]+' more',fr:'et '+m[1]+' autres',pt:'e mais '+m[1]}[L])],   // v275: 載せきれなかった出場者
   [/^出場(\d+)人$/, (m,L)=>({en:m[1]+' entrants',fr:m[1]+' inscrits',pt:m[1]+' inscritos'}[L])],           // 出場5人
   [/^未集金(\d+)人$/, (m,L)=>({en:m[1]+' unpaid',fr:m[1]+' impayés',pt:m[1]+' sem pagar'}[L])],             // 未集金2人
@@ -11727,7 +11736,7 @@ function renderGwCountdown(){
     .map(s=>({s,days:Math.round((new Date(s.date+'T00:00')-nowD)/86400000)}))
     .filter(x=>x.days>=0&&x.days<=30).sort((a,b)=>a.days-b.days).slice(0,3);
   box.innerHTML=ups.map(({s,days})=>{
-    const nm=esc(s.title||T(s.name));
+    const nm=esc(s.title||s.name);   // v290: 名前は PATTERNS 側で訳す（点検 U-10）
     const txt=(days===0)?`${nm}は きょう！！`:`${nm}まで あと${days}日！！`;
     return `<div class="gw-cd" style="background:${typeColor(s.name)}" onclick="gwOpenDay('${s.date}')">🥋 ${txt}</div>`;
   }).join('');
@@ -13353,7 +13362,7 @@ function renderSchedCountdown(){
     .map(s=>({s,days:Math.round((new Date(s.date+'T00:00')-nowD)/86400000)}))
     .filter(x=>x.days>=0&&x.days<=30).sort((a,b)=>a.days-b.days).slice(0,3);
   box.innerHTML=ups.map(({s,days})=>{
-    const nm=esc(s.title||T(s.name));
+    const nm=esc(s.title||s.name);   // v290: 名前は PATTERNS 側で訳す（点検 U-10）
     const txt=(days===0)?`${nm}は きょう！！`:`${nm}まで あと${days}日！！`;
     return `<div class="gw-cd" style="background:${typeColor(s.name)}" onclick="ofOpenDay('${s.date}')">🥋 ${txt}</div>`;
   }).join('');
