@@ -5541,7 +5541,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v291'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v292'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -9543,9 +9543,11 @@ function repClearForm(){
   repRenderMatches(); repGen();
 }
 function repDel(id){repMatches=repMatches.filter(m=>m.id!==id);if(!repMatches.length)repMatches=[repNewMatch()];repRenderMatches();repGen();}
-function repSet(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;m.touched=true;repRenderMatches();repGen();}}
-function repSetRaw(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;m.touched=true;repGen();}}
-function repOpenWaza(id){const m=repMatches.find(x=>x.id===id);if(!m)return;openWazaPicker(function(v){m.waza=v;m.touched=true;repRenderMatches();repGen();},m.waza);}
+// v292: 「入力済み」は中身で判断する。touched の代わりに、結果ボタン（勝ち／負け／分け）を押したことだけを resPicked に残す
+//       （相手名を入れて消した行が、空のまま既定の「勝ち」で登録・送信されていた）
+function repSet(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;if(k==='res')m.resPicked=true;repRenderMatches();repGen();}}
+function repSetRaw(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;repGen();}}
+function repOpenWaza(id){const m=repMatches.find(x=>x.id===id);if(!m)return;openWazaPicker(function(v){m.waza=v;repRenderMatches();repGen();},m.waza);}
 function repRenderMatches(){
   const RO=roundOpts(), ROUNDS=RO.length?RO:['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
   const box=document.getElementById('repMatches'); if(!box)return;
@@ -9593,7 +9595,7 @@ function repDraftHasInput(d){
   if((d.taikai||'').trim())return true;
   if((d.matches||[]).length>1)return true;
   // v258: 「負け」「分け」や組手だけを選んだ状態も入力済みとして扱う（repMatchIsBlank と同じ基準）
-  return (d.matches||[]).some(m=>m&&(m.touched||!repMatchIsBlank(m)));
+  return (d.matches||[]).some(m=>m&&(m.resPicked||!repMatchIsBlank(m)));
 }
 function repDraftSave(){
   if(demoMode)return;
@@ -9648,14 +9650,14 @@ function repMatchIsBlank(m){
 }
 function repTrimEmptyTail(){
   // 「＋試合を追加」を押しただけの行だけを落とす。
-  // 自分で「勝ち」を押した試合（touched）も、中身のある試合も残す。
+  // 自分で「勝ち」を押した試合（resPicked）も、中身のある試合も残す。
   while(repMatches.length>1){
     const m=repMatches[repMatches.length-1];
-    if(m&&!m.touched&&repMatchIsBlank(m))repMatches.pop(); else break;
+    if(m&&!m.resPicked&&repMatchIsBlank(m))repMatches.pop(); else break;
   }
 }
 // v280: 最後の1行は必ず残るので、名前だけで押すと既定の○が空の「勝ち」として記録・送信されていた
-function repAllBlank(){ return !repMatches.some(m=>m&&(m.touched||!repMatchIsBlank(m))); }
+function repAllBlank(){ return !repMatches.some(m=>m&&(m.resPicked||!repMatchIsBlank(m))); }
 function repToDojo(){
   const name=(document.getElementById('repName').value||'').trim();
   if(!name){ toast(T('選手のなまえを入れてください')); return; }
@@ -14471,9 +14473,14 @@ function fixGradeEntryFY(){
   DB.gradeEntryFix=1;
 }
 // 起動後に1回だけ、直した人を名前つきで知らせる（控えに印を付けるので2回目は出ない）
+let _gradeNoticePending=false;   // v292: ロック中で出せなかったお知らせを、解除したあとに出す
 function noticeGradeEntryFix(){
   const b=DB.gradeEntryFixBackup;
   if(!b||b.noticed||b.undone||!Array.isArray(b.items)||!b.items.length)return;
+  // v292: ロック画面の裏では見えないので、通知済みにしない（解除せず終了しても次の起動で出る）
+  const ls=document.getElementById('lockScreen');
+  if(ls&&ls.classList.contains('show')){ _gradeNoticePending=true; return; }
+  _gradeNoticePending=false;
   b.noticed=true; save();
   const names=b.items.map(i=>esc(i.name||T('(名前なし)'))).join('、');
   askChoice(T('生年月日からの学年の計算が1年早かったため、次の人の学年を直しました。')+'<br><br>'+names+'<br><br>'+T('手で直した学年は変えていません。'),
@@ -15001,7 +15008,11 @@ function lockIfNeeded(){
 function relockIfAway(){
   const away=lockHiddenAt&&(Date.now()-lockHiddenAt>=LOCK_RELOCK_MS);
   lockHiddenAt=0;
-  if(away)lockIfNeeded();
+  if(!away)return;
+  // v292: Web 版（suite）は個人モードのあいだロックを止めるだけなので、離れていたら解除状態を取り消す
+  //       （道場モードに戻すときにパスコードを聞く）。モード固定のアプリ版は従来どおり
+  if(APP_EDITION==='suite')lockUnlocked=false;
+  lockIfNeeded();
 }
 try{
   document.addEventListener('visibilitychange',()=>{ if(document.hidden)lockHiddenAt=Date.now(); else relockIfAway(); });
@@ -15047,7 +15058,9 @@ function setLockTitle(){
   const t={unlock:'パスコードを入力',set1:'新しいパスコードを設定',set2:'確認のためもう一度入力'}[lockMode]||'パスコードを入力';
   document.getElementById('lockTitle').textContent=t;
 }
-function hideLockScreen(){document.getElementById('lockScreen').classList.remove('show');}
+function hideLockScreen(){document.getElementById('lockScreen').classList.remove('show');
+  if(_gradeNoticePending)setTimeout(()=>{ try{ noticeGradeEntryFix(); }catch(e){} },300);   // v292: ロック中に待たせた学年のお知らせ
+}
 function lockShake(msg){
   const d=document.getElementById('lockDots');
   document.getElementById('lockMsg').textContent=msg||'';
