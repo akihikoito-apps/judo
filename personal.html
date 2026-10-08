@@ -5499,7 +5499,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v280'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v281'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -6161,6 +6161,8 @@ Object.assign(DICT,{
   '」を出場者から外します。':{en:'” will be removed from the entry list.',fr:'» sera retiré de la liste des inscrits.',pt:'” será removido da lista de inscritos.'},
   '入力した参加費・集金済み・メモも一緒に消えます。':{en:'The entry fee, payment status and notes you entered will be deleted too.',fr:'Les frais, le paiement et les remarques saisis seront aussi supprimés.',pt:'A taxa, o pagamento e as observações também serão apagados.'},
   '外す':{en:'Remove',fr:'Retirer',pt:'Remover'},
+  '次の方は、個別の参加費が入っているか集金済みです。':{en:'These people have their own entry fee or have already paid.',fr:'Ces personnes ont des frais individuels ou ont déjà payé.',pt:'Estas pessoas têm uma taxa individual ou já pagaram.'},
+  '全員に反映すると、この方たちの額も書き換わり、集金済みの合計も変わります。':{en:'Applying to everyone will overwrite their amounts too, and the collected total will change.',fr:'Appliquer à tous remplacera aussi leurs montants, et le total collecté changera.',pt:'Aplicar a todos também substituirá os valores deles, e o total recolhido mudará.'},
   '次の方を出場者から外します。':{en:'These people will be removed from the entry list.',fr:'Ces personnes seront retirées des inscrits.',pt:'Estas pessoas serão removidas dos inscritos.'},
   '出場者が変わったので、申込の完了を取り消しました':{en:'The entry list changed, so the application is no longer marked complete.',fr:'La liste a changé : l’inscription n’est plus marquée terminée.',pt:'A lista mudou, então a inscrição não está mais como concluída.'},
   '別の予定表のQRです。1枚目から読み直してください':{en:'This QR belongs to a different schedule. Please start again from sheet 1.',fr:'Ce QR appartient à un autre agenda. Recommencez à partir du 1er.',pt:'Este QR é de outra agenda. Comece de novo pela 1ª folha.'},
@@ -6231,6 +6233,8 @@ Object.assign(DICT,{
   '年度をアーカイブしました':{en:' was archived.',fr:' a été archivée.',pt:' foi arquivado.'},
   '年額プランをはじめる':{en:'Start the yearly plan',fr:'Commencer l’abonnement annuel',pt:'Assinar o plano anual'},
   '新しい主役として登録して、この人の記録にしますか？':{en:'Register them as a new person and keep this as their record?',fr:'L’enregistrer comme nouvelle personne et lui attribuer ce résultat ?',pt:'Cadastrar como nova pessoa e guardar como registro dela?'},
+  '受け取った日を選んでください':{en:'Choose the date you received it.',fr:'Choisissez la date de réception.',pt:'Escolha a data do recebimento.'},
+  '受け取った日':{en:'Date received',fr:'Date de réception',pt:'Data do recebimento'},
   '日付を選んでください':{en:'Choose a date.',fr:'Choisissez une date.',pt:'Escolha uma data.'},
   '枚':{en:' photos',fr:' photos',pt:' fotos'},
   '標準のロゴに戻しました':{en:'Back to the standard logo.',fr:'Retour au logo standard.',pt:'De volta ao logo padrão.'},
@@ -7134,12 +7138,14 @@ function normalizeDB(){
   if(!DB.fontScale)DB.fontScale='small';
   if(!DB.cashCats||!Array.isArray(DB.cashCats.in)||!Array.isArray(DB.cashCats.out))DB.cashCats={in:['寄付','参加費徴収','物販収入','補助金','その他収入'],out:['用具購入','会場費','遠征費','審査料','その他支出']};
   // 既存の入出金記録で使われている項目（繰越金など・自由記入含む）を一覧へ取り込む（重複・空欄は除外）
-  if(Array.isArray(DB.cash)){
+  // v281: 取り込みは最初の移行の1回だけ。消した項目が起動のたびに戻らないように印を持つ（点検 D-10）
+  if(Array.isArray(DB.cash)&&!DB.cashCatsImported){
     ['in','out'].forEach(io=>{ if(!Array.isArray(DB.cashCats[io]))DB.cashCats[io]=[]; });
     DB.cash.forEach(c=>{
       const io=(c&&c.io==='out')?'out':'in'; const cat=(c&&c.cat||'').trim();
       if(cat && !DB.cashCats[io].includes(cat)) DB.cashCats[io].push(cat);
     });
+    DB.cashCatsImported=true;
   }
   if(!DB.matchPresets||typeof DB.matchPresets!=='object')DB.matchPresets={};
   if(!Array.isArray(DB.matchPresets.rounds))DB.matchPresets.rounds=['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
@@ -7392,15 +7398,25 @@ function isPerVisit(s){return s && s.feeType==='perVisit';}
 function visitBaseOf(s){return (s && s.visitBase!=null && s.visitBase>0)?s.visitBase:(Number(DB.perVisitFee)||0);}
 function visitTotal(sid,m){return (DB.visitFees[m]&&DB.visitFees[m][sid])||0;}
 function visitBaseSet(sid,val){const s=DB.students.find(x=>x.id===sid);if(s){s.visitBase=Math.max(0,Number(val)||0);save();}}
-function visitBumpBy(sid,dir){
+function visitBumpBy(sid,dir,pickedDate){
   const s=DB.students.find(x=>x.id===sid);
   const inp=document.getElementById('vbase_'+sid);
   const base=Math.max(0,Number(inp?inp.value:(s?visitBaseOf(s):0))||0);
+  const m=feeMonth;
+  // v281: 表示中の月が今月でなければ、受け取った日を選んでもらう（初期値はその月の末日。点検 D-11）
+  if(dir>0&&base>0&&m!==thisMonthStr()&&!pickedDate){
+    const [y,mm]=m.split('-').map(Number), last=new Date(y,mm,0).getDate();
+    const first=`${m}-01`, end=`${m}-${String(last).padStart(2,'0')}`;
+    askConfirm(T('受け取った日を選んでください')+`<br><input type="date" id="vbDatePick" value="${end}" min="${first}" max="${end}" style="margin-top:10px;width:100%;min-height:44px;font-size:16px">`,
+      ()=>{ const el=document.getElementById('vbDatePick'); const v=(el&&el.value)||''; if(!v||v.slice(0,7)!==m){toast(T('日付を選んでください'));return;} visitBumpBy(sid,dir,v); },
+      T('追加する'),T('受け取った日'),'var(--green)');
+    return;
+  }
   if(s)s.visitBase=base;
-  const m=feeMonth;if(!DB.visitFees[m])DB.visitFees[m]={};
+  if(!DB.visitFees[m])DB.visitFees[m]={};
   // v216: 受領履歴に日付を記録（▲＝今日の受領を追加／▼＝直近の記録を取り消し）
   let delta=base;
-  if(dir>0){ if(base>0)visitLogOf(sid,m).push({d:todayStr(),a:base}); }
+  if(dir>0){ if(base>0)visitLogOf(sid,m).push({d:pickedDate||todayStr(),a:base}); }
   else{ const lg=visitLogOf(sid,m); if(lg.length){ delta=lg[lg.length-1].a||base; lg.pop(); } }
   const t=Math.max(0,(DB.visitFees[m][sid]||0)+dir*delta);
   if(t<=0)delete DB.visitFees[m][sid]; else DB.visitFees[m][sid]=t;
@@ -12616,7 +12632,7 @@ function entryToggleMemoCol(){ const e=ensureEntry(curEntrySched); e.showMemo=!e
 function entrySetFee(sid,val){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].fee=Math.max(0,Number(val)||0); save(); renderEntrySummary(); }
 function entryTogglePaid(sid){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].paid=!e.parts[sid].paid; save(); renderEntryParts(); }
 // v258: 参加費・集金済み・メモが入っている人を、確認なしで消さない
-function entryPartHasInfo(p){ return !!(p&&((Number(p.fee)||0)>0||p.paid||(p.note||'').trim())); }
+function entryPartHasInfo(p){ return !!(p&&((Number(p.fee)||0)>0||p.paid||(p.memo||'').trim())); }   // v281: メモは p.memo に保存されている（点検 D-6）
 function entryRemovePart(sid){
   const e=ensureEntry(curEntrySched);
   const p=e.parts[sid];
@@ -12636,7 +12652,15 @@ function entryReopenIfDone(){
   toast(T('出場者が変わったので、申込の完了を取り消しました'));
   return true;
 }
-function entryApplyFeeAll(){ const e=ensureEntry(curEntrySched); const f=Math.max(0,Number(document.getElementById('entFee').value)||0); e.feeDefault=f; Object.keys(e.parts).forEach(sid=>e.parts[sid].fee=f); save(); renderEntryParts(); toast(T('出場者全員に')+' ¥'+f.toLocaleString()+' '+T('を反映しました')); }
+function entryApplyFeeAll(_ok){ const e=ensureEntry(curEntrySched); const f=Math.max(0,Number(document.getElementById('entFee').value)||0);
+  // v281: 一人ずつ決めた額・集金済みの人の額が書き換わるときは確認する（点検 D-12）
+  const diff=Object.keys(e.parts).filter(sid=>{ const p=e.parts[sid]||{}, fee=Number(p.fee)||0; return fee!==f&&(fee>0||p.paid); });
+  if(diff.length&&!_ok){
+    askConfirm(T('次の方は、個別の参加費が入っているか集金済みです。')+'<br><b>'+esc(diff.map(studentName).join('、'))+'</b><br><br>'
+      +T('全員に反映すると、この方たちの額も書き換わり、集金済みの合計も変わります。'),()=>entryApplyFeeAll(true),T('反映する'));
+    return;
+  }
+  e.feeDefault=f; Object.keys(e.parts).forEach(sid=>e.parts[sid].fee=f); save(); renderEntryParts(); toast(T('出場者全員に')+' ¥'+f.toLocaleString()+' '+T('を反映しました')); }
 function openEntryPick(){
   const e=ensureEntry(curEntrySched), s=DB.schedule.find(x=>x.id===curEntrySched), ym=s&&s.date?s.date.slice(0,7):thisMonthStr();
   const roster=DB.students.filter(st=>!st.isSelf&&isEnrolledInMonth(st,ym));
