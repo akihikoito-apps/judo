@@ -5499,7 +5499,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v278'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v279'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -7243,10 +7243,10 @@ function applyMode(){
   const o=document.getElementById('modeOfficeB'),p=document.getElementById('modePersonalB');
   if(o)o.classList.toggle('on',!personal);
   if(p)p.classList.toggle('on',personal);
-  // v225: パスコードロックは事務のみ（他人の個人情報を預かるため）。個人アプリでは非表示にし、有効なら自動解除
+  // v225: パスコードロックは事務のみ（他人の個人情報を預かるため）。個人アプリでは非表示にする
   const secTab=document.getElementById('setTabSec');
   if(secTab)secTab.style.display=personal?'none':'';
-  if(personal&&lockEnabled){ lockEnabled=false; lockCode=''; saveLock(); }
+  // v279: 個人モードではロックを一時的に止めるだけ（設定は消さない）。道場モードに戻すと setAppMode で再びかかる
   if(personal){ const sv=document.getElementById('setViewSec'); if(sv&&sv.style.display!=='none')setSetView('use'); }
 }
 // v166: エディション適用。個人/事務専用ビルドはモードを固定し、切替UIを隠す。
@@ -7266,6 +7266,8 @@ function setAppMode(m){
   const active=document.querySelector('nav.tabbar button.active');
   if(active&&active.style.display==='none')switchTab(DB.mode==='personal'?'rireki':'list');   // 隠れたタブにいたら安全なタブへ
   toast(DB.mode==='personal'?T('個人モードに切り替えました'):T('道場（事務）モードに切り替えました'));
+  // v279: 個人モードのあいだ止めていたロックを戻す。この起動でまだ解除していなければパスコードを聞く（やめると個人モードに戻る）
+  if(DB.mode!=='personal'&&lockRequired()&&!lockUnlocked){ lockBackTo=()=>setAppMode('personal'); showLockScreen('unlock'); }
 }
 
 /* 出欠 */
@@ -9495,7 +9497,7 @@ function maybeStartOnboarding(){
   if(APP_EDITION==='suite')return;                          // Web版のスイートでは出さない
   if(DB.onboarded)return;                                   // 済みなら出さない
   if(DB.students&&DB.students.length>0){DB.onboarded=true;save();return;} // 既存データ利用者には出さない
-  if(typeof lockEnabled!=='undefined'&&lockEnabled&&lockCode)return;      // ロック中は出さない
+  if(typeof lockRequired==='function'&&lockRequired())return;      // ロック中は出さない（v279: 個人モードで止めているロックは対象外）
   // 事務アプリは購読ゲート（ペイウォール）が出ている間は待つ → 解除後に呼び直す
   if(APP_EDITION==='office'&&!officeEntitled())return;
   startOnboarding();
@@ -14620,6 +14622,34 @@ const LOCK_KEY='judoTeamApp_lock';
 let lockEnabled=false, lockCode='';
 let lockBuf='', lockMode='unlock', lockTemp='';
 let lockFail=0, lockUntil=0; // v125: 総当り抑制（この端末セッション内）
+let lockUnlocked=false;   // v279: この起動でパスコードを解除（または設定）したか
+let lockBackTo=null;      // v279: 道場モードへの切替で聞いたとき、「やめる」で個人モードに戻す処理
+let lockHiddenAt=0;       // v279: バックグラウンドに回った時刻
+const LOCK_RELOCK_MS=60*1000;   // v279: これ以上バックグラウンドにいたら、戻ったときにロックする
+// v279: 今ロックをかけるべきか。個人モード（個人専用アプリを含む）ではロックを止めるだけで、設定は残す
+function lockRequired(){
+  if(!(lockEnabled&&lockCode))return false;
+  const mode=(APP_EDITION==='personal')?'personal':(APP_EDITION==='office')?'office':((typeof DB!=='undefined'&&DB&&DB.mode==='personal')?'personal':'office');
+  return mode!=='personal';
+}
+// v279: 必要ならロック画面を出す。表示の途中で例外が出ても、画面は必ず覆う
+function lockIfNeeded(){
+  if(!lockRequired())return;
+  const el=document.getElementById('lockScreen');
+  if(lockMode==='unlock'&&el&&el.classList.contains('show'))return;   // すでに解除待ち
+  lockUnlocked=false; lockBackTo=null;
+  try{ showLockScreen('unlock'); }
+  finally{ if(el)el.classList.add('show'); }
+}
+function relockIfAway(){
+  const away=lockHiddenAt&&(Date.now()-lockHiddenAt>=LOCK_RELOCK_MS);
+  lockHiddenAt=0;
+  if(away)lockIfNeeded();
+}
+try{
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden)lockHiddenAt=Date.now(); else relockIfAway(); });
+  window.addEventListener('pageshow',e=>{ if(e.persisted)relockIfAway(); });
+}catch(e){}
 // v125: パスコードは端末内のみの簡易保護。平文保存を避けるためハッシュ化して保存（lockCodeにはハッシュを格納）
 function lockHash(code){
   let h=0x811c9dc5>>>0; const src='mydojo.lock.v1'+String(code);
@@ -14652,7 +14682,7 @@ function showLockScreen(mode){
   buildLockKeypad(); renderLockDots();
   document.getElementById('lockMsg').textContent='';
   document.getElementById('lockLogo').style.backgroundImage=`url('${brandLogo()}')`;   // v227: ロック画面はMy柔道のロゴ固定
-  document.getElementById('lockCancel').style.display=(mode==='unlock')?'none':'block';
+  document.getElementById('lockCancel').style.display=(mode==='unlock'&&!lockBackTo)?'none':'block';
   setLockTitle();
   document.getElementById('lockScreen').classList.add('show');
 }
@@ -14676,7 +14706,7 @@ function lockDelete(){if(lockBuf.length){lockBuf=lockBuf.slice(0,-1);renderLockD
 function lockSubmit(){
   if(lockMode==='unlock'){
     if(lockUntil && Date.now()<lockUntil){ lockShake('しばらく待ってから入力してください'); return; }
-    if(lockHash(lockBuf)===lockCode){ lockFail=0; lockUntil=0; hideLockScreen(); }
+    if(lockHash(lockBuf)===lockCode){ lockFail=0; lockUntil=0; lockUnlocked=true; lockBackTo=null; hideLockScreen(); }
     else{
       lockFail++;
       if(lockFail>=5){ lockUntil=Date.now()+30000; lockFail=0; lockShake('5回間違えました。30秒後にお試しください'); }
@@ -14688,7 +14718,7 @@ function lockSubmit(){
   }else if(lockMode==='set2'){
     if(lockBuf===lockTemp){
       const setCode=lockBuf;
-      lockCode=lockHash(lockBuf); lockEnabled=true; saveLock();
+      lockCode=lockHash(lockBuf); lockEnabled=true; lockUnlocked=true; saveLock();
       hideLockScreen(); renderLockSettings();
       // v225: 設定直後に番号を明示し、メモ保管を強く促す（忘れると復元でしか戻せないため）
       askConfirm(`${T('パスコードを設定しました')}<br><br><span style="font-size:34px;font-weight:900;letter-spacing:.3em;color:var(--navy)">${setCode}</span><br><br>${T('この番号を必ずお手元にメモして、大切に保管してください。忘れた場合はアプリ内で解除できず、アプリを削除して入れ直し、バックアップから復元する方法でのみ元に戻せます。')}`,()=>{},'メモしました');
@@ -14697,6 +14727,11 @@ function lockSubmit(){
 }
 function startSetPasscode(){ showLockScreen('set1'); }
 function cancelSetPasscode(){
+  if(lockMode==='unlock'){   // v279: 道場モードへの切替で聞いたときだけ「やめる」が出る → 個人モードに戻す
+    const back=lockBackTo; lockBackTo=null;
+    if(!back)return;
+    hideLockScreen(); back(); return;
+  }
   hideLockScreen();
   // 有効化の途中でやめた場合は無効のまま戻す
   if(!lockCode){lockEnabled=false;saveLock();}
@@ -14998,11 +15033,12 @@ function initUI(){
   setTimeout(()=>{ if(typeof maybeBackupEdu==='function')maybeBackupEdu(); },600);  // v195: 起動時にも一度だけ判定（オンボーディング等と重ならぬよう遅延）
   setTimeout(()=>{ if(typeof shrinkOldCards==='function')shrinkOldCards(); },1500);  // v252: 旧サイズのカードを縮めて容量を返す（初回のみ・描画を邪魔しないよう遅延）
 }
+loadLock();   // v279: 起動処理より先に読み、起動処理で例外が出ても finally で必ずロックする
+try{
 load();
   if(loadFailed){ initUI(); showSaveError(true); showLoadFailure(); }        // v240: 壊れたデータを空DBで上書きしない（v277: 保存できないことを帯で出し続ける）
   else { seedIfEmpty();save();initUI(); setTimeout(()=>{ try{ noticeGradeEntryFix(); }catch(e){} },900); }   // v276: 学年を直した人のお知らせ
-loadLock();
-if(lockEnabled&&lockCode){showLockScreen('unlock');}
+}finally{ lockIfNeeded(); }
 /* PWA manifest を動的生成（v227: ホーム画面アイコンはMy柔道のブランドロゴ固定） */
 (function(){
   try{
