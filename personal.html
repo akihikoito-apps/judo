@@ -5541,7 +5541,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v290'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v291'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -9547,7 +9547,7 @@ function repSet(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;m.tou
 function repSetRaw(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;m.touched=true;repGen();}}
 function repOpenWaza(id){const m=repMatches.find(x=>x.id===id);if(!m)return;openWazaPicker(function(v){m.waza=v;m.touched=true;repRenderMatches();repGen();},m.waza);}
 function repRenderMatches(){
-  const ROUNDS=(DB.matchPresets&&DB.matchPresets.rounds)||['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
+  const RO=roundOpts(), ROUNDS=RO.length?RO:['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
   const box=document.getElementById('repMatches'); if(!box)return;
   box.innerHTML=repMatches.map((m,i)=>{
     const draw=m.res==='×';
@@ -9555,7 +9555,7 @@ function repRenderMatches(){
     return `<div class="card rep-match">
       <div class="rep-mh"><b>${i+1}${T('試合目')}</b><button class="btn ghost sm" onclick="repDel('${m.id}')">${T('削除')}</button></div>
       <label class="fld" style="margin-top:0">${T('回戦')}</label>
-      <div class="cat-pick">${ROUNDS.map(r=>`<button class="${m.round===r?'on':''}" onclick="repSet('${m.id}','round','${m.round===r?'':esc(r)}')">${esc(r)}</button>`).join('')}</div>
+      <div class="cat-pick">${ROUNDS.map(r=>`<button class="${m.round===r?'on':''}" onclick="repSet('${m.id}','round','${m.round===r?'':escJ(r)}')">${esc(r)}</button>`).join('')}</div>
       <p class="list-mini" style="margin:4px 2px 0">${T('1回戦がシード等の場合は、2回戦以降の報告をしてください。')}</p>
       <label class="fld">${T('結果')}</label>
       <div class="io-pick">
@@ -10229,7 +10229,7 @@ function qrShowFromDojo(el){
   if(lb){ lb.textContent='QR '+(i+1)+' / '+parts.length; lb.style.display=''; }
 }
 /* 受け取る側 */
-let qrStream=null, qrRAF=0, qrScanning=false;
+let qrStream=null, qrRAF=0, qrScanning=false, qrGen=0;   // qrGen: カメラ起動ごとの番号（止めると進む）
 let qrScanMode='result', qrPartsBuf=null;   // v219: 'result'=試合結果 / 'sched'=予定表（複数QR対応）
 function openQrScan(mode){
   qrScanMode=(mode==='sched')?'sched':'result'; qrPartsBuf=null;
@@ -10244,12 +10244,20 @@ async function qrStartCamera(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof jsQR==='undefined'){
     qrSetStatus(T('この端末はカメラ読取に非対応です。「写真から読み取る」をお使いください。'),'err'); return;
   }
+  const gen=++qrGen;
+  // 起動を待つ間に閉じられた（または次の起動が始まった）ら、取れたカメラはすぐ止める
+  const stale=()=>gen!==qrGen||!document.getElementById('qrScanModal').classList.contains('show');
+  let stream=null;
   try{
-    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
+    if(stale()){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(_){} return; }
+    qrStream=stream;
     video.srcObject=qrStream; await video.play();
+    if(stale()){ qrStopCamera(); return; }
     qrScanning=true; qrSetStatus(T('QRにカメラをかざしてください'));
     qrTick();
   }catch(e){
+    if(stale()){ if(stream&&stream!==qrStream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(_){} } return; }
     qrSetStatus(T('カメラを起動できませんでした。「写真から読み取る」をお使いください。'),'err');
   }
 }
@@ -10268,7 +10276,7 @@ function qrTick(){
   qrRAF=requestAnimationFrame(qrTick);
 }
 function qrStopCamera(){
-  qrScanning=false; if(qrRAF)cancelAnimationFrame(qrRAF); qrRAF=0;
+  qrGen++; qrScanning=false; if(qrRAF)cancelAnimationFrame(qrRAF); qrRAF=0;
   if(qrStream){ try{ qrStream.getTracks().forEach(t=>t.stop()); }catch(_){} qrStream=null; }
   const video=document.getElementById('qrVideo'); if(video)video.srcObject=null;
 }
