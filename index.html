@@ -2130,6 +2130,16 @@ function applyUpdate(){
   </div>
 </div>
 
+<!-- v285: 共有できない端末（iOSアプリなど）向け。画像を大きく出して長押しで保存してもらう -->
+<div class="modal-bg" id="imgSaveModal">
+  <div class="modal" style="max-width:430px;text-align:center">
+    <h3 style="margin-top:0" id="imgSaveTitle">画像を保存</h3>
+    <p class="list-mini" id="imgSaveMsg">画像を長押しして「写真に保存」を選んでください。</p>
+    <img id="imgSaveImg" alt="" style="display:block;width:100%;height:auto;max-height:68vh;object-fit:contain;margin:6px auto 0;border-radius:12px;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto">
+    <div class="row" style="margin-top:14px"><button class="btn ghost" onclick="closeModal('imgSaveModal')">閉じる</button></div>
+  </div>
+</div>
+
 <!-- QR読取（受け取る側）モーダル -->
 <div class="modal-bg" id="qrScanModal">
   <div class="modal" style="max-width:430px">
@@ -5499,7 +5509,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v284'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v285'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -6408,6 +6418,11 @@ Object.assign(DICT,{
   'この大会のひとことメモ（任意）':{en:'A note about this event (optional)',fr:'Une note sur cet événement (facultatif)',pt:'Uma nota sobre este evento (opcional)'},
   'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
   'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'},
+  '画像を保存':{en:'Save image',fr:'Enregistrer l’image',pt:'Salvar imagem'},
+  '画像を長押しして「写真に保存」を選んでください。':{en:'Press and hold the image, then choose “Save to Photos”.',fr:'Appuyez longuement sur l’image, puis choisissez « Enregistrer dans Photos ».',pt:'Toque e segure a imagem e escolha “Salvar em Fotos”.'},
+  '共有できませんでした':{en:'Couldn’t share',fr:'Partage impossible',pt:'Não foi possível compartilhar'},
+  '共有できませんでした。画像を長押しして保存してください。':{en:'Couldn’t share. Press and hold the image to save it.',fr:'Partage impossible. Appuyez longuement sur l’image pour l’enregistrer.',pt:'Não foi possível compartilhar. Toque e segure a imagem para salvá-la.'},
+  'この端末は直接シェアできません。画像を長押しして保存してください。':{en:'This device can’t share directly. Press and hold the image to save it.',fr:'Partage direct impossible sur cet appareil. Appuyez longuement sur l’image pour l’enregistrer.',pt:'Este aparelho não compartilha direto. Toque e segure a imagem para salvá-la.'},
   'すべて':{en:'All',fr:'Tout',pt:'Tudo'},
   'この年度の記録はありません':{en:'No records for this year',fr:'Aucun résultat pour cette année',pt:'Sem registros neste ano'},
   '分析':{en:'Analysis',fr:'Analyse',pt:'Análise'}
@@ -9230,8 +9245,16 @@ function dojoSetGroup(n){
 }
 // v201: 送る内容はQR/テキストを切り替え。既定＝QR（会場受け渡しが主）。送る/コピーは選択形式で動作
 let dojoFmt='qr';
+/* v285: 点検E-2。QR画像はモーダルを開いた時点で作り置きする
+   （押してから画像化を待って share を呼ぶと、iOS では押した操作とみなされずに拒まれる） */
+let dojoQrBlobCache=null, _dojoQrSeq=0;
+function dojoPrepareQrBlobs(){
+  dojoQrBlobCache=null; const seq=++_dojoQrSeq;
+  dojoQrPngBlobs().then(bs=>{ if(seq===_dojoQrSeq)dojoQrBlobCache=bs; }).catch(()=>{});
+}
 function dojoSetFmt(f){
   dojoFmt=f;
+  dojoQrBlobCache=null; _dojoQrSeq++;
   const q=document.getElementById('dojoFmtQr'), t=document.getElementById('dojoFmtTx');
   if(q)q.classList.toggle('on',f==='qr'); if(t)t.classList.toggle('on',f==='text');
   const pv=document.getElementById('dojoPrevQr'), hint=document.getElementById('dojoQrHint'), ta=document.getElementById('dojoSendText');
@@ -9250,6 +9273,7 @@ function dojoSetFmt(f){
       return lbl+(svg||('<p class="list-mini" style="margin:0">'+T('内容が多すぎてQRにできません。テキストでお送りください。')+'</p>'));
     }).join('');
     pv.innerHTML=html+(parts.length>1?'<p class="list-mini" style="margin-top:8px">'+T('受け取る側は、順番に全部のQRを読み取ってください。')+'</p>':'');
+    dojoPrepareQrBlobs();
   }
 }
 // v242: 試合きろくを700バイトずつのQRに分割（【My柔道 試合きろく i/n】を先頭に付ける）
@@ -9314,12 +9338,17 @@ async function dojoSendShare(){
   if(dojoFmt==='qr'){
     // v257: 分割された全部のQRを送る（1枚目だけだと受け取る側が取り込めない）
     const need=dojoQrCount();
-    const bs=await dojoQrPngBlobs();
+    // v285: 点検E-2。作り置きがあれば待たずに share を呼ぶ（まだなら従来どおりその場で作る）
+    const bs=(dojoQrBlobCache&&dojoQrBlobCache.length===need)?dojoQrBlobCache:await dojoQrPngBlobs();
     if(bs.length&&bs.length===need){
       const files=bs.map((b,i)=>new File([b],bs.length>1?('match-qr-'+(i+1)+'.png'):'match-qr.png',{type:'image/png'}));
       if(navigator.canShare&&navigator.canShare({files})){ try{ await navigator.share({files}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
     }
-    if(need>1||bs.length!==need){ toast(T('QRが複数枚になるため、テキストでお送りします')); dojoSetFmt('text'); }
+    if(need>1||bs.length!==need){
+      toast(T('QRが複数枚になるため、テキストでお送りします')); dojoSetFmt('text');
+      // v285: 点検E-2。テキストのときも先に共有を試す（従来はコピーだけで終わっていた）
+      if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
+    }
     dojoSendCopy(); return;
   }
   if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
@@ -11383,6 +11412,7 @@ function drawShareCard(ev,img){
   const fn=SHARE_LAYOUT_DRAW[shareLayout]||SHARE_LAYOUT_DRAW.classic;
   fn(ctx,st,fp,m,img);
   ctx.restore();
+  rkPrepareShareBlob();   // v285: 点検E-1。シェア用の画像を作り置き
 }
 function shareFileName(){ const ev=rkShareEv||{}; return (ev.title||ev.name||'memory')+'.png'; }
 /* v252: 保存したカードは、メモリー一覧に重ねる最大110px幅のサムネイルとしてしか使わない。
@@ -11440,7 +11470,37 @@ function shrinkOldCards(){
   }catch(e){}
 }
 function rkDownloadShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=shareFileName();a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
-function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=>{const file=new File([b],'card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:'#柔道 #My柔道'});}catch(e){}}else{rkDownloadShare();alert(T('この端末は直接シェア非対応のため画像を保存しました。'));}},'image/png');}
+/* v285: 点検E-1。iOS は「押した操作」の直後でないと share を拒むため、画像はプレビューを描いた時点で
+   作り置きし、押したらすぐ share を呼ぶ。中止（AbortError）以外の失敗と、アプリ版で共有できないときは
+   画像を大きく出して長押しで保存してもらう（アプリ内ではダウンロードが何も起きないため） */
+let rkShareBlob=null, _rkBlobSeq=0, _rkBlobTimer=0;
+function rkPrepareShareBlob(){
+  rkShareBlob=null; const seq=++_rkBlobSeq;
+  clearTimeout(_rkBlobTimer);
+  _rkBlobTimer=setTimeout(()=>{ try{ document.getElementById('rkcv').toBlob(b=>{ if(seq===_rkBlobSeq)rkShareBlob=b||null; },'image/png'); }catch(e){} },400);
+}
+function showImgSave(src,msg){
+  const im=document.getElementById('imgSaveImg'), mg=document.getElementById('imgSaveMsg');
+  if(!im||!src){ toast(msg||T('共有できませんでした')); return; }
+  im.src=src; if(mg)mg.textContent=msg||T('画像を長押しして「写真に保存」を選んでください。');
+  openModal('imgSaveModal');
+}
+function rkShowImgSave(msg){ let u=''; try{ u=document.getElementById('rkcv').toDataURL('image/png'); }catch(e){} showImgSave(u,msg); }
+function rkDoShare(){
+  if(rkShareBlob){ rkShareBlobGo(rkShareBlob); return; }
+  try{ document.getElementById('rkcv').toBlob(b=>{ if(b)rkShareBlobGo(b); else rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); },'image/png'); }
+  catch(e){ rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); }
+}
+async function rkShareBlobGo(b){
+  const file=new File([b],'card.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file],text:'#柔道 #My柔道'}); }
+    catch(e){ if(e&&e.name==='AbortError')return; rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); }
+    return;
+  }
+  if(isNativeApp()){ rkShowImgSave(T('この端末は直接シェアできません。画像を長押しして保存してください。')); return; }
+  rkDownloadShare(); alert(T('この端末は直接シェア非対応のため画像を保存しました。'));
+}
 /* ===== v146: 分析タブ（個人モード）＝選手の試合分析（既存の決まり技レーダー等を再利用） ===== */
 let anaSelfId=null;
 // 個人アプリの無料ユーザーには分析をゲート（A案：タブは見せて、中身は「有料版で使えます」）
@@ -13087,7 +13147,7 @@ function renderSchedShare(keepInput){
 async function ssSend(){
   // v258: 0件でも送れる。「この月の予定はすべて取り消し」を伝えるため
   const r=schedShareText(ssMonth);
-  if(navigator.share){ try{ await navigator.share({text:r.text}); return; }catch(e){} }
+  if(navigator.share){ try{ await navigator.share({text:r.text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }   // v285: 点検E-3。閉じただけならコピーへ進まない
   try{ await navigator.clipboard.writeText(r.text); toast(T('コピーしました。LINE等に貼り付けて送ってください')); }
   catch(e){ toast(T('コピーできませんでした')); }
 }
