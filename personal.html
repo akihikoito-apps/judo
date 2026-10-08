@@ -5541,7 +5541,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v292'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v293'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -14474,6 +14474,7 @@ function fixGradeEntryFY(){
 }
 // 起動後に1回だけ、直した人を名前つきで知らせる（控えに印を付けるので2回目は出ない）
 let _gradeNoticePending=false;   // v292: ロック中で出せなかったお知らせを、解除したあとに出す
+let _gradeNoticeAfterConfirm=false;   // v293: 復元後に退避データの確認を出したときは、閉じてから出す
 function noticeGradeEntryFix(){
   const b=DB.gradeEntryFixBackup;
   if(!b||b.noticed||b.undone||!Array.isArray(b.items)||!b.items.length)return;
@@ -15242,13 +15243,14 @@ async function exportBrokenData(){
    バックアップからの復元に成功したときだけ、確認をはさんで消す。「やめる」なら残す（書き出しもそのまま使える）。 */
 function askDropBroken(){
   const bytes=storageKeyBytes(STORE_KEY+'_broken');
-  if(!bytes)return;
+  if(!bytes)return false;
   askConfirm(T('復元できました。')+'<br><br>'+T('端末内に、以前読み取れなかったデータ（退避データ）が残っています')+'（'+archiveSizeLabel(bytes)+'）。'+T('消して容量を空けますか？')+'<br><br>'+T('まだ残しておきたい場合は「やめる」を押し、「設定 › データ管理」から書き出してください。消すと元に戻せません。'),()=>{
     try{ localStorage.removeItem(STORE_KEY+'_broken'); }catch(e){}
     loadFailedRaw='';
     renderBrokenExport(); renderDataUsage();
     toast(T('退避データを消しました'));
   },'退避データを消す','退避データの確認');
+  return true;
 }
 // v255: アプリ版で共有シートが使えなかったとき。保存できたことにしない（最終バックアップ日を記録しない）
 function backupNativeFail(){
@@ -15331,7 +15333,10 @@ function doRestore(){
       return;
     }
     toast(T('復元しました'));
-    askDropBroken();   // v284: 復元できたら、残っている退避データを消すか聞く（点検 D-4）
+    // v293: 復元したデータにも学年の移行（normalizeDB → fixGradeEntryFY）がかかるので、起動時と同じくお知らせを出す。
+    //       退避データの確認（v284・点検 D-4）を出したときは、同じ確認画面を使うので、それを閉じてから出す
+    if(askDropBroken())_gradeNoticeAfterConfirm=true;
+    else setTimeout(()=>{ try{ noticeGradeEntryFix(); }catch(e){} },300);
   }catch(err){
     try{ if(_rollback!==null)localStorage.setItem(STORE_KEY,_rollback); }catch(e){}
     closeModal('confirmModal');
@@ -15348,7 +15353,9 @@ function openModal(id){
   const inner=bg.querySelector('.modal');
   if(inner){inner.scrollTop=0;requestAnimationFrame(()=>{inner.scrollTop=0;});}
 }
-function closeModal(id){document.getElementById(id).classList.remove('show');if(id==='qrScanModal'&&typeof qrStopCamera==='function')qrStopCamera();}
+function closeModal(id){document.getElementById(id).classList.remove('show');if(id==='qrScanModal'&&typeof qrStopCamera==='function')qrStopCamera();
+  if(id==='confirmModal'&&_gradeNoticeAfterConfirm){ _gradeNoticeAfterConfirm=false; setTimeout(()=>{ try{ noticeGradeEntryFix(); }catch(e){} },300); }   // v293: 復元後の学年のお知らせ
+}
 // 外側タップで閉じる挙動：入力欄がある画面は誤タップでの消失を防ぐため閉じない（ボタンで閉じる）
 function modalHasEntry(bg){
   if(bg.id==='photoBlurModal')return blurDirty;   // v209: ぼかし編集中は誤タップで消えないよう確認を挟む
