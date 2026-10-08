@@ -2168,7 +2168,7 @@ function applyUpdate(){
       <div class="list-mini">・主役（家族）を人数の制限なく登録</div>
     </div>
     <p class="list-mini" style="margin-top:12px">「試合報告」はずっと無料です。メモリーは10件まで、主役は5人まで無料で登録できます（登録したメモリーを見る・シェアするのはずっと無料）。</p>
-    <p class="list-mini" id="paywallPrice" style="margin-top:12px;font-weight:800;color:var(--navy)">Pro 年額 ¥2,200</p>
+    <p class="list-mini" id="paywallPrice" style="margin-top:12px;font-weight:800;color:var(--navy)">価格を確認しています…</p>
     <p class="list-mini">サブスクリプションは年ごとに自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。</p>
     <button class="btn gold full" style="margin-top:10px" id="paywallBuyBtn" onclick="purchasePro()">⭐ Proにする（年額）</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="restorePro()">購入を復元する</button>
@@ -2185,7 +2185,7 @@ function applyUpdate(){
     <p class="list-mini">道場・部活の事務管理と試合分析の、すべての機能をご利用いただけます。</p>
     <div style="text-align:left;background:#faf7ef;border:1px solid #eadcb0;border-radius:12px;padding:12px 14px;margin-top:12px">
       <div class="list-mini" style="font-weight:800;color:var(--navy);margin-bottom:6px">年額プラン</div>
-      <div class="list-mini" id="officePayPrice" style="font-weight:800">年額 ¥7,800（初めてのご利用なら最初の1ヶ月は無料）</div>
+      <div class="list-mini" id="officePayPrice" style="font-weight:800">価格を確認しています…</div>
       <div class="list-mini" id="officePayHelp" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff6e0;border:1px solid #e6c77a;color:#7a5b00;text-align:left">
         <b>うまくいかないときは</b><br>
         ・Wi-Fi／モバイル通信がつながっているかご確認のうえ、もう一度お試しください。<br>
@@ -2200,6 +2200,11 @@ function applyUpdate(){
     <button class="btn full" style="margin-top:10px" onclick="demoStart()">👀 まず中身を見てみる（デモ）</button>
     <p class="list-mini" style="margin-top:6px">デモではサンプルの道場データで全機能を試せます。入力しても保存はされません。</p>
     <button class="btn ghost full sm" style="margin-top:10px" onclick="restoreOffice()">購入を復元する</button>
+    </div>
+    <!-- v286: 点検E-10。購読が切れても、これまでのデータは書き出せるようにする（確認中でも押せるよう officePayActions の外に置く） -->
+    <div id="officePayBackup" style="display:none;margin-top:14px;padding-top:10px;border-top:1px solid #eee">
+      <p class="list-mini">購読していなくても、これまでのデータはバックアップとして書き出せます。</p>
+      <button class="btn ghost full sm" style="margin-top:6px" onclick="exportData()">💾 バックアップを書き出す</button>
     </div>
     <p class="list-mini" style="margin-top:10px"><a href="https://akihikoito-apps.github.io/judo/terms.html" target="_blank" rel="noopener">利用規約</a>　<a href="https://akihikoito-apps.github.io/judo/privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a></p>
   </div>
@@ -5509,7 +5514,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v285'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v286'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -6488,6 +6493,10 @@ Object.assign(DICT,{
   '無料期間の終了後は年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'After the free period, the subscription auto-renews at the annual price. Cancel anytime in iPhone Settings › Subscriptions.',fr:'Après la période gratuite, l’abonnement se renouvelle automatiquement au tarif annuel. Résiliable à tout moment dans Réglages › Abonnements.',pt:'Após o período grátis, a assinatura é renovada automaticamente pelo preço anual. Cancele quando quiser em Ajustes › Assinaturas.'},
   '1ヶ月無料ではじめる':{en:'Start 1 month free',fr:'Commencer 1 mois gratuit',pt:'Começar 1 mês grátis'},
   'Pro 年額 ¥2,200':{en:'Pro: ¥2,200 / year',fr:'Pro : 2 200 ¥ / an',pt:'Pro: ¥2.200 / ano'},
+  '価格を確認しています…':{en:'Checking the price…',fr:'Vérification du prix…',pt:'Verificando o preço…'},
+  '価格を取得できませんでした（実際の価格と無料期間は、App Storeの購入画面に表示されます）':{en:'Couldn’t get the price (the actual price and any free period are shown on the App Store purchase screen)',fr:'Impossible d’obtenir le prix (le prix réel et la période gratuite éventuelle s’affichent sur l’écran d’achat de l’App Store)',pt:'Não foi possível obter o preço (o preço real e o período grátis, se houver, aparecem na tela de compra da App Store)'},
+  '購読していなくても、これまでのデータはバックアップとして書き出せます。':{en:'Even without a subscription, you can export your existing data as a backup.',fr:'Même sans abonnement, vous pouvez exporter vos données existantes en sauvegarde.',pt:'Mesmo sem assinatura, você pode exportar seus dados como backup.'},
+  '💾 バックアップを書き出す':{en:'💾 Export backup',fr:'💾 Exporter la sauvegarde',pt:'💾 Exportar backup'},
   'ヶ月無料ではじめる':{en:' month free to start',fr:' mois gratuit pour commencer',pt:' mês grátis para começar'},
   '年額プランを購読する':{en:'Subscribe to the yearly plan',fr:'S’abonner au forfait annuel',pt:'Assinar o plano anual'},
   '年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'Renews automatically at the yearly price. Cancel any time in Settings › Subscriptions on your iPhone.',fr:'Renouvellement automatique au tarif annuel. Résiliation à tout moment dans Réglages › Abonnements.',pt:'Renova automaticamente pelo preço anual. Cancele quando quiser em Ajustes › Assinaturas.'},
@@ -9955,6 +9964,8 @@ function officeGateCheck(){
   if(officeEntitled())return;
   // ネイティブ層は起動時に window.__iap.entitled?.() で再検証し、失効なら DB.officePro=false にできる
   openModal('officePaywallModal');
+  // v286: 点検E-10。データがあれば、購読画面からでもバックアップを書き出せるようにする
+  try{ const bk=document.getElementById('officePayBackup'); if(bk)bk.style.display=backupEduCount()>0?'':'none'; }catch(e){}
   // v254: アプリ版は購入状況の確認が返るまでボタンを出さない（購入済みの人に購読画面が一瞬出て閉じるのを防ぐ）
   if(isNativeApp()){ officePaySetChecking(true); setTimeout(()=>officePaySetChecking(false),5000); }
   try{ refreshPaywallPrices(); }catch(e){}   // v257: 起動時に取れなかったときのために、開くたびに取り直す
@@ -10010,16 +10021,20 @@ function introUnitKey(iv){
   return u==='DAY'?'日間':u==='WEEK'?'週間':u==='YEAR'?'年間':'ヶ月';
 }
 // v257: 価格が取れないときの表示（前回の「無料」表示を残さず、条件つきの書き方に戻す）
+// v286: 点検E-11。決め打ちの金額・無料期間は出さない。前に取れたストア価格があればそれだけ、なければ取れなかったと書く
 let _lastStorePrice='';
 function paywallSetUnknown(){
+  const none=T('価格を取得できませんでした（実際の価格と無料期間は、App Storeの購入画面に表示されます）');
   const o=document.getElementById('officePayPrice');
-  if(o&&_lastStorePrice)o.textContent=T('年額')+' '+_lastStorePrice+'（'+T('初めてのご利用なら最初の')+'1'+T('ヶ月は無料')+'）';
+  if(o)o.textContent=_lastStorePrice?(T('年額')+' '+_lastStorePrice):none;
+  const p=document.getElementById('paywallPrice');
+  if(p)p.textContent=_lastStorePrice?('Pro '+T('年額')+' '+_lastStorePrice):none;
   const btn=document.getElementById('officeBuyBtn'); if(btn)btn.textContent=T('年額プランをはじめる');
   const tm=document.getElementById('officePayTerms'); if(tm)tm.textContent=T('無料期間があるときは、その終了後から年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。');
 }
 async function refreshPaywallPrices(){
   try{
-    if(!(window.__iap&&window.__iap.priceInfo))return;
+    if(!(window.__iap&&window.__iap.priceInfo)){ paywallSetUnknown(); return; }   // v286: Web版など価格が取れない環境でも決め打ちの金額を出さない
     const info=await window.__iap.priceInfo();
     if(!info||!info.price){ paywallSetUnknown(); return; }   // v257: 前回の「無料」表示を残さない
     // v245: 無料トライアルを使い切っている人には「無料」と書かない（Appleも再付与しない）
@@ -10042,7 +10057,7 @@ async function refreshPaywallPrices(){
       : T('年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。');
     const p=document.getElementById('paywallPrice');
     if(p)p.textContent='Pro '+T('年額')+' '+info.price;
-  }catch(e){}
+  }catch(e){ try{ paywallSetUnknown(); }catch(_){} }   // v286: 「確認しています…」のまま残さない
 }
 /* ===== v242: デモモード（購入前に中身を確かめられる・保存はしない） ===== */
 let demoMode=false;
