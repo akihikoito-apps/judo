@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1a2b4a">
@@ -38,6 +38,7 @@
     color:var(--ink);
     font-size:calc(18px*var(--fs,1));line-height:1.6;
     padding-bottom:calc(112px*var(--fs,1) + env(safe-area-inset-bottom));
+    padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);   /* v287: 点検I-3。viewport-fit=cover で横向きのノッチに文字がかからないように */
     -webkit-text-size-adjust:100%;
     min-height:100vh;
   }
@@ -45,7 +46,7 @@
   html[data-font="mid"]{--fs:1.5;}
   html[data-font="large"]{--fs:2;}
   header{
-    background:var(--header-bg,var(--navy));color:#fff;padding:10px 16px;
+    background:var(--header-bg,var(--navy));color:#fff;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top));   /* v287: 点検I-3 */
     position:sticky;top:0;z-index:10;box-shadow:0 1px 5px rgba(0,0,0,.1);
   }
   header .title{display:flex;align-items:center;gap:12px;}
@@ -74,6 +75,12 @@
   .chip-toggle{font-size:calc(13px*var(--fs,1));font-weight:700;padding:7px 12px;border-radius:20px;border:2px solid var(--line);background:#fff;color:var(--muted);font-family:inherit;cursor:pointer;white-space:nowrap;}
   .chip-toggle.on{background:#e8821e;color:#fff;border-color:#e8821e;}
   .chip-btn{font-size:calc(13px*var(--fs,1));font-weight:700;padding:7px 12px;border-radius:20px;border:2px solid var(--navy);background:#fff;color:var(--navy);font-family:inherit;cursor:pointer;white-space:nowrap;}
+  /* v289: 点検 U-9。見た目の大きさはそのままで、透明の当たり判定を足して押せる範囲を44px以上にする */
+  .chip-btn,.chip-toggle,.ra-help-btn,.ent-del,.color-pick.sm button{position:relative;}
+  .chip-btn::after,.chip-toggle::after{content:"";position:absolute;inset:-6px -2px;}
+  .ra-help-btn::after{content:"";position:absolute;inset:-12px -4px;}
+  .ent-del::after{content:"";position:absolute;inset:-6px;}
+  .color-pick.sm button::after{content:"";position:absolute;inset:-10px;}
   .mate-card{cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative;
     -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
     transition:transform .12s ease, box-shadow .12s ease;}
@@ -171,7 +178,7 @@
   .color-pick{display:flex;flex-wrap:wrap;gap:10px;}
   .color-pick button{width:42px;height:42px;border-radius:50%;border:3px solid transparent;cursor:pointer;padding:0;}
   .color-pick button.on{border-color:var(--navy);box-shadow:0 0 0 2px #fff inset;}
-  .color-pick.sm{gap:8px;margin:2px 0 4px 2px;}
+  .color-pick.sm{gap:12px;margin:2px 0 4px 2px;}   /* v289: 当たり判定（U-9）が隣と重なりすぎないよう間を少し空ける */
   .color-pick.sm button{width:28px;height:28px;border-width:2px;}
   .recur-box{margin-top:8px;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:#faf7fc;}
   .recur-opt{margin-top:4px;}
@@ -217,7 +224,7 @@
   .stu-top .att-person{align-items:center;}
   .stu-top .person-name-only{flex:1;min-width:0;font-size:calc(18px*var(--fs,1));word-break:keep-all;overflow-wrap:break-word;}
   .stu-top .stu-actions{flex-shrink:0;gap:4px;}
-  .stu-top .btn.sm{padding:0 10px;min-height:38px;font-size:calc(15px*var(--fs,1));}
+  .stu-top .btn.sm{padding:0 10px;min-height:44px;font-size:calc(15px*var(--fs,1));}
   .stu-top .del-x{margin-left:2px;}
   .person-name{font-size:calc(19px*var(--fs,1));font-weight:700;line-height:1.3;word-break:break-word;}
   .person-tags{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;}
@@ -313,7 +320,7 @@
   .acct-net{display:flex;justify-content:space-between;padding:14px 12px;font-size:calc(20px*var(--fs,1));font-weight:800;border-radius:12px;margin-top:12px;background:var(--paper);}
   .ord-btn{width:42px;min-height:42px;font-size:calc(20px*var(--fs,1));font-weight:800;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;font-family:inherit;cursor:pointer;}
   .ord-stack{display:flex;flex-direction:column;gap:4px;}
-  .ord-btn.sm{width:34px;min-height:26px;font-size:calc(15px*var(--fs,1));border-radius:7px;padding:0;line-height:1;}
+  .ord-btn.sm{width:44px;min-height:44px;font-size:calc(15px*var(--fs,1));border-radius:7px;padding:0;line-height:1;}
   .ord-btn:disabled{opacity:.3;border-color:var(--line);color:var(--line);cursor:default;}
   .ord-btn:active:not(:disabled){background:var(--navy);color:#fff;}
   .logo-area{display:flex;gap:14px;align-items:center;margin-top:10px;}
@@ -364,7 +371,7 @@
   /* 報告タブ：はじめての方向けの使い方説明 */
   .report-intro{position:relative;background:linear-gradient(180deg,#fbf7ea,#fff);border:1.5px solid var(--gold);}
   .report-intro h3{margin-top:0;color:var(--navy);padding-right:28px;}
-  .ri-close{position:absolute;top:8px;right:10px;background:none;border:none;font-size:calc(22px*var(--fs,1));line-height:1;color:var(--muted);cursor:pointer;font-family:inherit;padding:2px 6px;}
+  .ri-close{position:absolute;top:0;right:2px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;background:none;border:none;font-size:calc(22px*var(--fs,1));line-height:1;color:var(--muted);cursor:pointer;font-family:inherit;padding:2px 6px;}   /* v289: 点検 U-9。×の位置はほぼそのまま、押せる範囲を44pxに */
   .ri-lead{font-size:calc(13.5px*var(--fs,1));color:var(--ink);line-height:1.6;margin:2px 0 12px;}
   .ri-steps{display:flex;flex-direction:column;gap:9px;}
   .ri-step{display:flex;align-items:flex-start;gap:10px;font-size:calc(14px*var(--fs,1));line-height:1.5;}
@@ -613,7 +620,7 @@
   nav.tabbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;gap:4px;z-index:20;padding:4px max(env(safe-area-inset-left),14px) calc(env(safe-area-inset-bottom) + 12px) max(env(safe-area-inset-right),14px);box-shadow:0 -2px 8px rgba(0,0,0,.06);}
   nav.tabbar button{flex:1;min-width:0;background:none;border:none;font-family:inherit;padding:8px 2px;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:12px;transition:background .15s;}
   nav.tabbar button .ico{font-size:min(calc(20px*var(--fs,1)),34px);}
-  nav.tabbar button .tlbl{font-size:min(calc(clamp(8px,2.5vw,10px)*var(--fs,1)),15px);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;letter-spacing:-.2px;}
+  nav.tabbar button .tlbl{font-size:min(calc(clamp(11px,3vw,12px)*var(--fs,1)),15px);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;letter-spacing:-.2px;}   /* v289: 点検 U-8。8〜10px では読めないので 11px 以上に */
   nav.tabbar button.active{color:#fff;background:var(--navy);}
 
   body.iap-busy #officePayActions button, body.iap-busy #paywallModal .btn{opacity:.55;pointer-events:none;}   /* v255: 購入処理中 */
@@ -625,11 +632,13 @@
   #recurScopeModal{z-index:72;}
   #wazaModal{z-index:66;}
   #schedModal{z-index:55;}
-  .modal{background:#fff;width:100%;max-width:680px;border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;}
+  .modal{background:#fff;width:100%;max-width:680px;border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:90vh;max-height:90dvh;overflow-y:auto;}   /* v287: 点検I-2。dvh が使える端末は見えている高さで */
   .modal h3{font-size:calc(21px*var(--fs,1));margin:0 0 12px;color:var(--navy);}
   .modal .row{display:flex;gap:10px;margin-top:18px;}
   .modal .row>.btn{flex:1 1 0;min-width:0;}   /* フッターのボタンは均等幅で縮小可（長い訳語でも枠内に収める） */
   .modal .row .btn{flex:1;}
+  /* v287: 点検I-2。入力欄の多い画面（仲間・予定）は「保存する」の行を下に固定し、キーボードを出しても長くスクロールせずに押せるようにする */
+  .modal .row.sticky-save{position:sticky;bottom:0;z-index:2;background:inherit;padding:10px 0;margin-top:8px;box-shadow:0 -8px 10px -8px rgba(0,0,0,.18);}
 
   .toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:14px 22px;border-radius:30px;font-size:calc(16px*var(--fs,1));z-index:100;opacity:0;transition:opacity .25s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.3);}
   .toast.show{opacity:1;}
@@ -654,7 +663,7 @@
   .update-banner{position:fixed;left:12px;right:12px;bottom:calc(94px + env(safe-area-inset-bottom));z-index:30;background:var(--navy);color:#fff;border:2px solid var(--gold);border-radius:14px;padding:11px 12px;display:none;align-items:center;gap:10px;box-shadow:0 4px 18px rgba(0,0,0,.28);font-size:calc(14px*var(--fs,1));}
   .update-banner .ub-text{flex:1;font-weight:700;line-height:1.4;}
   .update-banner .ub-btn{background:var(--gold);color:#3a2b00;border:none;border-radius:10px;padding:8px 16px;font-weight:800;font-family:inherit;cursor:pointer;white-space:nowrap;}
-  .update-banner .ub-close{background:none;border:none;color:rgba(255,255,255,.75);font-size:22px;line-height:1;cursor:pointer;padding:0 4px;font-family:inherit;}
+  .update-banner .ub-close{background:none;border:none;color:rgba(255,255,255,.75);font-size:22px;line-height:1;cursor:pointer;padding:0 4px;font-family:inherit;min-width:44px;min-height:44px;margin:-10px -8px -10px -6px;flex-shrink:0;}   /* v289: 点検 U-9。帯の高さは変えずに押せる範囲を44pxに */
   .bk-status{font-size:calc(13px*var(--fs,1));line-height:1.6;border-radius:10px;padding:9px 11px;}
   .bk-status.ok{background:#eef4ee;color:#2e6b45;border:1px solid #cfe3d4;}
   .bk-status.warn{background:#fbf0e6;color:#8a5a1e;border:1px solid #ecd3b0;}
@@ -741,11 +750,13 @@
   /* 作ったデザインカードのサムネ（写真の右上） */
   .rk-cardthumb{position:absolute;right:10px;top:10px;width:23%;min-width:62px;max-width:110px;aspect-ratio:1080/1350;border-radius:9px;overflow:visible;cursor:pointer;z-index:2;}
   .rk-cardthumb img{width:100%;height:100%;object-fit:cover;display:block;border-radius:9px;border:2px solid rgba(255,255,255,.92);box-shadow:0 5px 14px rgba(0,0,0,.5);background:#0e1830;}
-  .rk-cardx{position:absolute;right:-7px;top:-7px;width:22px;height:22px;padding:0;border-radius:50%;border:1.5px solid rgba(255,255,255,.9);background:rgba(14,24,48,.92);color:#fff;font-size:13px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .rk-cardx{position:absolute;right:-7px;top:-7px;width:26px;height:26px;padding:0;border-radius:50%;border:1.5px solid rgba(255,255,255,.9);background:rgba(14,24,48,.92);color:#fff;font-size:15px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  /* v289: 点検 U-9。写真の枠（overflow:hidden）で切れない向き（左と下）に当たり判定を広げて44pxにする。押すと確認が出る */
+  .rk-cardx::after{content:"";position:absolute;inset:-3px -3px -15px -15px;}
   .rk-add{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:rgba(255,255,255,.85);font-size:calc(13.5px*var(--fs,1));font-weight:700;cursor:pointer;text-align:center;}
   .rk-add .big{font-size:40px;display:block;margin-bottom:4px;}
   .rk-photo-ops{position:absolute;right:10px;bottom:10px;display:flex;gap:6px;}
-  .rk-op{display:inline-flex;align-items:center;justify-content:center;min-width:38px;min-height:38px;border-radius:9px;border:none;background:rgba(14,24,48,.62);color:#fff;font-size:calc(16px*var(--fs,1));cursor:pointer;margin:0;}
+  .rk-op{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border-radius:9px;border:none;background:rgba(14,24,48,.62);color:#fff;font-size:calc(16px*var(--fs,1));cursor:pointer;margin:0;}
   .crop-stage{position:relative;width:100%;aspect-ratio:16/10;background:#0b1526;border-radius:12px;overflow:hidden;touch-action:none;user-select:none;}
   .crop-stage canvas{width:100%;height:100%;display:block;cursor:move;touch-action:none;}
   .crop-stage::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25);border-radius:12px;}
@@ -1318,9 +1329,9 @@
   .theme-shape-btn .shape-desc{font-size:calc(12px*var(--fs,1));color:var(--muted);}
 
   /* ===================== パスコードロック画面 ===================== */
-  #lockScreen{display:none;position:fixed;inset:0;z-index:9999;background:var(--navy);color:#fff;align-items:center;justify-content:center;padding:24px;}
+  #lockScreen{display:none;position:fixed;inset:0;z-index:9999;background:var(--navy);color:#fff;align-items:center;justify-content:center;padding:24px;overflow-y:auto;-webkit-overflow-scrolling:touch;}   /* v287: 点検I-1。収まらないときは縦にスクロールできる */
   #lockScreen.show{display:flex;}
-  .lock-inner{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;}
+  .lock-inner{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;margin:auto;}   /* margin:auto：はみ出しても上側が切れない */
   .lock-logo{width:64px;height:64px;border-radius:14px;background-size:cover;background-position:center;margin-bottom:14px;}
   .lock-title{font-size:calc(19px*var(--fs,1));font-weight:700;margin-bottom:20px;letter-spacing:.03em;}
   .lock-dots{display:flex;gap:18px;margin-bottom:10px;}
@@ -1334,6 +1345,15 @@
   .lock-key:active{background:rgba(255,255,255,.25);transform:scale(.95);}
   .lock-key.blank{border:none;background:none;cursor:default;}
   .lock-key.fn{font-size:calc(17px*var(--fs,1));font-weight:700;border-color:transparent;background:none;}
+  /* v287: 点検I-1。横向きなど高さが足りない画面では、キーを min(22vh,90px) に抑えて詰める */
+  @media (max-height:600px){
+    #lockScreen{padding:12px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));}
+    .lock-logo{display:none;}
+    .lock-title{margin-bottom:10px;}
+    .lock-msg{margin-bottom:8px;}
+    .lock-keypad{grid-template-columns:repeat(3,min(22vh,90px));justify-content:center;gap:8px 16px;}
+    .lock-cancel{margin-top:10px !important;}
+  }
   .lock-cancel{margin-top:22px;background:none;border:none;color:rgba(255,255,255,.85);font-size:calc(16px*var(--fs,1));font-weight:700;font-family:inherit;cursor:pointer;text-decoration:underline;}
   /* v126: 出欠状況ビュー（属性/月で折りたたみ） */
   tr.att-ghead{cursor:pointer;-webkit-tap-highlight-color:transparent;}
@@ -1390,10 +1410,11 @@
   .gw-dhead{display:flex;align-items:center;justify-content:center;gap:2px;line-height:1.25;min-height:calc(15px*min(var(--fs,1),1.3));}
   .gw-dhead .dnum{font-weight:700;font-size:calc(11px*min(var(--fs,1),1.3));}
   .gw-dhead .dnum.tdy{background:var(--today);color:#fff;border-radius:999px;padding:0 5px;}
-  .gw-dhead .kk{font-size:calc(9px*min(var(--fs,1),1.3));font-weight:800;color:#c0442e;white-space:nowrap;}
-  .gw-band{display:block;color:#fff;border-radius:4px;padding:0 3px;font-size:calc(8.5px*min(var(--fs,1),1.25));line-height:1.7;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}
+  /* v289: 点検 U-8。カレンダーの文字は 10px 以上に（帯の高さが変わらないよう行の高さを詰める）。文字サイズ「大」はほかの日付と同じ1.3倍まで */
+  .gw-dhead .kk{font-size:calc(10px*min(var(--fs,1),1.3));font-weight:800;color:#c0442e;white-space:nowrap;}
+  .gw-band{display:block;color:#fff;border-radius:4px;padding:0 3px;font-size:calc(10px*min(var(--fs,1),1.3));line-height:1.45;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}
   .gw-cd{color:#fff;border-radius:12px;padding:11px 14px;font-weight:800;font-size:calc(15px*min(var(--fs,1),1.3));margin-top:10px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(20,30,55,.15);letter-spacing:.02em;}
-  .gw-more{font-size:calc(8px*min(var(--fs,1),1.25));color:var(--muted);text-align:right;padding-right:2px;line-height:1;}
+  .gw-more{font-size:calc(10px*min(var(--fs,1),1.3));color:var(--muted);text-align:right;padding-right:2px;line-height:1;}
   .gw-field-row{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--line);}
   /* v198: 日別モーダルのセクション分け（けいこ／予定） */
   .gwd-sec{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px 4px;margin-top:12px;background:#fff;}
@@ -1478,7 +1499,7 @@
   });
 })();
 /* 「更新あり」バナーの操作（グローバル関数：onclickから呼ぶ） */
-function showUpdateBanner(){var b=document.getElementById('updateBanner');if(b)b.style.display='flex';}
+function showUpdateBanner(){var b=document.getElementById('updateBanner');if(b)b.style.display='flex';var bk=document.getElementById('backupBanner');if(bk)bk.style.display='none';}   /* v287: 点検I-4。同じ位置のバックアップの帯と重ならないよう隠す */
 function dismissUpdate(){var b=document.getElementById('updateBanner');if(b)b.style.display='none';}
 function applyUpdate(){
   var b=document.getElementById('updateBanner');if(b)b.style.display='none';
@@ -1871,6 +1892,10 @@ function applyUpdate(){
       <label class="btn full ghost" style="margin-top:10px;cursor:pointer">📂 バックアップから復元
         <input type="file" accept=".json" style="display:none" onchange="importData(event)">
       </label>
+      <div id="brokenExportBox" style="display:none;margin-top:10px">
+        <button class="btn full ghost" onclick="exportBrokenData()">🧯 退避データを書き出す（共有・コピー）</button>
+        <p class="list-mini">読み取れなかったデータを、そのままの形で書き出します。このファイルからは復元できません。お問い合わせのときにお送りください。</p>
+      </div>
       <label class="fld" style="margin-top:16px">保存のリマインド</label>
       <div class="cat-pick" id="bkRemindPick"></div>
       <p class="list-mini">前回の保存から選んだ日数が過ぎると、画面上部でお知らせします。</p>
@@ -2126,6 +2151,16 @@ function applyUpdate(){
   </div>
 </div>
 
+<!-- v285: 共有できない端末（iOSアプリなど）向け。画像を大きく出して長押しで保存してもらう -->
+<div class="modal-bg" id="imgSaveModal">
+  <div class="modal" style="max-width:430px;text-align:center">
+    <h3 style="margin-top:0" id="imgSaveTitle">画像を保存</h3>
+    <p class="list-mini" id="imgSaveMsg">画像を長押しして「写真に保存」を選んでください。</p>
+    <img id="imgSaveImg" alt="" style="display:block;width:100%;height:auto;max-height:68vh;object-fit:contain;margin:6px auto 0;border-radius:12px;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto">
+    <div class="row" style="margin-top:14px"><button class="btn ghost" onclick="closeModal('imgSaveModal')">閉じる</button></div>
+  </div>
+</div>
+
 <!-- QR読取（受け取る側）モーダル -->
 <div class="modal-bg" id="qrScanModal">
   <div class="modal" style="max-width:430px">
@@ -2151,10 +2186,10 @@ function applyUpdate(){
       <div class="list-mini">・メモリーの保存が無制限（無料は10件まで）</div>
       <div class="list-mini">・試合結果の分析（勝率・決まり技レーダー・組手別/技別）</div>
       <div class="list-mini">・シェア画像の全デザイン（テーマ10・構図14・フレーム・文字エフェクト・スタンプ）</div>
-      <div class="list-mini">・複数の主役（家族）を登録</div>
+      <div class="list-mini">・主役（家族）を人数の制限なく登録</div>
     </div>
-    <p class="list-mini" style="margin-top:12px">「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。</p>
-    <p class="list-mini" id="paywallPrice" style="margin-top:12px;font-weight:800;color:var(--navy)">Pro 年額 ¥2,200</p>
+    <p class="list-mini" style="margin-top:12px">「試合報告」はずっと無料です。メモリーは10件まで、主役は5人まで無料で登録できます（登録したメモリーを見る・シェアするのはずっと無料）。</p>
+    <p class="list-mini" id="paywallPrice" style="margin-top:12px;font-weight:800;color:var(--navy)">価格を確認しています…</p>
     <p class="list-mini">サブスクリプションは年ごとに自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。</p>
     <button class="btn gold full" style="margin-top:10px" id="paywallBuyBtn" onclick="purchasePro()">⭐ Proにする（年額）</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="restorePro()">購入を復元する</button>
@@ -2171,7 +2206,7 @@ function applyUpdate(){
     <p class="list-mini">道場・部活の事務管理と試合分析の、すべての機能をご利用いただけます。</p>
     <div style="text-align:left;background:#faf7ef;border:1px solid #eadcb0;border-radius:12px;padding:12px 14px;margin-top:12px">
       <div class="list-mini" style="font-weight:800;color:var(--navy);margin-bottom:6px">年額プラン</div>
-      <div class="list-mini" id="officePayPrice" style="font-weight:800">年額 ¥7,800（初めてのご利用なら最初の1ヶ月は無料）</div>
+      <div class="list-mini" id="officePayPrice" style="font-weight:800">価格を確認しています…</div>
       <div class="list-mini" id="officePayHelp" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff6e0;border:1px solid #e6c77a;color:#7a5b00;text-align:left">
         <b>うまくいかないときは</b><br>
         ・Wi-Fi／モバイル通信がつながっているかご確認のうえ、もう一度お試しください。<br>
@@ -2186,6 +2221,11 @@ function applyUpdate(){
     <button class="btn full" style="margin-top:10px" onclick="demoStart()">👀 まず中身を見てみる（デモ）</button>
     <p class="list-mini" style="margin-top:6px">デモではサンプルの道場データで全機能を試せます。入力しても保存はされません。</p>
     <button class="btn ghost full sm" style="margin-top:10px" onclick="restoreOffice()">購入を復元する</button>
+    </div>
+    <!-- v286: 点検E-10。購読が切れても、これまでのデータは書き出せるようにする（確認中でも押せるよう officePayActions の外に置く） -->
+    <div id="officePayBackup" style="display:none;margin-top:14px;padding-top:10px;border-top:1px solid #eee">
+      <p class="list-mini">購読していなくても、これまでのデータはバックアップとして書き出せます。</p>
+      <button class="btn ghost full sm" style="margin-top:6px" onclick="exportData()">💾 バックアップを書き出す</button>
     </div>
     <p class="list-mini" style="margin-top:10px"><a href="https://akihikoito-apps.github.io/judo/terms.html" target="_blank" rel="noopener">利用規約</a>　<a href="https://akihikoito-apps.github.io/judo/privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a></p>
   </div>
@@ -2549,7 +2589,7 @@ function applyUpdate(){
     </div>
     <label class="fld">備考（任意）</label>
     <input type="text" id="stNote" placeholder="例：アレルギーあり／〇〇大会出場予定">
-    <div class="row">
+    <div class="row sticky-save">
       <button class="btn ghost" onclick="closeModal('studentModal')">やめる</button>
       <button class="btn gold" onclick="saveStudent()">保存する</button>
     </div>
@@ -2563,7 +2603,7 @@ function applyUpdate(){
     <h3 style="color:var(--red);margin-top:0">削除の確認</h3>
     <p id="confirmText" style="font-size:calc(16px*var(--fs,1));line-height:1.6;margin:12px 0 20px"></p>
     <div class="row">
-      <button class="btn ghost" onclick="closeModal('confirmModal')">やめる</button>
+      <button class="btn ghost" id="confirmCancelBtn" onclick="closeModal('confirmModal')">やめる</button>
       <button class="btn ghost" id="confirmNoBtn" style="display:none" onclick="confirmChoiceNo()">保存しない</button>
       <button class="btn" id="confirmYesBtn" style="background:var(--red);color:#fff" onclick="confirmDeleteYes()">削除する</button>
     </div>
@@ -2612,7 +2652,7 @@ function applyUpdate(){
     <div class="ms-scroll">
     <div id="msPaneSort">
       <div class="set-sec">
-        <div class="set-sec-title">並び順</div>
+        <div class="set-sec-title">並び順<span class="set-sec-sub">すぐ反映されます</span></div>
         <div class="mem-seg">
           <button id="sortGradeBtn" onclick="setMateSort('grade')">学年順</button>
           <button id="sortKanaBtn" onclick="setMateSort('kana')">あいうえお</button>
@@ -2620,7 +2660,7 @@ function applyUpdate(){
         <p class="set-note">「学年順」は各区分の中を高学年→低学年で並べます（同じ学年の中は仲間タブの「手動で並び替え」で入れ替えられます）。「あいうえお順」はよみがなで並びます。</p>
       </div>
       <div class="set-sec">
-        <div class="set-sec-title">退会した仲間</div>
+        <div class="set-sec-title">退会した仲間<span class="set-sec-sub">すぐ反映されます</span></div>
         <div class="mem-seg">
           <button id="retiredHideBtn" onclick="setShowRetired(false)">かくす</button>
           <button id="retiredShowBtn" onclick="setShowRetired(true)">表示する</button>
@@ -2631,14 +2671,15 @@ function applyUpdate(){
 
     <div id="msPaneGrade" style="display:none">
       <div class="set-sec">
-        <div class="set-sec-title">学年機能</div>
+        <div class="set-sec-title">学年機能<span class="set-sec-sub">すぐ反映されます</span></div>
         <div class="io-pick">
           <button id="gradeOnBtn" onclick="setGradeEnabled(true)">オン</button>
           <button id="gradeOffBtn" onclick="setGradeEnabled(false)">オフ</button>
         </div>
         <p class="set-note">オフにすると学年の自動進級を行わず、区分だけで管理します（海外運用など）。</p>
+        <p class="set-note">学年機能と進級月は、押した時点で保存され、全員の学年がその場で計算し直されます（下の「やめる」では元に戻りません）。下の「保存する」は区分の変更を保存するボタンです。</p>
         <div id="gradeMonthWrap" style="margin-top:10px">
-          <div class="set-sec-title">進級月（学年が上がる月）</div>
+          <div class="set-sec-title">進級月（学年が上がる月）<span class="set-sec-sub">すぐ反映されます</span></div>
           <select id="gradeStartSelect" onchange="saveGradeStart()" style="width:100%"></select>
         </div>
       </div>
@@ -2673,9 +2714,13 @@ function applyUpdate(){
     </div>
     </div>
 
-    <div class="row">
+    <!-- v288: 「表示」タブは押した瞬間に保存されるので「とじる」だけにする（点検 U-3） -->
+    <div class="row" id="msSaveRow" style="display:none">
       <button class="btn ghost" onclick="closeModal('feePresetModal')">やめる</button>
       <button class="btn gold" onclick="saveFeePresets()">保存する</button>
+    </div>
+    <div class="row" id="msCloseRow">
+      <button class="btn ghost" onclick="closeModal('feePresetModal')">とじる</button>
     </div>
   </div>
 </div>
@@ -2710,15 +2755,16 @@ function applyUpdate(){
         <div class="recur-box">
           <label class="fld" style="margin-top:0">くり返し方</label>
           <div class="io-pick">
-            <button type="button" id="ruDay" class="on" onclick="pickRecurUnit('day')">日おき</button>
-            <button type="button" id="ruWeek" onclick="pickRecurUnit('week')">曜日</button>
+            <button type="button" id="ruDay" onclick="pickRecurUnit('day')">○日ごと</button>
+            <button type="button" id="ruWeek" class="on" onclick="pickRecurUnit('week')">曜日</button>
             <button type="button" id="ruMonth" onclick="pickRecurUnit('month')">毎月</button>
           </div>
-          <div id="ruDayOpt" class="recur-opt">
+          <div id="ruDayOpt" class="recur-opt" style="display:none">
             <label class="fld">間隔</label>
-            <div style="display:flex;align-items:center;gap:8px"><input type="number" id="recurEvery" min="1" value="1" inputmode="numeric" style="max-width:120px" oninput="renderRecurPreview()"><span>日おきに登録</span></div>
+            <div style="display:flex;align-items:center;gap:8px"><input type="number" id="recurEvery" min="1" value="1" inputmode="numeric" style="max-width:120px" oninput="renderRecurPreview()"><span>日ごとに登録</span></div>
+            <p class="list-mini" style="margin-top:6px">1日ごと＝毎日、2日ごと＝1日あけて登録します。</p>
           </div>
-          <div id="ruWeekOpt" class="recur-opt" style="display:none">
+          <div id="ruWeekOpt" class="recur-opt">
             <label class="fld">くり返す曜日</label>
             <div class="wk-pick" id="recurWeekdays"></div>
           </div>
@@ -2728,7 +2774,7 @@ function applyUpdate(){
           <label class="fld">終了日（同じ年度内まで）</label>
           <input type="date" id="recurEnd" onchange="renderRecurPreview()">
           <p class="list-mini" id="recurFyNote" style="margin-top:6px"></p>
-          <p class="list-mini" id="recurPreview" style="margin-top:6px;font-weight:800;color:var(--navy)"></p>
+          <p class="list-mini" id="recurPreview" style="margin-top:8px;font-weight:800;color:var(--navy);font-size:calc(16px*var(--fs,1))"></p>
         </div>
       </div>
     </div>
@@ -2757,7 +2803,7 @@ function applyUpdate(){
     <label class="fld">備考（任意）</label>
     <input type="text" id="schNote" placeholder="例：上履き持参／集合は15分前">
     <p class="list-mini" id="recurSeriesInfo" style="display:none;margin-top:14px;background:#f3eef8;border-radius:10px;padding:10px">🔁 この予定はくり返し登録の一部です。保存・削除のときに「この予定だけ」か「この予定以降すべて」を選べます。</p>
-    <div class="row">
+    <div class="row sticky-save">
       <button class="btn ghost" onclick="closeModal('schedModal')">やめる</button>
       <button class="btn gold" onclick="saveSched()">保存する</button>
     </div>
@@ -2787,7 +2833,8 @@ function applyUpdate(){
     <div id="entParts"></div>
     <div id="entDoneBox" style="margin-top:18px"></div>
     <div class="row" style="margin-top:12px">
-      <button class="btn ghost full" onclick="closeEntryModal()">とじる</button>
+      <button class="btn ghost" onclick="entryDiscardClose()">破棄してとじる</button>
+      <button class="btn gold" onclick="entrySaveClose()">✅ 保存してとじる</button>
     </div>
   </div>
 </div>
@@ -5494,7 +5541,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v261'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v294'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -5629,6 +5676,39 @@ const DICT={
   '記入：':{en:'Written: ',fr:'Saisi : ',pt:'Informado: '},
   '（自動一致）':{en:'(matched automatically)',fr:'(correspondance automatique)',pt:'(correspondência automática)'},
   '（一致者なし。選ぶか、新しく登録してください）':{en:'(no match — choose someone, or add a new member)',fr:'(aucune correspondance — choisissez ou ajoutez un membre)',pt:'(sem correspondência — escolha ou cadastre um membro)'},
+  'を別の人として新しく登録して取り込む':{en:'— add as a different, new member and import',fr:'— ajouter comme un autre membre (nouveau) et importer',pt:'— cadastrar como outra pessoa (novo membro) e importar'},
+  '（名前が似ている仲間がいます。取り込む前に、どの選手か確かめてください）':{en:'(members with similar names exist — confirm who this is before importing)',fr:'(des membres ont un nom proche — confirmez de qui il s’agit avant d’importer)',pt:'(há membros com nomes parecidos — confirme quem é antes de importar)'},
+  '（同じ名前の仲間が複数います。取り込む前に、どの選手か確かめてください）':{en:'(several members share this name — confirm who this is before importing)',fr:'(plusieurs membres portent ce nom — confirmez de qui il s’agit avant d’importer)',pt:'(vários membros têm este nome — confirme quem é antes de importar)'},
+  'この選手で合っていますか？':{en:'Is this the right athlete?',fr:'Est-ce le bon athlète ?',pt:'É este o atleta certo?'},
+  '記入されている名前と完全には一致しません。結果を付ける選手を選んでください。':{en:'The written name does not match exactly. Choose the athlete to attach these results to.',fr:'Le nom saisi ne correspond pas exactement. Choisissez l’athlète à qui attribuer ces résultats.',pt:'O nome informado não confere exatamente. Escolha o atleta que receberá estes resultados.'},
+  '同じ名前の仲間が複数います。結果を付ける選手を選んでください。':{en:'Several members share this name. Choose the athlete to attach these results to.',fr:'Plusieurs membres portent ce nom. Choisissez l’athlète à qui attribuer ces résultats.',pt:'Vários membros têm este nome. Escolha o atleta que receberá estes resultados.'},
+  '別の人として新しく登録する':{en:'Add as a different, new member',fr:'Ajouter comme un autre membre (nouveau)',pt:'Cadastrar como outra pessoa (novo membro)'},
+  // v288: 点検 U-2・U-3・U-4・U-7
+  '○日ごと':{en:'Every N days',fr:'Tous les N jours',pt:'A cada N dias'},
+  '日ごとに登録':{en:'-day interval',fr:'jour(s) d’intervalle',pt:'dia(s) de intervalo'},
+  '1日ごと＝毎日、2日ごと＝1日あけて登録します。':{en:'1 = every day, 2 = every other day.',fr:'1 = tous les jours, 2 = un jour sur deux.',pt:'1 = todo dia, 2 = dia sim, dia não.'},
+  '予定を':{en:'This will add',fr:'Cela va ajouter',pt:'Isto vai adicionar'},
+  'まとめて登録します。':{en:'events at once.',fr:'événements d’un coup.',pt:'eventos de uma vez.'},
+  '登録する':{en:'Add',fr:'Ajouter',pt:'Adicionar'},
+  '登録件数の確認':{en:'Confirm number of events',fr:'Confirmer le nombre d’événements',pt:'Confirmar número de eventos'},
+  'すぐ反映されます':{en:'Applies immediately',fr:'Appliqué immédiatement',pt:'Aplicado na hora'},
+  '学年機能と進級月は、押した時点で保存され、全員の学年がその場で計算し直されます（下の「やめる」では元に戻りません）。下の「保存する」は区分の変更を保存するボタンです。':{en:'The grade feature and promotion month are saved as soon as you tap them, and everyone’s grade is recalculated right away (“Cancel” below does not undo this). “Save” below saves changes to the categories.',fr:'La fonction de niveau scolaire et le mois de passage sont enregistrés dès que vous appuyez, et le niveau de chacun est recalculé aussitôt (« Annuler » ci-dessous ne l’annule pas). « Enregistrer » ci-dessous enregistre les modifications des catégories.',pt:'O recurso de série e o mês de promoção são salvos assim que você toca, e a série de todos é recalculada na hora (“Cancelar” abaixo não desfaz). “Salvar” abaixo salva as mudanças nas categorias.'},
+  '外れるもの：':{en:'What will be removed:',fr:'Ce qui sera retiré :',pt:'O que será removido:'},
+  '日分':{en:' days',fr:' jours',pt:' dias'},
+  '月謝・都度払い':{en:'Monthly / per-visit fees',fr:'Cotisations mensuelles / à la séance',pt:'Mensalidades / por aula'},
+  'か月分':{en:' months',fr:' mois',pt:' meses'},
+  '大会分':{en:' tournaments',fr:' compétitions',pt:' torneios'},
+  '勝率などの集計からも外れます':{en:'also removed from win-rate and other stats',fr:'également retirés du taux de victoire et des statistiques',pt:'também saem da taxa de vitórias e das estatísticas'},
+  '名簿と設定は残ります。':{en:'The member list and settings are kept. ',fr:'La liste des membres et les réglages sont conservés. ',pt:'A lista de membros e as configurações são mantidas. '},
+  '元に戻すには全体のバックアップから復元するしかなく、そのときは今のデータもすべてバックアップの内容に上書きされます。':{en:'The only way to bring it back is to restore the full backup, which also overwrites all of your current data with the backup.',fr:'Le seul moyen de les récupérer est de restaurer la sauvegarde complète, ce qui remplace aussi toutes vos données actuelles par celles de la sauvegarde.',pt:'A única forma de recuperar é restaurar o backup completo, o que também substitui todos os dados atuais pelo conteúdo do backup.'},
+  '追加の確認':{en:'Confirm adding',fr:'Confirmer l’ajout',pt:'Confirmar adição'},
+  'カードの統合':{en:'Merge cards',fr:'Fusionner les feuilles',pt:'Unir cartões'},
+  'パスコードの設定':{en:'Passcode set',fr:'Code d’accès défini',pt:'Senha definida'},
+  '保存先の確認':{en:'Check where it was saved',fr:'Vérifier l’emplacement',pt:'Confira onde salvou'},
+  '復元の確認':{en:'Confirm restore',fr:'Confirmer la restauration',pt:'Confirmar restauração'},
+  'この選手で決める':{en:'Use this athlete',fr:'Choisir cet athlète',pt:'Usar este atleta'},
+  '候補':{en:'Suggested',fr:'Suggestion',pt:'Sugestão'},
+  'どれか1つを選んでください':{en:'Please choose one',fr:'Veuillez en choisir un',pt:'Escolha uma opção'},
   '（記入に選手名がありません）':{en:'(no athlete name in the text)',fr:'(aucun nom d’athlète dans le texte)',pt:'(sem nome de atleta no texto)'},
   '選手のなまえが読み取れませんでした':{en:'Could not read the athlete’s name',fr:'Impossible de lire le nom de l’athlète',pt:'Não foi possível ler o nome do atleta'},
   '「':{en:'“',fr:'« ',pt:'“'},
@@ -6050,6 +6130,26 @@ Object.assign(DICT,{
   'タイトルの文字エフェクト':{en:'Title text effect',fr:'Effet du titre',pt:'Efeito do título'},
   'スタンプ':{en:'Stamp',fr:'Tampon',pt:'Carimbo'},
   '写真':{en:'Photo',fr:'Photo',pt:'Foto'},
+  '保存できていません（データを読み取れませんでした）。タップして「データ管理」へ':{en:'Not saved (your data could not be read). Tap to open Data management.',fr:'Non enregistré (données illisibles). Touchez pour ouvrir Données.',pt:'Não salvo (não foi possível ler os dados). Toque para abrir Dados.'},
+  '🧯 退避データを書き出す（共有・コピー）':{en:'🧯 Export unreadable data (share/copy)',fr:'🧯 Exporter les données illisibles (partager/copier)',pt:'🧯 Exportar dados ilegíveis (compartilhar/copiar)'},
+  '読み取れなかったデータを、そのままの形で書き出します。このファイルからは復元できません。お問い合わせのときにお送りください。':{en:'Exports the data that could not be read, as is. It cannot be used to restore. Please send it with your support request.',fr:'Exporte telles quelles les données illisibles. Ce fichier ne permet pas de restaurer. Joignez-le à votre demande d’assistance.',pt:'Exporta os dados ilegíveis como estão. Este arquivo não serve para restaurar. Envie-o ao pedir suporte.'},
+  '退避データはありません':{en:'There is no unreadable data to export',fr:'Aucune donnée illisible à exporter',pt:'Não há dados ilegíveis para exportar'},
+  '退避データをコピーしました。メモ帳などに貼り付けて残してください':{en:'Unreadable data copied. Paste it into Notes or similar to keep it.',fr:'Données illisibles copiées. Collez-les dans Notes pour les conserver.',pt:'Dados ilegíveis copiados. Cole-os no Notas para guardá-los.'},
+  '復元できました。':{en:'Restore complete.',fr:'Restauration terminée.',pt:'Restauração concluída.'},
+  '端末内に、以前読み取れなかったデータ（退避データ）が残っています':{en:'Data that could not be read earlier (unreadable data) is still kept on this device',fr:'Des données illisibles (mises de côté plus tôt) restent sur cet appareil',pt:'Dados ilegíveis guardados anteriormente ainda estão neste aparelho'},
+  '消して容量を空けますか？':{en:'Delete it to free up space?',fr:'Les supprimer pour libérer de l’espace ?',pt:'Apagar para liberar espaço?'},
+  'まだ残しておきたい場合は「やめる」を押し、「設定 › データ管理」から書き出してください。消すと元に戻せません。':{en:'To keep it, tap Cancel and export it from Settings › Data. Deleting cannot be undone.',fr:'Pour les garder, touchez Annuler et exportez-les depuis Réglages › Données. La suppression est définitive.',pt:'Para mantê-los, toque em Cancelar e exporte em Ajustes › Dados. Apagar não pode ser desfeito.'},
+  '退避データを消す':{en:'Delete unreadable data',fr:'Supprimer les données illisibles',pt:'Apagar dados ilegíveis'},
+  '退避データの確認':{en:'Unreadable data',fr:'Données illisibles',pt:'Dados ilegíveis'},
+  '退避データを消しました':{en:'Unreadable data deleted',fr:'Données illisibles supprimées',pt:'Dados ilegíveis apagados'},
+  'バックアップのファイルを保存できましたか？':{en:'Was the backup file saved?',fr:'Le fichier de sauvegarde a-t-il été enregistré ?',pt:'O arquivo de backup foi salvo?'},
+  'ダウンロードの一覧や「ファイル」で、ファイルがあることを確かめてください。':{en:'Check that the file is in your downloads or the Files app. ',fr:'Vérifiez que le fichier se trouve dans vos téléchargements ou dans Fichiers. ',pt:'Confira se o arquivo está nos downloads ou no app Arquivos. '},
+  '保存できていないまま外すと、この年度のデータは元に戻せません。':{en:'If it was not saved, this year’s data cannot be recovered after removal.',fr:'S’il n’a pas été enregistré, les données de cette année seront perdues après le retrait.',pt:'Se não foi salvo, os dados deste ano não poderão ser recuperados após a remoção.'},
+  '保存できていなければ「やめる」を押してください（何も外しません）。':{en:'If not, tap Cancel (nothing will be removed).',fr:'Sinon, touchez Annuler (rien ne sera retiré).',pt:'Se não, toque em Cancelar (nada será removido).'},
+  '保存できた・外す':{en:'Saved – remove',fr:'Enregistré – retirer',pt:'Salvo – remover'},
+  '保存の確認':{en:'Confirm save',fr:'Confirmer l’enregistrement',pt:'Confirmar salvamento'},
+  '退避データを書き出しました':{en:'Unreadable data exported',fr:'Données illisibles exportées',pt:'Dados ilegíveis exportados'},
+  '退避データを書き出せませんでした。もう一度お試しください。':{en:'The unreadable data could not be exported. Please try again.',fr:'Impossible d’exporter les données illisibles. Réessayez.',pt:'Não foi possível exportar os dados ilegíveis. Tente novamente.'},
   '保存できていません（容量オーバー）。タップして「データ管理」へ':{en:'Not saved (storage full). Tap to open Data management.',fr:'Non enregistré (stockage plein). Touchez pour ouvrir Données.',pt:'Não salvo (armazenamento cheio). Toque para abrir Dados.'},
   '保存容量がいっぱいです。':{en:'Storage is full.',fr:'Le stockage est plein.',pt:'O armazenamento está cheio.'},
   '「設定 › データ管理」で、いらない写真を削除するか「古い年度をアーカイブ」してから、もう一度お試しください。':{en:'In Settings › Data, delete unneeded photos or archive an old year, then try again.',fr:'Dans Réglages › Données, supprimez des photos ou archivez une ancienne année, puis réessayez.',pt:'Em Ajustes › Dados, apague fotos ou arquive um ano antigo e tente novamente.'},
@@ -6067,7 +6167,7 @@ Object.assign(DICT,{
   '試合結果の分析は':{en:'Match analysis is',fr:'L’analyse des combats est',pt:'A análise de lutas está'},
   '有料版（Pro）で':{en:'part of Pro',fr:'incluse dans Pro',pt:'no Pro'},
   'あなたの柔道を数字で深掘り。':{en:'Dig into your judo with numbers. ',fr:'Analysez votre judo en chiffres. ',pt:'Aprofunde seu judô em números. '},
-  '「試合報告」と「メモリー」は無料':{en:'Match Report and Memories stay free',fr:'Le rapport de combat et les souvenirs restent gratuits',pt:'Relatório de luta e Memórias continuam grátis'},
+  '「試合報告」とメモリー10件までは無料':{en:'Match Report and up to 10 Memories stay free',fr:'Le rapport de combat et jusqu’à 10 souvenirs restent gratuits',pt:'Relatório de luta e até 10 Memórias continuam grátis'},
   'のまま、Proでは分析が使えます。':{en:'; Pro adds the analysis.',fr:' ; Pro ajoute l’analyse.',pt:'; o Pro adiciona a análise.'},
   '勝率・決まり技レーダー':{en:'Win rate & scoring-technique radar',fr:'Taux de victoire et radar des techniques',pt:'Taxa de vitória e radar de técnicas'},
   'どの技で勝てているかが一目でわかる':{en:'see at a glance which techniques win for you',fr:'voyez d’un coup d’œil les techniques qui vous font gagner',pt:'veja de relance quais técnicas te dão vitórias'},
@@ -6149,6 +6249,8 @@ Object.assign(DICT,{
   '」を出場者から外します。':{en:'” will be removed from the entry list.',fr:'» sera retiré de la liste des inscrits.',pt:'” será removido da lista de inscritos.'},
   '入力した参加費・集金済み・メモも一緒に消えます。':{en:'The entry fee, payment status and notes you entered will be deleted too.',fr:'Les frais, le paiement et les remarques saisis seront aussi supprimés.',pt:'A taxa, o pagamento e as observações também serão apagados.'},
   '外す':{en:'Remove',fr:'Retirer',pt:'Remover'},
+  '次の方は、個別の参加費が入っているか集金済みです。':{en:'These people have their own entry fee or have already paid.',fr:'Ces personnes ont des frais individuels ou ont déjà payé.',pt:'Estas pessoas têm uma taxa individual ou já pagaram.'},
+  '全員に反映すると、この方たちの額も書き換わり、集金済みの合計も変わります。':{en:'Applying to everyone will overwrite their amounts too, and the collected total will change.',fr:'Appliquer à tous remplacera aussi leurs montants, et le total collecté changera.',pt:'Aplicar a todos também substituirá os valores deles, e o total recolhido mudará.'},
   '次の方を出場者から外します。':{en:'These people will be removed from the entry list.',fr:'Ces personnes seront retirées des inscrits.',pt:'Estas pessoas serão removidas dos inscritos.'},
   '出場者が変わったので、申込の完了を取り消しました':{en:'The entry list changed, so the application is no longer marked complete.',fr:'La liste a changé : l’inscription n’est plus marquée terminée.',pt:'A lista mudou, então a inscrição não está mais como concluída.'},
   '別の予定表のQRです。1枚目から読み直してください':{en:'This QR belongs to a different schedule. Please start again from sheet 1.',fr:'Ce QR appartient à un autre agenda. Recommencez à partir du 1er.',pt:'Este QR é de outra agenda. Comece de novo pela 1ª folha.'},
@@ -6219,12 +6321,15 @@ Object.assign(DICT,{
   '年度をアーカイブしました':{en:' was archived.',fr:' a été archivée.',pt:' foi arquivado.'},
   '年額プランをはじめる':{en:'Start the yearly plan',fr:'Commencer l’abonnement annuel',pt:'Assinar o plano anual'},
   '新しい主役として登録して、この人の記録にしますか？':{en:'Register them as a new person and keep this as their record?',fr:'L’enregistrer comme nouvelle personne et lui attribuer ce résultat ?',pt:'Cadastrar como nova pessoa e guardar como registro dela?'},
+  '受け取った日を選んでください':{en:'Choose the date you received it.',fr:'Choisissez la date de réception.',pt:'Escolha a data do recebimento.'},
+  '受け取った日':{en:'Date received',fr:'Date de réception',pt:'Data do recebimento'},
   '日付を選んでください':{en:'Choose a date.',fr:'Choisissez une date.',pt:'Escolha uma data.'},
   '枚':{en:' photos',fr:' photos',pt:' fotos'},
   '標準のロゴに戻しました':{en:'Back to the standard logo.',fr:'Retour au logo standard.',pt:'De volta ao logo padrão.'},
   '無料期間があるときは、その終了後から年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'If a free period applies, the yearly price renews automatically once it ends. You can cancel any time in Settings › Subscriptions on your iPhone.',fr:'Si une période gratuite s’applique, le tarif annuel se renouvelle automatiquement à son terme. Résiliation à tout moment dans Réglages › Abonnements.',pt:'Se houver período gratuito, a renovação anual automática começa ao fim dele. Cancele quando quiser em Ajustes › Assinaturas.'},
   '画像':{en:'Images',fr:'Images',pt:'Imagens'},
   '登録する試合結果がありません':{en:'There are no results to save.',fr:'Aucun résultat à enregistrer.',pt:'Não há resultados para salvar.'},
+  '試合結果を入力してください':{en:'Please enter a match result.',fr:'Veuillez saisir un résultat.',pt:'Insira um resultado.'},
   '種類を選んでください':{en:'Choose a type.',fr:'Choisissez un type.',pt:'Escolha um tipo.'},
   '編集':{en:'Edit',fr:'Modifier',pt:'Editar'},
   '調整しました':{en:'Adjusted.',fr:'Ajusté.',pt:'Ajustado.'},
@@ -6271,6 +6376,10 @@ Object.assign(DICT,{
   '保存する':{en:'Save',fr:'Enregistrer',pt:'Salvar'},
   '保存しない':{en:'Don’t save',fr:'Ne pas enregistrer',pt:'Não salvar'},
   '確認':{en:'Confirm',fr:'Confirmation',pt:'Confirmação'},
+  '人数を変えると、次の枠の記入内容が消えます。よろしいですか？':{en:'Changing the team size will erase the entries in these positions. Continue?',fr:'Changer le nombre de joueurs effacera les saisies de ces positions. Continuer ?',pt:'Mudar o número de atletas apagará os dados destas posições. Continuar?'},
+  '人数を変える':{en:'Change size',fr:'Changer',pt:'Alterar'},
+  '選手未選択':{en:'No player selected',fr:'Aucun joueur choisi',pt:'Nenhum atleta escolhido'},
+  '取り込み先の位置に、別の選手の結果がすでに入っています。上書きすると消えます。よろしいですか？':{en:'Another player’s result is already in this position. Overwriting will erase it. Continue?',fr:'Le résultat d’un autre joueur occupe déjà cette position. Le remplacer l’effacera. Continuer ?',pt:'Já há o resultado de outro atleta nesta posição. Substituir vai apagá-lo. Continuar?'},
   '削除の確認':{en:'Confirm deletion',fr:'Confirmer la suppression',pt:'Confirmar exclusão'},
   'デザインを編集':{en:'Edit design',fr:'Modifier le design',pt:'Editar design'},
   'デザインを外す':{en:'Remove design',fr:'Retirer le design',pt:'Remover design'},
@@ -6364,6 +6473,11 @@ Object.assign(DICT,{
   'この大会のひとことメモ（任意）':{en:'A note about this event (optional)',fr:'Une note sur cet événement (facultatif)',pt:'Uma nota sobre este evento (opcional)'},
   'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
   'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'},
+  '画像を保存':{en:'Save image',fr:'Enregistrer l’image',pt:'Salvar imagem'},
+  '画像を長押しして「写真に保存」を選んでください。':{en:'Press and hold the image, then choose “Save to Photos”.',fr:'Appuyez longuement sur l’image, puis choisissez « Enregistrer dans Photos ».',pt:'Toque e segure a imagem e escolha “Salvar em Fotos”.'},
+  '共有できませんでした':{en:'Couldn’t share',fr:'Partage impossible',pt:'Não foi possível compartilhar'},
+  '共有できませんでした。画像を長押しして保存してください。':{en:'Couldn’t share. Press and hold the image to save it.',fr:'Partage impossible. Appuyez longuement sur l’image pour l’enregistrer.',pt:'Não foi possível compartilhar. Toque e segure a imagem para salvá-la.'},
+  'この端末は直接シェアできません。画像を長押しして保存してください。':{en:'This device can’t share directly. Press and hold the image to save it.',fr:'Partage direct impossible sur cet appareil. Appuyez longuement sur l’image pour l’enregistrer.',pt:'Este aparelho não compartilha direto. Toque e segure a imagem para salvá-la.'},
   'すべて':{en:'All',fr:'Tout',pt:'Tudo'},
   'この年度の記録はありません':{en:'No records for this year',fr:'Aucun résultat pour cette année',pt:'Sem registros neste ano'},
   '分析':{en:'Analysis',fr:'Analyse',pt:'Análise'}
@@ -6429,6 +6543,10 @@ Object.assign(DICT,{
   '無料期間の終了後は年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'After the free period, the subscription auto-renews at the annual price. Cancel anytime in iPhone Settings › Subscriptions.',fr:'Après la période gratuite, l’abonnement se renouvelle automatiquement au tarif annuel. Résiliable à tout moment dans Réglages › Abonnements.',pt:'Após o período grátis, a assinatura é renovada automaticamente pelo preço anual. Cancele quando quiser em Ajustes › Assinaturas.'},
   '1ヶ月無料ではじめる':{en:'Start 1 month free',fr:'Commencer 1 mois gratuit',pt:'Começar 1 mês grátis'},
   'Pro 年額 ¥2,200':{en:'Pro: ¥2,200 / year',fr:'Pro : 2 200 ¥ / an',pt:'Pro: ¥2.200 / ano'},
+  '価格を確認しています…':{en:'Checking the price…',fr:'Vérification du prix…',pt:'Verificando o preço…'},
+  '価格を取得できませんでした（実際の価格と無料期間は、App Storeの購入画面に表示されます）':{en:'Couldn’t get the price (the actual price and any free period are shown on the App Store purchase screen)',fr:'Impossible d’obtenir le prix (le prix réel et la période gratuite éventuelle s’affichent sur l’écran d’achat de l’App Store)',pt:'Não foi possível obter o preço (o preço real e o período grátis, se houver, aparecem na tela de compra da App Store)'},
+  '購読していなくても、これまでのデータはバックアップとして書き出せます。':{en:'Even without a subscription, you can export your existing data as a backup.',fr:'Même sans abonnement, vous pouvez exporter vos données existantes en sauvegarde.',pt:'Mesmo sem assinatura, você pode exportar seus dados como backup.'},
+  '💾 バックアップを書き出す':{en:'💾 Export backup',fr:'💾 Exporter la sauvegarde',pt:'💾 Exportar backup'},
   'ヶ月無料ではじめる':{en:' month free to start',fr:' mois gratuit pour commencer',pt:' mês grátis para começar'},
   '年額プランを購読する':{en:'Subscribe to the yearly plan',fr:'S’abonner au forfait annuel',pt:'Assinar o plano anual'},
   '年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。':{en:'Renews automatically at the yearly price. Cancel any time in Settings › Subscriptions on your iPhone.',fr:'Renouvellement automatique au tarif annuel. Résiliation à tout moment dans Réglages › Abonnements.',pt:'Renova automaticamente pelo preço anual. Cancele quando quiser em Ajustes › Assinaturas.'},
@@ -6498,6 +6616,12 @@ Object.assign(DICT,{
   '📝 個人メモ欄：表示中':{en:'📝 Personal memo: shown',fr:'📝 Mémo individuel : affiché',pt:'📝 Memo individual: exibido'},
   'まだ出場者がいません。':{en:'No entrants yet.',fr:'Aucun participant pour l’instant.',pt:'Nenhum participante ainda.'},
   '「＋出場者を追加」から選んでください。':{en:'Add them from “＋ Add entrant”.',fr:'Ajoutez-les via « ＋ Ajouter un participant ».',pt:'Adicione em “＋ Adicionar participante”.'},
+  '✅ 保存してとじる':{en:'✅ Save and close',fr:'✅ Enregistrer et fermer',pt:'✅ Salvar e fechar'},
+  '破棄してとじる':{en:'Discard and close',fr:'Abandonner et fermer',pt:'Descartar e fechar'},
+  '保存しないでとじる':{en:'Close without saving',fr:'Fermer sans enregistrer',pt:'Fechar sem salvar'},
+  '申込の内容を保存しました':{en:'Entry details saved',fr:'Inscription enregistrée',pt:'Inscrição salva'},
+  '入力した内容を取り消しました':{en:'Your changes were discarded',fr:'Vos modifications ont été abandonnées',pt:'Suas alterações foram descartadas'},
+  'この画面で入力した内容を、保存せずにとじます。<br>開いたときの状態に戻りますが、よろしいですか？':{en:'Close without saving what you entered here.<br>It will go back to how it was when you opened it. Is that OK?',fr:'Fermer sans enregistrer ce que vous avez saisi ici.<br>Tout reviendra à l’état d’ouverture. Est-ce correct ?',pt:'Fechar sem salvar o que você digitou aqui.<br>Voltará ao estado de quando abriu. Tudo bem?'},
   '✅ この大会の申込を完了にする':{en:'✅ Mark this tournament’s entry as complete',fr:'✅ Marquer l’inscription comme terminée',pt:'✅ Concluir a inscrição deste torneio'},
   '完了を取り消す':{en:'Undo completion',fr:'Annuler la finalisation',pt:'Desfazer conclusão'},
   '出場者をえらぶ':{en:'Choose entrants',fr:'Choisir les participants',pt:'Escolher participantes'},
@@ -6516,8 +6640,8 @@ Object.assign(DICT,{
   '・メモリーの保存が無制限（無料は10件まで）':{en:'• Unlimited memory saves (free is up to 10)',fr:'• Souvenirs illimités (10 max en gratuit)',pt:'• Memórias ilimitadas (grátis até 10)'},
   '・試合結果の分析（勝率・決まり技レーダー・組手別/技別）':{en:'• Match analysis (win rate, technique radar, by grip/technique)',fr:'• Analyse des combats (taux de victoire, radar des techniques, par garde/technique)',pt:'• Análise das lutas (taxa de vitória, radar de técnicas, por pegada/técnica)'},
   '・シェア画像の全デザイン（テーマ10・構図14・フレーム・文字エフェクト・スタンプ）':{en:'• All share-image designs (10 themes, 14 layouts, frames, text effects, stamps)',fr:'• Tous les visuels à partager (10 thèmes, 14 mises en page, cadres, effets de texte, tampons)',pt:'• Todos os designs de imagem (10 temas, 14 layouts, molduras, efeitos de texto, carimbos)'},
-  '・複数の主役（家族）を登録':{en:'• Register multiple stars (family)',fr:'• Enregistrer plusieurs profils (famille)',pt:'• Cadastrar vários protagonistas (família)'},
-  '「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。':{en:'“Report” and “Memory” (recording & sharing) stay free forever.',fr:'« Rapport » et « Souvenirs » (enregistrement et partage) restent gratuits.',pt:'“Relatório” e “Memória” (registrar e compartilhar) continuam grátis.'},
+  '・主役（家族）を人数の制限なく登録':{en:'• Register as many people (family) as you like',fr:'• Enregistrer autant de profils (famille) que voulu',pt:'• Cadastrar quantos protagonistas (família) quiser'},
+  '「試合報告」はずっと無料です。メモリーは10件まで、主役は5人まで無料で登録できます（登録したメモリーを見る・シェアするのはずっと無料）。':{en:'“Report” is free forever. Free users can save up to 10 Memories and register up to 5 people (viewing and sharing saved Memories stays free).',fr:'« Rapport » reste gratuit pour toujours. En gratuit : jusqu’à 10 souvenirs et 5 profils (voir et partager les souvenirs enregistrés reste gratuit).',pt:'“Relatório” é grátis para sempre. No plano grátis: até 10 Memórias e 5 protagonistas (ver e compartilhar as Memórias salvas continua grátis).'},
   '⭐ Proにする（年額）':{en:'⭐ Get Pro (yearly)',fr:'⭐ Passer à Pro (annuel)',pt:'⭐ Assinar o Pro (anual)'},
   '購入を復元する':{en:'Restore purchase',fr:'Restaurer l’achat',pt:'Restaurar compra'},
   // 予定：よく使う設定・くり返し
@@ -6578,6 +6702,7 @@ Object.assign(DICT,{
   // レーダー説明
   '説明':{en:'Info',fr:'Infos',pt:'Info'},
   '仲間をタップすると、その人の試合結果がすべて表示されます。一覧の試合をタップすると登録内容を開いて修正・削除できます。「📋取り込み」で保護者からのLINE記入テキストをまとめて登録できます。':{en:'Tap a member to see all their results. Tap a bout in the list to open and edit or delete it. Use “📋 Import” to register LINE reports from parents in bulk.',fr:'Touchez un membre pour voir tous ses résultats. Touchez un combat pour l’ouvrir, le modifier ou le supprimer. « 📋 Importer » enregistre en lot les rapports LINE des parents.',pt:'Toque em um membro para ver todos os resultados. Toque em uma luta na lista para abrir, editar ou excluir. Use “📋 Importar” para registrar em lote os relatos do LINE.'},
+  '軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。':{en:'Axes = the 4 most-used throws (filled from Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi if fewer) + other throws, combinations, groundwork (hold/strangle/joint), fouls & decisions (shido/foul/decision/superiority), and walkover/withdrawal. Even if the technique is blank, it’s judged from the “Content” field.',fr:'Axes = les 4 projections les plus fréquentes (complétées par Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + autres projections, combinaisons, sol (immobilisation/étranglement/luxation), fautes & décisions (shido/faute/décision/supériorité), et forfait/abandon. Même sans technique, le champ « Contenu » sert au classement.',pt:'Eixos = os 4 golpes mais usados (completados por Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + outros golpes, combinações, solo (imobilização/estrangulamento/chave), faltas & decisões (shido/falta/decisão/superioridade) e W.O./desistência. Mesmo sem técnica, usa-se o campo “Conteúdo”.'},
   '軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。':{en:'Axes = the 4 most-used throws (filled from Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi if fewer) + other throws, combinations, groundwork (hold/strangle/joint), fouls & decisions (shido/foul/decision/superiority), and walkover/withdrawal. Even if the technique is blank, it’s judged from the “Content” field. Gold dashed line = whole dojo.',fr:'Axes = les 4 projections les plus fréquentes (complétées par Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + autres projections, combinaisons, sol (immobilisation/étranglement/luxation), fautes & décisions (shido/faute/décision/supériorité), et forfait/abandon. Même sans technique, le champ « Contenu » sert au classement. Ligne dorée en pointillés = tout le dojo.',pt:'Eixos = os 4 golpes mais usados (completados por Seoi-nage → Uchi-mata → O-soto-gari → Harai-goshi) + outros golpes, combinações, solo (imobilização/estrangulamento/chave), faltas & decisões (shido/falta/decisão/superioridade) e W.O./desistência. Mesmo sem técnica, usa-se o campo “Conteúdo”. Linha dourada tracejada = todo o dojô.'},
   // 初回オンボーディング
   'My柔道（事務）へ':{en:'to My Judo (Office)',fr:'à My Judo (Bureau)',pt:'ao My Judo (Gestão)'},
@@ -6623,8 +6748,8 @@ Object.assign(DICT,{
   '試合結果は、道場にそのまま報告':{en:'Send match results straight to your dojo',fr:'Envoyez vos résultats directement au dojo',pt:'Envie os resultados direto ao dojô'},
   '「試合報告」タブで入力して、LINE等やQRで送るだけ。':{en:'Fill in the “Report” tab and send by LINE or QR.',fr:'Remplissez l’onglet « Rapport » et envoyez par LINE ou QR.',pt:'Preencha a aba “Relato” e envie por LINE ou QR.'},
   '先生が My柔道（事務）で取り込めば、伝え間違いがありません。':{en:'Your teacher imports it in My Judo (Office) — nothing gets lost in translation.',fr:'Votre professeur l’importe dans My Judo (Bureau) — aucune erreur de transmission.',pt:'O professor importa no My Judo (Gestão) — sem erros de recado.'},
-  '報告した試合は、自分の記録にも残ります':{en:'Reported matches stay in your own record too',fr:'Les combats envoyés restent aussi dans votre historique',pt:'As lutas enviadas também ficam no seu histórico'},
-  '「試合報告」と「メモリー」は、ずっと無料です':{en:'“Report” and “Memories” are free forever',fr:'« Rapport » et « Souvenirs » restent gratuits',pt:'“Relato” e “Memórias” são sempre grátis'},
+  '自分の記録に残すときは「この試合をメモリーに登録する」を押します':{en:'To keep matches in your own record, tap “Save this match to Memory”',fr:'Pour garder les combats dans votre historique, touchez « Enregistrer ce combat dans Souvenirs »',pt:'Para manter as lutas no seu histórico, toque em “Salvar esta luta na Memória”'},
+  '「試合報告」はずっと無料。メモリーは10件、主役は5人まで無料です':{en:'“Report” is free forever; Memories (up to 10) and people (up to 5) are free',fr:'« Rapport » reste gratuit ; souvenirs (jusqu’à 10) et profils (jusqu’à 5) gratuits',pt:'“Relatório” é sempre grátis; Memórias (até 10) e protagonistas (até 5) grátis'},
   '思い出はカードにしてシェア':{en:'Memories become shareable cards',fr:'Vos souvenirs deviennent des cartes à partager',pt:'Memórias viram cards para compartilhar'},
   '「メモリー」タブに、大会や昇級・昇段などの節目が1枚のカードでたまります。':{en:'Tournaments and belt promotions collect as cards in the “Memories” tab.',fr:'Compétitions et passages de grade s’accumulent en cartes dans « Souvenirs ».',pt:'Competições e graduações viram cards na aba “Memórias”.'},
   '写真を入れて、テーマ・構図・スタンプでデコレーション':{en:'Add a photo, then decorate with themes, layouts and stamps',fr:'Ajoutez une photo, puis décorez (thèmes, mises en page, tampons)',pt:'Adicione uma foto e decore com temas, layouts e carimbos'},
@@ -6794,8 +6919,6 @@ Object.assign(DICT,{
   '試合報告':{en:'Report',fr:'Rapport',pt:'Relatório'},
   '予定・記録':{en:'Planner',fr:'Agenda',pt:'Agenda'},
   '日付なし':{en:'No date',fr:'Sans date',pt:'Sem data'},
-  '「試合報告」と「メモリー（記録・シェア）」は、これからもずっと無料です。':{en:'“Report” and “Memory” (recording & sharing) stay free forever.',fr:'« Rapport » et « Souvenirs » restent gratuits pour toujours.',pt:'“Relatório” e “Memória” continuam grátis para sempre.'},
-  '「試合報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。':{en:'“Report” and “Memory” (records & share images) stay free forever.',fr:'« Rapport » et « Souvenirs » (cartes à partager incluses) restent gratuits.',pt:'“Relatório” e “Memória” (com imagens) continuam grátis.'},
   '結果は試合報告タブから':{en:'report via the Report tab',fr:'à saisir via l’onglet Rapport',pt:'informe pela aba Relatório'},
   '「予定・記録」タブから記録できます':{en:'Log them from the Planner tab',fr:'Notez-les depuis l’onglet Agenda',pt:'Registre na aba Agenda'},
   '「予定・記録」タブ →「よく使う設定」→「記録する項目」で体重などを追加できます':{en:'Add weight etc. via Planner tab → “Frequently used” → “Tracked fields”.',fr:'Ajoutez le poids etc. via Agenda → « Réglages fréquents » → « Champs suivis ».',pt:'Adicione peso etc. em Agenda → “Ajustes frequentes” → “Campos registrados”.'},
@@ -6812,16 +6935,27 @@ Object.assign(DICT,{
   '内容が多すぎてQRにできません。テキストでお送りください。':{en:'Too much content for a QR. Please send as text.',fr:'Contenu trop long pour un QR. Envoyez en texte.',pt:'Conteúdo grande demais para QR. Envie como texto.'},
   'QR画像をコピーしました':{en:'QR image copied',fr:'Image QR copiée',pt:'Imagem do QR copiada'},
   '「送る」でLINEなどへ文字として送れます。「コピーする」で貼り付け用にコピーできます。':{en:'“Send” shares it as text via LINE etc. “Copy” copies it for pasting.',fr:'« Envoyer » partage le texte via LINE, etc. « Copier » le copie pour le coller.',pt:'“Enviar” compartilha como texto via LINE etc. “Copiar” copia para colar.'},
-  '画像コピー非対応のため表示しました。スクショで送れます。':{en:'Image copy unsupported — showing the QR (send a screenshot).',fr:'Copie d’image non prise en charge — QR affiché (envoyez une capture).',pt:'Cópia de imagem não suportada — QR exibido (envie um print).'}
+  '画像コピー非対応のため表示しました。スクショで送れます。':{en:'Image copy unsupported — showing the QR (send a screenshot).',fr:'Copie d’image non prise en charge — QR affiché (envoyez une capture).',pt:'Cópia de imagem não suportada — QR exibido (envie um print).'},
+  // v290: くり返し登録の件数（「N件」は PATTERNS で訳す・点検 U-10）
+  'この設定で':{en:'This setting adds',fr:'Ce réglage ajoute',pt:'Esta configuração adiciona'},
+  '登録されます（同じ年度内）。':{en:'(within the same fiscal year).',fr:'(dans le même exercice).',pt:'(no mesmo ano fiscal).'}
 });
 // ―― 合成文字列パターン（丸ごと1ノードのもの）――
 const PATTERNS=[
   // v193: 試合申込・報告の数値入り表示
+  [/^無料で登録できる主役は(\d+)人までです。Proにすると人数の制限がなくなります。$/, (m,L)=>({en:'The free plan allows up to '+m[1]+' main people. Pro removes the limit.',fr:'La version gratuite permet jusqu\u2019\u00e0 '+m[1]+' profils principaux. Pro supprime cette limite.',pt:'O plano gratuito permite at\u00e9 '+m[1]+' protagonistas. O Pro remove o limite.'}[L])],
   [/^(\d+)試合目$/, (m,L)=>({en:'Match '+m[1],fr:'Combat '+m[1],pt:'Luta '+m[1]}[L])],                     // 1試合目
-  [/^🥋 (.+)まで あと(\d+)日！！$/, (m,L)=>({en:'🥋 '+m[2]+' days until '+m[1]+'!!',fr:'🥋 J-'+m[2]+' avant '+m[1]+' !!',pt:'🥋 '+m[2]+' dias para '+m[1]+'!!'}[L])],  // カウントダウン
-  [/^🥋 (.+)は きょう！！$/, (m,L)=>({en:'🥋 Today: '+m[1]+'!!',fr:'🥋 Aujourd’hui : '+m[1]+' !!',pt:'🥋 Hoje: '+m[1]+'!!'}[L])],
-  [/^集金済 ¥(.+)$/, (m,L)=>({en:'Collected ¥'+m[1],fr:'Collecté ¥'+m[1],pt:'Recolhido ¥'+m[1]}[L])],       // 集金済 ¥3,000
-  [/^未集金 ¥(.+)$/, (m,L)=>({en:'Not collected ¥'+m[1],fr:'Non collecté ¥'+m[1],pt:'A recolher ¥'+m[1]}[L])],// 未集金 ¥3,000
+  // v290: 点検 U-10。予定名は日本語のまま差し込み、ここで訳す（言語を切り替えても追従する）
+  [/^🥋 (.+)まで あと(\d+)日！！$/, (m,L)=>{const n=tr(m[1],L);return {en:'🥋 '+m[2]+' days until '+n+'!!',fr:'🥋 J-'+m[2]+' avant '+n+' !!',pt:'🥋 '+m[2]+' dias para '+n+'!!'}[L];}],  // カウントダウン
+  [/^🥋 (.+)は きょう！！$/, (m,L)=>{const n=tr(m[1],L);return {en:'🥋 Today: '+n+'!!',fr:'🥋 Aujourd’hui : '+n+' !!',pt:'🥋 Hoje: '+n+'!!'}[L];}],
+  // v290: 点検 U-10。金額は通貨記号を問わずそのまま出す（¥ 以外の通貨でも訳す）
+  [/^集金済 (.+)$/, (m,L)=>({en:'Collected '+m[1],fr:'Collecté '+m[1],pt:'Recolhido '+m[1]}[L])],       // 集金済 ¥3,000
+  [/^未集金 (.+)$/, (m,L)=>({en:'Not collected '+m[1],fr:'Non collecté '+m[1],pt:'A recolher '+m[1]}[L])],// 未集金 ¥3,000
+  // v290: 点検 U-10。くり返し登録・月謝の調整の数字入りの文
+  [/^毎月 (\d{1,2})日 に登録します。その日が無い月はスキップします。$/, (m,L)=>({en:'Adds on day '+m[1]+' of every month. Months without that day are skipped.',fr:'Ajouté le '+m[1]+' de chaque mois. Les mois sans ce jour sont ignorés.',pt:'Adiciona no dia '+m[1]+' de cada mês. Meses sem esse dia são pulados.'}[L])],
+  [/^※ (\d{4})年度（〜(.+)）まで登録できます。$/, (m,L)=>({en:'※ You can add events through FY '+m[1]+' (until '+m[2]+').',fr:'※ Ajout possible jusqu’à la fin de l’exercice '+m[1]+' (jusqu’au '+m[2]+').',pt:'※ Pode adicionar até o fim do ano '+m[1]+' (até '+m[2]+').'}[L])],
+  [/^(?:(.*)　)?(\d{4})年(\d{1,2})月（この月だけに反映／登録額 (.+)）$/, (m,L)=>{const ym=MON[L][+m[3]]+' '+m[2];const p=m[1]?m[1]+'　':'';return p+{en:ym+' (this month only / registered fee '+m[4]+')',fr:ym+' (ce mois uniquement / montant enregistré '+m[4]+')',pt:ym+' (só este mês / valor cadastrado '+m[4]+')'}[L];}],
+  [/^ほか(\d+)人$/, (m,L)=>({en:'and '+m[1]+' more',fr:'et '+m[1]+' autres',pt:'e mais '+m[1]}[L])],   // v275: 載せきれなかった出場者
   [/^出場(\d+)人$/, (m,L)=>({en:m[1]+' entrants',fr:m[1]+' inscrits',pt:m[1]+' inscritos'}[L])],           // 出場5人
   [/^未集金(\d+)人$/, (m,L)=>({en:m[1]+' unpaid',fr:m[1]+' impayés',pt:m[1]+' sem pagar'}[L])],             // 未集金2人
   [/^締切あと(\d+)日$/, (m,L)=>({en:m[1]+' days to deadline',fr:'J-'+m[1]+' avant clôture',pt:m[1]+' dias p/ prazo'}[L])], // 締切あと3日
@@ -7024,7 +7158,7 @@ function uid(){
 let saveErrorShown=false;
 function save(){
   if(demoMode)return true;                                  // v242: デモの入力は保存しない（本物のデータを守る）
-  if(loadFailed)return false;                               // 壊れたデータを上書きしない
+  if(loadFailed){ showSaveError(true); return false; }      // 壊れたデータを上書きしない（v277: 保存できないことを帯で出し続ける）
   try{
     localStorage.setItem(STORE_KEY,JSON.stringify(DB));
     saveErrorShown=false; showSaveError(false);
@@ -7048,13 +7182,13 @@ function showSaveError(on){
     el.onclick=()=>{ try{ switchTab('set'); setSetView('data'); }catch(e){} };
     document.body.appendChild(el);
   }
-  el.textContent='⚠️ '+T('保存できていません（容量オーバー）。タップして「データ管理」へ');
+  el.textContent='⚠️ '+(loadFailed?T('保存できていません（データを読み取れませんでした）。タップして「データ管理」へ'):T('保存できていません（容量オーバー）。タップして「データ管理」へ'));   // v277: 読み込み失敗中は理由を分けて出す
   el.style.display='';
 }
 // 画像を追加する前の容量チェック（追加してから溢れて消えるのを防ぐ）
 function canStoreMore(extraBytes){
   try{
-    const now=dbByteSize();
+    const now=storageUsedBytes();   // v284: 退避データなど本体以外の保存分も数える（点検 D-4）
     return (now+(extraBytes||0)) < STORAGE_BUDGET*0.92;      // 5MBの92%を上限とする
   }catch(e){ return true; }
 }
@@ -7114,12 +7248,14 @@ function normalizeDB(){
   if(!DB.fontScale)DB.fontScale='small';
   if(!DB.cashCats||!Array.isArray(DB.cashCats.in)||!Array.isArray(DB.cashCats.out))DB.cashCats={in:['寄付','参加費徴収','物販収入','補助金','その他収入'],out:['用具購入','会場費','遠征費','審査料','その他支出']};
   // 既存の入出金記録で使われている項目（繰越金など・自由記入含む）を一覧へ取り込む（重複・空欄は除外）
-  if(Array.isArray(DB.cash)){
+  // v281: 取り込みは最初の移行の1回だけ。消した項目が起動のたびに戻らないように印を持つ（点検 D-10）
+  if(Array.isArray(DB.cash)&&!DB.cashCatsImported){
     ['in','out'].forEach(io=>{ if(!Array.isArray(DB.cashCats[io]))DB.cashCats[io]=[]; });
     DB.cash.forEach(c=>{
       const io=(c&&c.io==='out')?'out':'in'; const cat=(c&&c.cat||'').trim();
       if(cat && !DB.cashCats[io].includes(cat)) DB.cashCats[io].push(cat);
     });
+    DB.cashCatsImported=true;
   }
   if(!DB.matchPresets||typeof DB.matchPresets!=='object')DB.matchPresets={};
   if(!Array.isArray(DB.matchPresets.rounds))DB.matchPresets.rounds=['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
@@ -7157,6 +7293,7 @@ function normalizeDB(){
     DB.ranks=[...(DB.ranks.kyu||[]),...(DB.ranks.dan||[])];
   }
   if(!Array.isArray(DB.ranks))DB.ranks=['三級','二級','一級','初段','弍段','三段','四段'];
+  if(typeof fixGradeEntryFY==='function')fixGradeEntryFY();   // v276: 学年が1年早かった人を直す（1回だけ）
   if(typeof refreshGrades==='function')refreshGrades();
 }
 function seedIfEmpty(){
@@ -7223,10 +7360,10 @@ function applyMode(){
   const o=document.getElementById('modeOfficeB'),p=document.getElementById('modePersonalB');
   if(o)o.classList.toggle('on',!personal);
   if(p)p.classList.toggle('on',personal);
-  // v225: パスコードロックは事務のみ（他人の個人情報を預かるため）。個人アプリでは非表示にし、有効なら自動解除
+  // v225: パスコードロックは事務のみ（他人の個人情報を預かるため）。個人アプリでは非表示にする
   const secTab=document.getElementById('setTabSec');
   if(secTab)secTab.style.display=personal?'none':'';
-  if(personal&&lockEnabled){ lockEnabled=false; lockCode=''; saveLock(); }
+  // v279: 個人モードではロックを一時的に止めるだけ（設定は消さない）。道場モードに戻すと setAppMode で再びかかる
   if(personal){ const sv=document.getElementById('setViewSec'); if(sv&&sv.style.display!=='none')setSetView('use'); }
 }
 // v166: エディション適用。個人/事務専用ビルドはモードを固定し、切替UIを隠す。
@@ -7246,6 +7383,8 @@ function setAppMode(m){
   const active=document.querySelector('nav.tabbar button.active');
   if(active&&active.style.display==='none')switchTab(DB.mode==='personal'?'rireki':'list');   // 隠れたタブにいたら安全なタブへ
   toast(DB.mode==='personal'?T('個人モードに切り替えました'):T('道場（事務）モードに切り替えました'));
+  // v279: 個人モードのあいだ止めていたロックを戻す。この起動でまだ解除していなければパスコードを聞く（やめると個人モードに戻る）
+  if(DB.mode!=='personal'&&lockRequired()&&!lockUnlocked){ lockBackTo=()=>setAppMode('personal'); showLockScreen('unlock'); }
 }
 
 /* 出欠 */
@@ -7369,15 +7508,25 @@ function isPerVisit(s){return s && s.feeType==='perVisit';}
 function visitBaseOf(s){return (s && s.visitBase!=null && s.visitBase>0)?s.visitBase:(Number(DB.perVisitFee)||0);}
 function visitTotal(sid,m){return (DB.visitFees[m]&&DB.visitFees[m][sid])||0;}
 function visitBaseSet(sid,val){const s=DB.students.find(x=>x.id===sid);if(s){s.visitBase=Math.max(0,Number(val)||0);save();}}
-function visitBumpBy(sid,dir){
+function visitBumpBy(sid,dir,pickedDate){
   const s=DB.students.find(x=>x.id===sid);
   const inp=document.getElementById('vbase_'+sid);
   const base=Math.max(0,Number(inp?inp.value:(s?visitBaseOf(s):0))||0);
+  const m=feeMonth;
+  // v281: 表示中の月が今月でなければ、受け取った日を選んでもらう（初期値はその月の末日。点検 D-11）
+  if(dir>0&&base>0&&m!==thisMonthStr()&&!pickedDate){
+    const [y,mm]=m.split('-').map(Number), last=new Date(y,mm,0).getDate();
+    const first=`${m}-01`, end=`${m}-${String(last).padStart(2,'0')}`;
+    askConfirm(T('受け取った日を選んでください')+`<br><input type="date" id="vbDatePick" value="${end}" min="${first}" max="${end}" style="margin-top:10px;width:100%;min-height:44px;font-size:16px">`,
+      ()=>{ const el=document.getElementById('vbDatePick'); const v=(el&&el.value)||''; if(!v||v.slice(0,7)!==m){toast(T('日付を選んでください'));return;} visitBumpBy(sid,dir,v); },
+      T('追加する'),T('受け取った日'),'var(--green)');
+    return;
+  }
   if(s)s.visitBase=base;
-  const m=feeMonth;if(!DB.visitFees[m])DB.visitFees[m]={};
+  if(!DB.visitFees[m])DB.visitFees[m]={};
   // v216: 受領履歴に日付を記録（▲＝今日の受領を追加／▼＝直近の記録を取り消し）
   let delta=base;
-  if(dir>0){ if(base>0)visitLogOf(sid,m).push({d:todayStr(),a:base}); }
+  if(dir>0){ if(base>0)visitLogOf(sid,m).push({d:pickedDate||todayStr(),a:base}); }
   else{ const lg=visitLogOf(sid,m); if(lg.length){ delta=lg[lg.length-1].a||base; lg.pop(); } }
   const t=Math.max(0,(DB.visitFees[m][sid]||0)+dir*delta);
   if(t<=0)delete DB.visitFees[m][sid]; else DB.visitFees[m][sid]=t;
@@ -7658,7 +7807,8 @@ function pickSchType(v){pickedSchType=v;if(!showMatchTouched){pickedShowMatch=/�
 function pickSchTime(v){pickedSchTime=v;renderSchedPicks();}
 function pickSchPlace(v){pickedSchPlace=v;renderSchedPicks();}
 // ===== くり返し登録 =====
-let pendingSchedEdit=null, recurScopeMode='edit', recurUnit='day', recurWeekdaysSel=[];
+let pendingSchedEdit=null, recurScopeMode='edit', recurUnit='week', recurWeekdaysSel=[];
+const RECUR_CONFIRM_N=60;   // v288: これ以上の件数を一度に登録するときは確認する（点検 U-2）
 function pad2(n){return String(n).padStart(2,'0');}
 function isoOf(d){return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
 function fyEndDateOf(dateStr){
@@ -7692,13 +7842,14 @@ function genRecurDates(baseISO,cfg){
   if(!out.includes(baseISO)) out.push(baseISO);
   return [...new Set(out)].sort();
 }
+// v288: 初期値は「その日の曜日」（毎日・年度末までだと、うっかり300件以上できるため。点検 U-2）
 function initRecurDefaults(){
-  recurUnit='day';
+  recurUnit='week';
   const baseISO=document.getElementById('schDate').value||todayStr();
   document.getElementById('recurEvery').value='1';
   recurWeekdaysSel=[new Date(baseISO+'T00:00').getDay()];
   renderRecurWeekdays();
-  pickRecurUnit('day');
+  pickRecurUnit('week');
   refreshRecurForDate();
 }
 function refreshRecurForDate(){
@@ -7741,7 +7892,9 @@ function renderRecurPreview(){
   const baseISO=document.getElementById('schDate').value; const el=document.getElementById('recurPreview');
   if(!el)return; if(!baseISO){el.textContent='';return;}
   const dates=genRecurDates(baseISO,getRecurCfg());
-  el.textContent=`この設定で ${dates.length}件 登録されます（同じ年度内）。`;
+  // v288: 件数を大きく見せる。多いときは色を変えて気づけるようにする（点検 U-2）
+  const many=dates.length>=RECUR_CONFIRM_N;
+  el.innerHTML=`この設定で <span style="font-size:1.6em;color:${many?'var(--red)':'var(--navy)'}">${dates.length}件</span> 登録されます（同じ年度内）。`;
 }
 function openRecurScope(mode){
   recurScopeMode=mode;
@@ -7838,14 +7991,25 @@ function saveSched(){
   const creating=document.getElementById('recurCreateWrap').style.display!=='none';
   if(rt&&rt.checked&&creating){
     const dates=genRecurDates(date,getRecurCfg());
-    const seriesId=uid(); let made=0;
-    dates.forEach(dt=>{
-      if(editingSched&&dt===date){ const s=DB.schedule.find(x=>x.id===editingSched); Object.assign(s,fields,{date:dt,seriesId}); }
-      else{ DB.schedule.push(Object.assign({id:uid(),seriesId},fields,{date:dt})); }
-      made++;
-    });
-    schedYear=schedFY(date);
-    save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast(made+T('件の予定を登録しました'));
+    const editId=editingSched;
+    const doCreate=()=>{
+      const seriesId=uid(); let made=0;
+      dates.forEach(dt=>{
+        if(editId&&dt===date){ const s=DB.schedule.find(x=>x.id===editId); Object.assign(s,fields,{date:dt,seriesId}); }
+        else{ DB.schedule.push(Object.assign({id:uid(),seriesId},fields,{date:dt})); }
+        made++;
+      });
+      schedYear=schedFY(date);
+      save();closeModal('schedModal');renderSched();if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();toast(made+T('件の予定を登録しました'));
+    };
+    // v288: 件数が多いときは、登録する前に件数と期間を見せて確認する（点検 U-2）
+    if(dates.length>=RECUR_CONFIRM_N){
+      askConfirm(T('予定を')+' <b style="font-size:1.4em">'+dates.length+T('件')+'</b> '+T('まとめて登録します。')+'<br>'
+        +dates[0].replace(/-/g,'/')+' 〜 '+dates[dates.length-1].replace(/-/g,'/')+'<br><br>'+T('よろしいですか？'),
+        doCreate,'登録する','登録件数の確認','var(--navy)');
+      return;
+    }
+    doCreate();
     return;
   }
   // ③ 通常の単発保存
@@ -8302,15 +8466,48 @@ function onTeamSelfChange(key,val){
     else document.getElementById('boutBlocks').innerHTML=curCard.bouts.map((bb,i)=>boutBlockHtml(bb,String(i),false)).join('');
   }
 }
+// v282: 記入済みの枠か（選手・相手・内容・技・メモのどれかが入っている）
+function cardBoutFilled(b){return !!(b&&(b.selfId||(b.oppName||'').trim()||b.oppId||b.grade||(b.waza||'').trim()||(b.note||'').trim()));}
+// v282: 人数を変えたときは「何番目」ではなく役割の名前で並べ直す（統合 mergeCardInto と同じ考え方）。
+//       同じ役割が無い記入済みの枠は、空いた位置へ元の順のまま詰める。入りきらない枠は dropped に返す
+function remapCardBouts(bouts,oldCount,newCount){
+  const oPos=posList(oldCount), nPos=posList(newCount);
+  const out=new Array(newCount).fill(null), rest=[];
+  bouts.forEach((b,i)=>{
+    const di=nPos.indexOf(oPos[i]);
+    if(di>=0&&!out[di])out[di]=b;
+    else if(cardBoutFilled(b))rest.push({b:b,pos:oPos[i]});
+  });
+  const dropped=[];
+  rest.forEach(r=>{
+    const di=out.findIndex(x=>!cardBoutFilled(x));
+    if(di>=0)out[di]=r.b; else dropped.push(r);
+  });
+  return {bouts:out.map(x=>x||newBout()),dropped:dropped};
+}
 function cardNext(){
-  curCard.count=Math.max(1,Math.min(15,Number(document.getElementById('cdCount').value)||5));
-  curCard.division=document.getElementById('cdDivision').value.trim();
-  curCard.round=document.getElementById('cdRound').value.trim();
-  curCard.oppTeam=document.getElementById('cdOppTeam').value.trim();
+  const newCount=Math.max(1,Math.min(15,Number(document.getElementById('cdCount').value)||5));
   if(!Array.isArray(curCard.bouts))curCard.bouts=[];
-  while(curCard.bouts.length<curCard.count)curCard.bouts.push(newBout());
-  if(curCard.bouts.length>curCard.count)curCard.bouts=curCard.bouts.slice(0,curCard.count);
-  showCardStep(2);
+  const apply=(bouts)=>{
+    curCard.count=newCount;
+    curCard.division=document.getElementById('cdDivision').value.trim();
+    curCard.round=document.getElementById('cdRound').value.trim();
+    curCard.oppTeam=document.getElementById('cdOppTeam').value.trim();
+    if(bouts){curCard.bouts=bouts;teamSelfCat={};}
+    while(curCard.bouts.length<curCard.count)curCard.bouts.push(newBout());
+    if(curCard.bouts.length>curCard.count)curCard.bouts=curCard.bouts.slice(0,curCard.count);
+    showCardStep(2);
+  };
+  const oldCount=curCard.bouts.length;
+  if(!oldCount||oldCount===newCount){apply(null);return;}
+  const r=remapCardBouts(curCard.bouts,oldCount,newCount);
+  if(!r.dropped.length){apply(r.bouts);return;}
+  // 記入済みの枠が消えるときは、どの枠かを出して確かめる
+  const names=r.dropped.map(d=>{
+    const s=d.b.selfId?DB.students.find(x=>x.id===d.b.selfId):null;
+    return esc(T(d.pos))+'：'+esc(s?s.name:(d.b.oppName||T('選手未選択')));
+  }).join('<br>');
+  askConfirm(T('人数を変えると、次の枠の記入内容が消えます。よろしいですか？')+'<br><br>'+names,()=>apply(r.bouts),'人数を変える','確認');
 }
 function boutByKey(key){return key==='rep'?curCard.rep:curCard.bouts[Number(key)];}
 function pre(key){return key==='rep'?'rep':'b'+key;}
@@ -8464,17 +8661,21 @@ function raRadarSVG(ax,series,scaleMax,subCol){
 function raSectionHtml(bs,teamBs){
   const isWin=(matchRaResult!=='▲');             // v129: 勝ち/負けを1枚で切替
   const ax=raSelectAxes(bs,isWin?'○':'▲');
-  const pv=raPct(bs,isWin?'○':'▲',ax.keys),tv=raPct(teamBs,isWin?'○':'▲',ax.keys);
-  const mx=Math.max(1,...pv.arr,...tv.arr);
+  // v272: 選手用アプリに「道場全体」は無い。出ていたのは自分の家族ぶんの合計で、意味を持たなかった。
+  const solo=(APP_EDITION==='personal');
+  const pv=raPct(bs,isWin?'○':'▲',ax.keys),tv=solo?null:raPct(teamBs,isWin?'○':'▲',ax.keys);
+  const mx=Math.max(1,...pv.arr,...(tv?tv.arr:[]));
   const col=isWin?'#2e9e5b':'#d24a34',fil=isWin?'rgba(46,158,91,.22)':'rgba(210,74,52,.20)',subCol=isWin?'#2e7d4f':'#c0392b';
-  const svg=raRadarSVG(ax,[{values:pv.arr,color:col,fill:fil},{values:tv.arr,color:'#c8a44d',fill:'rgba(200,164,77,.12)',dash:true}],mx,subCol);
+  const series=[{values:pv.arr,color:col,fill:fil}];
+  if(tv)series.push({values:tv.arr,color:'#c8a44d',fill:'rgba(200,164,77,.12)',dash:true});
+  const svg=raRadarSVG(ax,series,mx,subCol);
   const wl=`<div class="ra-wl-toggle"><button class="ra-wlbtn win ${isWin?'on':''}" onclick="setMatchRaResult('○')">勝ち技</button><button class="ra-wlbtn lose ${!isWin?'on':''}" onclick="setMatchRaResult('▲')">負け技</button></div>`;
   return `<div class="ana-sec ra-sec">
     <div class="ra-secttl ra-secttl-row"><span><span class="ra-ico">📊</span> ${T('決まり技レーダー')}</span><button type="button" class="ra-help-btn" onclick="raToggleNote(this)">ⓘ ${T('説明')}</button></div>
     ${wl}
     <div class="ra-single">${svg}</div>
-    <div class="ra-legend"><span><i style="background:${col}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>
-    <div class="ra-note" style="display:none">軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。</div>
+    ${solo?'':`<div class="ra-legend"><span><i style="background:${col}"></i>本人</span><span><i class="dash"></i>道場全体</span></div>`}
+    <div class="ra-note" style="display:none">${solo?'軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。':'軸＝多い順の投技4つ（不足は 背負投→内股→大外刈→払腰 で補完）＋その他投技・合わせ技・寝技（抑技+絞技+関節技）・反則・判定（指導差/反則/判定/優勢）・不戦・棄権（不戦/棄権）。決まり技が空欄でも「内容」欄から判定します。金の破線＝道場全体。'}</div>
   </div>`;
 }
 function raToggleNote(btn){
@@ -8638,7 +8839,7 @@ function mergeCardConfirm(){
   if(!targetId)return;
   const t=ensureMatch(curMatchSched).team;
   const dst=(t.cards||[]).find(c=>c.id===targetId); if(!dst)return;
-  askConfirm(T('このカードの記入済みの選手を「')+esc(impCardLabel(dst))+T('」へ移し、このカードは削除します。よろしいですか？'),()=>mergeCardInto(targetId),'統合する');
+  askConfirm(T('このカードの記入済みの選手を「')+esc(impCardLabel(dst))+T('」へ移し、このカードは削除します。よろしいですか？'),()=>mergeCardInto(targetId),'統合する','カードの統合','var(--navy)');
 }
 function mergeCardInto(targetId){
   const t=ensureMatch(curMatchSched).team;
@@ -8795,7 +8996,8 @@ function raTeamBouts(){
   const out=[],M={};(DB.schedule||[]).forEach(s=>M[s.id]=s);
   Object.keys(DB.matchResults||{}).forEach(k=>{const mr=DB.matchResults[k]||{},date=(M[k]||{}).date||'';
     (mr.individual||[]).forEach(b=>out.push(Object.assign({},b,{schedDate:date})));
-    if(mr.team&&mr.team.cards)mr.team.cards.forEach(c=>{(c.bouts||[]).forEach(b=>out.push(Object.assign({},b,{schedDate:date})));if(c.tiebreak==='rep'&&c.rep)out.push(Object.assign({},c.rep,{schedDate:date}));});});
+    // v280: 団体戦の空き枠（選手なし・既定の○）を勝ちとして数えない
+    if(mr.team&&mr.team.cards)mr.team.cards.forEach(c=>{(c.bouts||[]).forEach(b=>{if(b&&b.selfId)out.push(Object.assign({},b,{schedDate:date}));});if(c.tiebreak==='rep'&&c.rep&&c.rep.selfId)out.push(Object.assign({},c.rep,{schedDate:date}));});});
   return out;
 }
 function matchAnalysisHtml(bouts){
@@ -8958,7 +9160,7 @@ function renderRireki(){
   // v203: 日付なし（大会予定を削除した記録など）は年度チップに出さない（「すべて」で見られる）
   const years=[...new Set(allEvents.map(ev=>schedFY(ev.date||'')).filter(y=>isFinite(y)&&y>1990))].sort((a,b)=>b-a);
   if(rkYear!=='all'&&(rkYear==null||!years.includes(rkYear)))rkYear=years.length?years[0]:'all';
-  // v268: 「すべて」を先頭に置き、そのあと近い年度から並べる（years は新しい順）
+  // v268: 「すべて」を先頭に置き、そのあと近い年度から並べる（years は新しい順）
   if(yearsEl)yearsEl.innerHTML=`<button class="${rkYear==='all'?'on':''}" onclick="rkSetYear('all')">${T('すべて')}</button>`+years.map(y=>`<button class="${rkYear===y?'on':''}" onclick="rkSetYear(${y})">${y}${T('年度')}</button>`).join('');
   // v267: 年度の列を設定の中に移したので、いま何年度を見ているかは一覧の上に出す
   if(nowYear){
@@ -9126,8 +9328,16 @@ function dojoSetGroup(n){
 }
 // v201: 送る内容はQR/テキストを切り替え。既定＝QR（会場受け渡しが主）。送る/コピーは選択形式で動作
 let dojoFmt='qr';
+/* v285: 点検E-2。QR画像はモーダルを開いた時点で作り置きする
+   （押してから画像化を待って share を呼ぶと、iOS では押した操作とみなされずに拒まれる） */
+let dojoQrBlobCache=null, _dojoQrSeq=0;
+function dojoPrepareQrBlobs(){
+  dojoQrBlobCache=null; const seq=++_dojoQrSeq;
+  dojoQrPngBlobs().then(bs=>{ if(seq===_dojoQrSeq)dojoQrBlobCache=bs; }).catch(()=>{});
+}
 function dojoSetFmt(f){
   dojoFmt=f;
+  dojoQrBlobCache=null; _dojoQrSeq++;
   const q=document.getElementById('dojoFmtQr'), t=document.getElementById('dojoFmtTx');
   if(q)q.classList.toggle('on',f==='qr'); if(t)t.classList.toggle('on',f==='text');
   const pv=document.getElementById('dojoPrevQr'), hint=document.getElementById('dojoQrHint'), ta=document.getElementById('dojoSendText');
@@ -9146,6 +9356,7 @@ function dojoSetFmt(f){
       return lbl+(svg||('<p class="list-mini" style="margin:0">'+T('内容が多すぎてQRにできません。テキストでお送りください。')+'</p>'));
     }).join('');
     pv.innerHTML=html+(parts.length>1?'<p class="list-mini" style="margin-top:8px">'+T('受け取る側は、順番に全部のQRを読み取ってください。')+'</p>':'');
+    dojoPrepareQrBlobs();
   }
 }
 // v242: 試合きろくを700バイトずつのQRに分割（【My柔道 試合きろく i/n】を先頭に付ける）
@@ -9210,12 +9421,17 @@ async function dojoSendShare(){
   if(dojoFmt==='qr'){
     // v257: 分割された全部のQRを送る（1枚目だけだと受け取る側が取り込めない）
     const need=dojoQrCount();
-    const bs=await dojoQrPngBlobs();
+    // v285: 点検E-2。作り置きがあれば待たずに share を呼ぶ（まだなら従来どおりその場で作る）
+    const bs=(dojoQrBlobCache&&dojoQrBlobCache.length===need)?dojoQrBlobCache:await dojoQrPngBlobs();
     if(bs.length&&bs.length===need){
       const files=bs.map((b,i)=>new File([b],bs.length>1?('match-qr-'+(i+1)+'.png'):'match-qr.png',{type:'image/png'}));
       if(navigator.canShare&&navigator.canShare({files})){ try{ await navigator.share({files}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
     }
-    if(need>1||bs.length!==need){ toast(T('QRが複数枚になるため、テキストでお送りします')); dojoSetFmt('text'); }
+    if(need>1||bs.length!==need){
+      toast(T('QRが複数枚になるため、テキストでお送りします')); dojoSetFmt('text');
+      // v285: 点検E-2。テキストのときも先に共有を試す（従来はコピーだけで終わっていた）
+      if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
+    }
     dojoSendCopy(); return;
   }
   if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
@@ -9311,22 +9527,29 @@ function repResetAll(){
     return;
   }
   _repResetArm=false;
+  repRegSig='';                                      // 手で消したときは二重登録の見張りも外す
+  repClearForm();
+  const b=document.querySelector('.rep-reset'); if(b){b.classList.remove('arm');b.textContent=T('↺ 入力をリセット');}
+  toast(T('入力内容をリセットしました'));
+}
+// v272: 入力欄をまっさらに戻す。手動リセットと、メモリー登録のあとで共用する。
+function repClearForm(){
   ['repName','repTaikai','repDate'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  repMatches=[repNewMatch()]; repKind='個人'; repCount=5; repRole='先鋒'; repRegSig='';
+  repMatches=[repNewMatch()]; repKind='個人'; repCount=5; repRole='先鋒';
   _repDupOk=false; _repNewName=''; _repMatchOk=''; _repSchedId=''; _repSchedSnap='';   // v257: 確認済みの状態も一緒に捨てる
   _repSelfId=''; _repSelfSnap='';                    // v260: 選んだなまえも外す
   _repKindWarned=false; repDraftClear();             // v258: 下書きも消す（戻ってこないように）
   repPickKind('個人');
   repRenderMatches(); repGen();
-  const b=document.querySelector('.rep-reset'); if(b){b.classList.remove('arm');b.textContent=T('↺ 入力をリセット');}
-  toast(T('入力内容をリセットしました'));
 }
 function repDel(id){repMatches=repMatches.filter(m=>m.id!==id);if(!repMatches.length)repMatches=[repNewMatch()];repRenderMatches();repGen();}
-function repSet(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;m.touched=true;repRenderMatches();repGen();}}
-function repSetRaw(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;m.touched=true;repGen();}}
-function repOpenWaza(id){const m=repMatches.find(x=>x.id===id);if(!m)return;openWazaPicker(function(v){m.waza=v;m.touched=true;repRenderMatches();repGen();},m.waza);}
+// v292: 「入力済み」は中身で判断する。touched の代わりに、結果ボタン（勝ち／負け／分け）を押したことだけを resPicked に残す
+//       （相手名を入れて消した行が、空のまま既定の「勝ち」で登録・送信されていた）
+function repSet(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;if(k==='res')m.resPicked=true;repRenderMatches();repGen();}}
+function repSetRaw(id,k,v){const m=repMatches.find(x=>x.id===id);if(m){m[k]=v;repGen();}}
+function repOpenWaza(id){const m=repMatches.find(x=>x.id===id);if(!m)return;openWazaPicker(function(v){m.waza=v;repRenderMatches();repGen();},m.waza);}
 function repRenderMatches(){
-  const ROUNDS=(DB.matchPresets&&DB.matchPresets.rounds)||['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
+  const RO=roundOpts(), ROUNDS=RO.length?RO:['1回戦','2回戦','3回戦','準々決勝','準決勝','決勝'];
   const box=document.getElementById('repMatches'); if(!box)return;
   box.innerHTML=repMatches.map((m,i)=>{
     const draw=m.res==='×';
@@ -9334,7 +9557,7 @@ function repRenderMatches(){
     return `<div class="card rep-match">
       <div class="rep-mh"><b>${i+1}${T('試合目')}</b><button class="btn ghost sm" onclick="repDel('${m.id}')">${T('削除')}</button></div>
       <label class="fld" style="margin-top:0">${T('回戦')}</label>
-      <div class="cat-pick">${ROUNDS.map(r=>`<button class="${m.round===r?'on':''}" onclick="repSet('${m.id}','round','${m.round===r?'':esc(r)}')">${esc(r)}</button>`).join('')}</div>
+      <div class="cat-pick">${ROUNDS.map(r=>`<button class="${m.round===r?'on':''}" onclick="repSet('${m.id}','round','${m.round===r?'':escJ(r)}')">${esc(r)}</button>`).join('')}</div>
       <p class="list-mini" style="margin:4px 2px 0">${T('1回戦がシード等の場合は、2回戦以降の報告をしてください。')}</p>
       <label class="fld">${T('結果')}</label>
       <div class="io-pick">
@@ -9367,12 +9590,19 @@ function repDraftSnapshot(){
            selfId:_repSelfId, selfSnap:_repSelfSnap,
            matches:repMatches, at:Date.now() };
 }
+// v294: v275までの下書きは「結果ボタンを押した」印が touched だった。
+//       resPicked が無い行は touched を引き継ぐ。判断に迷うときは、消すより残すほうを選ぶ。
+function repDraftCompat(d){
+  if(d&&Array.isArray(d.matches))d.matches.forEach(m=>{ if(m&&m.resPicked===undefined&&m.touched)m.resPicked=true; });
+  return d;
+}
 function repDraftHasInput(d){
   if(!d)return false;
+  repDraftCompat(d);
   if((d.taikai||'').trim())return true;
   if((d.matches||[]).length>1)return true;
   // v258: 「負け」「分け」や組手だけを選んだ状態も入力済みとして扱う（repMatchIsBlank と同じ基準）
-  return (d.matches||[]).some(m=>m&&(m.touched||!repMatchIsBlank(m)));
+  return (d.matches||[]).some(m=>m&&(m.resPicked||!repMatchIsBlank(m)));
 }
 function repDraftSave(){
   if(demoMode)return;
@@ -9385,7 +9615,7 @@ function repDraftSave(){
 }
 function repDraftClear(){ clearTimeout(_repDraftTimer); try{ if(DB&&DB.repDraft){ delete DB.repDraft; save(); } }catch(e){} }
 function repDraftLoad(){
-  const d=DB&&DB.repDraft;
+  const d=repDraftCompat(DB&&DB.repDraft);   // v294: 古い形の下書きも読めるようにしてから判定する
   if(!repDraftHasInput(d))return false;
   try{
     repMatches=(d.matches||[]).map(m=>Object.assign(repNewMatch(),m));
@@ -9412,7 +9642,7 @@ function repGen(){
   const L=['【My柔道 試合きろく】','選手｜'+shareField(name),'大会｜'+shareField(tk),'日付｜'+hd.replace(/-/g,'/'),'種別｜'+repKind];
   if(repKind==='団体'){L.push('人数｜'+repCount);L.push('役割｜'+repRole);}
   L.push('--- 試合 ---');
-  repMatches.forEach(m=>{ const f=[m.res,(m.res==='×'?'':m.waza),m.grip,(m.res==='×'?'':m.grade),m.opp,m.affil,m.round,m.note]; L.push(f.map(shareField).join('｜')); });
+  repFilledMatches().forEach(m=>{ const f=[m.res,(m.res==='×'?'':m.waza),m.grip,(m.res==='×'?'':m.grade),m.opp,m.affil,m.round,m.note]; L.push(f.map(shareField).join('｜')); });   // v294: 空の行は送らない
   repCache=L.join('\n');
   const pv=document.getElementById('repPreview'); if(pv)pv.textContent=repCache;
   repDraftSave();                       // v258: 入力のたびに下書きを残す
@@ -9427,17 +9657,24 @@ function repMatchIsBlank(m){
 }
 function repTrimEmptyTail(){
   // 「＋試合を追加」を押しただけの行だけを落とす。
-  // 自分で「勝ち」を押した試合（touched）も、中身のある試合も残す。
+  // 自分で「勝ち」を押した試合（resPicked）も、中身のある試合も残す。
   while(repMatches.length>1){
     const m=repMatches[repMatches.length-1];
-    if(m&&!m.touched&&repMatchIsBlank(m))repMatches.pop(); else break;
+    if(m&&!m.resPicked&&repMatchIsBlank(m))repMatches.pop(); else break;
   }
 }
+// v280: 最後の1行は必ず残るので、名前だけで押すと既定の○が空の「勝ち」として記録・送信されていた
+function repAllBlank(){ return !repFilledMatches().length; }
+// v294: 登録と送信に使う試合は、行の位置に関係なく同じ基準で選ぶ。
+//       repTrimEmptyTail は末尾しか落とさないため、先頭に残った空行が
+//       既定の「○」のまま「空の勝ち」として通っていた。
+function repFilledMatches(){ return repMatches.filter(m=>m&&(m.resPicked||!repMatchIsBlank(m))); }
 function repToDojo(){
   const name=(document.getElementById('repName').value||'').trim();
   if(!name){ toast(T('選手のなまえを入れてください')); return; }
   repTrimEmptyTail(); repRenderMatches();
   if(!repMatches.length){ toast(T('送る試合結果がありません')); return; }
+  if(repAllBlank()){ toast(T('試合結果を入力してください')); return; }
   dojoSendCache=repGen();
   dojoGroupEv=null; dojoGroups=[];                                              // v257: 報告タブからは分割しない
   const _gp=document.getElementById('dojoGroupPick'); if(_gp)_gp.style.display='none';
@@ -9466,7 +9703,7 @@ function maybeStartOnboarding(){
   if(APP_EDITION==='suite')return;                          // Web版のスイートでは出さない
   if(DB.onboarded)return;                                   // 済みなら出さない
   if(DB.students&&DB.students.length>0){DB.onboarded=true;save();return;} // 既存データ利用者には出さない
-  if(typeof lockEnabled!=='undefined'&&lockEnabled&&lockCode)return;      // ロック中は出さない
+  if(typeof lockRequired==='function'&&lockRequired())return;      // ロック中は出さない（v279: 個人モードで止めているロックは対象外）
   // 事務アプリは購読ゲート（ペイウォール）が出ている間は待つ → 解除後に呼び直す
   if(APP_EDITION==='office'&&!officeEntitled())return;
   startOnboarding();
@@ -9509,8 +9746,8 @@ function obRender(){
        <h3 class="ob-h">${T('試合結果は、道場にそのまま報告')}</h3>
        <p class="ob-p">${T('「試合報告」タブで入力して、LINE等やQRで送るだけ。')}<br>${T('先生が My柔道（事務）で取り込めば、伝え間違いがありません。')}</p>
        <div class="ob-steps">
-         <div class="ob-step"><span class="ob-no">✓</span><div>${T('報告した試合は、自分の記録にも残ります')}</div></div>
-         <div class="ob-step"><span class="ob-no">✓</span><div>${T('「試合報告」と「メモリー」は、ずっと無料です')}</div></div>
+         <div class="ob-step"><span class="ob-no">✓</span><div>${T('自分の記録に残すときは「この試合をメモリーに登録する」を押します')}</div></div>
+         <div class="ob-step"><span class="ob-no">✓</span><div>${T('「試合報告」はずっと無料。メモリーは10件、主役は5人まで無料です')}</div></div>
        </div>
        <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
   }else if(obStep===4){
@@ -9641,7 +9878,8 @@ function repToMemory(){
   const name=(document.getElementById('repName').value||'').trim();
   if(!name){ toast(T('選手のなまえを入れてください')); return; }
   repTrimEmptyTail();
-  const bouts=repMatches.filter(m=>m&&m.res);
+  if(repAllBlank()){ toast(T('試合結果を入力してください')); return; }
+  const bouts=repFilledMatches();   // v294: 先頭に残った空行を「勝ち」として数えない
   if(!bouts.length){ toast(T('登録する試合結果がありません')); return; }
   const sig=repGen();
   if(sig&&sig===repRegSig){ toast(T('この試合はすでにメモリーに登録済みです')); return; }
@@ -9656,7 +9894,7 @@ function repToMemory(){
       if(done>0 && !_repDupOk){
         // v241: 追加でよいかを明示的に確認する（アプリを開き直しても二重登録に気づけるように）
         askConfirm(T('この大会にはすでに')+done+T('件の試合結果が登録されています。')+'<br>'+T('この内容を追加で登録しますか？'),
-          ()=>{ _repDupOk=true; repToMemory(); }, '追加する');
+          ()=>{ _repDupOk=true; repToMemory(); }, '追加する', '追加の確認', 'var(--navy)');
         return;
       }
     }
@@ -9682,7 +9920,7 @@ function repToMemory(){
     if(loose && _repMatchOk!=='__new__|'+name) self=loose;
   }
   if(!self && DB.students.some(s=>s.isSelf)){
-    if(APP_EDITION==='personal' && !isPro()){ requirePro('ご家族など、複数の主役を登録できます'); return; }
+    if(APP_EDITION==='personal' && !isPro() && selfCount()>=FREE_SELF_LIMIT){ requirePro(selfLimitMsg()); return; }
     if(_repNewName!==name){
       askConfirm(T('「')+esc(name)+T('」はまだ登録されていません。')+'<br>'+T('新しい主役として登録して、この人の記録にしますか？')
         +'<br><br>'+T('別の人の記録にしたいときは、「やめる」を押してなまえを直してください。'),
@@ -9712,7 +9950,7 @@ function repToMemory(){
   if(!self){ self=repCreateSelf(name); }
   else if(!self.isSelf&&APP_EDITION==='personal'){
     // v257: 仲間を主役に格上げするのも「主役が増える」ので、無料版はここでProの案内を出す
-    if(!isPro()&&DB.students.some(s=>s.isSelf)){ requirePro('ご家族など、複数の主役を登録できます'); return; }
+    if(!isPro()&&selfCount()>=FREE_SELF_LIMIT){ requirePro(selfLimitMsg()); return; }
     self.isSelf=true;
   }
   if(!sched){ sched={id:uid(),name:'大会',title:tk,date:dt,time:'',place:'',note:'',showMatch:true}; DB.schedule.push(sched); }
@@ -9736,6 +9974,10 @@ function repToMemory(){
   repRegSig=sig; _repDupOk=false; _repNewName=''; _repMatchOk='';
   _repSelfId=self.id; _repSelfSnap=self.name||'';    // v260: 登録した人を選んだ状態にしておく
   toast(bouts.length+T('件をメモリーに登録しました'));
+  // v272: 登録が済んだら入力欄を空に戻す。※repRegSig は残すので、同じ内容の二重登録は引き続き止まる。
+  //       （v246 で「送信しても消さない」としたのは、送信のあとメモリー登録に使うため。
+  //         メモリー登録はその最後の工程なので、ここで消してよい。）
+  repClearForm();
   // 4) 誘導：メモリーへ移動してその選手を表示（＝戦績カードのシェアへ）
   rkSelfId=self.id; rkYear='all';
   switchTab('rireki');
@@ -9746,6 +9988,10 @@ function isPro(){ return (APP_EDITION!=='personal') || !!(DB&&DB.pro); }
 function setPro(v){ DB.pro=!!v; save(); }
 // 無料版のメモリー保存上限（11件目からPro）。※既存の閲覧・シェア・編集は一切制限しない。
 const FREE_MEMORY_LIMIT=10;
+// v271: 無料版の主役（自分・家族）の上限。※すでに登録済みの人は、上限を超えていてもそのまま使える。
+const FREE_SELF_LIMIT=5;
+function selfCount(){ return ((typeof DB!=='undefined'&&DB.students)||[]).filter(s=>s.isSelf).length; }
+function selfLimitMsg(){ return '無料で登録できる主役は'+FREE_SELF_LIMIT+'人までです。Proにすると人数の制限がなくなります。'; }
 function memoryCardCount(){
   const map=allBoutsBySelf();
   const selfIds=DB.students.filter(s=>s.isSelf).map(s=>s.id);
@@ -9805,6 +10051,8 @@ function officeGateCheck(){
   if(officeEntitled())return;
   // ネイティブ層は起動時に window.__iap.entitled?.() で再検証し、失効なら DB.officePro=false にできる
   openModal('officePaywallModal');
+  // v286: 点検E-10。データがあれば、購読画面からでもバックアップを書き出せるようにする
+  try{ const bk=document.getElementById('officePayBackup'); if(bk)bk.style.display=backupEduCount()>0?'':'none'; }catch(e){}
   // v254: アプリ版は購入状況の確認が返るまでボタンを出さない（購入済みの人に購読画面が一瞬出て閉じるのを防ぐ）
   if(isNativeApp()){ officePaySetChecking(true); setTimeout(()=>officePaySetChecking(false),5000); }
   try{ refreshPaywallPrices(); }catch(e){}   // v257: 起動時に取れなかったときのために、開くたびに取り直す
@@ -9860,16 +10108,20 @@ function introUnitKey(iv){
   return u==='DAY'?'日間':u==='WEEK'?'週間':u==='YEAR'?'年間':'ヶ月';
 }
 // v257: 価格が取れないときの表示（前回の「無料」表示を残さず、条件つきの書き方に戻す）
+// v286: 点検E-11。決め打ちの金額・無料期間は出さない。前に取れたストア価格があればそれだけ、なければ取れなかったと書く
 let _lastStorePrice='';
 function paywallSetUnknown(){
+  const none=T('価格を取得できませんでした（実際の価格と無料期間は、App Storeの購入画面に表示されます）');
   const o=document.getElementById('officePayPrice');
-  if(o&&_lastStorePrice)o.textContent=T('年額')+' '+_lastStorePrice+'（'+T('初めてのご利用なら最初の')+'1'+T('ヶ月は無料')+'）';
+  if(o)o.textContent=_lastStorePrice?(T('年額')+' '+_lastStorePrice):none;
+  const p=document.getElementById('paywallPrice');
+  if(p)p.textContent=_lastStorePrice?('Pro '+T('年額')+' '+_lastStorePrice):none;
   const btn=document.getElementById('officeBuyBtn'); if(btn)btn.textContent=T('年額プランをはじめる');
   const tm=document.getElementById('officePayTerms'); if(tm)tm.textContent=T('無料期間があるときは、その終了後から年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。');
 }
 async function refreshPaywallPrices(){
   try{
-    if(!(window.__iap&&window.__iap.priceInfo))return;
+    if(!(window.__iap&&window.__iap.priceInfo)){ paywallSetUnknown(); return; }   // v286: Web版など価格が取れない環境でも決め打ちの金額を出さない
     const info=await window.__iap.priceInfo();
     if(!info||!info.price){ paywallSetUnknown(); return; }   // v257: 前回の「無料」表示を残さない
     // v245: 無料トライアルを使い切っている人には「無料」と書かない（Appleも再付与しない）
@@ -9892,7 +10144,7 @@ async function refreshPaywallPrices(){
       : T('年額料金で自動更新されます。解約はいつでもiPhoneの「設定 › サブスクリプション」から行えます。');
     const p=document.getElementById('paywallPrice');
     if(p)p.textContent='Pro '+T('年額')+' '+info.price;
-  }catch(e){}
+  }catch(e){ try{ paywallSetUnknown(); }catch(_){} }   // v286: 「確認しています…」のまま残さない
 }
 /* ===== v242: デモモード（購入前に中身を確かめられる・保存はしない） ===== */
 let demoMode=false;
@@ -9990,7 +10242,7 @@ function qrShowFromDojo(el){
   if(lb){ lb.textContent='QR '+(i+1)+' / '+parts.length; lb.style.display=''; }
 }
 /* 受け取る側 */
-let qrStream=null, qrRAF=0, qrScanning=false;
+let qrStream=null, qrRAF=0, qrScanning=false, qrGen=0;   // qrGen: カメラ起動ごとの番号（止めると進む）
 let qrScanMode='result', qrPartsBuf=null;   // v219: 'result'=試合結果 / 'sched'=予定表（複数QR対応）
 function openQrScan(mode){
   qrScanMode=(mode==='sched')?'sched':'result'; qrPartsBuf=null;
@@ -10005,12 +10257,20 @@ async function qrStartCamera(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof jsQR==='undefined'){
     qrSetStatus(T('この端末はカメラ読取に非対応です。「写真から読み取る」をお使いください。'),'err'); return;
   }
+  const gen=++qrGen;
+  // 起動を待つ間に閉じられた（または次の起動が始まった）ら、取れたカメラはすぐ止める
+  const stale=()=>gen!==qrGen||!document.getElementById('qrScanModal').classList.contains('show');
+  let stream=null;
   try{
-    qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
+    if(stale()){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(_){} return; }
+    qrStream=stream;
     video.srcObject=qrStream; await video.play();
+    if(stale()){ qrStopCamera(); return; }
     qrScanning=true; qrSetStatus(T('QRにカメラをかざしてください'));
     qrTick();
   }catch(e){
+    if(stale()){ if(stream&&stream!==qrStream){ try{ stream.getTracks().forEach(t=>t.stop()); }catch(_){} } return; }
     qrSetStatus(T('カメラを起動できませんでした。「写真から読み取る」をお使いください。'),'err');
   }
 }
@@ -10029,7 +10289,7 @@ function qrTick(){
   qrRAF=requestAnimationFrame(qrTick);
 }
 function qrStopCamera(){
-  qrScanning=false; if(qrRAF)cancelAnimationFrame(qrRAF); qrRAF=0;
+  qrGen++; qrScanning=false; if(qrRAF)cancelAnimationFrame(qrRAF); qrRAF=0;
   if(qrStream){ try{ qrStream.getTracks().forEach(t=>t.stop()); }catch(_){} qrStream=null; }
   const video=document.getElementById('qrVideo'); if(video)video.srcObject=null;
 }
@@ -11262,6 +11522,7 @@ function drawShareCard(ev,img){
   const fn=SHARE_LAYOUT_DRAW[shareLayout]||SHARE_LAYOUT_DRAW.classic;
   fn(ctx,st,fp,m,img);
   ctx.restore();
+  rkPrepareShareBlob();   // v285: 点検E-1。シェア用の画像を作り置き
 }
 function shareFileName(){ const ev=rkShareEv||{}; return (ev.title||ev.name||'memory')+'.png'; }
 /* v252: 保存したカードは、メモリー一覧に重ねる最大110px幅のサムネイルとしてしか使わない。
@@ -11319,7 +11580,37 @@ function shrinkOldCards(){
   }catch(e){}
 }
 function rkDownloadShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=shareFileName();a.click();setTimeout(()=>URL.revokeObjectURL(u),4000);},'image/png');}
-function rkDoShare(){const cv=document.getElementById('rkcv');cv.toBlob(async b=>{const file=new File([b],'card.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:'#柔道 #My柔道'});}catch(e){}}else{rkDownloadShare();alert(T('この端末は直接シェア非対応のため画像を保存しました。'));}},'image/png');}
+/* v285: 点検E-1。iOS は「押した操作」の直後でないと share を拒むため、画像はプレビューを描いた時点で
+   作り置きし、押したらすぐ share を呼ぶ。中止（AbortError）以外の失敗と、アプリ版で共有できないときは
+   画像を大きく出して長押しで保存してもらう（アプリ内ではダウンロードが何も起きないため） */
+let rkShareBlob=null, _rkBlobSeq=0, _rkBlobTimer=0;
+function rkPrepareShareBlob(){
+  rkShareBlob=null; const seq=++_rkBlobSeq;
+  clearTimeout(_rkBlobTimer);
+  _rkBlobTimer=setTimeout(()=>{ try{ document.getElementById('rkcv').toBlob(b=>{ if(seq===_rkBlobSeq)rkShareBlob=b||null; },'image/png'); }catch(e){} },400);
+}
+function showImgSave(src,msg){
+  const im=document.getElementById('imgSaveImg'), mg=document.getElementById('imgSaveMsg');
+  if(!im||!src){ toast(msg||T('共有できませんでした')); return; }
+  im.src=src; if(mg)mg.textContent=msg||T('画像を長押しして「写真に保存」を選んでください。');
+  openModal('imgSaveModal');
+}
+function rkShowImgSave(msg){ let u=''; try{ u=document.getElementById('rkcv').toDataURL('image/png'); }catch(e){} showImgSave(u,msg); }
+function rkDoShare(){
+  if(rkShareBlob){ rkShareBlobGo(rkShareBlob); return; }
+  try{ document.getElementById('rkcv').toBlob(b=>{ if(b)rkShareBlobGo(b); else rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); },'image/png'); }
+  catch(e){ rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); }
+}
+async function rkShareBlobGo(b){
+  const file=new File([b],'card.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file],text:'#柔道 #My柔道'}); }
+    catch(e){ if(e&&e.name==='AbortError')return; rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); }
+    return;
+  }
+  if(isNativeApp()){ rkShowImgSave(T('この端末は直接シェアできません。画像を長押しして保存してください。')); return; }
+  rkDownloadShare(); alert(T('この端末は直接シェア非対応のため画像を保存しました。'));
+}
 /* ===== v146: 分析タブ（個人モード）＝選手の試合分析（既存の決まり技レーダー等を再利用） ===== */
 let anaSelfId=null;
 // 個人アプリの無料ユーザーには分析をゲート（A案：タブは見せて、中身は「有料版で使えます」）
@@ -11327,14 +11618,14 @@ function analysisLockHtml(){
   return `<div class="ana-lock">
     <div class="al-emoji">🔒📈</div>
     <h3 class="al-h">${T('試合結果の分析は')}<br>${T('有料版（Pro）で')}</h3>
-    <p class="al-p">${T('あなたの柔道を数字で深掘り。')}<b>${T('「試合報告」と「メモリー」は無料')}</b>${T('のまま、Proでは分析が使えます。')}</p>
+    <p class="al-p">${T('あなたの柔道を数字で深掘り。')}<b>${T('「試合報告」とメモリー10件までは無料')}</b>${T('のまま、Proでは分析が使えます。')}</p>
     <div class="al-feat">
       <div class="al-item"><span>📊</span><div><b>${T('勝率・決まり技レーダー')}</b>——${T('どの技で勝てているかが一目でわかる')}</div></div>
       <div class="al-item"><span>🤼</span><div><b>${T('組手（右/左）別・技別')}</b>${T('の傾向')}</div></div>
       <div class="al-item"><span>📈</span><div>${T('直近の調子や対戦の振り返り')}</div></div>
     </div>
     <button class="btn gold full" onclick="requirePro('試合結果の分析（勝率・決まり技レーダー）')">${T('⭐ 有料版（Pro）にする')}</button>
-    <p class="al-note">${T('「試合報告」と「メモリー（記録・シェア画像）」は、これからもずっと無料でお使いいただけます。')}</p>
+    <p class="al-note">${T('「試合報告」はずっと無料です。メモリーは10件まで、主役は5人まで無料で登録できます（登録したメモリーを見る・シェアするのはずっと無料）。')}</p>
   </div>`;
 }
 let anaView='match';   // v196: 分析ビュー 'match'|'keiko'|'body'
@@ -11466,7 +11757,7 @@ function renderGwCountdown(){
     .map(s=>({s,days:Math.round((new Date(s.date+'T00:00')-nowD)/86400000)}))
     .filter(x=>x.days>=0&&x.days<=30).sort((a,b)=>a.days-b.days).slice(0,3);
   box.innerHTML=ups.map(({s,days})=>{
-    const nm=esc(s.title||T(s.name));
+    const nm=esc(s.title||s.name);   // v290: 名前は PATTERNS 側で訳す（点検 U-10）
     const txt=(days===0)?`${nm}は きょう！！`:`${nm}まで あと${days}日！！`;
     return `<div class="gw-cd" style="background:${typeColor(s.name)}" onclick="gwOpenDay('${s.date}')">🥋 ${txt}</div>`;
   }).join('');
@@ -11506,9 +11797,26 @@ function gwOpenDay(ds){
     (sc.length?sc.map(s=>{ const isM=schedIsMatch(s);
       const tgt=(many&&s.forId)?`<span class="mate-tag" style="background:#33507e">${esc(studentName(s.forId))}</span>`:'';
       const srcTag=s.src?`<span class="mate-tag" style="background:#7d6a2e">${esc(s.src)}</span>`:'';
-      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayEditSched('${s.id}')"><span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${tgt}${srcTag}</span><button class="chip-btn" onclick="event.stopPropagation();gwDayEditSched('${s.id}')">${T('編集')}</button></div>`; }).join('')
+      // v274: 稽古・試合の場所とメモは、その場で見たい情報。事務用の日別シートには出ていたのに、選手用には出ていなかった
+      const where=s.place?`<span class="list-mini" style="display:block">📍 ${esc(s.place)}</span>`:'';
+      const memo=s.note?`<span class="list-mini" style="display:block">📝 ${esc(s.note)}</span>`:'';
+      // v275: 道場から届いた出場者。自分や家族の名前は太字にして、出るかどうかを見つけやすくする
+      const mem=s.members?`<span class="list-mini" style="display:block">👥 ${T('出場')} ${gwMarkOwnNames(s.members)}</span>`:'';
+      return `<div class="gw-field-row" style="cursor:pointer" onclick="gwDayEditSched('${s.id}')"><span class="nm"><span style="color:${typeColor(s.name)}">●</span> ${isM?'🥋 ':''}${esc(schedLabel(s))}${s.time?' <span class="list-mini">'+esc(s.time)+'</span>':''}${tgt}${srcTag}${where}${memo}${mem}</span><button class="chip-btn" onclick="event.stopPropagation();gwDayEditSched('${s.id}')">${T('編集')}</button></div>`; }).join('')
     :`<p class="list-mini" style="margin:4px 0">${T('この日の予定はありません')}</p>`)+`</div>`;
   openModal('gwDayModal');
+}
+/* v275: 出場者の並びのうち、自分や家族の名前を目立たせる */
+function gwMarkOwnNames(txt){
+  const mine=(DB.students||[]).filter(x=>x.isSelf).map(x=>(x.name||'').trim()).filter(Boolean);
+  return String(txt).split('・').map(n=>{
+    const t=n.trim();
+    // 「ほか5人」だけ訳す。名前そのものは訳さない（たまたま辞書に当たるのを防ぐ）
+    const body=/^ほか\d+人$/.test(t) ? esc(T(t))
+             : (mine.some(m=>m===t) ? ('<b style="color:var(--navy)">'+esc(t)+'</b>') : esc(t));
+    // 1人の名前が行の途中で切れないようにする（「後藤／駿」のような折れ方を防ぐ）
+    return '<span style="white-space:nowrap">'+body+'</span>';
+  }).join('・');
 }
 function gwDayAttend(sid){
   if(gwAttendFor(sid,gwDayDs)){ toast(T('出席をつけました')+' 🔥'); renderGrowth(); gwOpenDay(gwDayDs); }  // モーダルは開いたまま＝連続タップ可
@@ -11788,6 +12096,39 @@ function findStudentByName(nm){
       || DB.students.find(s=>{const n=normName(s.name);return n&&(n.includes(t)||t.includes(n));}) // 姓のみ等の部分一致
       || null;
 }
+// v283: 取り込みの名前照合。自動で決めてよいのは「完全一致が1人だけ」のときだけ。
+//       部分一致（名字だけ等）や同じ名前が複数いるときは候補として返し、必ず確認してから選ばせる
+function impSelfCandidates(nm){
+  const t=normName(nm); if(!t)return {auto:null,cands:[],sameName:false};
+  const exact=DB.students.filter(s=>normName(s.name)===t);
+  if(exact.length===1)return {auto:exact[0],cands:[],sameName:false};
+  const loose=DB.students.filter(s=>{const n=normName(s.name);return n&&n!==t&&(n.includes(t)||t.includes(n));})
+    .sort((a,b)=>Math.abs(normName(a.name).length-t.length)-Math.abs(normName(b.name).length-t.length));
+  return {auto:null,cands:exact.concat(loose),sameName:exact.length>1};
+}
+// v283: 「この選手で合っていますか？」…候補の選手か「別の人として新しく登録する」を選ばせる
+function impAskSelf(onDone){
+  if(!importParsed)return;
+  const c=(importParsed._selfCands||[]).slice(), nm=((importParsed.head&&importParsed.head.self)||'').trim();
+  const cur=document.getElementById('importSelf').value;
+  if(cur&&cur!=='__newstu__'&&c.indexOf(cur)<0&&DB.students.some(s=>s.id===cur))c.push(cur);   // 一覧で候補以外を選んだときは、その人も並べる
+  const row=(v,label,sub)=>`<label style="display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--line);cursor:pointer"><input type="radio" name="impSelfPick" value="${v}" ${cur===v?'checked':''} style="width:20px;height:20px;flex:none"><span>${label}${sub?'<br><span style="font-size:13px;color:var(--muted,#888)">'+sub+'</span>':''}</span></label>`;
+  const list=c.map((id,i)=>{const s=DB.students.find(x=>x.id===id); if(!s)return '';
+      const sub=[i===0&&!importParsed._selfSameName?T('候補'):'',s.category?esc(T(s.category)):'',s.rank?esc(s.rank):''].filter(Boolean).join('・');
+      return row(s.id,esc(s.name),sub);}).join('')
+    +row('__newstu__',T('別の人として新しく登録する'),'「'+esc(nm)+'」');
+  askConfirm(T('記入：')+'<b>'+esc(nm)+'</b><br>'
+    +T(importParsed._selfSameName?'同じ名前の仲間が複数います。結果を付ける選手を選んでください。':'記入されている名前と完全には一致しません。結果を付ける選手を選んでください。')
+    +'<span style="display:block;margin-top:8px">'+list+'</span>',
+    ()=>{
+      const r=document.querySelector('input[name="impSelfPick"]:checked');
+      if(!r){ toast(T('どれか1つを選んでください')); impAskSelf(onDone); return; }
+      document.getElementById('importSelf').value=r.value;
+      importParsed._selfOk=r.value;
+      onImportSelfChange();
+      if(typeof onDone==='function')onDone();
+    },'この選手で決める','この選手で合っていますか？','var(--navy)');
+}
 function impNormDate(v){v=(v||'').trim();const m=v.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);return m?`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`:'';}
 function impDayDiff(a,b){if(!a||!b)return 9999;return Math.round((new Date(a+'T00:00')-new Date(b+'T00:00'))/86400000);}
 function parseImportText(raw){
@@ -11865,20 +12206,24 @@ function analyzeImport(){
   // v258: 2人分をまとめて貼ると、全部の試合が最後の選手に付いてしまうため止める
   if((p.head.blocks||0)>1||(p.head.selves||[]).length>1){
     askConfirm(T('報告がまとめて貼られています。')+'<br>'+esc((p.head.selves||[]).join('／'))+'<br><br>'
-      +T('取り違えるおそれがあるため、1人分ずつ貼って取り込んでください。'),()=>{},T('わかりました'),'確認','var(--navy)');
+      +T('取り違えるおそれがあるため、1人分ずつ貼って取り込んでください。'),()=>{},T('わかりました'),'確認','var(--navy)',true);
     return;
   }
   importParsed=p;
-  const matched=findStudentByName(p.head.self);
+  // v283: 自動で選ぶのは完全一致が1人だけのとき。部分一致・同名複数は選ばずに確認へ回す
+  const _mc=impSelfCandidates(p.head.self);
+  const matched=_mc.auto;
+  p._selfCands=_mc.cands.map(s=>s.id); p._selfSameName=_mc.sameName; p._selfOk='';
+  const _ask=!matched&&_mc.cands.length>0;
   const selEl=document.getElementById('importSelf');
   // v246: 一致する仲間がいないとき、その場で新しく登録できる選択肢を出す（結果と一緒に登録できる）
   const newName=(p.head.self||'').trim();
-  const newOpt=newName?`<option value="__newstu__" ${matched?'':'selected'}>${T('＋')} 「${esc(newName)}」${T('を新しく登録して取り込む')}</option>`:'';
+  const newOpt=newName?`<option value="__newstu__" ${(matched||_ask)?'':'selected'}>${T('＋')} 「${esc(newName)}」${T((matched||_ask)?'を別の人として新しく登録して取り込む':'を新しく登録して取り込む')}</option>`:'';
   selEl.innerHTML='<option value="">'+T('（選手を選ぶ）')+'</option>'
     +DB.students.map(s=>`<option value="${s.id}" ${matched&&matched.id===s.id?'selected':''}>${esc(s.name)}</option>`).join('')
     +newOpt;
   document.getElementById('importSelfHint').textContent = p.head.self
-    ? (T('記入：')+p.head.self+(matched?T('（自動一致）'):T('（一致者なし。選ぶか、新しく登録してください）')))
+    ? (T('記入：')+p.head.self+(matched?T('（自動一致）'):_ask?T(_mc.sameName?'（同じ名前の仲間が複数います。取り込む前に、どの選手か確かめてください）':'（名前が似ている仲間がいます。取り込む前に、どの選手か確かめてください）'):T('（一致者なし。選ぶか、新しく登録してください）')))
     : T('（記入に選手名がありません）');
   // 試合結果設定あり（試合/大会・または結果済み）の予定だけに限定（通常稽古は出さない）
   const scheds=[...DB.schedule].filter(schedIsMatch).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
@@ -11901,6 +12246,7 @@ function analyzeImport(){
   impMarkDuplicates();      // v258: すでに入っている試合は最初からチェックを外す
   renderImportBouts();
   importShow('preview');
+  if(_ask)impAskSelf();     // v283: 部分一致・同名複数は、その場で「この選手で合っていますか？」を出す
 }
 function onImportSchedChange(){
   document.getElementById('importNewSched').style.display=(document.getElementById('importSched').value==='__new__')?'block':'none';
@@ -12025,10 +12371,12 @@ function renderImportBouts(){
     </div>${tgt}</div>`;
   }).join('');
 }
-function doImport(){
+function doImport(forced){
   if(!importParsed)return;
   let selfId=document.getElementById('importSelf').value;
   if(!selfId){toast(T('選手を選んでください'));return;}
+  // v283: 名前が部分一致・同名複数のときは、確認画面で選んだものでなければ取り込まない（一覧で選び直したときも確かめる）
+  if((importParsed._selfCands||[]).length&&importParsed._selfOk!==selfId){ impAskSelf(()=>doImport(forced)); return; }
   // v257: DBを触る前に、入力の不足をすべて確かめる。
   //       従来は仲間や予定を先に作っていたため、エラーで中断しても空の予定・仲間だけが増えていた。
   {
@@ -12051,6 +12399,30 @@ function doImport(){
     }
     if(selfId==='__newstu__'&&!((importParsed.head&&importParsed.head.self)||'').trim()){toast(T('選手のなまえが読み取れませんでした'));return;}
     if(document.getElementById('importSched').value==='__new__'&&!document.getElementById('importNewDate').value){toast(T('新しい予定の日付を入れてください'));return;}
+    // v282: 取り込み先の位置に別の選手の結果がすでにあるときは、名前を出して確かめる（黙って上書きしない）
+    if(!forced&&importParsed.head.kind==='団体'){
+      const _mrC=(DB.matchResults||{})[document.getElementById('importSched').value];
+      const _cards=(_mrC&&_mrC.team&&_mrC.team.cards)||[];
+      const _cnt=importParsed.head.teamCount||5;
+      const _role=importParsed.head.role||posList(_cnt)[0];
+      const _isRep=(_role==='代表戦'||_role==='代表');
+      let _sid=selfId;
+      if(_sid==='__newstu__')_sid='';   // v283: 新しく登録する人は、まだどの位置にもいない
+      const conflicts=[];
+      picked0.forEach(b=>{
+        if(!b.targetCardId||b.targetCardId==='__new__')return;
+        const c=_cards.find(x=>x.id===b.targetCardId); if(!c)return;
+        const cur=_isRep?(c.tiebreak==='rep'?c.rep:null):(c.bouts||[])[posList(c.count||_cnt).indexOf(_role)];
+        if(!cardBoutFilled(cur)||(_sid&&cur.selfId===_sid))return;
+        const s=cur.selfId?DB.students.find(x=>x.id===cur.selfId):null;
+        const line=esc(impCardLabel(c))+'・'+esc(T(_isRep?'代表戦':_role))+'：'+esc(s?s.name:(cur.oppName||T('選手未選択')));
+        if(conflicts.indexOf(line)<0)conflicts.push(line);
+      });
+      if(conflicts.length){
+        askConfirm(T('取り込み先の位置に、別の選手の結果がすでに入っています。上書きすると消えます。よろしいですか？')+'<br><br>'+conflicts.join('<br>'),()=>doImport(true),'上書きする','確認');
+        return;
+      }
+    }
   }
   // v258: 保存できなかったときに元へ戻せるよう、何かを作る前の姿を控える
   const _bkStu=DB.students.slice(), _bkSch=DB.schedule.slice();
@@ -12066,9 +12438,8 @@ function doImport(){
   if(selfId==='__newstu__'){
     const nm=((importParsed.head&&importParsed.head.self)||'').trim();
     if(!nm){toast(T('選手のなまえが読み取れませんでした'));return;}
-    const dup=findStudentExact(nm);      // v258: 部分一致で別人に振り替えない（佐藤 愛子→佐藤 愛）
-    if(dup){ selfId=dup.id; }
-    else{
+    // v283: 「新しく登録」を選んだときは、同じ名前の仲間がいても既存の人へ振り替えない（別の人として登録する）
+    {
       const parts=nm.split(/[\s　]+/).filter(Boolean);
       const st={id:uid(),name:nm,lastName:parts[0]||nm,firstName:parts.slice(1).join(' '),lastKana:'',firstKana:'',kana:'',
         role:'',category:(cats()[0]||{}).name||'',gradeBaseFY:null,gradeBaseLevel:null,gradeFixed:false,gradeTouchedFY:null,
@@ -12263,6 +12634,10 @@ function setMemberSettingsTab(t){
     const pane=document.getElementById(map[k]);if(pane)pane.style.display=(k===t)?'':'none';
     const b=document.getElementById(btns[k]);if(b)b.classList.toggle('on',k===t);
   });
+  // v288: 「表示」タブは押した瞬間に保存されるので「とじる」だけ。ほかのタブは「やめる／保存する」（点検 U-3）
+  const sr=document.getElementById('msSaveRow'), cr=document.getElementById('msCloseRow');
+  if(sr)sr.style.display=(t==='sort')?'none':'';
+  if(cr)cr.style.display=(t==='sort')?'':'none';
 }
 function renderGradeSettings(){
   const on=!!DB.gradeEnabled;
@@ -12274,15 +12649,21 @@ function renderGradeSettings(){
 }
 function setGradeEnabled(v){
   DB.gradeEnabled=!!v;
+  // v294: 学年の修正は起動時にしか走らなかった。後から使い始めた道場でも直るようにする。
+  if(v&&typeof fixGradeEntryFY==='function')fixGradeEntryFY();
   if(v)refreshGrades();
   save();renderGradeSettings();
   if(document.getElementById('catEditor')&&catEdit)renderCatEditor();
   renderMates();renderMember();
+  if(v&&typeof noticeGradeEntryFix==='function')noticeGradeEntryFix();   // v294: 直したことを知らせる
 }
 function saveGradeStart(){
   const v=parseInt(document.getElementById('gradeStartSelect').value,10);
   DB.gradeStartMonth=(v>=1&&v<=12)?v:4;
+  // v294: 進級月を4月へ戻したときも、見送っていた学年の修正にかける
+  if(DB.gradeStartMonth===4&&typeof fixGradeEntryFY==='function')fixGradeEntryFY();
   refreshGrades();save();renderMates();renderMember();
+  if(typeof noticeGradeEntryFix==='function')noticeGradeEntryFix();
 }
 /* ===== 区分・級段エディタ ===== */
 let catEdit=null, rankEdit=null;
@@ -12402,7 +12783,10 @@ function entryStats(id){
 function entryDeadlineInfo(deadline){ if(!deadline)return null; const days=Math.round((new Date(deadline+'T00:00')-new Date(todayStr()+'T00:00'))/86400000); return {days,overdue:days<0,today:days===0,soon:days>0&&days<=3}; }
 function entryHasData(id){ const st=entryStats(id); return !!(st&&(st.count||st.deadline)); }
 // 要対応＝未完了で締切7日以内（超過含む）
-function entryNeedsAttention(id){ const e=entryOf(id); if(!e||e.done)return false; const di=entryDeadlineInfo(e.deadline); return !!(di&&di.days<=7); }
+// v288: 試合日（予定の日付）を過ぎたものは数えない。締切超過のまま試合が終わっても赤バッジが消えなかったため（点検 U-6）
+function entryNeedsAttention(id){ const e=entryOf(id); if(!e||e.done)return false;
+  const s=(DB.schedule||[]).find(x=>x.id===id); if(s&&s.date&&s.date<todayStr())return false;
+  const di=entryDeadlineInfo(e.deadline); return !!(di&&di.days<=7); }
 function entryDotHtml(id){ const e=entryOf(id); if(!e)return ''; const st=entryStats(id);
   if(e.done)return '<span class="result-dot" style="background:#2e9e5b"></span>';
   const di=entryDeadlineInfo(st.deadline), alert=(st.unpaid>0)||(di&&di.days<=7);
@@ -12438,8 +12822,12 @@ function updateSchedTabBadge(){
   const n=(DB.mode!=='personal')?DB.schedule.filter(s=>entryNeedsAttention(s.id)).length:0;
   if(n>0){ b.textContent=n>99?'99+':n; b.style.display='block'; } else { b.style.display='none'; }
 }
+let entrySnapJson=null;   // v274: 申込モーダルを開いたときの中身（「破棄してとじる」で戻すため）
 function openEntryModal(schedId){
-  curEntrySched=schedId; const e=ensureEntry(schedId); const s=DB.schedule.find(x=>x.id===schedId);
+  curEntrySched=schedId;
+  // v274: ensureEntry より前に控える。開く前に無かった申込は、破棄したら作らなかったことにする
+  try{ entrySnapJson=JSON.stringify((DB.entries&&DB.entries[schedId])||null); }catch(e){ entrySnapJson=null; }
+  const e=ensureEntry(schedId); const s=DB.schedule.find(x=>x.id===schedId);
   document.getElementById('entryModalTitle').innerHTML='🏷️ 試合申込 <span style="font-weight:600;font-size:14px;color:var(--muted)">'+(s?esc(schedLabel(s))+'／'+(s.date||'').replace(/-/g,'/'):'')+'</span>';
   document.getElementById('entDeadline').value=e.deadline||'';
   document.getElementById('entFee').value=e.feeDefault||'';
@@ -12447,7 +12835,36 @@ function openEntryModal(schedId){
   entryCheckDeadline(); renderEntryDone(); renderEntryParts();
   openModal('entryModal');
 }
-function closeEntryModal(){ closeModal('entryModal'); if(document.getElementById('screen-sched').classList.contains('active'))renderSched(); }
+function closeEntryModal(){ entrySnapJson=null; closeModal('entryModal'); if(document.getElementById('screen-sched').classList.contains('active'))renderSched(); }
+/* v274: 「とじる」だけでは保存されたか分からない、という声。実際には入力のたびに保存しているが、
+   それが見えないので不安になる。保存したことを言い切るボタンと、取り消せるボタンを並べる。 */
+function entryFlushInputs(){
+  // 入力中の欄から指を離させて、打ちかけの値も確定させる（onchange は blur で走る）
+  try{ if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); }catch(e){}
+  try{ entryMetaSave(); }catch(e){}
+}
+function entrySaveClose(){
+  entryFlushInputs();
+  closeEntryModal();
+  toast(T('申込の内容を保存しました'));
+}
+function entryDiscardClose(){
+  entryFlushInputs();
+  askConfirm(T('この画面で入力した内容を、保存せずにとじます。<br>開いたときの状態に戻りますが、よろしいですか？'),
+    ()=>{
+      try{
+        const prev=(entrySnapJson==null)?undefined:JSON.parse(entrySnapJson);
+        if(prev!==undefined){
+          if(!DB.entries)DB.entries={};
+          if(prev===null)delete DB.entries[curEntrySched]; else DB.entries[curEntrySched]=prev;
+          save();
+        }
+      }catch(e){}
+      updateSchedTabBadge();
+      closeEntryModal();
+      toast(T('入力した内容を取り消しました'));
+    }, '破棄してとじる', '保存しないでとじる', 'var(--red)');
+}
 function entryMetaSave(){
   if(!curEntrySched)return; const e=ensureEntry(curEntrySched);
   e.deadline=document.getElementById('entDeadline').value||'';
@@ -12521,7 +12938,7 @@ function entryToggleMemoCol(){ const e=ensureEntry(curEntrySched); e.showMemo=!e
 function entrySetFee(sid,val){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].fee=Math.max(0,Number(val)||0); save(); renderEntrySummary(); }
 function entryTogglePaid(sid){ const e=ensureEntry(curEntrySched); if(!e.parts[sid])return; e.parts[sid].paid=!e.parts[sid].paid; save(); renderEntryParts(); }
 // v258: 参加費・集金済み・メモが入っている人を、確認なしで消さない
-function entryPartHasInfo(p){ return !!(p&&((Number(p.fee)||0)>0||p.paid||(p.note||'').trim())); }
+function entryPartHasInfo(p){ return !!(p&&((Number(p.fee)||0)>0||p.paid||(p.memo||'').trim())); }   // v281: メモは p.memo に保存されている（点検 D-6）
 function entryRemovePart(sid){
   const e=ensureEntry(curEntrySched);
   const p=e.parts[sid];
@@ -12541,7 +12958,15 @@ function entryReopenIfDone(){
   toast(T('出場者が変わったので、申込の完了を取り消しました'));
   return true;
 }
-function entryApplyFeeAll(){ const e=ensureEntry(curEntrySched); const f=Math.max(0,Number(document.getElementById('entFee').value)||0); e.feeDefault=f; Object.keys(e.parts).forEach(sid=>e.parts[sid].fee=f); save(); renderEntryParts(); toast(T('出場者全員に')+' ¥'+f.toLocaleString()+' '+T('を反映しました')); }
+function entryApplyFeeAll(_ok){ const e=ensureEntry(curEntrySched); const f=Math.max(0,Number(document.getElementById('entFee').value)||0);
+  // v281: 一人ずつ決めた額・集金済みの人の額が書き換わるときは確認する（点検 D-12）
+  const diff=Object.keys(e.parts).filter(sid=>{ const p=e.parts[sid]||{}, fee=Number(p.fee)||0; return fee!==f&&(fee>0||p.paid); });
+  if(diff.length&&!_ok){
+    askConfirm(T('次の方は、個別の参加費が入っているか集金済みです。')+'<br><b>'+esc(diff.map(studentName).join('、'))+'</b><br><br>'
+      +T('全員に反映すると、この方たちの額も書き換わり、集金済みの合計も変わります。'),()=>entryApplyFeeAll(true),T('反映する'));
+    return;
+  }
+  e.feeDefault=f; Object.keys(e.parts).forEach(sid=>e.parts[sid].fee=f); save(); renderEntryParts(); toast(T('出場者全員に')+' ¥'+f.toLocaleString()+' '+T('を反映しました')); }
 function openEntryPick(){
   const e=ensureEntry(curEntrySched), s=DB.schedule.find(x=>x.id===curEntrySched), ym=s&&s.date?s.date.slice(0,7):thisMonthStr();
   const roster=DB.students.filter(st=>!st.isSelf&&isEnrolledInMonth(st,ym));
@@ -12660,10 +13085,33 @@ function schedShareText(ym){
     const flag=(s.showMatch===true&&!inferred)?'M':((s.showMatch===false&&inferred)?'x':'');
     const note=withNote?shareField(s.note||''):'';
     // v258: 送り元の予定IDも送る（同じ日に同じ名前の予定が2つあっても取り違えない／名前を直しても紐付きが切れない）
-    L.push([s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',note,flag].map(shareField).concat([shareField(s.id)]).join('｜').replace(/｜+$/,''));
+    const base=[s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',note,flag].map(shareField).concat([shareField(s.id)]);
+    // v275: 申込管理で登録した出場者の「名前だけ」を足す。参加費・集金・個人メモは送らない
+    const mem=schedShareMembers(s.id, shareBytes(base.join('｜')));
+    L.push((mem?base.concat([mem]):base).join('｜').replace(/｜+$/,''));
   });
   const hasNote=items.some(s=>(s.note||'').trim());
   return {text:L.join('\n'), count:items.length, sender, ym, hasNote, msg};
+}
+/* v275: 出場者の名前を、QRの1行上限を超えない範囲だけ載せる。
+   超えそうなときは「・ほかN人」に丸めて、QRが作れなくなるのを防ぐ。
+   やりとりの形式はもともと日本語なので、ここも日本語のまま送り、表示するときに訳す。 */
+function schedShareMembers(schedId, usedBytes){
+  const ent=(DB.entries||{})[schedId];
+  if(!ent||!ent.parts)return '';
+  const names=Object.keys(ent.parts).map(id=>shareField(studentName(id))).filter(Boolean);
+  if(!names.length)return '';
+  const ROOM=Math.max(0, 644-usedBytes-3);          // 1行は700-56=644バイト、区切りの｜で3バイト
+  const out=[];
+  for(let i=0;i<names.length;i++){
+    const rest=names.length-(i+1);
+    const tail=rest>0?('・ほか'+rest+'人'):'';
+    if(shareBytes(out.concat([names[i]]).join('・')+tail)>ROOM)break;
+    out.push(names[i]);
+  }
+  if(!out.length)return '';
+  const rest=names.length-out.length;
+  return out.join('・')+(rest>0?('・ほか'+rest+'人'):'');
 }
 function schedShareParts(text){
   const MAX=700;                                           // 1枚あたり約700byte＝画面越しでも読み取りやすいサイズ
@@ -12686,7 +13134,7 @@ function schedShareParse(raw){
     if(!inBody)return;
     const p=line.split('｜'); const dd=(p[0]||'').trim();
     if(!/^\d{1,2}$/.test(dd))return;
-    items.push({dd:dd.padStart(2,'0'),name:(p[1]||'').trim(),title:(p[2]||'').trim(),time:(p[3]||'').trim(),place:(p[4]||'').trim(),note:(p[5]||'').trim(),flag:(p[6]||'').trim(),sid:(p[7]||'').trim()});
+    items.push({dd:dd.padStart(2,'0'),name:(p[1]||'').trim(),title:(p[2]||'').trim(),time:(p[3]||'').trim(),place:(p[4]||'').trim(),note:(p[5]||'').trim(),flag:(p[6]||'').trim(),sid:(p[7]||'').trim(),members:(p[8]||'').trim()});
   });
   return {sender,ym,msg,items,sawBody,declared};
 }
@@ -12767,14 +13215,14 @@ function schedShareApply(parsed,forId){
     const old=row.old;
     if(old){                                   // 既存の予定を「中身だけ」更新（IDは変えない）
       old.date=date; old.name=name; old.title=it.title;
-      old.time=it.time; old.place=it.place; old.note=it.note; old.showMatch=showMatch;
+      old.time=it.time; old.place=it.place; old.note=it.note; old.showMatch=showMatch; old.members=it.members||'';
       if(it.sid){ old.srcId=it.sid; DB.schedSrcMap[_mapKey(it.sid)]=old.id; }
       if(typeof bakeSchedMeta==='function')bakeSchedMeta(old.id);
     }else{
       let nid=row.reuseId;
       while(!nid||DB.schedule.some(x=>x.id===nid))nid='ss'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
       DB.schedule.push({id:nid,
-        name:name,title:it.title,date:date,time:it.time,place:it.place,note:it.note,showMatch:showMatch,src:sender,forId:forId,srcId:it.sid||''});
+        name:name,title:it.title,date:date,time:it.time,place:it.place,note:it.note,showMatch:showMatch,src:sender,forId:forId,srcId:it.sid||'',members:it.members||''});
       if(it.sid)DB.schedSrcMap[_mapKey(it.sid)]=nid;
     }
   });
@@ -12822,7 +13270,7 @@ function renderSchedShare(keepInput){
 async function ssSend(){
   // v258: 0件でも送れる。「この月の予定はすべて取り消し」を伝えるため
   const r=schedShareText(ssMonth);
-  if(navigator.share){ try{ await navigator.share({text:r.text}); return; }catch(e){} }
+  if(navigator.share){ try{ await navigator.share({text:r.text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }   // v285: 点検E-3。閉じただけならコピーへ進まない
   try{ await navigator.clipboard.writeText(r.text); toast(T('コピーしました。LINE等に貼り付けて送ってください')); }
   catch(e){ toast(T('コピーできませんでした')); }
 }
@@ -12941,7 +13389,7 @@ function renderSchedCountdown(){
     .map(s=>({s,days:Math.round((new Date(s.date+'T00:00')-nowD)/86400000)}))
     .filter(x=>x.days>=0&&x.days<=30).sort((a,b)=>a.days-b.days).slice(0,3);
   box.innerHTML=ups.map(({s,days})=>{
-    const nm=esc(s.title||T(s.name));
+    const nm=esc(s.title||s.name);   // v290: 名前は PATTERNS 側で訳す（点検 U-10）
     const txt=(days===0)?`${nm}は きょう！！`:`${nm}まで あと${days}日！！`;
     return `<div class="gw-cd" style="background:${typeColor(s.name)}" onclick="ofOpenDay('${s.date}')">🥋 ${txt}</div>`;
   }).join('');
@@ -13542,9 +13990,18 @@ function setSetView(v){
 // ―― データ使用量の表示（localStorage 目安 5MB に対する割合）――
 const STORAGE_BUDGET=5*1024*1024;
 function dbByteSize(){ try{ return new Blob([JSON.stringify(DB)]).size; }catch(e){ return (JSON.stringify(DB)||'').length; } }
+// v284: 同じ端末の保存領域を分け合う、本体以外のキー（退避データ _broken など）の大きさ（点検 D-4）
+function storageKeyBytes(k){ try{ const v=localStorage.getItem(k); if(v==null)return 0; try{ return new Blob([k+v]).size; }catch(e){ return (k+v).length; } }catch(e){ return 0; } }
+function otherStorageBytes(){
+  let n=0;
+  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k!=null&&k!==STORE_KEY) n+=storageKeyBytes(k); } }catch(e){}
+  return n;
+}
+function storageUsedBytes(){ return dbByteSize()+otherStorageBytes(); }
 function renderDataUsage(){
   const box=document.getElementById('dataUsageBox'); if(!box)return;
-  const bytes=dbByteSize();
+  const bytes=storageUsedBytes();   // v284: 本体の DB だけでなく、退避データなど他の保存分も含める（点検 D-4）
+  const brokenBytes=storageKeyBytes(STORE_KEY+'_broken');
   const mb=bytes/1024/1024;
   const pct=Math.min(100, Math.round(bytes/STORAGE_BUDGET*100));
   const warn=pct>=70;
@@ -13555,6 +14012,7 @@ function renderDataUsage(){
       <b style="color:${barColor}">${mb<0.1?('約 '+Math.round(bytes/1024)+' KB'):('約 '+mb.toFixed(1)+' MB')} / 5MB</b>
     </div>
     <div style="height:10px;border-radius:6px;background:#eee;overflow:hidden;margin-top:6px"><div style="height:100%;width:${pct}%;background:${barColor}"></div></div>
+    ${brokenBytes?`<p class="list-mini" style="margin-top:6px">うち、読み取れなかったデータの退避分が ${archiveSizeLabel(brokenBytes)} あります。バックアップから復元できたあとに、消すかどうかを確認します。</p>`:''}
     ${warn?`<p class="list-mini" style="margin-top:6px;color:${barColor}">残り容量が少なくなっています。下の「古い年度をアーカイブ」で空き容量を確保できます。</p>`:''}`;
 }
 // ―― 年度アーカイブ ――
@@ -13616,7 +14074,8 @@ async function archiveBackup(fy){
     }
   }catch(e){}
   if(isNativeApp())return false;   // v255: アプリ版はダウンロードで保存できない（何も起きない）ので、保存できなかった扱いにして何も外さない
-  try{ downloadFullBackup('judo_archive_before_FY'+fy); markBackedUp(); return true; }catch(e){ return false; }
+  // v284: Web版のダウンロードは「始めただけ」で保存できたかは分からない。'download' を返し、外す前に本人に確かめる（点検 D-13）
+  try{ downloadFullBackup('judo_archive_before_FY'+fy); return 'download'; }catch(e){ return false; }
 }
 function renderArchiveOptions(){
   const box=document.getElementById('archiveBox'); if(!box)return;
@@ -13644,10 +14103,33 @@ function doArchiveYear(){
   const imgLine = st.total
     ? '<br><br>'+T('この年度のメモリー画像も一緒に外れます（写真')+st.photos+T('枚・カード')+st.cards+T('枚／')+archiveSizeLabel(st.bytes)+T('）。バックアップには画像も含まれるので、復元すればそのまま戻ります。')
     : '';
-  askConfirm(T('AAAA年度（BBBB）のデータをアプリ本体から外して容量を空けます。').replace('AAAA',fy).replace('BBBB',fyRangeLabel(fy))+imgLine+'<br><br>'+T('先に復元用の全体バックアップを保存します。<b>保存できたときだけ</b>アーカイブを実行します。よろしいですか？'),async()=>{
+  // v288: 外れる項目と件数を並べて見せる（画像のことしか書いておらず、出欠や試合結果まで消えると分からなかったため。点検 U-4）
+  const fyKeys=k=>(DB[k]&&typeof DB[k]==='object')?Object.keys(DB[k]).filter(key=>{ const m=(key.match(/\d{4}-\d{2}/)||[])[0]; return m&&inFY(m); }):[];
+  const evFY=(DB.schedule||[]).filter(e=>inFY(e.date));
+  const feeMonths=new Set([...fyKeys('fees'),...fyKeys('visitFees'),...fyKeys('visitLog'),...fyKeys('feeOverrides')].map(k=>(k.match(/\d{4}-\d{2}/)||[])[0]));
+  const nAtt=fyKeys('attendance').length;
+  const nCash=(DB.cash||[]).filter(c=>inFY(c.date)).length;
+  const nMatch=evFY.filter(e=>{ const mr=DB.matchResults&&DB.matchResults[e.id]; return mr&&(((mr.individual||[]).length)||((mr.team&&mr.team.cards)||[]).length); }).length;
+  const nEntry=evFY.filter(e=>DB.entries&&DB.entries[e.id]).length;
+  const goneLine='<br><br>'+T('外れるもの：')+'<br>'
+    +'・'+T('出欠')+' '+nAtt+T('日分')+'<br>'
+    +'・'+T('月謝・都度払い')+' '+feeMonths.size+T('か月分')+'<br>'
+    +'・'+T('入出金')+' '+nCash+T('件')+'<br>'
+    +'・'+T('予定')+' '+evFY.length+T('件')+(nEntry?'（'+T('申込')+' '+nEntry+T('件')+'）':'')+'<br>'
+    +'・'+T('試合結果')+' '+nMatch+T('大会分')+(nMatch?'（'+T('勝率などの集計からも外れます')+'）':'')
+    +'<br><br>'+T('名簿と設定は残ります。')+'<b>'+T('元に戻すには全体のバックアップから復元するしかなく、そのときは今のデータもすべてバックアップの内容に上書きされます。')+'</b>';
+  askConfirm(T('AAAA年度（BBBB）のデータをアプリ本体から外して容量を空けます。').replace('AAAA',fy).replace('BBBB',fyRangeLabel(fy))+goneLine+imgLine+'<br><br>'+T('先に復元用の全体バックアップを保存します。<b>保存できたときだけ</b>アーカイブを実行します。よろしいですか？'),async()=>{
     // ① 復元用フルバックアップを保存。保存できなければ何も外さない（v252）
     const saved=await archiveBackup(fy);
     if(!saved){ toast(T('バックアップを保存できなかったため、アーカイブを中止しました')); return; }
+    // ①'' v284: Web版のダウンロードは、保存できたことを本人に確かめてから外す（点検 D-13）
+    if(saved==='download'){
+      askConfirm(T('バックアップのファイルを保存できましたか？')+'<br><br>'+T('ダウンロードの一覧や「ファイル」で、ファイルがあることを確かめてください。')+'<b>'+T('保存できていないまま外すと、この年度のデータは元に戻せません。')+'</b><br><br>'+T('保存できていなければ「やめる」を押してください（何も外しません）。'),()=>{ markBackedUp(); runArchive(); },'保存できた・外す','保存の確認','var(--navy)');
+      return;
+    }
+    runArchive();
+  },'バックアップして外す','アーカイブの確認','var(--navy)');
+  function runArchive(){
     // ①' v255: 外す前に、この年度の収支を繰越額として残す（期首残高が変わらないように。再アーカイブ分は加算）
     const net=fyNetBalance(fy);
     if(net){ if(!DB.archiveCarry||typeof DB.archiveCarry!=='object')DB.archiveCarry={}; DB.archiveCarry[fy]=(+DB.archiveCarry[fy]||0)+net; }
@@ -13660,13 +14142,15 @@ function doArchiveYear(){
     if(Array.isArray(DB.schedule)) DB.schedule=DB.schedule.filter(e=>!inFY(e.date));
     if(Array.isArray(DB.cash)) DB.cash=DB.cash.filter(c=>!inFY(c.date));
     if(DB.matchResults&&typeof DB.matchResults==='object'){ evIds.forEach(id=>{ delete DB.matchResults[id]; }); }
+    // ③' v284: この年度の予定の申込データも外す。残すと一覧から辿れず、容量だけ占め続けるため（点検 D-13）
+    if(DB.entries&&typeof DB.entries==='object'){ evIds.forEach(id=>{ delete DB.entries[id]; }); }
     // ④ v252: この年度のメモリー画像も外す。残しても一覧から辿れず、容量だけ占め続けるため
     st.keys.forEach(([store,k])=>{ if(DB[store])delete DB[store][k]; });
     save();
     renderDataUsage(); renderArchiveOptions();
     [ 'renderMates','renderAtt','renderMoney','renderSched','renderList','renderRireki' ].forEach(fn=>{ try{ if(typeof window[fn]==='function') window[fn](); }catch(_){} });
     toast(fy+T('年度をアーカイブしました')+(st.total?'（'+T('画像')+st.total+T('枚')+'・'+archiveSizeLabel(st.bytes)+T('を解放')+'）':''));
-  },'バックアップして外す','アーカイブの確認','var(--navy)');
+  }
 }
 let mateFilter='all';
 // v261: 退会者を出すかどうかは「よく使う設定 › 表示」で選ぶ。この端末に記憶する
@@ -13977,11 +14461,60 @@ function updateGradePicker(){
 }
 function currentFY(){return schoolFY();}   // 学年の年度＝進級月ベース
 // 生年月日から「小1入学年度」を算出（進級月=4月＝日本の学齢ルール時のみ使用）
-function entryFYFromBirth(birth){
+// v276: 4/2〜12/31 生まれは生年+7、1/1〜4/1 生まれは生年+6 の4月に入学（以前は1年早かった）
+function entryFYFromBirth(birth,oldRule){
   if(!birth)return null;
   const y=+birth.slice(0,4),m=+birth.slice(5,7),d=+birth.slice(8,10);
   const afterApr2=(m>4)||(m===4&&d>=2);
-  return afterApr2?y+6:y+5;
+  const efy=afterApr2?y+7:y+6;
+  return oldRule?efy-1:efy;   // oldRule：v275 までの式（移行で「自動で付けた年度か」を見分けるときだけ使う）
+}
+/* v276: v275 までの式で「自動で小1にした人」の入学年度を1年あとへ直す（1回だけ）。
+   手で学年を選んで保存した人（gradeTouchedFY が gradeBaseFY 以上）は正しい値なので触らない。
+   直す前の値は DB.gradeEntryFixBackup に控え、起動後に知らせて「元に戻す」を選べるようにする。 */
+function fixGradeEntryFY(){
+  if(DB.gradeEntryFix)return;
+  if(!DB.gradeEnabled||gradeStart()!==4)return;   // 自動の小1は進級月4月のときしか作られない。印も付けない
+  const fy=currentFY(), items=[];
+  (DB.students||[]).forEach(s=>{
+    if(!s||!s.birth||s.gradeFixed||s.gradeBaseLevel!==1||s.gradeBaseFY==null)return;
+    const oldEfy=entryFYFromBirth(s.birth,true);
+    if(!(oldEfy>0)||s.gradeBaseFY!==oldEfy)return;
+    if(s.gradeTouchedFY!=null&&s.gradeTouchedFY>=s.gradeBaseFY)return;   // 小1になったあとに手で保存した人
+    items.push({id:s.id,name:s.name||'',gradeBaseFY:s.gradeBaseFY,gradeBaseLevel:s.gradeBaseLevel,category:s.category,grade:s.grade});
+    const efy=oldEfy+1;
+    if(efy>fy){ s.gradeBaseFY=null;s.gradeBaseLevel=null;s.grade='';s.category='未就学'; }   // まだ未就学のはずの人
+    else s.gradeBaseFY=efy;
+  });
+  if(items.length)DB.gradeEntryFixBackup={date:todayStr(),items,noticed:false};
+  DB.gradeEntryFix=1;
+}
+// 起動後に1回だけ、直した人を名前つきで知らせる（控えに印を付けるので2回目は出ない）
+let _gradeNoticePending=false;   // v292: ロック中で出せなかったお知らせを、解除したあとに出す
+let _gradeNoticeAfterConfirm=false;   // v293: 復元後に退避データの確認を出したときは、閉じてから出す
+function noticeGradeEntryFix(){
+  const b=DB.gradeEntryFixBackup;
+  if(!b||b.noticed||b.undone||!Array.isArray(b.items)||!b.items.length)return;
+  // v292: ロック画面の裏では見えないので、通知済みにしない（解除せず終了しても次の起動で出る）
+  const ls=document.getElementById('lockScreen');
+  if(ls&&ls.classList.contains('show')){ _gradeNoticePending=true; return; }
+  _gradeNoticePending=false;
+  // v294: 選ぶ前に「通知済み」にすると、やめた人・閉じた人に二度と出ず、
+  //       自動で直したデータを元に戻す入口が無くなる。選び終えてから印を付ける。
+  const _seen=()=>{ const bb=DB.gradeEntryFixBackup; if(bb){ bb.noticed=true; save(); } };
+  const names=b.items.map(i=>esc(i.name||T('(名前なし)'))).join('、');
+  askChoice(T('生年月日からの学年の計算が1年早かったため、次の人の学年を直しました。')+'<br><br>'+names+'<br><br>'+T('手で直した学年は変えていません。'),
+    T('このままにする'),T('元に戻す'),_seen,()=>{ _seen(); undoGradeEntryFix(); });
+  const h3=document.querySelector('#confirmModal h3'); h3.textContent=T('学年を直しました'); h3.style.color='var(--navy)';
+}
+function undoGradeEntryFix(){
+  const b=DB.gradeEntryFixBackup; if(!b||!Array.isArray(b.items))return;
+  b.items.forEach(i=>{
+    const s=(DB.students||[]).find(x=>x.id===i.id); if(!s)return;
+    s.gradeBaseFY=i.gradeBaseFY;s.gradeBaseLevel=i.gradeBaseLevel;s.category=i.category;s.grade=i.grade;
+  });
+  b.undone=true;   // 済みの印（DB.gradeEntryFix）は残すので、自動ではもう直さない
+  refreshGrades();save();renderMates();toast(T('元に戻しました'));
 }
 function gradeInfo(s,fy){
   if(!DB.gradeEnabled)return null;
@@ -14237,10 +14770,10 @@ function saveStudent(){
   const visitBase=Math.max(0,Number(document.getElementById('stVisitBase').value)||0);
   const feeAmount=(pickedFeeReq&&feeType==='monthly')?(manual>0?manual:pickedFeeAmt):0;
   const cur=(editingStudent)?DB.students.find(x=>x.id===editingStudent):null;
-  // v241: 無料版は主役（自分・家族）1人まで。Proの説明と実装を一致させる
+  // v241/v271: 無料版は主役（自分・家族）を FREE_SELF_LIMIT 人まで。Proの説明と実装を一致させる
   if(APP_EDITION==='personal' && pickedStSelf && !isPro()){
     const others=DB.students.filter(s=>s.isSelf && (!cur||s.id!==cur.id)).length;
-    if(others>=1){ requirePro(T('ご家族など、複数の主役を登録できます')); return; }
+    if(others>=FREE_SELF_LIMIT){ requirePro(selfLimitMsg()); return; }
   }
   // 在籍状況（在籍中／休会／退会）
   let endDate='', leaveStart=(cur&&cur.leaveStart)||'', leaveEnd=(cur&&cur.leaveEnd)||'', leaveFee=(cur&&cur.leaveFee!=null)?cur.leaveFee:0;
@@ -14302,12 +14835,14 @@ function deleteStudentFromModal(){
 }
 let _confirmCb=null;
 /* v252: 見出しとボタン色も渡せるようにした（省略時はこれまでどおり「削除の確認／赤」）。
-   アーカイブのように、消すのではなく外す操作を削除と読ませないため。 */
-function askConfirm(html,onYes,yesLabel,titleText,btnColor){
+   アーカイブのように、消すのではなく外す操作を削除と読ませないため。
+   v288: infoOnly=true は知らせるだけの画面。「やめる」を隠す（点検 U-7） */
+function askConfirm(html,onYes,yesLabel,titleText,btnColor,infoOnly){
   document.getElementById('confirmText').innerHTML=html;
   const btn=document.getElementById('confirmYesBtn');
   btn.textContent=T(yesLabel||'削除する'); btn.style.background=btnColor||'var(--red)';
   const no=document.getElementById('confirmNoBtn'); if(no)no.style.display='none';
+  const cancel=document.getElementById('confirmCancelBtn'); if(cancel)cancel.style.display=infoOnly?'none':'';
   const _h3=document.querySelector('#confirmModal h3');
   _h3.textContent=T(titleText||'削除の確認');
   _h3.style.color=btnColor||'var(--red)';   // v252: 見出しの色もボタンに合わせる（削除でない操作を赤で出さない）
@@ -14321,7 +14856,9 @@ function askChoice(html,yesLabel,noLabel,onYes,onNo){
   const y=document.getElementById('confirmYesBtn'), n=document.getElementById('confirmNoBtn');
   y.textContent=yesLabel; y.style.background='var(--navy)';
   n.textContent=noLabel; n.style.display='';
-  document.querySelector('#confirmModal h3').textContent=T('確認');
+  const cancel=document.getElementById('confirmCancelBtn'); if(cancel)cancel.style.display='';
+  const _h3=document.querySelector('#confirmModal h3');
+  _h3.textContent=T('確認'); _h3.style.color='var(--navy)';   // v288: 前の削除確認の赤が残らないように（点検 U-7）
   _confirmCb=onYes; _confirmNoCb=onNo;
   openModal('confirmModal');
 }
@@ -14469,6 +15006,38 @@ const LOCK_KEY='judoTeamApp_lock';
 let lockEnabled=false, lockCode='';
 let lockBuf='', lockMode='unlock', lockTemp='';
 let lockFail=0, lockUntil=0; // v125: 総当り抑制（この端末セッション内）
+let lockUnlocked=false;   // v279: この起動でパスコードを解除（または設定）したか
+let lockBackTo=null;      // v279: 道場モードへの切替で聞いたとき、「やめる」で個人モードに戻す処理
+let lockHiddenAt=0;       // v279: バックグラウンドに回った時刻
+const LOCK_RELOCK_MS=60*1000;   // v279: これ以上バックグラウンドにいたら、戻ったときにロックする
+// v279: 今ロックをかけるべきか。個人モード（個人専用アプリを含む）ではロックを止めるだけで、設定は残す
+function lockRequired(){
+  if(!(lockEnabled&&lockCode))return false;
+  const mode=(APP_EDITION==='personal')?'personal':(APP_EDITION==='office')?'office':((typeof DB!=='undefined'&&DB&&DB.mode==='personal')?'personal':'office');
+  return mode!=='personal';
+}
+// v279: 必要ならロック画面を出す。表示の途中で例外が出ても、画面は必ず覆う
+function lockIfNeeded(){
+  if(!lockRequired())return;
+  const el=document.getElementById('lockScreen');
+  if(lockMode==='unlock'&&el&&el.classList.contains('show'))return;   // すでに解除待ち
+  lockUnlocked=false; lockBackTo=null;
+  try{ showLockScreen('unlock'); }
+  finally{ if(el)el.classList.add('show'); }
+}
+function relockIfAway(){
+  const away=lockHiddenAt&&(Date.now()-lockHiddenAt>=LOCK_RELOCK_MS);
+  lockHiddenAt=0;
+  if(!away)return;
+  // v292: Web 版（suite）は個人モードのあいだロックを止めるだけなので、離れていたら解除状態を取り消す
+  //       （道場モードに戻すときにパスコードを聞く）。モード固定のアプリ版は従来どおり
+  if(APP_EDITION==='suite')lockUnlocked=false;
+  lockIfNeeded();
+}
+try{
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden)lockHiddenAt=Date.now(); else relockIfAway(); });
+  window.addEventListener('pageshow',e=>{ if(e.persisted)relockIfAway(); });
+}catch(e){}
 // v125: パスコードは端末内のみの簡易保護。平文保存を避けるためハッシュ化して保存（lockCodeにはハッシュを格納）
 function lockHash(code){
   let h=0x811c9dc5>>>0; const src='mydojo.lock.v1'+String(code);
@@ -14501,7 +15070,7 @@ function showLockScreen(mode){
   buildLockKeypad(); renderLockDots();
   document.getElementById('lockMsg').textContent='';
   document.getElementById('lockLogo').style.backgroundImage=`url('${brandLogo()}')`;   // v227: ロック画面はMy柔道のロゴ固定
-  document.getElementById('lockCancel').style.display=(mode==='unlock')?'none':'block';
+  document.getElementById('lockCancel').style.display=(mode==='unlock'&&!lockBackTo)?'none':'block';
   setLockTitle();
   document.getElementById('lockScreen').classList.add('show');
 }
@@ -14509,7 +15078,9 @@ function setLockTitle(){
   const t={unlock:'パスコードを入力',set1:'新しいパスコードを設定',set2:'確認のためもう一度入力'}[lockMode]||'パスコードを入力';
   document.getElementById('lockTitle').textContent=t;
 }
-function hideLockScreen(){document.getElementById('lockScreen').classList.remove('show');}
+function hideLockScreen(){document.getElementById('lockScreen').classList.remove('show');
+  if(_gradeNoticePending)setTimeout(()=>{ try{ noticeGradeEntryFix(); }catch(e){} },300);   // v292: ロック中に待たせた学年のお知らせ
+}
 function lockShake(msg){
   const d=document.getElementById('lockDots');
   document.getElementById('lockMsg').textContent=msg||'';
@@ -14525,7 +15096,7 @@ function lockDelete(){if(lockBuf.length){lockBuf=lockBuf.slice(0,-1);renderLockD
 function lockSubmit(){
   if(lockMode==='unlock'){
     if(lockUntil && Date.now()<lockUntil){ lockShake('しばらく待ってから入力してください'); return; }
-    if(lockHash(lockBuf)===lockCode){ lockFail=0; lockUntil=0; hideLockScreen(); }
+    if(lockHash(lockBuf)===lockCode){ lockFail=0; lockUntil=0; lockUnlocked=true; lockBackTo=null; hideLockScreen(); }
     else{
       lockFail++;
       if(lockFail>=5){ lockUntil=Date.now()+30000; lockFail=0; lockShake('5回間違えました。30秒後にお試しください'); }
@@ -14537,15 +15108,20 @@ function lockSubmit(){
   }else if(lockMode==='set2'){
     if(lockBuf===lockTemp){
       const setCode=lockBuf;
-      lockCode=lockHash(lockBuf); lockEnabled=true; saveLock();
+      lockCode=lockHash(lockBuf); lockEnabled=true; lockUnlocked=true; saveLock();
       hideLockScreen(); renderLockSettings();
       // v225: 設定直後に番号を明示し、メモ保管を強く促す（忘れると復元でしか戻せないため）
-      askConfirm(`${T('パスコードを設定しました')}<br><br><span style="font-size:34px;font-weight:900;letter-spacing:.3em;color:var(--navy)">${setCode}</span><br><br>${T('この番号を必ずお手元にメモして、大切に保管してください。忘れた場合はアプリ内で解除できず、アプリを削除して入れ直し、バックアップから復元する方法でのみ元に戻せます。')}`,()=>{},'メモしました');
+      askConfirm(`${T('パスコードを設定しました')}<br><br><span style="font-size:34px;font-weight:900;letter-spacing:.3em;color:var(--navy)">${setCode}</span><br><br>${T('この番号を必ずお手元にメモして、大切に保管してください。忘れた場合はアプリ内で解除できず、アプリを削除して入れ直し、バックアップから復元する方法でのみ元に戻せます。')}`,()=>{},'メモしました','パスコードの設定','var(--navy)',true);
     }else{ lockMode='set1'; lockShake('一致しません。もう一度設定してください'); setLockTitle(); }
   }
 }
 function startSetPasscode(){ showLockScreen('set1'); }
 function cancelSetPasscode(){
+  if(lockMode==='unlock'){   // v279: 道場モードへの切替で聞いたときだけ「やめる」が出る → 個人モードに戻す
+    const back=lockBackTo; lockBackTo=null;
+    if(!back)return;
+    hideLockScreen(); back(); return;
+  }
   hideLockScreen();
   // 有効化の途中でやめた場合は無効のまま戻す
   if(!lockCode){lockEnabled=false;saveLock();}
@@ -14640,7 +15216,7 @@ async function exportData(){
         await navigator.share({files:[file],title:'My柔道 バックアップ'});
         markBackedUp();
         // v226: 「このiPhone内」に保存すると端末故障時に一緒に失われるため、保存先を確認してもらう
-        askConfirm(`${T('バックアップを保存しました')}<br><br>${T('保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。')}`,()=>{},'確認しました');
+        askConfirm(`${T('バックアップを保存しました')}<br><br>${T('保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。')}`,()=>{},'確認しました','保存先の確認','var(--navy)',true);
       }catch(e){
         if(e&&e.name==='AbortError')return;   // ユーザーがキャンセル＝保存扱いにしない
         if(isNativeApp()){ backupNativeFail(); return; }   // v255: アプリ版はダウンロードでは保存されない
@@ -14651,6 +15227,49 @@ async function exportData(){
   }catch(e){}
   if(isNativeApp()){ backupNativeFail(); return; }
   downloadBackup(json,fname);
+}
+// v277: 読み取れなかったデータ（退避データ）を書き出す。共有シート → コピー → ダウンロードの順に試す。バックアップ済みの扱いにはしない
+function brokenRaw(){
+  if(loadFailedRaw)return loadFailedRaw;
+  try{ return localStorage.getItem(STORE_KEY+'_broken')||''; }catch(e){ return ''; }
+}
+function renderBrokenExport(){
+  const box=document.getElementById('brokenExportBox'); if(!box)return;
+  box.style.display=brokenRaw()?'':'none';
+}
+async function exportBrokenData(){
+  const raw=brokenRaw();
+  if(!raw){ toast(T('退避データはありません')); return; }
+  const fname=`judo_unreadable_${todayStr()}.txt`;
+  try{
+    const file=new File([raw],fname,{type:'text/plain'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file],title:'My柔道 退避データ'}); return; }
+      catch(e){ if(e&&e.name==='AbortError')return; }
+    }
+  }catch(e){}
+  try{ await navigator.clipboard.writeText(raw); toast(T('退避データをコピーしました。メモ帳などに貼り付けて残してください')); return; }catch(e){}
+  if(!isNativeApp()){
+    try{
+      const url=URL.createObjectURL(new Blob([raw],{type:'text/plain'}));
+      const a=document.createElement('a'); a.href=url; a.download=fname; a.click(); URL.revokeObjectURL(url);
+      toast(T('退避データを書き出しました')); return;
+    }catch(e){}
+  }
+  try{ alert('⚠️ '+T('退避データを書き出せませんでした。もう一度お試しください。')); }catch(e){}
+}
+/* v284: 退避データは一度書くと消されず、本体と同じ大きさを抱え続けて容量オーバーの原因になる（点検 D-4）。
+   バックアップからの復元に成功したときだけ、確認をはさんで消す。「やめる」なら残す（書き出しもそのまま使える）。 */
+function askDropBroken(){
+  const bytes=storageKeyBytes(STORE_KEY+'_broken');
+  if(!bytes)return false;
+  askConfirm(T('復元できました。')+'<br><br>'+T('端末内に、以前読み取れなかったデータ（退避データ）が残っています')+'（'+archiveSizeLabel(bytes)+'）。'+T('消して容量を空けますか？')+'<br><br>'+T('まだ残しておきたい場合は「やめる」を押し、「設定 › データ管理」から書き出してください。消すと元に戻せません。'),()=>{
+    try{ localStorage.removeItem(STORE_KEY+'_broken'); }catch(e){}
+    loadFailedRaw='';
+    renderBrokenExport(); renderDataUsage();
+    toast(T('退避データを消しました'));
+  },'退避データを消す','退避データの確認');
+  return true;
 }
 // v255: アプリ版で共有シートが使えなかったとき。保存できたことにしない（最終バックアップ日を記録しない）
 function backupNativeFail(){
@@ -14672,6 +15291,7 @@ function renderBkRemindPick(){
   el.innerHTML=BACKUP_REMIND_OPTS.map(d=>`<button class="${cur===d?'on':''}" onclick="setBackupRemind(${d})">${d?d+T('日ごと'):T('お知らせしない')}</button>`).join('');
 }
 function renderBackupStatus(){
+  renderBrokenExport();   // v277
   const box=document.getElementById('backupStatus'); if(!box)return;
   renderBkRemindPick();
   const BACKUP_REMIND_DAYS=backupRemindDays()||99999;
@@ -14706,7 +15326,7 @@ function importData(ev){
       const d=JSON.parse(e.target.result);
       if(!d || !Array.isArray(d.students))throw 0; // v125: 型検証を強化（別アプリ/壊れたJSONの誤取込を防止）
       pendingRestoreData=d;
-      askConfirm(T('バックアップから復元します。<br><br>今このアプリに入っているデータ（仲間・出欠・お金・予定など）は、すべてバックアップの内容に上書きされ、元には戻せません。<br><br>復元してよろしいですか？'),doRestore,'復元する');
+      askConfirm(T('バックアップから復元します。<br><br>今このアプリに入っているデータ（仲間・出欠・お金・予定など）は、すべてバックアップの内容に上書きされ、元には戻せません。<br><br>復元してよろしいですか？'),doRestore,'復元する','復元の確認');
     }catch(err){toast(T('ファイルを読めませんでした'));}
   };
   r.readAsText(f);ev.target.value='';
@@ -14732,6 +15352,10 @@ function doRestore(){
       return;
     }
     toast(T('復元しました'));
+    // v293: 復元したデータにも学年の移行（normalizeDB → fixGradeEntryFY）がかかるので、起動時と同じくお知らせを出す。
+    //       退避データの確認（v284・点検 D-4）を出したときは、同じ確認画面を使うので、それを閉じてから出す
+    if(askDropBroken())_gradeNoticeAfterConfirm=true;
+    else setTimeout(()=>{ try{ noticeGradeEntryFix(); }catch(e){} },300);
   }catch(err){
     try{ if(_rollback!==null)localStorage.setItem(STORE_KEY,_rollback); }catch(e){}
     closeModal('confirmModal');
@@ -14748,7 +15372,9 @@ function openModal(id){
   const inner=bg.querySelector('.modal');
   if(inner){inner.scrollTop=0;requestAnimationFrame(()=>{inner.scrollTop=0;});}
 }
-function closeModal(id){document.getElementById(id).classList.remove('show');if(id==='qrScanModal'&&typeof qrStopCamera==='function')qrStopCamera();}
+function closeModal(id){document.getElementById(id).classList.remove('show');if(id==='qrScanModal'&&typeof qrStopCamera==='function')qrStopCamera();
+  if(id==='confirmModal'&&_gradeNoticeAfterConfirm){ _gradeNoticeAfterConfirm=false; setTimeout(()=>{ try{ noticeGradeEntryFix(); }catch(e){} },300); }   // v293: 復元後の学年のお知らせ
+}
 // 外側タップで閉じる挙動：入力欄がある画面は誤タップでの消失を防ぐため閉じない（ボタンで閉じる）
 function modalHasEntry(bg){
   if(bg.id==='photoBlurModal')return blurDirty;   // v209: ぼかし編集中は誤タップで消えないよう確認を挟む
@@ -14816,11 +15442,12 @@ function initUI(){
   setTimeout(()=>{ if(typeof maybeBackupEdu==='function')maybeBackupEdu(); },600);  // v195: 起動時にも一度だけ判定（オンボーディング等と重ならぬよう遅延）
   setTimeout(()=>{ if(typeof shrinkOldCards==='function')shrinkOldCards(); },1500);  // v252: 旧サイズのカードを縮めて容量を返す（初回のみ・描画を邪魔しないよう遅延）
 }
+loadLock();   // v279: 起動処理より先に読み、起動処理で例外が出ても finally で必ずロックする
+try{
 load();
-  if(loadFailed){ initUI(); showLoadFailure(); }        // v240: 壊れたデータを空DBで上書きしない
-  else { seedIfEmpty();save();initUI(); }
-loadLock();
-if(lockEnabled&&lockCode){showLockScreen('unlock');}
+  if(loadFailed){ initUI(); showSaveError(true); showLoadFailure(); }        // v240: 壊れたデータを空DBで上書きしない（v277: 保存できないことを帯で出し続ける）
+  else { seedIfEmpty();save();initUI(); setTimeout(()=>{ try{ noticeGradeEntryFix(); }catch(e){} },900); }   // v276: 学年を直した人のお知らせ
+}finally{ lockIfNeeded(); }
 /* PWA manifest を動的生成（v227: ホーム画面アイコンはMy柔道のブランドロゴ固定） */
 (function(){
   try{
@@ -14846,6 +15473,38 @@ if(lockEnabled&&lockCode){showLockScreen('unlock');}
     link.rel='manifest';link.href=url;
     document.head.appendChild(link);
   }catch(e){}
+})();
+/* ===== v273: 指で拡大したとき、タブの帯を画面の下に貼り直す =====
+   iPhone/iPad の Safari は、指でつまんで拡大すると position:fixed の要素を
+   「画面」ではなく拡大前の紙に貼り付けたままにする。そのため画面を動かすと、
+   タブの帯が画面の途中に浮いて一緒に流れてしまう。
+   （meta viewport の user-scalable=no は iOS 10 以降、無視される）
+   拡大しているあいだだけ、見えている範囲の下端に合わせ直す。
+   拡大していないとき（scale=1）は何もしないので、ふだんの動きは変わらない。 */
+(function(){
+  var vv = window.visualViewport;
+  if(!vv) return;                      // 対応していないブラウザでは何もしない
+  var pending = false;
+  function place(){
+    pending = false;
+    var bar = document.querySelector('nav.tabbar');
+    if(!bar) return;
+    var z = vv.scale || 1;
+    if(z <= 1.01){                     // 等倍にもどったら、付けた指定を外す
+      if(bar.style.transform){ bar.style.transform=''; bar.style.transformOrigin=''; }
+      return;
+    }
+    // 見えている範囲の左下に、帯の左下を合わせる（大きさも見た目が変わらないよう戻す）
+    var tx = vv.offsetLeft;
+    var ty = (vv.offsetTop + vv.height) - window.innerHeight;
+    bar.style.transformOrigin = '0 100%';
+    bar.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + (1/z).toFixed(4) + ')';
+  }
+  function ask(){ if(!pending){ pending = true; requestAnimationFrame(place); } }
+  vv.addEventListener('resize', ask);
+  vv.addEventListener('scroll', ask);
+  window.addEventListener('orientationchange', ask);
+  ask();
 })();
 /* Service Worker 登録は上部（案3・バージョン管理付き）に一本化済み。
    ここでの二重登録は競合の原因になるため撤去。 */

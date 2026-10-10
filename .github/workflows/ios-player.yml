@@ -9,17 +9,16 @@ name: iOS 選手アプリ → TestFlight
 #   ASC_KEY_P8     … ダウンロードした .p8 ファイルの中身をそのまま貼り付け
 #   APPLE_TEAM_ID  … Apple DeveloperのMembershipにある「Team ID」
 
+# 【いつ走るか】v276: 「出すと決めたとき」だけ。
+#   main への push では走らせない。公開済みの版番号のあいだは
+#   Apple が新しいビルドを受け付けず（train is closed）、必ず失敗して通知が来るため。
+#   出すときは、版番号を上げてから player-vX.Y という名札（タグ）を付けて push する。
+#     例)  git tag player-v1.3 && git push origin player-v1.3
 on:
   workflow_dispatch:          # GitHubの画面から手動で実行できる
   push:
-    branches: [main]
-    paths:
-      - 'native/player/**'
-      - 'native/build-www.js'
-      - 'native/ci-set-team.js'
-      - 'index.html'
-      - 'build.js'
-      - '.github/workflows/ios-player.yml'
+    tags:
+      - 'player-v*'
 
 concurrency:
   group: ios-player

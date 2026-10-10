@@ -2,14 +2,18 @@
    VERSION は index.html の APP_VERSION と必ず揃える。
    方針：HTMLはネットワーク優先／更新は「更新する」を押したときだけ（自動リロードしない）／
         有効化時に旧バージョンのキャッシュを全削除。 */
-const VERSION = 'v261';
+const VERSION = 'v294';
 const CACHE = 'mydojo-' + VERSION;
 const CORE = ['./', 'index.html', 'sw.js', 'terms.html', 'privacy.html'];
+const REQUIRED = ['./', 'index.html'];
 
 // インストール：主要ファイルを事前キャッシュ（skipWaitingはしない＝待機して更新バナーを出す）
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE).then((c) => Promise.allSettled(CORE.map((u) => c.add(u))))
+    caches.open(CACHE).then((c) =>
+      // './' と index.html は必須：取れなければインストールを失敗させ、旧キャッシュを残す
+      c.addAll(REQUIRED).then(() =>
+        Promise.allSettled(CORE.filter((u) => !REQUIRED.includes(u)).map((u) => c.add(u)))))
   );
 });
 
@@ -36,16 +40,20 @@ self.addEventListener('fetch', (e) => {
   if (isHTML) {
     e.respondWith(
       fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        if (res.ok) {  // 404/500 などのエラーページは保存しない
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        }
         return res;
       }).catch(() => caches.match(req).then((m) => m || caches.match('index.html')))
     );
   } else {
     e.respondWith(
       caches.match(req).then((m) => m || fetch(req).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        }
         return res;
       }).catch(() => m))
     );

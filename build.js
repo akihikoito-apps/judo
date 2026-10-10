@@ -26,3 +26,20 @@ build('personal', 'personal.html', { disableSW: true });
 build('office', 'office.html', { disableSW: true });
 
 console.log('done. suite=index.html はマスター（APP_EDITION=suite のまま）。');
+
+// 回帰テスト（tests/*.test.js の run(src)）。1件でも失敗したら終了コード1にする
+fs.readdirSync(path.join(ROOT, 'tests')).filter(f => f.endsWith('.test.js')).sort().forEach(f => {
+  let pass;
+  const t = require(path.join(ROOT, 'tests', f));
+  try { pass = t.run(src, { quiet: true }); }
+  catch (e) { console.error(f + ': ' + e.message); pass = false; }
+  if (!pass) { console.error('テスト失敗: tests/' + f); process.exit(1); }
+  // テストが効いているかの確認：関数をわざと1年ずらしたら失敗しなければならない
+  (t.mutations || []).forEach(m => {
+    let caught;
+    try { caught = !t.run(src, { quiet: true, silent: true, mutate: m }); }
+    catch (e) { console.error(f + ' --mutate=' + m + ': ' + e.message); process.exit(1); }
+    if (!caught) { console.error('テストが弱い: tests/' + f + ' --mutate=' + m + ' でも通ってしまう'); process.exit(1); }
+  });
+  console.log('test ok: tests/' + f + ((t.mutations || []).length ? '（わざと1年ずらした ' + t.mutations.join('・') + ' は失敗を確認）' : ''));
+});

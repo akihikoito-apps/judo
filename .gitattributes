@@ -1,3 +1,19 @@
-*.sh text eol=lf
-*.xcscheme text eol=lf
-*.xcworkspacedata text eol=lf
+# 改行コードは、リポジトリの中では LF に統一する。
+# 以前は index.html だけ CRLF で保存されていたため、
+# 一度でも別の道具で書き換えると 15,000 行まるごと変更扱いになり、
+# 何を直したのかが読めなくなっていた（2026-10 に統一）。
+* text=auto eol=lf
+
+# 画像・音声・書庫は中身をそのまま扱う
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.zip  binary
+*.mp4  binary
+*.webm binary
+*.wav  binary
+*.ttf  binary
+*.otf  binary
+*.p8   binary
