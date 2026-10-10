@@ -5541,7 +5541,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v293'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v294'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -9590,8 +9590,15 @@ function repDraftSnapshot(){
            selfId:_repSelfId, selfSnap:_repSelfSnap,
            matches:repMatches, at:Date.now() };
 }
+// v294: v275までの下書きは「結果ボタンを押した」印が touched だった。
+//       resPicked が無い行は touched を引き継ぐ。判断に迷うときは、消すより残すほうを選ぶ。
+function repDraftCompat(d){
+  if(d&&Array.isArray(d.matches))d.matches.forEach(m=>{ if(m&&m.resPicked===undefined&&m.touched)m.resPicked=true; });
+  return d;
+}
 function repDraftHasInput(d){
   if(!d)return false;
+  repDraftCompat(d);
   if((d.taikai||'').trim())return true;
   if((d.matches||[]).length>1)return true;
   // v258: 「負け」「分け」や組手だけを選んだ状態も入力済みとして扱う（repMatchIsBlank と同じ基準）
@@ -9608,7 +9615,7 @@ function repDraftSave(){
 }
 function repDraftClear(){ clearTimeout(_repDraftTimer); try{ if(DB&&DB.repDraft){ delete DB.repDraft; save(); } }catch(e){} }
 function repDraftLoad(){
-  const d=DB&&DB.repDraft;
+  const d=repDraftCompat(DB&&DB.repDraft);   // v294: 古い形の下書きも読めるようにしてから判定する
   if(!repDraftHasInput(d))return false;
   try{
     repMatches=(d.matches||[]).map(m=>Object.assign(repNewMatch(),m));
@@ -9635,7 +9642,7 @@ function repGen(){
   const L=['【My柔道 試合きろく】','選手｜'+shareField(name),'大会｜'+shareField(tk),'日付｜'+hd.replace(/-/g,'/'),'種別｜'+repKind];
   if(repKind==='団体'){L.push('人数｜'+repCount);L.push('役割｜'+repRole);}
   L.push('--- 試合 ---');
-  repMatches.forEach(m=>{ const f=[m.res,(m.res==='×'?'':m.waza),m.grip,(m.res==='×'?'':m.grade),m.opp,m.affil,m.round,m.note]; L.push(f.map(shareField).join('｜')); });
+  repFilledMatches().forEach(m=>{ const f=[m.res,(m.res==='×'?'':m.waza),m.grip,(m.res==='×'?'':m.grade),m.opp,m.affil,m.round,m.note]; L.push(f.map(shareField).join('｜')); });   // v294: 空の行は送らない
   repCache=L.join('\n');
   const pv=document.getElementById('repPreview'); if(pv)pv.textContent=repCache;
   repDraftSave();                       // v258: 入力のたびに下書きを残す
@@ -9657,7 +9664,11 @@ function repTrimEmptyTail(){
   }
 }
 // v280: 最後の1行は必ず残るので、名前だけで押すと既定の○が空の「勝ち」として記録・送信されていた
-function repAllBlank(){ return !repMatches.some(m=>m&&(m.resPicked||!repMatchIsBlank(m))); }
+function repAllBlank(){ return !repFilledMatches().length; }
+// v294: 登録と送信に使う試合は、行の位置に関係なく同じ基準で選ぶ。
+//       repTrimEmptyTail は末尾しか落とさないため、先頭に残った空行が
+//       既定の「○」のまま「空の勝ち」として通っていた。
+function repFilledMatches(){ return repMatches.filter(m=>m&&(m.resPicked||!repMatchIsBlank(m))); }
 function repToDojo(){
   const name=(document.getElementById('repName').value||'').trim();
   if(!name){ toast(T('選手のなまえを入れてください')); return; }
@@ -9868,7 +9879,7 @@ function repToMemory(){
   if(!name){ toast(T('選手のなまえを入れてください')); return; }
   repTrimEmptyTail();
   if(repAllBlank()){ toast(T('試合結果を入力してください')); return; }
-  const bouts=repMatches.filter(m=>m&&m.res);
+  const bouts=repFilledMatches();   // v294: 先頭に残った空行を「勝ち」として数えない
   if(!bouts.length){ toast(T('登録する試合結果がありません')); return; }
   const sig=repGen();
   if(sig&&sig===repRegSig){ toast(T('この試合はすでにメモリーに登録済みです')); return; }
@@ -12638,15 +12649,21 @@ function renderGradeSettings(){
 }
 function setGradeEnabled(v){
   DB.gradeEnabled=!!v;
+  // v294: 学年の修正は起動時にしか走らなかった。後から使い始めた道場でも直るようにする。
+  if(v&&typeof fixGradeEntryFY==='function')fixGradeEntryFY();
   if(v)refreshGrades();
   save();renderGradeSettings();
   if(document.getElementById('catEditor')&&catEdit)renderCatEditor();
   renderMates();renderMember();
+  if(v&&typeof noticeGradeEntryFix==='function')noticeGradeEntryFix();   // v294: 直したことを知らせる
 }
 function saveGradeStart(){
   const v=parseInt(document.getElementById('gradeStartSelect').value,10);
   DB.gradeStartMonth=(v>=1&&v<=12)?v:4;
+  // v294: 進級月を4月へ戻したときも、見送っていた学年の修正にかける
+  if(DB.gradeStartMonth===4&&typeof fixGradeEntryFY==='function')fixGradeEntryFY();
   refreshGrades();save();renderMates();renderMember();
+  if(typeof noticeGradeEntryFix==='function')noticeGradeEntryFix();
 }
 /* ===== 区分・級段エディタ ===== */
 let catEdit=null, rankEdit=null;
@@ -14482,10 +14499,12 @@ function noticeGradeEntryFix(){
   const ls=document.getElementById('lockScreen');
   if(ls&&ls.classList.contains('show')){ _gradeNoticePending=true; return; }
   _gradeNoticePending=false;
-  b.noticed=true; save();
+  // v294: 選ぶ前に「通知済み」にすると、やめた人・閉じた人に二度と出ず、
+  //       自動で直したデータを元に戻す入口が無くなる。選び終えてから印を付ける。
+  const _seen=()=>{ const bb=DB.gradeEntryFixBackup; if(bb){ bb.noticed=true; save(); } };
   const names=b.items.map(i=>esc(i.name||T('(名前なし)'))).join('、');
   askChoice(T('生年月日からの学年の計算が1年早かったため、次の人の学年を直しました。')+'<br><br>'+names+'<br><br>'+T('手で直した学年は変えていません。'),
-    T('このままにする'),T('元に戻す'),null,undoGradeEntryFix);
+    T('このままにする'),T('元に戻す'),_seen,()=>{ _seen(); undoGradeEntryFix(); });
   const h3=document.querySelector('#confirmModal h3'); h3.textContent=T('学年を直しました'); h3.style.color='var(--navy)';
 }
 function undoGradeEntryFix(){
