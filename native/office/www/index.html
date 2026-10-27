@@ -1931,7 +1931,7 @@ function applyUpdate(){
       <h3 style="margin-top:0;color:var(--navy)">予定表の合言葉</h3>
       <p class="list-mini" id="skLead">道場から合言葉を教わっている方は、ここに登録しておくと、届いた予定のリンクを入力なしで開けます。あとから変更もできます。</p>
       <label class="fld">合言葉</label>
-      <input type="text" id="skKey" maxlength="40" placeholder="例：rensei2026" oninput="ssSetKey(this.value)" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <input type="text" id="skKey" maxlength="40" placeholder="例：aoisora2026" oninput="ssSetKey(this.value)" autocapitalize="off" autocorrect="off" spellcheck="false">
       <p class="list-mini" id="skHint" style="margin:5px 2px 4px"></p>
       <p class="list-mini" style="margin:0 2px 0;color:#c77f0a">⚠️ 合言葉は、予定のリンクと同じメッセージには書かないでください。</p>
     </div>
@@ -2378,7 +2378,7 @@ function applyUpdate(){
     </label>
     <textarea id="ssPreview" rows="6" readonly style="width:100%;font-size:13px;font-family:inherit;padding:10px 11px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical;color:var(--muted)"></textarea>
     <label class="fld" style="margin-top:10px">🔑 予定表の合言葉</label>
-    <input type="text" id="ssKey" maxlength="40" placeholder="例：rensei2026" oninput="ssSetKey(this.value)" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <input type="text" id="ssKey" maxlength="40" placeholder="例：aoisora2026" oninput="ssSetKey(this.value)" autocapitalize="off" autocorrect="off" spellcheck="false">
     <p class="list-mini" id="ssKeyHint" style="margin:5px 2px 4px"></p>
     <p class="list-mini" style="margin:0 2px 10px;color:#c77f0a">⚠️ 合言葉は、<b>リンクと同じメッセージに書かないでください。</b>道場で口頭などで、一度だけお伝えください。</p>
     <button class="btn gold full" style="margin-top:4px" onclick="ssSendLink()">🔗 リンクで送る（おすすめ）</button>
@@ -6611,7 +6611,7 @@ Object.assign(DICT,{
   '合言葉が違うようです。道場の先生にご確認ください。':{en:'That passphrase does not seem right. Please check with your dojo.',fr:'Le mot de passe semble incorrect. Vérifiez auprès du dojo.',pt:'A senha parece incorreta. Confirme com o dojo.'},
   '予定を見る':{en:'Show the schedule',fr:'Afficher l’agenda',pt:'Ver a agenda'},
   '一度入れると、この端末では次から聞かれません。':{en:'Enter it once and this device will not ask again.',fr:'Saisissez-le une fois : cet appareil ne le redemandera plus.',pt:'Digite uma vez e este aparelho não perguntará de novo.'},
-  '例：rensei2026':{en:'e.g. rensei2026',fr:'ex. : rensei2026',pt:'ex.: rensei2026'},
+  '例：aoisora2026':{en:'e.g. aoisora2026',fr:'ex. : aoisora2026',pt:'ex.: aoisora2026'},
   '※ はじめての方は、道場の合言葉が必要です。':{en:'* First time? You will need your dojo’s passphrase.',fr:'* Première fois ? Le mot de passe du dojo est nécessaire.',pt:'* Primeira vez? Você vai precisar da senha do dojo.'},
   'アプリの「設定 › セキュリティ › 予定表の合言葉」に登録しておくと、次からは聞かれません。':{en:'Save it in Settings › Security › Schedule passphrase and you will not be asked again.',fr:'Enregistrez-le dans Réglages › Sécurité › Mot de passe de l’agenda et on ne vous le redemandera plus.',pt:'Salve em Ajustes › Segurança › Senha da agenda e não será perguntado novamente.'},
   'このリンクは、合言葉を知っている人しか開けません。':{en:'Only people who know the passphrase can open this link.',fr:'Seules les personnes connaissant le mot de passe peuvent ouvrir ce lien.',pt:'Só quem sabe a senha consegue abrir este link.'},
@@ -9813,7 +9813,7 @@ function obRender(){
        <h3 class="ob-h">${T('道場の予定も受け取れます')}</h3>
        <p class="ob-p">${T('先生から届いた予定表を「予定・記録 › 予定の取り込み」で貼り付けるか、QRを読み取るだけ。')}<br>${T('大会までのカウントダウンも自動で出ます。')}</p>
        <label class="fld" style="text-align:center;display:block">${T('🔑 道場の合言葉（教わっている方だけ）')}</label>
-       <input class="ob-input" id="obKey" type="text" placeholder="${T('例：rensei2026')}" value="${esc(shareKeyText())}" autocapitalize="off" autocorrect="off" spellcheck="false">
+       <input class="ob-input" id="obKey" type="text" placeholder="${T('例：aoisora2026')}" value="${esc(shareKeyText())}" autocapitalize="off" autocorrect="off" spellcheck="false">
        <p class="ob-p" style="font-size:calc(12.5px*var(--fs,1));margin-bottom:12px">${T('登録しておくと、届いたリンクを押すだけで予定が開きます。')}<br>${T('あとで「設定 › セキュリティ › 予定表の合言葉」からでも登録できます。')}</p>
        <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
   }else{
@@ -13535,7 +13535,7 @@ function srAskKey(msg){
     +'<p class="list-mini" style="margin:0 0 8px"><b>'+T('この予定は、道場の合言葉で守られています。')+'</b></p>'
     +(msg?'<p class="list-mini" style="margin:0 0 8px;color:var(--red);font-weight:700">'+msg+'</p>':'')
     +'<label class="fld">'+T('合言葉')+'</label>'
-    +'<input type="text" id="srKey" maxlength="40" placeholder="'+T('例：rensei2026')+'" autocapitalize="off" autocorrect="off" spellcheck="false">'
+    +'<input type="text" id="srKey" maxlength="40" placeholder="'+T('例：aoisora2026')+'" autocapitalize="off" autocorrect="off" spellcheck="false">'
     +'<button class="btn gold full" style="margin-top:10px" onclick="srUnsealNow()">'+T('予定を見る')+'</button>'
     +'<p class="list-mini" style="margin:8px 0 0">'+T('一度入れると、この端末では次から聞かれません。')+'</p></div>';
   const el=document.getElementById('srKey');
