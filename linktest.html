@@ -5,19 +5,23 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>予定のお直し（ためし）｜My柔道</title>
 <style>
-  :root{ --navy:#1a2b4a; --gold:#c8a44d; --green:#06C755; --red:#c0392b;
-         --ink:#222; --line:#e2ddd3; --bg:#f5f2ea; }
+  :root{ --navy:#1a2b4a; --gold:#c8a44d; --red:#c0392b;
+         --ink:#222; --line:#e2ddd3; --bg:#f5f2ea; --shade:#eceae4; }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);line-height:1.8;
        font-family:'Hiragino Sans','Yu Gothic UI','Meiryo',sans-serif;
        padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);}
   .wrap{max-width:560px;margin:0 auto;padding:22px 18px 60px}
   h1{font-size:21px;line-height:1.4;margin:0 0 6px;color:var(--navy)}
-  .sub{color:#5e6473;font-size:13px;margin:0 0 20px}
-  h2{font-size:16px;margin:30px 0 8px;color:var(--navy);
+  .sub{color:#5e6473;font-size:13px;margin:0 0 18px}
+  h2{font-size:16px;margin:28px 0 8px;color:var(--navy);
      border-left:4px solid var(--red);padding-left:11px}
   p{margin:0 0 13px;font-size:14.5px}
-  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}
+  .pick{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 14px}
+  .pick button{flex:1 1 auto;min-width:46%;min-height:48px;padding:9px 10px;
+       font-family:inherit;font-size:13.5px;font-weight:700;line-height:1.3;
+       border:2px solid var(--navy);border-radius:10px;background:#fff;color:var(--navy);cursor:pointer}
+  .pick button.on{background:var(--navy);color:#fff}
   .plan{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
   .plan .head{background:var(--navy);color:#fff;padding:11px 15px;font-weight:700;font-size:15px}
   .plan table{border-collapse:collapse;width:100%;font-size:14.5px}
@@ -25,6 +29,7 @@
   .plan th{width:5.5em;color:#5e6473;font-weight:700;white-space:nowrap}
   .plan tr:last-child th,.plan tr:last-child td{border-bottom:none}
   .plan .chg{color:var(--red);font-weight:700}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}
   .btn{display:block;width:100%;min-height:58px;margin:12px 0;padding:15px 16px;
        font-family:inherit;font-size:17px;font-weight:700;line-height:1.35;
        border:none;border-radius:12px;background:var(--navy);color:#fff;cursor:pointer}
@@ -36,48 +41,43 @@
   .res.ok{background:#e8f4ea}
   .res.ng{background:#fbeceb}
   .hint{font-size:13px;color:#5e6473}
+  .check{background:var(--shade);border-left:4px solid var(--gold);padding:12px 14px;
+         border-radius:0 8px 8px 0;font-size:14px;margin:14px 0}
   details{margin-top:14px}
   summary{font-size:13.5px;color:#5e6473;cursor:pointer}
-  pre{background:#eceae4;padding:11px;border-radius:8px;font-size:12.5px;
+  pre{background:var(--shade);padding:11px;border-radius:8px;font-size:12.5px;
       white-space:pre-wrap;word-break:break-all;margin:8px 0 0}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<h1>予定が変わりました</h1>
-<p class="sub">錬誠館からのお知らせ（ためしのページです）</p>
+<h1>予定のお直し（ためし）</h1>
+<p class="sub">錬誠館からのお知らせ。場面をえらんで試せます。</p>
+
+<div class="pick" id="pick"></div>
 
 <div class="plan">
-  <div class="head">11月8日（日）の予定</div>
-  <table>
-    <tr><th>内容</th><td>県中学生柔道選手権大会</td></tr>
-    <tr><th>時こく</th><td><span class="chg">10:30</span>　<span class="hint">（9:00 から変わりました）</span></td></tr>
-    <tr><th>場所</th><td><span class="chg">県立武道館 第2会場</span>　<span class="hint">（第1会場 から変わりました）</span></td></tr>
-    <tr><th>メモ</th><td>集合9時30分に変更</td></tr>
-  </table>
+  <div class="head" id="ttl">　</div>
+  <table id="tbl"></table>
 </div>
+<div class="check" id="chk">　</div>
 
 <h2>アプリに取り込む</h2>
-<p>下のボタンを押すと、<b>My柔道（選手）が開いて、この予定だけを直せます。</b>ほかの日の予定はそのままです。</p>
-
 <div class="card">
   <button class="btn gold" id="go">アプリで直す</button>
   <div class="res" id="r1">　</div>
   <p class="hint" style="margin:10px 0 0">
-    <b>「別のアプリを開きますか」と出たら「開く」を押してください。</b><br>
-    アプリが開かないときは、下の方法をお使いください。
+    「別のアプリを開きますか」と出たら<b>「開く」</b>を押してください。
   </p>
 </div>
 
 <h2>アプリが開かないとき</h2>
-<p>アプリが古いと、まだこの方法が使えません。そのときは<b>文字をコピーして貼り付けて</b>ください。</p>
-
 <div class="card">
   <button class="btn ghost" id="cp">予定の文字をコピーする</button>
   <div class="res" id="r2">　</div>
   <p class="hint" style="margin:10px 0 0">
-    コピーしたら、選手用アプリの<b>「予定・記録」→「予定の取り込み」</b>に貼り付けてください。
+    選手用アプリの<b>「予定・記録」→「予定の取り込み」</b>に貼り付けてください。
   </p>
   <details>
     <summary>コピーできないときは、ここを長押しして選んでください</summary>
@@ -85,15 +85,8 @@
   </details>
 </div>
 
-<h2>うまくいかないとき</h2>
-<p>LINE の中では動かないことがあります。<b>画面の右上の「…」から「Safariで開く」</b>を試してみてください。</p>
-<div class="card">
-  <button class="btn ghost" id="sf">Safari で開き直す</button>
-  <div class="res" id="r3">　</div>
-</div>
-
-<p class="hint" style="margin-top:30px">
-  このページは、仕組みを試すための作業用です。うまく動いたら、本番では事務用アプリから自動で作られるようになります。
+<p class="hint" style="margin-top:28px">
+  これは仕組みを試すための作業用ページです。本番では、事務用アプリから予定ごとにリンクが作られます。
 </p>
 
 </div>
@@ -103,16 +96,75 @@
   var $=function(id){return document.getElementById(id)};
   var ua=navigator.userAgent||'';
 
-  // 本番と同じ形。11月8日の予定を1件だけ直す。
-  var PAYLOAD=[
-    '【My柔道 予定表】',
-    '送り主｜錬誠館',
-    '月｜2026-11-08',
-    '件数｜1',
-    '--- 予定 ---',
-    '08｜大会｜県中学生柔道選手権大会｜10:30｜県立武道館 第2会場｜集合9時30分に変更｜｜m1'
-  ].join('\n');
-  $('raw').textContent=PAYLOAD;
+  // 場面。row は本番と同じ1行の形（日｜種類｜大会名｜時刻｜場所｜メモ｜旗｜送り元ID）
+  var CASES=[
+    { key:'a', tab:'① 最初のお直し', ym:'2026-11-08',
+      row:'08｜大会｜県中学生柔道選手権大会｜10:30｜県立武道館 第2会場｜集合9時30分に変更｜｜m1',
+      head:'11月8日（日）の予定',
+      rows:[['内容','県中学生柔道選手権大会',''],
+            ['時こく','10:30','9:00 から変わりました'],
+            ['場所','県立武道館 第2会場','第1会場 から変わりました'],
+            ['メモ','集合9時30分に変更','']],
+      chk:'カレンダーの11月8日が赤くなり、<b>ほかの日（稽古など）がそのまま残っている</b>ことを確かめてください。' },
+
+    { key:'b', tab:'② 同じ日をもう一度', ym:'2026-11-08',
+      row:'08｜大会｜県中学生柔道選手権大会｜13:00｜市民体育館｜集合12時に再変更｜｜m1',
+      head:'11月8日（日）の予定　※2回目のお直し',
+      rows:[['内容','県中学生柔道選手権大会',''],
+            ['時こく','13:00','10:30 から再び変わりました'],
+            ['場所','市民体育館','県立武道館 から変わりました'],
+            ['メモ','集合12時に再変更','']],
+      chk:'<b>11月8日が1件のままで、中身だけ変わっている</b>ことを確かめてください。同じ日に2件並んでいたら不具合です。' },
+
+    { key:'c', tab:'③ 日にちが動く', ym:'2026-11-15',
+      row:'15｜大会｜県中学生柔道選手権大会｜09:00｜県立武道館 第1会場｜日程変更。8日→15日｜｜m1',
+      head:'日程が 11月15日（日）に変わりました',
+      rows:[['内容','県中学生柔道選手権大会',''],
+            ['日にち','11月15日','11月8日 から動きました'],
+            ['時こく','09:00',''],
+            ['場所','県立武道館 第1会場',''],
+            ['メモ','日程変更。8日→15日','']],
+      chk:'<b>11月8日から大会が消え、11月15日に移っている</b>ことを確かめてください。両方に残っていたら不具合です。' },
+
+    { key:'d', tab:'④ 新しい予定を足す', ym:'2026-11-23',
+      row:'23｜稽古｜｜18:30｜市民体育館｜臨時稽古｜｜k99',
+      head:'11月23日（月）に稽古が増えました',
+      rows:[['内容','臨時の稽古',''],
+            ['時こく','18:30',''],
+            ['場所','市民体育館',''],
+            ['メモ','臨時稽古','']],
+      chk:'<b>11月23日に稽古が増え、ほかの日はそのまま</b>であることを確かめてください。' }
+  ];
+
+  var cur=CASES[0];
+
+  function payload(c){
+    return ['【My柔道 予定表】','送り主｜錬誠館','月｜'+c.ym,'件数｜1','--- 予定 ---',c.row].join('\n');
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+  function draw(){
+    $('pick').innerHTML=CASES.map(function(c){
+      return '<button data-k="'+c.key+'" class="'+(c.key===cur.key?'on':'')+'">'+c.tab+'</button>';
+    }).join('');
+    Array.prototype.forEach.call($('pick').querySelectorAll('button'),function(b){
+      b.onclick=function(){
+        cur=CASES.filter(function(c){return c.key===b.getAttribute('data-k')})[0];
+        draw();
+        $('r1').className='res'; $('r1').textContent='　';
+        $('r2').className='res'; $('r2').textContent='　';
+      };
+    });
+    $('ttl').textContent=cur.head;
+    $('tbl').innerHTML=cur.rows.map(function(r){
+      var note=r[2]?' <span class="hint">（'+esc(r[2])+'）</span>':'';
+      var val=r[2]?'<span class="chg">'+esc(r[1])+'</span>':esc(r[1]);
+      return '<tr><th>'+esc(r[0])+'</th><td>'+val+note+'</td></tr>';
+    }).join('');
+    $('chk').innerHTML='<b>見るところ：</b>'+cur.chk;
+    $('raw').textContent=payload(cur);
+  }
+  draw();
 
   $('go').onclick=function(){
     var el=$('r1');
@@ -123,7 +175,7 @@
     window.addEventListener('pagehide',function(){left=true;});
     window.addEventListener('blur',function(){left=true;});
     try{
-      window.location.href='myjudo://sched?v=1&p='+encodeURIComponent(PAYLOAD);
+      window.location.href='myjudo://sched?v=1&p='+encodeURIComponent(payload(cur));
     }catch(e){
       el.className='res ng'; el.textContent='開けませんでした：'+e.message; return;
     }
@@ -131,37 +183,21 @@
       document.removeEventListener('visibilitychange',mark);
       if(left){
         el.className='res ok';
-        el.textContent='✅ アプリが開きました。\nアプリの「取り込む」を押すと直ります。';
+        el.textContent='✅ アプリが開きました。\nアプリの「取り込む」を押してから、上の「見るところ」を確かめてください。';
       }else{
         el.className='res ng';
-        el.textContent='⚠️ アプリが開きませんでした。\nアプリが古いか、まだ対応していない版です。\n下の「文字をコピーする」をお使いください。';
+        el.textContent='⚠️ アプリが開きませんでした。\n下の「文字をコピーする」をお使いください。';
       }
     },2500);
   };
 
   $('cp').onclick=function(){
-    var el=$('r2');
+    var el=$('r2'), t=payload(cur);
     var done=function(){ el.className='res ok'; el.textContent='✅ コピーできました。\n選手用アプリの「予定の取り込み」に貼り付けてください。'; };
     var ng=function(m){ el.className='res ng'; el.textContent='⚠️ コピーできませんでした。'+(m?'\n'+m:'')+'\n下の折りたたみを開いて、長押しで選んでください。'; };
     if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(PAYLOAD).then(done,function(e){ ng(e&&e.message); });
+      navigator.clipboard.writeText(t).then(done,function(e){ ng(e&&e.message); });
     }else{ ng('この画面にはコピーの機能がありません。'); }
-  };
-
-  $('sf').onclick=function(){
-    var el=$('r3');
-    el.className='res'; el.textContent='開いています…';
-    var u=location.href.split('#')[0];
-    try{
-      if(/iPhone|iPad|iPod/i.test(ua)) window.location.href='x-safari-'+u;
-      else window.location.href='intent:'+u+'#Intent;action=android.intent.action.VIEW;end';
-      setTimeout(function(){
-        if(!document.hidden){
-          el.className='res ng';
-          el.textContent='⚠️ このままでした。右上の「…」から「Safariで開く」をお試しください。';
-        }
-      },2500);
-    }catch(e){ el.className='res ng'; el.textContent='失敗しました：'+e.message; }
   };
 })();
 </script>

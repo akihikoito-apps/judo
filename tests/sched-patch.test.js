@@ -105,6 +105,35 @@ function run(src, opts) {
   sandbox.schedShareApply(sandbox.schedShareParse(SHRUNK), '');
   ok(sandbox.DB.schedule.length === 1, '月まるごとなら、載っていない日は消える（差分と区別できている）');
 
+  // 4b. いちど直した予定を、あとからもう一度直す（二重に増えないか）
+  fresh();
+  sandbox.schedShareApply(sandbox.schedShareParse(PATCH), '');
+  const AGAIN = ['【My柔道 予定表】', '送り主｜錬誠館', '月｜2026-11-08', '件数｜1', '--- 予定 ---',
+    '08｜大会｜県中学生柔道選手権大会｜13:00｜市民体育館｜集合12時に再変更｜｜m1'].join('\n');
+  sandbox.schedShareApply(sandbox.schedShareParse(AGAIN), '');
+  ok(sandbox.DB.schedule.length === 3, '二度目の差分でも件数が増えない（3件）');
+  const twice = sandbox.DB.schedule.filter(x => x.srcId === 'm1');
+  ok(twice.length === 1, '同じ予定が二重にならない');
+  ok(twice.length === 1 && twice[0].time === '13:00' && twice[0].place === '市民体育館', '二度目の中身で上書きされる');
+
+  // 4c. 日付そのものが動く（同じ月の中で）
+  fresh();
+  const MOVE = ['【My柔道 予定表】', '送り主｜錬誠館', '月｜2026-11-15', '件数｜1', '--- 予定 ---',
+    '15｜大会｜県中学生柔道選手権大会｜09:00｜県立武道館 第1会場｜日程変更｜｜m1'].join('\n');
+  sandbox.schedShareApply(sandbox.schedShareParse(MOVE), '');
+  ok(sandbox.DB.schedule.length === 3, '日付が動いても件数は増えない');
+  const moved = sandbox.DB.schedule.filter(x => x.srcId === 'm1');
+  ok(moved.length === 1 && moved[0].date === '2026-11-15', '予定が11/8から11/15へ動く');
+
+  // 4d. 別の月へ動く
+  fresh();
+  const MOVE2 = ['【My柔道 予定表】', '送り主｜錬誠館', '月｜2026-12-05', '件数｜1', '--- 予定 ---',
+    '05｜大会｜県中学生柔道選手権大会｜09:00｜県立武道館 第1会場｜12月へ延期｜｜m1'].join('\n');
+  sandbox.schedShareApply(sandbox.schedShareParse(MOVE2), '');
+  const moved2 = sandbox.DB.schedule.filter(x => x.srcId === 'm1');
+  ok(moved2.length === 1 && moved2[0].date === '2026-12-05', '月をまたいで動かしても二重にならない');
+  ok(sandbox.DB.schedule.length === 3, '11月の稽古はそのまま残る');
+
   // 5. 古いアプリ（v294まで）に差分が届いても何も消さない
   ok(/^\d{4}-\d{2}$/.test('2026-11') === true, '古いアプリは 2026-11 を受け付ける');
   ok(/^\d{4}-\d{2}$/.test('2026-11-08') === false, '古いアプリは 2026-11-08 を受け付けない（何も消えない）');
