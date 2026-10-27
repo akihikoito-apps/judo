@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>リンクの動き方をしらべる｜My柔道</title>
+<style>
+  :root{ --navy:#1a2b4a; --gold:#c8a44d; --red:#c0392b; --ink:#222; --line:#e2ddd3; --bg:#f5f2ea; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.8;
+       font-family:'Hiragino Sans','Yu Gothic UI','Meiryo',sans-serif;
+       padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);}
+  .wrap{max-width:560px;margin:0 auto;padding:22px 18px 60px}
+  h1{font-size:21px;line-height:1.4;margin:0 0 6px;color:var(--navy)}
+  .sub{color:#5e6473;font-size:13px;margin:0 0 20px}
+  h2{font-size:16px;margin:30px 0 8px;color:var(--navy);
+     border-left:4px solid var(--red);padding-left:11px}
+  p{margin:0 0 13px;font-size:14.5px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0}
+  .btn{display:block;width:100%;min-height:56px;margin:10px 0;padding:14px 16px;
+       font-family:inherit;font-size:16px;font-weight:700;line-height:1.35;
+       border:none;border-radius:12px;background:var(--navy);color:#fff;cursor:pointer}
+  .btn.gold{background:var(--gold);color:#3a2e00}
+  .btn.ghost{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+  .btn:active{opacity:.75}
+  .res{margin:8px 0 0;padding:11px 13px;border-radius:9px;background:#eef1f6;
+       font-size:13.5px;white-space:pre-wrap;word-break:break-all;min-height:22px}
+  .res.ok{background:#e8f4ea}
+  .res.ng{background:#fbeceb}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{width:9em;color:#5e6473;font-weight:700;white-space:nowrap}
+  tr:last-child td,tr:last-child th{border-bottom:none}
+  .hint{font-size:13px;color:#5e6473}
+  code{background:#eceae4;padding:1px 6px;border-radius:4px;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>リンクの動き方をしらべる</h1>
+<p class="sub">LINE から開いたときに、アプリを起動できるのかを確かめるためのページです。<br>作業用なので、確認が済んだら消します。</p>
+
+<h2>いま開いている環境</h2>
+<div class="card">
+  <table id="env"></table>
+</div>
+
+<h2>① まず、ここから</h2>
+<p><b>必ず入っている「マップ」を開いてみます。</b>これが開けば、LINE の中からでも別のアプリを起動できる、ということが分かります。</p>
+<div class="card">
+  <button class="btn gold" id="b1">マップを開いてみる</button>
+  <div class="res" id="r1">（まだ押していません）</div>
+  <p class="hint" style="margin:10px 0 0">マップが開いたら、<b>戻ってきてこのページの表示を見てください。</b></p>
+</div>
+
+<h2>② My柔道を開いてみる</h2>
+<p><b>いまのアプリにはまだ仕込みがないので、開かないのが正解です。</b>知りたいのは「開かなかったときに何が起きるか」です。</p>
+<div class="card">
+  <button class="btn" id="b2">My柔道を開いてみる</button>
+  <div class="res" id="r2">（まだ押していません）</div>
+  <p class="hint" style="margin:10px 0 0">
+    <b>「このアドレスを開けません」などの警告が出た</b> → 見込みあり。仕込めば開きます。<br>
+    <b>何も起きない・無反応</b> → LINE が止めている可能性があります。
+  </p>
+</div>
+
+<h2>③ 予定を受け取る形を試す</h2>
+<p>本番で送るのと<b>同じ形のリンク</b>です。11月8日の予定を1件だけ直す、という中身が入っています。</p>
+<div class="card">
+  <button class="btn" id="b3">この予定をアプリで取り込む</button>
+  <div class="res" id="r3">（まだ押していません）</div>
+</div>
+
+<h2>④ 文字のコピーはできるか</h2>
+<p>アプリが開かなかったときの逃げ道として、<b>ボタン1つでコピーできるか</b>を確かめます。</p>
+<div class="card">
+  <button class="btn ghost" id="b4">予定の文字をコピーする</button>
+  <div class="res" id="r4">（まだ押していません）</div>
+  <p class="hint" style="margin:10px 0 0">コピーできたら、選手用アプリの「予定の取り込み」に貼って試せます。</p>
+</div>
+
+<h2>⑤ ブラウザで開き直せるか</h2>
+<p>LINE の中では動かないとき、<b>Safari で開き直す</b>という手があります。その導線が作れるかを見ます。</p>
+<div class="card">
+  <button class="btn ghost" id="b5">Safari で開き直す</button>
+  <div class="res" id="r5">（まだ押していません）</div>
+</div>
+
+<h2>結果の送り方</h2>
+<p>①〜⑤を押して、<b>この画面をそのまま撮って送ってください。</b>どこまでできるかが分かれば、作り方を決められます。</p>
+
+</div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var ua=navigator.userAgent||'';
+
+  // どのアプリの中で開いているかを見分ける
+  function browserName(){
+    if(/Line\//i.test(ua))return 'LINE の中のブラウザ';
+    if(/FBAN|FBAV|Instagram/i.test(ua))return 'Facebook/Instagram の中';
+    if(/CriOS/i.test(ua))return 'Chrome';
+    if(/EdgiOS|Edg\//i.test(ua))return 'Edge';
+    if(/Safari/i.test(ua)&&!/Chrome/i.test(ua))return 'Safari';
+    return '（判別できません）';
+  }
+  function osName(){
+    if(/iPhone|iPad|iPod/i.test(ua))return 'iPhone / iPad';
+    if(/Android/i.test(ua))return 'Android';
+    return '（判別できません）';
+  }
+  var rows=[
+    ['ブラウザ',browserName()],
+    ['OS',osName()],
+    ['クリップボード', (navigator.clipboard&&navigator.clipboard.writeText)?'使えそう':'使えない見込み'],
+    ['識別子',ua]
+  ];
+  $('env').innerHTML=rows.map(function(r){
+    return '<tr><th>'+r[0]+'</th><td>'+String(r[1]).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</td></tr>';
+  }).join('');
+
+  // スキームを試す共通処理。
+  // 「押してから一定時間たってもこのページが見えたまま」なら、開けなかったと判断する。
+  function trySchemeomit(){}
+  function tryScheme(url,out,okMsg){
+    var el=$(out);
+    el.className='res';
+    el.textContent='開こうとしています…';
+    var left=false;
+    var onHide=function(){ if(document.hidden)left=true; };
+    document.addEventListener('visibilitychange',onHide);
+    window.addEventListener('pagehide',function(){left=true;});
+    window.addEventListener('blur',function(){left=true;});
+    var t0=Date.now();
+    try{ window.location.href=url; }
+    catch(e){
+      el.className='res ng';
+      el.textContent='その場で失敗しました：'+e.message;
+      return;
+    }
+    setTimeout(function(){
+      document.removeEventListener('visibilitychange',onHide);
+      var dt=Date.now()-t0;
+      if(left){
+        el.className='res ok';
+        el.textContent='✅ '+okMsg+'（画面が切り替わりました）';
+      }else{
+        el.className='res ng';
+        el.textContent='⚠️ このページのままでした。\n警告が出たかどうかを教えてください。\n（経過 '+dt+' ミリ秒）';
+      }
+    },2500);
+  }
+
+  // 本番と同じ形の中身。11月8日の予定を1件だけ直す例。
+  var PAYLOAD=[
+    '【My柔道 予定表】',
+    '送り主｜錬誠館',
+    '月｜2026-11-08',
+    '件数｜1',
+    '--- 予定 ---',
+    '08｜大会｜県中学生柔道選手権大会｜10:30｜県立武道館 第2会場｜集合9時30分に変更｜｜m1'
+  ].join('\n');
+
+  $('b1').onclick=function(){ tryScheme('maps://','r1','マップが開きました'); };
+  $('b2').onclick=function(){ tryScheme('myjudo://test','r2','アプリが開きました'); };
+  $('b3').onclick=function(){
+    tryScheme('myjudo://sched?v=1&p='+encodeURIComponent(PAYLOAD),'r3','アプリが開きました');
+  };
+
+  $('b4').onclick=function(){
+    var el=$('r4');
+    var done=function(){ el.className='res ok'; el.textContent='✅ コピーできました。\n選手用アプリの「予定の取り込み」に貼ってみてください。'; };
+    var ng=function(m){ el.className='res ng'; el.textContent='⚠️ コピーできませんでした。\n'+(m||'')+'\n下の文字を長押しして選んでください。\n\n'+PAYLOAD; };
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(PAYLOAD).then(done,function(e){ ng(e&&e.message); });
+    }else{ ng('この環境にはコピーの機能がありません。'); }
+  };
+
+  $('b5').onclick=function(){
+    var el=$('r5');
+    el.className='res';
+    el.textContent='開こうとしています…';
+    var u=location.href.split('#')[0];
+    try{
+      if(/iPhone|iPad|iPod/i.test(ua)){
+        // iPhone では x-safari- を付けると Safari で開ける場合がある
+        window.location.href='x-safari-'+u;
+      }else{
+        window.location.href='intent:'+u+'#Intent;action=android.intent.action.VIEW;end';
+      }
+      setTimeout(function(){
+        if(!document.hidden){
+          el.className='res ng';
+          el.textContent='⚠️ このページのままでした。\n右上の「…」から「Safariで開く」を試してみてください。';
+        }
+      },2500);
+    }catch(e){
+      el.className='res ng';
+      el.textContent='失敗しました：'+e.message;
+    }
+  };
+})();
+</script>
+</body>
+</html>
