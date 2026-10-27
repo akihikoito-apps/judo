@@ -528,6 +528,11 @@
   .month-nav .lbl .fy-main{font-size:calc(21px*var(--fs,1));font-weight:700;}
   .month-nav .lbl .fy-sub{font-size:calc(13px*var(--fs,1));font-weight:600;color:var(--muted);margin-top:3px;}
   .month-nav button{min-width:56px;min-height:48px;font-size:calc(24px*var(--fs,1));border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-weight:700;}
+  /* v305: 「予定をLINEで送る」の月選び。白地に白い枠で背景に溶けていたので、
+     この画面だけ枠と色を付ける（カレンダーなど他の .month-nav は変えない）。 */
+  .month-nav.ss-pick{background:var(--paper);border:2px solid var(--navy);border-radius:14px;padding:8px 10px;margin-bottom:6px;}
+  .month-nav.ss-pick .lbl{font-size:calc(22px*var(--fs,1));font-weight:800;letter-spacing:.02em;}
+  .month-nav.ss-pick button{background:var(--navy);color:#fff;border-color:var(--navy);}
 
   /* 時刻クイック選択 */
   .time-quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
@@ -2363,7 +2368,8 @@ function applyUpdate(){
   <div class="modal">
     <h3>📤 予定をLINEで送る</h3>
     <p class="list-mini">選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 予定の取り込み」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。</p>
-    <div class="month-nav" style="margin-top:10px">
+    <label class="fld" style="margin-top:12px">📅 送る月（‹ › で選びます）</label>
+    <div class="month-nav ss-pick">
       <button onclick="ssMove(-1)">‹</button>
       <div class="lbl" id="ssMonthLbl"></div>
       <button onclick="ssMove(1)">›</button>
@@ -5557,7 +5563,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v304'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v305'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -6604,6 +6610,7 @@ Object.assign(DICT,{
   'まだ登録されていません。道場から合言葉を教わっている方は入力してください。':{en:'Not saved yet. If your dojo gave you a passphrase, enter it here.',fr:'Pas encore enregistré. Si votre dojo vous a donné un mot de passe, saisissez-le.',pt:'Ainda não salva. Se o dojo lhe deu uma senha, digite-a aqui.'},
   '届いたリンクは、この合言葉で自動で開きます。':{en:'Links you receive will open automatically with this passphrase.',fr:'Les liens reçus s’ouvriront automatiquement avec ce mot de passe.',pt:'Os links recebidos abrirão automaticamente com esta senha.'},
   'この端末では合言葉で包めません。送るリンクは、中身がそのまま読める状態になります。':{en:'This device cannot lock the link. Anything you send will be readable as-is.',fr:'Cet appareil ne peut pas verrouiller le lien. Ce que vous envoyez sera lisible tel quel.',pt:'Este aparelho não consegue proteger o link. O que você enviar será legível como está.'},
+  '📅 送る月（‹ › で選びます）':{en:'📅 Month to send (use ‹ ›)',fr:'📅 Mois à envoyer (‹ ›)',pt:'📅 Mês a enviar (‹ ›)'},
   '合言葉を入れずに送ります。':{en:'Sending without a passphrase.',fr:'Envoi sans mot de passe.',pt:'Enviando sem senha.'},
   'このリンクを持っている人は誰でも、お名前を含む予定の中身を読めます。':{en:'Anyone with this link can read the schedule, including names.',fr:'Toute personne ayant ce lien pourra lire l’agenda, noms compris.',pt:'Qualquer pessoa com este link poderá ler a agenda, inclusive os nomes.'},
   '道場の合言葉を決めている場合は、「やめる」を押して 🔑 の欄に入れてから送ってください。':{en:'If your dojo has a passphrase, tap Cancel and enter it in the 🔑 field first.',fr:'Si votre dojo a un mot de passe, appuyez sur Annuler et saisissez-le dans le champ 🔑.',pt:'Se o seu dojo tem uma senha, toque em Cancelar e digite-a no campo 🔑.'},
@@ -13361,12 +13368,32 @@ async function shareKeyFrom(pass,salt){
   return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:SHARE_ITER,hash:'SHA-256'},
     base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
 }
+/* v305: 包む前に縮める。予定表は同じ言葉のくり返しが多く、半分くらいになる。
+   先頭の文字で見分ける：e=そのまま包んだ、z=縮めてから包んだ。
+   縮められない端末（iOS 16.3 以前）は今までどおり e で送るので、どちらでも届く。 */
+function shareZipOk(){ try{ new CompressionStream('deflate-raw'); return true; }catch(e){ return false; } }
+async function shareZip(bytes){
+  const cs=new CompressionStream('deflate-raw');
+  const w=cs.writable.getWriter(); w.write(bytes); w.close();
+  return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+}
+async function shareUnzip(bytes){
+  const ds=new DecompressionStream('deflate-raw');
+  const w=ds.writable.getWriter(); w.write(bytes); w.close();
+  return new Uint8Array(await new Response(ds.readable).arrayBuffer());
+}
 async function shareSeal(text,pass){
   const salt=crypto.getRandomValues(new Uint8Array(16));
   const iv=crypto.getRandomValues(new Uint8Array(12));
   const k=await shareKeyFrom(pass,salt);
-  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,new TextEncoder().encode(text));
-  return 'e'+shareB64u(salt)+'.'+shareB64u(iv)+'.'+shareB64u(ct);
+  const plain=new TextEncoder().encode(text);
+  let body=plain, mark='e';
+  if(shareZipOk()){
+    // 短い予定表では縮まないことがあるので、縮んだときだけ使う
+    try{ const z=await shareZip(plain); if(z.length<plain.length){ body=z; mark='z'; } }catch(e){}
+  }
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,body);
+  return mark+shareB64u(salt)+'.'+shareB64u(iv)+'.'+shareB64u(ct);
 }
 /* v300: 包んだものを解く側。事務用で包むのと同じしくみ（PBKDF2 → AES-GCM）。
    これがあるので、リンク先のページは「包んだまま」アプリへ渡せる。
@@ -13374,7 +13401,8 @@ async function shareSeal(text,pass){
 function shareCryptoOk(){ try{ return !!(window.crypto&&crypto.subtle&&crypto.subtle.deriveKey); }catch(e){ return false; } }
 function shareLooksSealed(t){
   const v=String(t||'').trim();
-  return v.charAt(0)==='e'&&v.split('.').length===3&&v.indexOf('【')<0;
+  const c=v.charAt(0);                       // v305: e=そのまま包んだ、z=縮めてから包んだ
+  return (c==='e'||c==='z')&&v.split('.').length===3&&v.indexOf('【')<0;
 }
 function shareBytesFromB64u(t){
   const b=String(t).replace(/-/g,'+').replace(/_/g,'/');
@@ -13383,11 +13411,13 @@ function shareBytesFromB64u(t){
   return a;
 }
 async function shareOpen(blob,pass){
-  const parts=String(blob).trim().slice(1).split('.');
+  const v=String(blob).trim(), mark=v.charAt(0);
+  const parts=v.slice(1).split('.');
   if(parts.length!==3)throw new Error('form');
   const salt=shareBytesFromB64u(parts[0]), iv=shareBytesFromB64u(parts[1]), ct=shareBytesFromB64u(parts[2]);
   const k=await shareKeyFrom(pass,salt);
-  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},k,ct);
+  let pt=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},k,ct));
+  if(mark==='z')pt=await shareUnzip(pt);     // v305: 縮めて送られた分をもどす
   return new TextDecoder().decode(pt);
 }
 function shareKeyText(){ return (DB.shareKey||'').trim(); }
@@ -13432,7 +13462,8 @@ async function schedShareUrl(ym){
     try{ frag=await shareSeal(r.text,pass); }
     catch(e){ frag=encodeURIComponent(r.text); }     // 包めなければ、そのまま（画面で警告する）
   }else{ frag=encodeURIComponent(r.text); }
-  return {url:SHARE_PAGE+'#'+frag, count:r.count, ym:r.ym, sender:r.sender, msg:r.msg, sealed:frag.charAt(0)==='e'};
+  const _m=frag.charAt(0);                   // v305: e も z も「包めた」
+  return {url:SHARE_PAGE+'#'+frag, count:r.count, ym:r.ym, sender:r.sender, msg:r.msg, sealed:(_m==='e'||_m==='z')};
 }
 function ssMsgText(){ return (DB.ssMsg||'').trim(); }
 let _ssMsgTimer=null;

@@ -72,7 +72,9 @@
   // 先頭が e なら、合言葉で包まれている。そうでなければそのまま。
   var frag = (location.hash||'').replace(/^#/,'');
   var raw = '';
-  var SEALED = frag.charAt(0) === 'e' && frag.indexOf('.') > 0;
+  // v305: e=そのまま包んだ、z=縮めてから包んだ。どちらも合言葉で開く。
+  var MARK = frag.charAt(0);
+  var SEALED = (MARK === 'e' || MARK === 'z') && frag.indexOf('.') > 0;
   var KEYSTORE = 'myjudo-share-key';
 
   if(!frag){
@@ -97,7 +99,12 @@
           base, {name:'AES-GCM', length:256}, false, ['decrypt']);
       })
       .then(function(k){ return crypto.subtle.decrypt({name:'AES-GCM', iv:iv}, k, ct); })
-      .then(function(pt){ return new TextDecoder().decode(pt); });
+      .then(function(pt){
+        if(blob.charAt(0) !== 'z') return new TextDecoder().decode(pt);
+        var ds = new DecompressionStream('deflate-raw');      // v305: 縮めて送られた分をもどす
+        var w = ds.writable.getWriter(); w.write(new Uint8Array(pt)); w.close();
+        return new Response(ds.readable).arrayBuffer().then(function(b){ return new TextDecoder().decode(b); });
+      });
   }
 
   // ---- アプリへ飛ばす（開けたかどうかを見てから案内を出す）----
