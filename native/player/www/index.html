@@ -5541,7 +5541,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v294'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v295'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -13070,6 +13070,22 @@ function renderSchedCal(){
   document.getElementById('schedCalGrid').innerHTML=html;
 }
 /* ===== v219: 予定の共有（事務→選手）。テキスト主・QR副（長い月は自動で複数QRに分割） ===== */
+// v295: 予定を1件だけ「差分」の形で書き出す。月まるごとではなく、この予定だけを直してもらう。
+//        見出しの月を YYYY-MM-DD にすることが差分の合図。
+function schedSharePatchText(schedId){
+  const s=(DB.schedule||[]).find(x=>x.id===schedId);
+  if(!s||!s.date)return null;
+  const sender=(DB.team||'').trim()||T('道場');
+  const withNote=(DB.shareNote!==false);
+  const inferred=/試合|大会/.test(s.name||'');
+  const flag=(s.showMatch===true&&!inferred)?'M':((s.showMatch===false&&inferred)?'x':'');
+  const note=withNote?shareField(s.note||''):'';
+  const base=[s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',note,flag].map(shareField).concat([shareField(s.id)]);
+  const mem=schedShareMembers(s.id, shareBytes(base.join('｜')));
+  const row=(mem?base.concat([mem]):base).join('｜').replace(/｜+$/,'');
+  const L=['【My柔道 予定表】','送り主｜'+shareField(sender),'月｜'+s.date,'件数｜1','--- 予定 ---',row];
+  return {text:L.join('\n'), sender, date:s.date, sched:s};
+}
 function schedShareText(ym){
   const sender=(DB.team||'').trim()||T('道場');
   const withNote=(DB.shareNote!==false);            // v224: メモを送るか（既定=送る）
@@ -13124,19 +13140,26 @@ function schedShareParts(text){
 function schedShareParse(raw){
   const lines=(raw||'').replace(/\r/g,'').split('\n').map(l=>l.trim()).filter(Boolean);
   let sender='',ym='',msg='',inBody=false; const items=[]; let sawBody=false; let declared=null;
+  let patchDay='';   // v295: 月｜YYYY-MM-DD なら「その分だけ直す」
   lines.forEach(line=>{
     if(/^【.*】$/.test(line))return;
     if(/^[-—―]+\s*予定\s*[-—―]+$/.test(line)){inBody=true;sawBody=true;return;}
     if(line.startsWith('ひとこと｜')){msg=line.slice(5).trim();return;}
     if(line.startsWith('送り主｜')){sender=line.slice(4).trim();return;}
-    if(line.startsWith('月｜')){ym=line.slice(2).trim();return;}
+    if(line.startsWith('月｜')){
+      const v=line.slice(2).trim();
+      // v295: 日付まで書いてあれば差分モード。古いアプリはこの形を弾いて何も消さない
+      const md=v.match(/^(\d{4}-\d{2})-(\d{2})$/);
+      if(md){ym=md[1];patchDay=md[2];}else{ym=v;}
+      return;
+    }
     if(line.startsWith('件数｜')){ const v=parseInt(line.slice(3).trim(),10); if(!isNaN(v))declared=v; return; }
     if(!inBody)return;
     const p=line.split('｜'); const dd=(p[0]||'').trim();
     if(!/^\d{1,2}$/.test(dd))return;
     items.push({dd:dd.padStart(2,'0'),name:(p[1]||'').trim(),title:(p[2]||'').trim(),time:(p[3]||'').trim(),place:(p[4]||'').trim(),note:(p[5]||'').trim(),flag:(p[6]||'').trim(),sid:(p[7]||'').trim(),members:(p[8]||'').trim()});
   });
-  return {sender,ym,msg,items,sawBody,declared};
+  return {sender,ym,msg,items,sawBody,declared,patch:!!patchDay,patchDay};
 }
 /* v258: 予定表の照合を1か所にまとめる。
    取り込みと「何件消えるか」の予測が必ず同じ結果になるようにするため。
@@ -13207,6 +13230,9 @@ function schedShareApply(parsed,forId){
   // v258: 日付が別の月へ動いた予定も拾えるよう、送り元IDだけは月をまたいで探す
   const mineAll=(DB.schedule||[]).filter(s=>s.src===sender&&(s.forId||'')===forId);
   const plan=schedMatchPlan(sender,ym,forId,items,mine,mineAll);
+  // v295: 差分モードでは「載っていない日」を消さない。
+  //       いつもの予定表は『その月の全部』だが、差分は『直す分だけ』を送るため。
+  if(parsed.patch)plan.del.length=0;
   const keep=plan.keep;
   DB.schedSrcMap=DB.schedSrcMap||{};
   const _mapKey=(sid)=>sender+'\u0001'+forId+'\u0001'+sid;
@@ -13233,7 +13259,9 @@ function schedShareApply(parsed,forId){
   DB.schedule=(DB.schedule||[]).filter(s=>!delIds.has(s.id));
   // v237: 送り主ごとに「最後に取り込んだ月・ひとこと・日付・件数」を残す
   DB.schedSrc=DB.schedSrc||{};
-  DB.schedSrc[sender]={ym:ym,msg:(msg||''),at:todayStr(),n:items.length};
+  // v295: 差分は「月の予定表を受け取り直した」わけではないので、件数は上書きしない
+  if(parsed.patch){ const cur=DB.schedSrc[sender]; if(cur)cur.at=todayStr(); else DB.schedSrc[sender]={ym:ym,msg:'',at:todayStr(),n:items.length}; }
+  else DB.schedSrc[sender]={ym:ym,msg:(msg||''),at:todayStr(),n:items.length};
   schedSrcMapPrune();                    // v258: 使われなくなった対応を溜めない
   if(!save()){ try{
     DB.schedule=JSON.parse(_bkSchedJson); DB.schedSrc=JSON.parse(_bkSrcJson); DB.schedSrcMap=JSON.parse(_bkMapJson);
