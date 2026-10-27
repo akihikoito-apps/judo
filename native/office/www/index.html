@@ -5541,7 +5541,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v296'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v297'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -6575,6 +6575,8 @@ Object.assign(DICT,{
   '月分':{en:'',fr:'',pt:''},
   'に取り込み':{en:' imported',fr:' importé',pt:' importado'},
   '取り込み済みの送り主':{en:'Imported senders',fr:'Expéditeurs importés',pt:'Remetentes importados'},
+  'この日の予定だけを直します。ほかの日は変わりません。':{en:'Only this day will be updated. Other days stay as they are.',fr:'Seul ce jour sera mis à jour. Les autres jours ne changent pas.',pt:'Só este dia será atualizado. Os outros dias não mudam.'},
+  '（この日だけ）':{en:' (this day only)',fr:' (ce jour seulement)',pt:' (só este dia)'},
   'この送り主のこの月の予定':{en:'This sender’s events for this month: ',fr:'Événements de cet expéditeur pour ce mois : ',pt:'Eventos deste remetente neste mês: '},
   '件を置き換えます':{en:' will be replaced',fr:' seront remplacés',pt:' serão substituídos'},
   'の予定':{en:' schedule:',fr:' planning :',pt:' agenda:'},
@@ -13344,10 +13346,15 @@ function schedRecvAnalyze(){
   const exist=(DB.schedule||[]).filter(s=>s.src===p.sender&&(s.date||'').slice(0,7)===p.ym&&(s.forId||'')===srForId).length;
   const [y,m]=p.ym.split('-');
   const forName=srForId?studentName(srForId):T('全員');
-  pv.innerHTML=`<div class="gw-field-row" style="border-bottom:none"><span class="nm"><b>${esc(p.sender)}</b>・${y}${T('年')} ${Number(m)}${T('月')}・${p.items.length}${T('件')}<span class="mate-tag" style="background:#33507e">${esc(forName)}</span></span></div>`+
+  // v297: 差分のときは、どの日のことかを見出しに出す
+  const _when=p.patch?`${Number(m)}/${Number(p.patchDay)}`:`${y}${T('年')} ${Number(m)}${T('月')}`;
+  pv.innerHTML=`<div class="gw-field-row" style="border-bottom:none"><span class="nm"><b>${esc(p.sender)}</b>・${_when}・${p.items.length}${T('件')}<span class="mate-tag" style="background:#33507e">${esc(forName)}</span></span></div>`+
     (p.msg?`<p class="list-mini" style="font-weight:800;color:var(--navy)">📣 ${esc(p.msg)}</p>`:'')+
-    (exist?`<p class="list-mini" style="color:#c77f0a;font-weight:700">${T('この送り主のこの月の予定')} ${exist}${T('件を置き換えます')}</p>`:'')+
-    (!p.items.length?`<p class="list-mini" style="color:#c0392b;font-weight:800">${T('予定は0件です。この月の予定はすべて取り消しになります。')}</p>`:'');
+    // v297: 差分は「その分だけ直す」。置き換えの警告を出すと実際と食い違う
+    (p.patch
+      ? `<p class="list-mini" style="color:var(--navy);font-weight:700">${T('この日の予定だけを直します。ほかの日は変わりません。')}</p>`
+      : (exist?`<p class="list-mini" style="color:#c77f0a;font-weight:700">${T('この送り主のこの月の予定')} ${exist}${T('件を置き換えます')}</p>`:''))+
+    (!p.patch&&!p.items.length?`<p class="list-mini" style="color:#c0392b;font-weight:800">${T('予定は0件です。この月の予定はすべて取り消しになります。')}</p>`:'');
   btn.style.display='';
   btn.dataset.ready='1';
 }
@@ -13360,7 +13367,7 @@ function schedRecvWouldDelete(p){
 function schedRecvApply(){
   const p=schedShareParse(document.getElementById('srText').value);
   // v258: 件数の無い古い形式で、消える予定があるときは確認する（貼り漏れで消さないため）
-  if(p.items.length && p.declared==null && !_srZeroOk){
+  if(!p.patch && p.items.length && p.declared==null && !_srZeroOk){   // v297: 差分は消さないので確認不要
     const n=schedRecvWouldDelete(p);
     if(n>0){
       askConfirm(T('この予定表を取り込むと、いまある予定のうち')+n+T('件が消えます。')+'<br>'
@@ -13370,6 +13377,7 @@ function schedRecvApply(){
     }
   }
   // v258: 0件＝全部取り消し。取り違えると予定が消えるので一度だけ確認する
+  if(p.patch && !p.items.length){ toast(T('予定表を読み取れませんでした')); return; }   // v297
   if(!p.items.length && !_srZeroOk){
     askConfirm(T('この予定表は0件です。')+'<br>'+esc(p.sender)+T('の')+p.ym.replace('-','/')+T('月の予定を、すべて取り消します。')+'<br><br>'+T('よろしいですか？'),
       ()=>{ _srZeroOk=true; schedRecvApply(); },T('すべて取り消す'));
@@ -13382,7 +13390,7 @@ function schedRecvApply(){
   if(n<0){ toast(T('予定表を読み取れませんでした')); return; }
   closeModal('schedRecvModal');
   if(/^\d{4}-\d{2}$/.test(p.ym))gwMonth=p.ym;      // v241: 取り込んだ月を表示する（v255: \d の欠けを修正）
-  toast(`${p.sender}${T('の予定')} ${n}${T('件を取り込みました')}`+(p.msg?'　📣 '+p.msg:''));
+  toast(`${p.sender}${T('の予定')} ${n}${T('件を取り込みました')}`+(p.patch?T('（この日だけ）'):'')+(p.msg?'　📣 '+p.msg:''));
   if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
   if(typeof renderSched==='function'&&document.getElementById('screen-sched').classList.contains('active'))renderSched();
 }
