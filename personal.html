@@ -1909,7 +1909,7 @@ function applyUpdate(){
   </div>
 
   <div id="setViewSec" style="display:none">
-    <div class="card">
+    <div class="card" id="lockCard">
       <h3 style="margin-top:0;color:var(--navy)">アプリのロック（パスコード）</h3>
       <p class="list-mini">仲間の個人情報をお預かりするため、起動時に4桁のパスコード入力を求められるようにできます（この端末のみ・バックアップには含まれません）。※のぞき見を防ぐための簡易的なロックです。端末そのものの画面ロックも併せてご利用ください。</p>
       <div class="lock-warn">
@@ -5557,7 +5557,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v303'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v304'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -7421,11 +7421,16 @@ function applyMode(){
   const o=document.getElementById('modeOfficeB'),p=document.getElementById('modePersonalB');
   if(o)o.classList.toggle('on',!personal);
   if(p)p.classList.toggle('on',personal);
-  // v225: パスコードロックは事務のみ（他人の個人情報を預かるため）。個人アプリでは非表示にする
+  /* v225: パスコードロックは事務のみ（他人の個人情報を預かるため）。
+     v304: ただしタブごと隠すのはやめた。このタブには「予定表の合言葉」（v300）もあり、
+     選手アプリから一生たどり着けなかった。送る文面でも
+     「設定 › セキュリティ › 予定表の合言葉」と案内している。
+     → タブは出したままにして、パスコードの枠だけを個人モードで隠す。
+     v279（個人モードではロックを止めるだけ・設定は消さない）はそのまま。 */
   const secTab=document.getElementById('setTabSec');
-  if(secTab)secTab.style.display=personal?'none':'';
-  // v279: 個人モードではロックを一時的に止めるだけ（設定は消さない）。道場モードに戻すと setAppMode で再びかかる
-  if(personal){ const sv=document.getElementById('setViewSec'); if(sv&&sv.style.display!=='none')setSetView('use'); }
+  if(secTab)secTab.style.display='';
+  const lockCard=document.getElementById('lockCard');
+  if(lockCard)lockCard.style.display=personal?'none':'';
 }
 // v166: エディション適用。個人/事務専用ビルドはモードを固定し、切替UIを隠す。
 function applyEdition(){
