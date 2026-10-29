@@ -3,7 +3,7 @@
   "appName": "My柔道(選手)",
   "webDir": "www",
   "ios": {
-    "contentInset": "automatic",
+    "contentInset": "never",
     "backgroundColor": "#f5f2ea"
   },
   "server": {

@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>予定のお知らせ｜My柔道</title>
+<style>
+  :root{ --navy:#1a2b4a; --gold:#c8a44d; --red:#c0392b; --green:#2f6b46;
+         --ink:#222; --sub:#5e6473; --line:#e2ddd3; --bg:#f5f2ea; --card:#fff; --shade:#eceae4; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.8;
+       font-family:'Hiragino Sans','Yu Gothic UI','Meiryo',sans-serif;
+       padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);}
+  .wrap{max-width:580px;margin:0 auto;padding:20px 18px 60px}
+  .from{font-size:13px;color:var(--sub);margin:0 0 2px}
+  h1{font-size:23px;line-height:1.35;margin:0 0 4px;color:var(--navy)}
+  .cnt{font-size:14px;color:var(--sub);margin:0 0 16px}
+  .msg{background:#fffbe9;border:1px solid var(--gold);border-radius:11px;
+       padding:14px 16px;margin:0 0 18px;font-size:15.5px;font-weight:700;line-height:1.75}
+  .msg b{display:block;font-size:12px;color:var(--gold);font-weight:700;margin-bottom:4px;letter-spacing:.08em}
+  h2{font-size:16px;margin:28px 0 8px;color:var(--navy);border-left:4px solid var(--red);padding-left:11px}
+  p{margin:0 0 13px;font-size:14.5px}
+  .list{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:0 0 20px}
+  .ev{display:flex;gap:12px;padding:12px 15px;border-bottom:1px solid var(--line)}
+  .ev:last-child{border-bottom:none}
+  .ev .d{flex:none;width:3.4em;text-align:center}
+  .ev .dd{font-size:21px;font-weight:800;line-height:1.1;color:var(--navy);font-variant-numeric:tabular-nums}
+  .ev .wk{font-size:11px;color:var(--sub)}
+  .ev .wk.sun{color:var(--red)}
+  .ev .wk.sat{color:#2c5d8f}
+  .ev .b{min-width:0;flex:1}
+  .ev .nm{font-size:15.5px;font-weight:700;line-height:1.45;word-break:break-word}
+  .ev .nm .tag{display:inline-block;font-size:11px;font-weight:700;color:#fff;
+       background:var(--navy);border-radius:4px;padding:1px 7px;margin-right:6px;vertical-align:1px}
+  .ev .nm .tag.m{background:var(--red)}
+  .ev .sm{font-size:13px;color:var(--sub);line-height:1.65;word-break:break-word}
+  .btn{display:block;width:100%;min-height:58px;margin:11px 0;padding:14px 16px;
+       font-family:inherit;font-size:17px;font-weight:700;line-height:1.35;
+       border:none;border-radius:12px;background:var(--navy);color:#fff;cursor:pointer;text-align:center}
+  .btn.gold{background:var(--gold);color:#3a2e00}
+  .btn.ghost{background:var(--card);color:var(--navy);border:2px solid var(--navy)}
+  .btn:active{opacity:.75}
+  .btn small{display:block;font-weight:500;font-size:12px;opacity:.9;margin-top:3px}
+  .res{margin:6px 0 0;padding:11px 13px;border-radius:9px;background:#eef1f6;
+       font-size:13.5px;white-space:pre-wrap;word-break:break-all}
+  .res.ok{background:#e8f4ea}
+  .res.ng{background:#fbeceb}
+  details{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px 15px;margin:16px 0}
+  summary{font-size:14.5px;font-weight:700;color:var(--navy);cursor:pointer}
+  details p{margin:11px 0 0;font-size:14px}
+  pre{background:var(--shade);padding:11px;border-radius:8px;font-size:12px;
+      white-space:pre-wrap;word-break:break-all;margin:8px 0 0;max-height:40vh;overflow:auto}
+  #qr{text-align:center;margin:14px 0 0}
+  #qr img,#qr canvas{max-width:100%;background:#fff;padding:10px;border-radius:10px}
+  .hint{font-size:13px;color:var(--sub)}
+  .err{background:#fbeceb;border:1px solid var(--red);border-radius:11px;padding:16px;font-size:15px}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+  <p class="hint" id="loading">予定を読み込んでいます…</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+(function(){
+  var W = document.getElementById('wrap');
+  var esc = function(s){ return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+
+  // ---- リンクの # から本文を取り出す ----
+  // 先頭が e なら、合言葉で包まれている。そうでなければそのまま。
+  var frag = (location.hash||'').replace(/^#/,'');
+  var raw = '';
+  // v305: e=そのまま包んだ、z=縮めてから包んだ。どちらも合言葉で開く。
+  var MARK = frag.charAt(0);
+  var SEALED = (MARK === 'e' || MARK === 'z') && frag.indexOf('.') > 0;
+  var KEYSTORE = 'myjudo-share-key';
+
+  if(!frag){
+    W.innerHTML = '<div class="err"><b>予定が見つかりません。</b><br>'
+      + 'リンクが途中で切れている可能性があります。送ってくれた方に、もう一度送ってもらってください。</div>';
+    return;
+  }
+
+  function b64uToBytes(t){
+    t = t.replace(/-/g,'+').replace(/_/g,'/');
+    var bin = atob(t), a = new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++) a[i] = bin.charCodeAt(i);
+    return a;
+  }
+  function openSealed(blob, pass){
+    var parts = blob.slice(1).split('.');
+    if(parts.length !== 3) return Promise.reject(new Error('形が違います'));
+    var salt = b64uToBytes(parts[0]), iv = b64uToBytes(parts[1]), ct = b64uToBytes(parts[2]);
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey'])
+      .then(function(base){
+        return crypto.subtle.deriveKey({name:'PBKDF2', salt:salt, iterations:200000, hash:'SHA-256'},
+          base, {name:'AES-GCM', length:256}, false, ['decrypt']);
+      })
+      .then(function(k){ return crypto.subtle.decrypt({name:'AES-GCM', iv:iv}, k, ct); })
+      .then(function(pt){
+        if(blob.charAt(0) !== 'z') return new TextDecoder().decode(pt);
+        var ds = new DecompressionStream('deflate-raw');      // v305: 縮めて送られた分をもどす
+        var w = ds.writable.getWriter(); w.write(new Uint8Array(pt)); w.close();
+        return new Response(ds.readable).arrayBuffer().then(function(b){ return new TextDecoder().decode(b); });
+      });
+  }
+
+  // ---- アプリへ飛ばす（開けたかどうかを見てから案内を出す）----
+  function jumpApp(href, el, failMsg){
+    el.className = 'res'; el.textContent = 'アプリを開いています…';
+    var left = false;
+    var mark = function(){ if(document.hidden) left = true; };
+    document.addEventListener('visibilitychange', mark);
+    window.addEventListener('pagehide', function(){ left = true; });
+    window.addEventListener('blur', function(){ left = true; });
+    try { window.location.href = href; }
+    catch(e){ el.className = 'res ng'; el.textContent = '開けませんでした：' + e.message; return; }
+    setTimeout(function(){
+      document.removeEventListener('visibilitychange', mark);
+      if(left){
+        el.className = 'res ok';
+        el.textContent = '✅ アプリが開きました。アプリの「取り込む」を押してください。';
+      } else {
+        el.className = 'res ng';
+        el.textContent = failMsg;
+      }
+    }, 2500);
+  }
+
+  function askKey(msg){
+    var saved = '';
+    try { saved = localStorage.getItem(KEYSTORE) || ''; } catch(e){}
+    W.innerHTML = '<p class="from">予定のお知らせ</p>'
+      + '<h1>予定が届いています</h1>'
+      + '<p>この予定は、<b>道場の合言葉</b>で守られています。開き方は2つあります。</p>'
+      + (msg ? '<div class="err" style="margin:0 0 14px">' + msg + '</div>' : '')
+      + '<button class="btn gold" id="viaapp">📲 アプリで開く'
+      + '<small>アプリに合言葉を登録してある方は、入力なしで開けます</small></button>'
+      + '<div class="res" id="r0">　</div>'
+      + '<h2>合言葉を入れて、このページで見る</h2>'
+      + '<p class="hint">アプリを入れていない方・まだ登録していない方はこちら。'
+      + '<b>一度入れると、この端末では次から聞かれません。</b></p>'
+      + '<input id="pw" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" '
+      + 'placeholder="合言葉" value="' + esc(saved) + '" '
+      + 'style="width:100%;min-height:56px;font-size:18px;font-family:inherit;padding:12px 14px;'
+      + 'border:2px solid var(--navy);border-radius:11px;box-sizing:border-box">'
+      + '<button class="btn ghost" id="unlock" style="margin-top:12px">予定を見る</button>'
+      + '<p class="hint">合言葉は、道場の先生にお聞きください。'
+      + 'リンクと同じメッセージには書かれていません。</p>';
+    document.getElementById('viaapp').onclick = function(){
+      jumpApp('myjudo://sched?v=2&c=' + encodeURIComponent(frag), document.getElementById('r0'),
+        '⚠️ アプリが開きませんでした。' + '\n' + 'アプリを入れていない方は、下に合言葉を入れてご覧ください。');
+    };
+    var go = function(){
+      var pass = (document.getElementById('pw').value||'').trim();
+      if(!pass){ askKey('合言葉を入れてください。'); return; }
+      document.getElementById('unlock').textContent = '開いています…';
+      openSealed(frag, pass).then(function(text){
+        try { localStorage.setItem(KEYSTORE, pass); } catch(e){}
+        raw = text; show();
+      }, function(){
+        askKey('合言葉が違うようです。もう一度お試しください。');
+      });
+    };
+    document.getElementById('unlock').onclick = go;
+    document.getElementById('pw').addEventListener('keydown', function(e){ if(e.key==='Enter') go(); });
+  }
+
+  if(SEALED){
+    if(!(window.crypto && crypto.subtle)){
+      W.innerHTML = '<div class="err"><b>この画面では予定を開けません。</b><br>'
+        + 'Safari や Chrome で開き直してください。</div>';
+      return;
+    }
+    var remembered = '';
+    try { remembered = localStorage.getItem(KEYSTORE) || ''; } catch(e){}
+    if(remembered){
+      openSealed(frag, remembered).then(function(text){ raw = text; show(); },
+        function(){ askKey('前に入れた合言葉では開けませんでした。新しい合言葉を入れてください。'); });
+    } else { askKey(''); }
+    return;
+  }
+
+  try { raw = decodeURIComponent(frag); } catch(e){ raw = ''; }
+  if(!raw){
+    W.innerHTML = '<div class="err"><b>予定を読み取れませんでした。</b></div>';
+    return;
+  }
+  show();
+
+  function show(){
+  // ---- 本文を読み解く（アプリと同じ形） ----
+  function parse(text){
+    var lines = text.replace(/\r/g,'').split('\n').map(function(l){return l.trim()}).filter(Boolean);
+    var o = { sender:'', ym:'', msg:'', items:[] }, inBody = false;
+    lines.forEach(function(line){
+      if(/^【.*】$/.test(line)) return;
+      if(/^[-—―]+\s*予定\s*[-—―]+$/.test(line)){ inBody = true; return; }
+      if(line.indexOf('ひとこと｜')===0){ o.msg = line.slice(5).trim(); return; }
+      if(line.indexOf('送り主｜')===0){ o.sender = line.slice(4).trim(); return; }
+      if(line.indexOf('月｜')===0){ o.ym = line.slice(2).trim(); return; }
+      if(line.indexOf('件数｜')===0) return;
+      if(!inBody) return;
+      var p = line.split('｜');
+      if(!/^\d{1,2}$/.test((p[0]||'').trim())) return;
+      o.items.push({ dd:(p[0]||'').trim(), name:(p[1]||'').trim(), title:(p[2]||'').trim(),
+        time:(p[3]||'').trim(), place:(p[4]||'').trim(), note:(p[5]||'').trim(),
+        sid:(p[7]||'').trim(), members:(p[8]||'').trim() });
+    });
+    return o;
+  }
+
+  var d = parse(raw);
+  if(!d.sender || !/^\d{4}-\d{2}/.test(d.ym)){
+    W.innerHTML = '<div class="err"><b>予定を読み取れませんでした。</b><br>'
+      + 'リンクが途中で切れているかもしれません。送ってくれた方にご確認ください。</div>';
+    return;
+  }
+
+  var ymParts = d.ym.split('-'), Y = +ymParts[0], M = +ymParts[1];
+  var WK = ['日','月','火','水','木','金','土'];
+
+  // ---- 画面を組み立てる ----
+  var h = '';
+  h += '<p class="from">' + esc(d.sender) + ' からのお知らせ</p>';
+  h += '<h1>' + Y + '年' + M + '月の予定</h1>';
+  h += '<p class="cnt">' + d.items.length + '件</p>';
+  if(d.msg) h += '<div class="msg"><b>お知らせ</b>' + esc(d.msg) + '</div>';
+
+  h += '<div class="list">';
+  d.items.slice().sort(function(a,b){
+    return (a.dd+a.time).localeCompare(b.dd+b.time);
+  }).forEach(function(it){
+    var day = +it.dd;
+    var w = new Date(Y, M-1, day).getDay();
+    var cls = w===0 ? 'sun' : (w===6 ? 'sat' : '');
+    var isMatch = /試合|大会/.test(it.name);
+    var nm = (it.name ? '<span class="tag' + (isMatch?' m':'') + '">' + esc(it.name) + '</span>' : '')
+           + esc(it.title || '');
+    var sm = [];
+    if(it.time) sm.push(esc(it.time));
+    if(it.place) sm.push('📍 ' + esc(it.place));
+    var sm2 = it.note ? '<div class="sm">📝 ' + esc(it.note) + '</div>' : '';
+    var mem = it.members ? '<div class="sm">👥 ' + esc(it.members) + '</div>' : '';
+    h += '<div class="ev"><div class="d"><div class="dd">' + day + '</div>'
+       + '<div class="wk ' + cls + '">' + WK[w] + '</div></div>'
+       + '<div class="b"><div class="nm">' + nm + '</div>'
+       + (sm.length ? '<div class="sm">' + sm.join('　') + '</div>' : '')
+       + sm2 + mem + '</div></div>';
+  });
+  h += '</div>';
+
+  h += '<h2>アプリに取り込む</h2>';
+  h += '<button class="btn gold" id="go">アプリで取り込む'
+     + '<small>押すだけでは変わりません。アプリで確認してから反映します</small></button>';
+  h += '<div class="res" id="r1">　</div>';
+  h += '<button class="btn ghost" id="cp">取り込み用の文字をコピー</button>';
+  h += '<div class="res" id="r2">　</div>';
+  h += '<button class="btn ghost" id="qrb">QRコードを表示</button>';
+  h += '<div id="qr"></div>';
+
+  h += '<details><summary>アプリが開かない・入れていない方へ</summary>'
+     + '<p><b>アプリが開かないとき</b><br>'
+     + 'この画面の右上「…」から「Safariで開く」を選び、もう一度お試しください。'
+     + 'それでも開かないときは、アプリを最新に更新してください。</p>'
+     + '<p><b>アプリを入れていないとき</b><br>'
+     + '上の一覧で予定をご確認いただけます。アプリに保存したい方は、'
+     + '「My柔道(選手)」を入れてから、このページに戻って「アプリで取り込む」を押してください。</p>'
+     + '<p><b>コピーできないとき</b><br>下の文字を長押しして選んでください。</p>'
+     + '<pre id="raw"></pre></details>';
+
+  h += '<p class="hint">このページは、送られた時点の予定を表示しています。'
+     + 'あとから変更があった場合は、新しいリンクが届きます。</p>';
+
+  W.innerHTML = h;
+  document.getElementById('raw').textContent = raw;
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  // ---- アプリで取り込む ----
+  $('go').onclick = function(){
+    jumpApp('myjudo://sched?v=1&p=' + encodeURIComponent(raw), $('r1'),
+      '⚠️ アプリが開きませんでした。\n下の「取り込み用の文字をコピー」をお使いください。');
+  };
+
+  // ---- 文字をコピー ----
+  $('cp').onclick = function(){
+    var el = $('r2');
+    var ok = function(){ el.className='res ok';
+      el.textContent='✅ コピーしました。\nアプリの「予定・記録 › 予定の取り込み」に貼り付けてください。'; };
+    var ng = function(m){ el.className='res ng';
+      el.textContent='⚠️ コピーできませんでした。' + (m?'\n'+m:'') + '\n下の折りたたみを開いて、長押しで選んでください。'; };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(raw).then(ok, function(e){ ng(e && e.message); });
+    } else { ng('この画面にはコピーの機能がありません。'); }
+  };
+
+  // ---- QRコード ----
+  var qrShown = false;
+  $('qrb').onclick = function(){
+    var box = $('qr');
+    if(qrShown){ box.innerHTML=''; qrShown=false; $('qrb').textContent='QRコードを表示'; return; }
+    box.innerHTML = '<p class="hint">作成しています…</p>';
+    var url = location.href;
+    if(typeof QRCode === 'undefined'){
+      box.innerHTML = '<p class="hint">QRコードを作れませんでした。リンクをそのままお送りください。</p>';
+      return;
+    }
+    QRCode.toDataURL(url, { width: 520, margin: 2, errorCorrectionLevel: 'L' }, function(err, src){
+      if(err){
+        box.innerHTML = '<p class="hint">この予定はQRコード1枚に収まりませんでした。'
+          + 'LINEでリンクをお送りください。</p>';
+        return;
+      }
+      box.innerHTML = '<img src="' + src + '" alt="QRコード">'
+        + '<p class="hint">会場で、相手のスマートフォンに読み取ってもらってください。</p>';
+      qrShown = true; $('qrb').textContent = 'QRコードを閉じる';
+    });
+  };
+  }
+})();
+</script>
+</body>
+</html>

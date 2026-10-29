@@ -60,6 +60,19 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.akihikoito.myjudo.player</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>myjudo</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 </dict>

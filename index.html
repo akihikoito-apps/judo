@@ -379,7 +379,7 @@
   .ri-tip{margin:12px 0 0;font-size:calc(12.5px*var(--fs,1));color:#9a7400;background:#fffaf0;border-radius:10px;padding:8px 10px;line-height:1.55;}
   .ri-reopen{margin:0 0 12px;background:#fff;border:2px solid var(--gold);color:#9a7400;border-radius:12px;padding:9px 14px;font-weight:700;font-family:inherit;font-size:calc(13px*var(--fs,1));cursor:pointer;}
   /* 初回オンボーディング */
-  .ob-overlay{position:fixed;inset:0;background:rgba(10,15,30,.74);display:none;align-items:center;justify-content:center;z-index:120;padding:18px;}
+  .ob-overlay{position:fixed;inset:0;background:rgba(10,15,30,.74);display:none;align-items:center;justify-content:center;z-index:120;padding:max(18px,calc(env(safe-area-inset-top) + 6px)) 18px max(18px,env(safe-area-inset-bottom));}   /* v301: 時計・ホームバーの下に入り込まないように */
   .ob-overlay.show{display:flex;}
   .ob-card{background:#fff;width:100%;max-width:460px;border-radius:20px;padding:26px 22px calc(20px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;box-shadow:0 22px 60px rgba(0,0,0,.4);}
   .ob-emoji{font-size:calc(52px*var(--fs,1));text-align:center;margin:2px 0 12px;line-height:1;}
@@ -528,6 +528,11 @@
   .month-nav .lbl .fy-main{font-size:calc(21px*var(--fs,1));font-weight:700;}
   .month-nav .lbl .fy-sub{font-size:calc(13px*var(--fs,1));font-weight:600;color:var(--muted);margin-top:3px;}
   .month-nav button{min-width:56px;min-height:48px;font-size:calc(24px*var(--fs,1));border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-weight:700;}
+  /* v305: 「予定をLINEで送る」の月選び。白地に白い枠で背景に溶けていたので、
+     この画面だけ枠と色を付ける（カレンダーなど他の .month-nav は変えない）。 */
+  .month-nav.ss-pick{background:var(--paper);border:2px solid var(--navy);border-radius:14px;padding:8px 10px;margin-bottom:6px;}
+  .month-nav.ss-pick .lbl{font-size:calc(22px*var(--fs,1));font-weight:800;letter-spacing:.02em;}
+  .month-nav.ss-pick button{background:var(--navy);color:#fff;border-color:var(--navy);}
 
   /* 時刻クイック選択 */
   .time-quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
@@ -1329,7 +1334,7 @@
   .theme-shape-btn .shape-desc{font-size:calc(12px*var(--fs,1));color:var(--muted);}
 
   /* ===================== パスコードロック画面 ===================== */
-  #lockScreen{display:none;position:fixed;inset:0;z-index:9999;background:var(--navy);color:#fff;align-items:center;justify-content:center;padding:24px;overflow-y:auto;-webkit-overflow-scrolling:touch;}   /* v287: 点検I-1。収まらないときは縦にスクロールできる */
+  #lockScreen{display:none;position:fixed;inset:0;z-index:9999;background:var(--navy);color:#fff;align-items:center;justify-content:center;padding:max(24px,calc(env(safe-area-inset-top) + 8px)) max(24px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left));overflow-y:auto;-webkit-overflow-scrolling:touch;}   /* v287: 点検I-1。収まらないときは縦にスクロールできる／v301: 上の安全域ぶんも空ける */
   #lockScreen.show{display:flex;}
   .lock-inner{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;margin:auto;}   /* margin:auto：はみ出しても上側が切れない */
   .lock-logo{width:64px;height:64px;border-radius:14px;background-size:cover;background-position:center;margin-bottom:14px;}
@@ -1347,7 +1352,7 @@
   .lock-key.fn{font-size:calc(17px*var(--fs,1));font-weight:700;border-color:transparent;background:none;}
   /* v287: 点検I-1。横向きなど高さが足りない画面では、キーを min(22vh,90px) に抑えて詰める */
   @media (max-height:600px){
-    #lockScreen{padding:12px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));}
+    #lockScreen{padding:max(12px,calc(env(safe-area-inset-top) + 4px)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));}
     .lock-logo{display:none;}
     .lock-title{margin-bottom:10px;}
     .lock-msg{margin-bottom:8px;}
@@ -1909,7 +1914,7 @@ function applyUpdate(){
   </div>
 
   <div id="setViewSec" style="display:none">
-    <div class="card">
+    <div class="card" id="lockCard">
       <h3 style="margin-top:0;color:var(--navy)">アプリのロック（パスコード）</h3>
       <p class="list-mini">仲間の個人情報をお預かりするため、起動時に4桁のパスコード入力を求められるようにできます（この端末のみ・バックアップには含まれません）。※のぞき見を防ぐための簡易的なロックです。端末そのものの画面ロックも併せてご利用ください。</p>
       <div class="lock-warn">
@@ -1925,6 +1930,15 @@ function applyUpdate(){
       </div>
       <p class="list-mini" id="lockNoBackup" style="display:none;color:#c0392b;font-weight:700;margin-top:8px">バックアップがまだありません。「設定 › データ管理 › 💾 バックアップを保存」を先に行ってください。</p>
       <button class="btn ghost full" id="lockChangeBtn" style="margin-top:10px;display:none" onclick="startSetPasscode()">パスコードを変更</button>
+    </div>
+    <!-- v300: 予定表の合言葉。送る側は「包むための鍵」、受け取る側は「開けるための鍵」。 -->
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--navy)">予定表の合言葉</h3>
+      <p class="list-mini" id="skLead">道場から合言葉を教わっている方は、ここに登録しておくと、届いた予定のリンクを入力なしで開けます。あとから変更もできます。</p>
+      <label class="fld">合言葉</label>
+      <input type="text" id="skKey" maxlength="40" placeholder="例：aoisora2026" oninput="ssSetKey(this.value)" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <p class="list-mini" id="skHint" style="margin:5px 2px 4px"></p>
+      <p class="list-mini" style="margin:0 2px 0;color:#c77f0a">⚠️ 合言葉は、予定のリンクと同じメッセージには書かないでください。</p>
     </div>
   </div>
 
@@ -2354,7 +2368,8 @@ function applyUpdate(){
   <div class="modal">
     <h3>📤 予定をLINEで送る</h3>
     <p class="list-mini">選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 予定の取り込み」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。</p>
-    <div class="month-nav" style="margin-top:10px">
+    <label class="fld" style="margin-top:12px">📅 送る月（‹ › で選びます）</label>
+    <div class="month-nav ss-pick">
       <button onclick="ssMove(-1)">‹</button>
       <div class="lbl" id="ssMonthLbl"></div>
       <button onclick="ssMove(1)">›</button>
@@ -2368,7 +2383,13 @@ function applyUpdate(){
       <span class="list-mini">📝 メモも送る<span style="display:block;color:#c77f0a">送られるのは下の内容だけです。メモに個人名などが入っていないかご確認ください。</span></span>
     </label>
     <textarea id="ssPreview" rows="6" readonly style="width:100%;font-size:13px;font-family:inherit;padding:10px 11px;border:1.5px solid var(--line);border-radius:10px;box-sizing:border-box;resize:vertical;color:var(--muted)"></textarea>
-    <button class="btn gold full" style="margin-top:12px" onclick="ssSend()">📩 LINE等で送る</button>
+    <label class="fld" style="margin-top:10px">🔑 予定表の合言葉</label>
+    <input type="text" id="ssKey" maxlength="40" placeholder="例：aoisora2026" oninput="ssSetKey(this.value)" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <p class="list-mini" id="ssKeyHint" style="margin:5px 2px 4px"></p>
+    <p class="list-mini" style="margin:0 2px 10px;color:#c77f0a">⚠️ 合言葉は、<b>リンクと同じメッセージに書かないでください。</b>道場で口頭などで、一度だけお伝えください。</p>
+    <button class="btn gold full" style="margin-top:4px" onclick="ssSendLink()">🔗 リンクで送る（おすすめ）</button>
+    <p class="list-mini" style="margin:6px 2px 10px">受け取った人は、リンクを押すだけで取り込めます。アプリが無い人も、予定を見られます。</p>
+    <button class="btn ghost full" onclick="ssSend()">📝 文字で送る（これまでどおり）</button>
     <button class="btn ghost full" style="margin-top:10px" id="ssQrBtn" onclick="ssShowQr()">📷 QRコードを表示</button>
     <div id="ssQrBox" style="margin-top:10px;text-align:center"></div>
     <div class="row" style="margin-top:12px"><button class="btn ghost full" onclick="closeModal('schedShareModal')">とじる</button></div>
@@ -2433,8 +2454,9 @@ function applyUpdate(){
 <div class="modal-bg" id="gwDayModal">
   <div class="modal">
     <h3 id="gwDayTitle"></h3>
+    <!-- v301: まず予定、その下に記録。予定を見てから記録をつける順にそろえた -->
+    <div id="gwDaySched"></div>
     <div id="gwDayKeiko"></div>
-    <div id="gwDaySched" style="margin-top:8px"></div>
     <div class="row" style="margin-top:16px">
       <button class="btn ghost" onclick="closeModal('gwDayModal')">とじる</button>
       <button class="btn gold" onclick="gwDayAddSched()">📅 この日に予定を追加</button>
@@ -5541,7 +5563,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v294'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v306'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -6575,6 +6597,53 @@ Object.assign(DICT,{
   '月分':{en:'',fr:'',pt:''},
   'に取り込み':{en:' imported',fr:' importé',pt:' importado'},
   '取り込み済みの送り主':{en:'Imported senders',fr:'Expéditeurs importés',pt:'Remetentes importados'},
+  'この日の予定だけを直します。ほかの日は変わりません。':{en:'Only this day will be updated. Other days stay as they are.',fr:'Seul ce jour sera mis à jour. Les autres jours ne changent pas.',pt:'Só este dia será atualizado. Os outros dias não mudam.'},
+  '（この日だけ）':{en:' (this day only)',fr:' (ce jour seulement)',pt:' (só este dia)'},
+  '🔑 予定表の合言葉':{en:'🔑 Schedule passphrase',fr:'🔑 Mot de passe de l’agenda',pt:'🔑 Senha da agenda'},
+  '合言葉なし＝リンクを持つ人は誰でも中身を読めます。':{en:'No passphrase: anyone with the link can read it.',fr:'Sans mot de passe : quiconque a le lien peut le lire.',pt:'Sem senha: qualquer pessoa com o link pode ler.'},
+  '短い合言葉は破られやすいです。英数字8文字以上をおすすめします。':{en:'A short passphrase is easy to break. Use 8 or more letters and digits.',fr:'Un mot de passe court se devine. Utilisez 8 caractères ou plus.',pt:'Uma senha curta é fácil de quebrar. Use 8 caracteres ou mais.'},
+  '予定表の合言葉':{en:'Schedule passphrase',fr:'Mot de passe de l’agenda',pt:'Senha da agenda'},
+  '合言葉':{en:'Passphrase',fr:'Mot de passe',pt:'Senha'},
+  '道場から合言葉を教わっている方は、ここに登録しておくと、届いた予定のリンクを入力なしで開けます。あとから変更もできます。':{en:'If your dojo gave you a passphrase, save it here and schedule links will open without any typing. You can change it later.',fr:'Si votre dojo vous a donné un mot de passe, enregistrez-le ici : les liens d’agenda s’ouvriront sans rien taper. Modifiable à tout moment.',pt:'Se o dojo lhe deu uma senha, guarde-a aqui: os links da agenda abrirão sem digitar nada. Dá para mudar depois.'},
+  'この合言葉で、送る予定表のリンクを包みます。受け取る人にも同じ合言葉を伝えてください。':{en:'Schedule links you send are locked with this passphrase. Tell the same passphrase to the people who receive them.',fr:'Les liens que vous envoyez sont verrouillés avec ce mot de passe. Communiquez-le aux destinataires.',pt:'Os links que você envia são protegidos com esta senha. Informe a mesma senha a quem receber.'},
+  '⚠️ 合言葉は、予定のリンクと同じメッセージには書かないでください。':{en:'⚠️ Never write the passphrase in the same message as the link.',fr:'⚠️ N’écrivez jamais le mot de passe dans le même message que le lien.',pt:'⚠️ Nunca escreva a senha na mesma mensagem do link.'},
+  'まだ登録されていません。道場から合言葉を教わっている方は入力してください。':{en:'Not saved yet. If your dojo gave you a passphrase, enter it here.',fr:'Pas encore enregistré. Si votre dojo vous a donné un mot de passe, saisissez-le.',pt:'Ainda não salva. Se o dojo lhe deu uma senha, digite-a aqui.'},
+  '届いたリンクは、この合言葉で自動で開きます。':{en:'Links you receive will open automatically with this passphrase.',fr:'Les liens reçus s’ouvriront automatiquement avec ce mot de passe.',pt:'Os links recebidos abrirão automaticamente com esta senha.'},
+  'この端末では合言葉で包めません。送るリンクは、中身がそのまま読める状態になります。':{en:'This device cannot lock the link. Anything you send will be readable as-is.',fr:'Cet appareil ne peut pas verrouiller le lien. Ce que vous envoyez sera lisible tel quel.',pt:'Este aparelho não consegue proteger o link. O que você enviar será legível como está.'},
+  '🔑 道場の合言葉（決めておくと安心です）':{en:'🔑 Dojo passphrase (recommended)',fr:'🔑 Mot de passe du dojo (recommandé)',pt:'🔑 Senha do dojo (recomendado)'},
+  '送る予定表のリンクを、この合言葉で包みます。知らない人は、リンクを持っていても中身を見られません。':{en:'Schedule links you send are locked with this passphrase. Without it, the link shows nothing.',fr:'Les liens d’agenda que vous envoyez sont verrouillés avec ce mot de passe. Sans lui, le lien ne montre rien.',pt:'Os links de agenda que você envia são protegidos com esta senha. Sem ela, o link não mostra nada.'},
+  '合言葉は、リンクと同じメッセージに書かず、道場で口頭でお伝えください。':{en:'Never put the passphrase in the same message as the link. Tell it in person at the dojo.',fr:'Ne mettez jamais le mot de passe dans le même message que le lien. Dites-le de vive voix au dojo.',pt:'Nunca escreva a senha na mesma mensagem do link. Informe-a pessoalmente no dojo.'},
+  '📅 送る月（‹ › で選びます）':{en:'📅 Month to send (use ‹ ›)',fr:'📅 Mois à envoyer (‹ ›)',pt:'📅 Mês a enviar (‹ ›)'},
+  '合言葉を入れずに送ります。':{en:'Sending without a passphrase.',fr:'Envoi sans mot de passe.',pt:'Enviando sem senha.'},
+  'このリンクを持っている人は誰でも、お名前を含む予定の中身を読めます。':{en:'Anyone with this link can read the schedule, including names.',fr:'Toute personne ayant ce lien pourra lire l’agenda, noms compris.',pt:'Qualquer pessoa com este link poderá ler a agenda, inclusive os nomes.'},
+  '道場の合言葉を決めている場合は、「やめる」を押して 🔑 の欄に入れてから送ってください。':{en:'If your dojo has a passphrase, tap Cancel and enter it in the 🔑 field first.',fr:'Si votre dojo a un mot de passe, appuyez sur Annuler et saisissez-le dans le champ 🔑.',pt:'Se o seu dojo tem uma senha, toque em Cancelar e digite-a no campo 🔑.'},
+  'このまま送る':{en:'Send without it',fr:'Envoyer sans',pt:'Enviar sem senha'},
+  '合言葉で包めませんでした。':{en:'The link could not be locked.',fr:'Le lien n’a pas pu être verrouillé.',pt:'Não foi possível proteger o link.'},
+  'このまま送ると、リンクを持っている人は誰でも、お名前を含む予定の中身を読めます。':{en:'If you send it anyway, anyone with the link can read the schedule, including names.',fr:'Si vous l’envoyez quand même, toute personne ayant le lien pourra lire l’agenda, noms compris.',pt:'Se enviar assim mesmo, qualquer pessoa com o link poderá ler a agenda, inclusive os nomes.'},
+  'この端末では暗号の機能が使えないようです。Web版（ブラウザ）からなら包めることがあります。':{en:'This device does not seem to support encryption. The web version in a browser may be able to lock it.',fr:'Cet appareil ne semble pas prendre en charge le chiffrement. La version web dans un navigateur peut y parvenir.',pt:'Este aparelho parece não suportar criptografia. A versão web no navegador pode conseguir.'},
+  'それでも送る':{en:'Send anyway',fr:'Envoyer quand même',pt:'Enviar mesmo assim'},
+  'この端末では、合言葉つきの予定を自動で開けません。リンク先のページで合言葉を入れてから「取り込み用の文字をコピー」をお使いください。':{en:'This device cannot open locked schedules by itself. On the link page, enter the passphrase and use “Copy the text for importing”.',fr:'Cet appareil ne peut pas ouvrir seul un agenda verrouillé. Sur la page du lien, saisissez le mot de passe puis utilisez « Copier le texte à importer ».',pt:'Este aparelho não abre agendas protegidas sozinho. Na página do link, digite a senha e use “Copiar o texto para importar”.'},
+  '🔑 道場の合言葉（教わっている方だけ）':{en:'🔑 Your dojo’s passphrase (only if you were given one)',fr:'🔑 Mot de passe du dojo (seulement si on vous l’a donné)',pt:'🔑 Senha do dojo (só se lhe deram uma)'},
+  '登録しておくと、届いたリンクを押すだけで予定が開きます。':{en:'Save it and a schedule link will open with a single tap.',fr:'Enregistrez-le et un lien d’agenda s’ouvrira d’une seule touche.',pt:'Guarde-a e o link da agenda abrirá com um toque.'},
+  'あとで「設定 › セキュリティ › 予定表の合言葉」からでも登録できます。':{en:'You can also save it later in Settings › Security › Schedule passphrase.',fr:'Vous pourrez aussi l’enregistrer plus tard dans Réglages › Sécurité › Mot de passe de l’agenda.',pt:'Também dá para salvar depois em Ajustes › Segurança › Senha da agenda.'},
+  'この予定は、道場の合言葉で守られています。':{en:'This schedule is protected by your dojo’s passphrase.',fr:'Cet agenda est protégé par le mot de passe du dojo.',pt:'Esta agenda está protegida pela senha do dojo.'},
+  '合言葉で開いています…':{en:'Opening with the passphrase…',fr:'Ouverture avec le mot de passe…',pt:'Abrindo com a senha…'},
+  '合言葉が違うようです。道場の先生にご確認ください。':{en:'That passphrase does not seem right. Please check with your dojo.',fr:'Le mot de passe semble incorrect. Vérifiez auprès du dojo.',pt:'A senha parece incorreta. Confirme com o dojo.'},
+  '予定を見る':{en:'Show the schedule',fr:'Afficher l’agenda',pt:'Ver a agenda'},
+  '一度入れると、この端末では次から聞かれません。':{en:'Enter it once and this device will not ask again.',fr:'Saisissez-le une fois : cet appareil ne le redemandera plus.',pt:'Digite uma vez e este aparelho não perguntará de novo.'},
+  '例：aoisora2026':{en:'e.g. aoisora2026',fr:'ex. : aoisora2026',pt:'ex.: aoisora2026'},
+  '※ はじめての方は、道場の合言葉が必要です。':{en:'* First time? You will need your dojo’s passphrase.',fr:'* Première fois ? Le mot de passe du dojo est nécessaire.',pt:'* Primeira vez? Você vai precisar da senha do dojo.'},
+  'アプリの「設定 › セキュリティ › 予定表の合言葉」に登録しておくと、次からは聞かれません。':{en:'Save it in Settings › Security › Schedule passphrase and you will not be asked again.',fr:'Enregistrez-le dans Réglages › Sécurité › Mot de passe de l’agenda et on ne vous le redemandera plus.',pt:'Salve em Ajustes › Segurança › Senha da agenda e não será perguntado novamente.'},
+  'このリンクは、合言葉を知っている人しか開けません。':{en:'Only people who know the passphrase can open this link.',fr:'Seules les personnes connaissant le mot de passe peuvent ouvrir ce lien.',pt:'Só quem sabe a senha consegue abrir este link.'},
+  '🔗 リンクで送る（おすすめ）':{en:'🔗 Send a link (recommended)',fr:'🔗 Envoyer un lien (recommandé)',pt:'🔗 Enviar um link (recomendado)'},
+  '📝 文字で送る（これまでどおり）':{en:'📝 Send as text (as before)',fr:'📝 Envoyer en texte (comme avant)',pt:'📝 Enviar como texto (como antes)'},
+  '受け取った人は、リンクを押すだけで取り込めます。アプリが無い人も、予定を見られます。':{en:'Tapping the link is all it takes. People without the app can still read the schedule.',fr:'Il suffit d’appuyer sur le lien. Ceux qui n’ont pas l’app peuvent quand même lire l’agenda.',pt:'Basta tocar no link. Quem não tem o app ainda consegue ver a agenda.'},
+  '下のリンクから、予定を確認して取り込んでください。':{en:'Open the link below to check the schedule and import it.',fr:'Ouvrez le lien ci-dessous pour vérifier l’agenda et l’importer.',pt:'Abra o link abaixo para conferir a agenda e importar.'},
+  'アプリが無い方も、リンク先で予定を見られます。':{en:'Even without the app, you can read the schedule there.',fr:'Même sans l’application, vous pouvez y consulter l’agenda.',pt:'Mesmo sem o app, dá para ver a agenda lá.'},
+  'の予定':{en:' schedule',fr:' agenda',pt:' agenda'},
+  'この月の予定がありません':{en:'There are no events this month',fr:'Aucun événement ce mois-ci',pt:'Não há eventos neste mês'},
+  'コピーしました。LINEに貼って送ってください':{en:'Copied. Paste it into your message app and send',fr:'Copié. Collez-le dans votre messagerie et envoyez',pt:'Copiado. Cole no seu app de mensagens e envie'},
+  'コピーできませんでした':{en:'Could not copy',fr:'Impossible de copier',pt:'Não foi possível copiar'},
   'この送り主のこの月の予定':{en:'This sender’s events for this month: ',fr:'Événements de cet expéditeur pour ce mois : ',pt:'Eventos deste remetente neste mês: '},
   '件を置き換えます':{en:' will be replaced',fr:' seront remplacés',pt:' serão substituídos'},
   'の予定':{en:' schedule:',fr:' planning :',pt:' agenda:'},
@@ -6858,6 +6927,8 @@ Object.assign(DICT,{
   '未記録':{en:'Not logged',fr:'Non noté',pt:'Sem registro'},
   '記録あり':{en:'Logged',fr:'Noté',pt:'Registrado'},
   '記録':{en:'Log',fr:'Noter',pt:'Registrar'},
+  '📝 記録':{en:'📝 Log',fr:'📝 Journal',pt:'📝 Registro'},
+  '📅 予定':{en:'📅 Schedule',fr:'📅 Agenda',pt:'📅 Agenda'},
   'けいこ':{en:'Practice',fr:'Entraînement',pt:'Treino'},
   '予定':{en:'Events',fr:'Agenda',pt:'Agenda'},
   '例：内股 打ち込み（スペースで区切り）':{en:'e.g. uchi-mata uchikomi (separate with spaces)',fr:'ex. uchi-mata uchikomi (séparés par des espaces)',pt:'ex. uchi-mata uchikomi (separe com espaços)'},
@@ -7178,7 +7249,7 @@ function showSaveError(on){
   if(!on){ if(el)el.style.display='none'; return; }
   if(!el){
     el=document.createElement('div'); el.id='saveErrBanner';
-    el.style.cssText='position:fixed;left:0;right:0;top:0;z-index:200;background:#c0392b;color:#fff;padding:10px 12px;font-size:13px;font-weight:800;line-height:1.5;box-shadow:0 2px 10px rgba(0,0,0,.3);cursor:pointer';
+    el.style.cssText='position:fixed;left:0;right:0;top:0;z-index:200;background:#c0392b;color:#fff;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;font-size:13px;font-weight:800;line-height:1.5;box-shadow:0 2px 10px rgba(0,0,0,.3);cursor:pointer';   /* v301: 時計にかからないように */
     el.onclick=()=>{ try{ switchTab('set'); setSetView('data'); }catch(e){} };
     document.body.appendChild(el);
   }
@@ -7360,11 +7431,16 @@ function applyMode(){
   const o=document.getElementById('modeOfficeB'),p=document.getElementById('modePersonalB');
   if(o)o.classList.toggle('on',!personal);
   if(p)p.classList.toggle('on',personal);
-  // v225: パスコードロックは事務のみ（他人の個人情報を預かるため）。個人アプリでは非表示にする
+  /* v225: パスコードロックは事務のみ（他人の個人情報を預かるため）。
+     v304: ただしタブごと隠すのはやめた。このタブには「予定表の合言葉」（v300）もあり、
+     選手アプリから一生たどり着けなかった。送る文面でも
+     「設定 › セキュリティ › 予定表の合言葉」と案内している。
+     → タブは出したままにして、パスコードの枠だけを個人モードで隠す。
+     v279（個人モードではロックを止めるだけ・設定は消さない）はそのまま。 */
   const secTab=document.getElementById('setTabSec');
-  if(secTab)secTab.style.display=personal?'none':'';
-  // v279: 個人モードではロックを一時的に止めるだけ（設定は消さない）。道場モードに戻すと setAppMode で再びかかる
-  if(personal){ const sv=document.getElementById('setViewSec'); if(sv&&sv.style.display!=='none')setSetView('use'); }
+  if(secTab)secTab.style.display='';
+  const lockCard=document.getElementById('lockCard');
+  if(lockCard)lockCard.style.display=personal?'none':'';
 }
 // v166: エディション適用。個人/事務専用ビルドはモードを固定し、切替UIを隠す。
 function applyEdition(){
@@ -9763,6 +9839,9 @@ function obRender(){
     h=`<div class="ob-emoji">📥</div>
        <h3 class="ob-h">${T('道場の予定も受け取れます')}</h3>
        <p class="ob-p">${T('先生から届いた予定表を「予定・記録 › 予定の取り込み」で貼り付けるか、QRを読み取るだけ。')}<br>${T('大会までのカウントダウンも自動で出ます。')}</p>
+       <label class="fld" style="text-align:center;display:block">${T('🔑 道場の合言葉（教わっている方だけ）')}</label>
+       <input class="ob-input" id="obKey" type="text" placeholder="${T('例：aoisora2026')}" value="${esc(shareKeyText())}" autocapitalize="off" autocorrect="off" spellcheck="false">
+       <p class="ob-p" style="font-size:calc(12.5px*var(--fs,1));margin-bottom:12px">${T('登録しておくと、届いたリンクを押すだけで予定が開きます。')}<br>${T('あとで「設定 › セキュリティ › 予定表の合言葉」からでも登録できます。')}</p>
        <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
   }else{
     h=`<div class="ob-emoji">🎉</div>
@@ -9832,6 +9911,9 @@ function obRenderOffice(body,skip){
          <div class="ob-step"><span class="ob-no">📥</span><div>${T('届いた試合結果は「集計 › 試合結果 › 取り込み」に貼るだけ')}</div></div>
          <div class="ob-step"><span class="ob-no">📈</span><div>${T('取り込んだ結果は勝率・決まり技レーダーで自動分析')}</div></div>
        </div>
+       <label class="fld" style="text-align:center;display:block">${T('🔑 道場の合言葉（決めておくと安心です）')}</label>
+       <input class="ob-input" id="obKey" type="text" placeholder="${T('例：aoisora2026')}" value="${esc(shareKeyText())}" autocapitalize="off" autocorrect="off" spellcheck="false">
+       <p class="ob-p" style="font-size:calc(12.5px*var(--fs,1));margin-bottom:12px">${T('送る予定表のリンクを、この合言葉で包みます。知らない人は、リンクを持っていても中身を見られません。')}<br><b>${T('合言葉は、リンクと同じメッセージに書かず、道場で口頭でお伝えください。')}</b><br>${T('あとで「設定 › セキュリティ › 予定表の合言葉」からでも登録できます。')}</p>
        <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
   }else{
     h=`<div class="ob-emoji">🎉</div>
@@ -9864,6 +9946,12 @@ function obNext(){
     if(!self){ self=repCreateSelf(obNameVal); }
     else { self.isSelf=true; if(!self.name)self.name=obNameVal; }
     save();
+  }
+  if(obStep===5){                                /* v300: 道場の合言葉（入れていなければ何もしない）
+                                                    v306: 事務アプリでも同じ欄を出すようにしたので、両方で保存する */
+    const kk=document.getElementById('obKey');
+    const kv=kk?(kk.value||'').trim():'';
+    if(kv){ DB.shareKey=kv.slice(0,40); save(); }
   }
   obStep++; obRender();
 }
@@ -11784,7 +11872,7 @@ function gwOpenDay(ds){
   // v241: 稽古の予定が無い日でも記録できる（道場と連携していない人でも使えるように）
   if(!kkStars.length && viewStars.length) kkStars.push(...(gwAllView?viewStars:viewStars.filter(s=>s.id===gwSelfId)));
   const showKeikoSec=kkStars.length>0;
-  document.getElementById('gwDayKeiko').innerHTML=!showKeikoSec?'':`<div class="gwd-sec keiko"><div class="gwd-h">🔥 ${T('稽古')}</div>`+
+  document.getElementById('gwDayKeiko').innerHTML=!showKeikoSec?'':`<div class="gwd-sec keiko"><div class="gwd-h">${T('📝 記録')}</div>`+
     kkStars.map(st=>{ const e=keikoOf(st.id)[ds];
       const sum=e?[kkFace(e.s),e.m?esc(e.m):''].filter(Boolean).join('・')||T('出席ずみ'):T('未記録');
       const btns=e
@@ -13070,6 +13158,22 @@ function renderSchedCal(){
   document.getElementById('schedCalGrid').innerHTML=html;
 }
 /* ===== v219: 予定の共有（事務→選手）。テキスト主・QR副（長い月は自動で複数QRに分割） ===== */
+// v295: 予定を1件だけ「差分」の形で書き出す。月まるごとではなく、この予定だけを直してもらう。
+//        見出しの月を YYYY-MM-DD にすることが差分の合図。
+function schedSharePatchText(schedId){
+  const s=(DB.schedule||[]).find(x=>x.id===schedId);
+  if(!s||!s.date)return null;
+  const sender=(DB.team||'').trim()||T('道場');
+  const withNote=(DB.shareNote!==false);
+  const inferred=/試合|大会/.test(s.name||'');
+  const flag=(s.showMatch===true&&!inferred)?'M':((s.showMatch===false&&inferred)?'x':'');
+  const note=withNote?shareField(s.note||''):'';
+  const base=[s.date.slice(8),s.name||'',s.title||'',s.time||'',s.place||'',note,flag].map(shareField).concat([shareField(s.id)]);
+  const mem=schedShareMembers(s.id, shareBytes(base.join('｜')));
+  const row=(mem?base.concat([mem]):base).join('｜').replace(/｜+$/,'');
+  const L=['【My柔道 予定表】','送り主｜'+shareField(sender),'月｜'+s.date,'件数｜1','--- 予定 ---',row];
+  return {text:L.join('\n'), sender, date:s.date, sched:s};
+}
 function schedShareText(ym){
   const sender=(DB.team||'').trim()||T('道場');
   const withNote=(DB.shareNote!==false);            // v224: メモを送るか（既定=送る）
@@ -13124,19 +13228,26 @@ function schedShareParts(text){
 function schedShareParse(raw){
   const lines=(raw||'').replace(/\r/g,'').split('\n').map(l=>l.trim()).filter(Boolean);
   let sender='',ym='',msg='',inBody=false; const items=[]; let sawBody=false; let declared=null;
+  let patchDay='';   // v295: 月｜YYYY-MM-DD なら「その分だけ直す」
   lines.forEach(line=>{
     if(/^【.*】$/.test(line))return;
     if(/^[-—―]+\s*予定\s*[-—―]+$/.test(line)){inBody=true;sawBody=true;return;}
     if(line.startsWith('ひとこと｜')){msg=line.slice(5).trim();return;}
     if(line.startsWith('送り主｜')){sender=line.slice(4).trim();return;}
-    if(line.startsWith('月｜')){ym=line.slice(2).trim();return;}
+    if(line.startsWith('月｜')){
+      const v=line.slice(2).trim();
+      // v295: 日付まで書いてあれば差分モード。古いアプリはこの形を弾いて何も消さない
+      const md=v.match(/^(\d{4}-\d{2})-(\d{2})$/);
+      if(md){ym=md[1];patchDay=md[2];}else{ym=v;}
+      return;
+    }
     if(line.startsWith('件数｜')){ const v=parseInt(line.slice(3).trim(),10); if(!isNaN(v))declared=v; return; }
     if(!inBody)return;
     const p=line.split('｜'); const dd=(p[0]||'').trim();
     if(!/^\d{1,2}$/.test(dd))return;
     items.push({dd:dd.padStart(2,'0'),name:(p[1]||'').trim(),title:(p[2]||'').trim(),time:(p[3]||'').trim(),place:(p[4]||'').trim(),note:(p[5]||'').trim(),flag:(p[6]||'').trim(),sid:(p[7]||'').trim(),members:(p[8]||'').trim()});
   });
-  return {sender,ym,msg,items,sawBody,declared};
+  return {sender,ym,msg,items,sawBody,declared,patch:!!patchDay,patchDay};
 }
 /* v258: 予定表の照合を1か所にまとめる。
    取り込みと「何件消えるか」の予測が必ず同じ結果になるようにするため。
@@ -13207,6 +13318,9 @@ function schedShareApply(parsed,forId){
   // v258: 日付が別の月へ動いた予定も拾えるよう、送り元IDだけは月をまたいで探す
   const mineAll=(DB.schedule||[]).filter(s=>s.src===sender&&(s.forId||'')===forId);
   const plan=schedMatchPlan(sender,ym,forId,items,mine,mineAll);
+  // v295: 差分モードでは「載っていない日」を消さない。
+  //       いつもの予定表は『その月の全部』だが、差分は『直す分だけ』を送るため。
+  if(parsed.patch)plan.del.length=0;
   const keep=plan.keep;
   DB.schedSrcMap=DB.schedSrcMap||{};
   const _mapKey=(sid)=>sender+'\u0001'+forId+'\u0001'+sid;
@@ -13233,7 +13347,9 @@ function schedShareApply(parsed,forId){
   DB.schedule=(DB.schedule||[]).filter(s=>!delIds.has(s.id));
   // v237: 送り主ごとに「最後に取り込んだ月・ひとこと・日付・件数」を残す
   DB.schedSrc=DB.schedSrc||{};
-  DB.schedSrc[sender]={ym:ym,msg:(msg||''),at:todayStr(),n:items.length};
+  // v295: 差分は「月の予定表を受け取り直した」わけではないので、件数は上書きしない
+  if(parsed.patch){ const cur=DB.schedSrc[sender]; if(cur)cur.at=todayStr(); else DB.schedSrc[sender]={ym:ym,msg:'',at:todayStr(),n:items.length}; }
+  else DB.schedSrc[sender]={ym:ym,msg:(msg||''),at:todayStr(),n:items.length};
   schedSrcMapPrune();                    // v258: 使われなくなった対応を溜めない
   if(!save()){ try{
     DB.schedule=JSON.parse(_bkSchedJson); DB.schedSrc=JSON.parse(_bkSrcJson); DB.schedSrcMap=JSON.parse(_bkMapJson);
@@ -13244,12 +13360,175 @@ function schedShareApply(parsed,forId){
 /* --- 送る側（事務） --- */
 let ssMonth=null;
 // v237: 送るときのひとこと（LINEの先頭に出る／受け取り側の履歴にも残る）
+/* v298: 月の予定を1本のリンクにする。
+   本文はそのまま URL の # のうしろに入れる。縮める処理は使わない。
+   （古い端末でも確実に読めることを優先した。1か月ぶんでも数千字に収まる） */
+const SHARE_PAGE='https://akihikoito-apps.github.io/judo/s.html';
+/* v299: 合言葉で予定表を包む。鍵は合言葉からその場で作る（どこにも保存しない）。
+   使うのはブラウザ標準の暗号機能だけ。外の仕組みには一切つながらない。 */
+const SHARE_ITER=200000;
+function shareB64u(buf){ let b=''; const a=new Uint8Array(buf);
+  for(let i=0;i<a.length;i++)b+=String.fromCharCode(a[i]);
+  return btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+async function shareKeyFrom(pass,salt){
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:SHARE_ITER,hash:'SHA-256'},
+    base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+/* v305: 包む前に縮める。予定表は同じ言葉のくり返しが多く、半分くらいになる。
+   先頭の文字で見分ける：e=そのまま包んだ、z=縮めてから包んだ。
+   縮められない端末（iOS 16.3 以前）は今までどおり e で送るので、どちらでも届く。 */
+function shareZipOk(){ try{ new CompressionStream('deflate-raw'); return true; }catch(e){ return false; } }
+async function shareZip(bytes){
+  const cs=new CompressionStream('deflate-raw');
+  const w=cs.writable.getWriter(); w.write(bytes); w.close();
+  return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+}
+async function shareUnzip(bytes){
+  const ds=new DecompressionStream('deflate-raw');
+  const w=ds.writable.getWriter(); w.write(bytes); w.close();
+  return new Uint8Array(await new Response(ds.readable).arrayBuffer());
+}
+async function shareSeal(text,pass){
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const k=await shareKeyFrom(pass,salt);
+  const plain=new TextEncoder().encode(text);
+  let body=plain, mark='e';
+  if(shareZipOk()){
+    // 短い予定表では縮まないことがあるので、縮んだときだけ使う
+    try{ const z=await shareZip(plain); if(z.length<plain.length){ body=z; mark='z'; } }catch(e){}
+  }
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,body);
+  return mark+shareB64u(salt)+'.'+shareB64u(iv)+'.'+shareB64u(ct);
+}
+/* v300: 包んだものを解く側。事務用で包むのと同じしくみ（PBKDF2 → AES-GCM）。
+   これがあるので、リンク先のページは「包んだまま」アプリへ渡せる。
+   受け取った人は、登録しておいた合言葉で自動で開ける（入力は要らない）。 */
+function shareCryptoOk(){ try{ return !!(window.crypto&&crypto.subtle&&crypto.subtle.deriveKey); }catch(e){ return false; } }
+function shareLooksSealed(t){
+  const v=String(t||'').trim();
+  const c=v.charAt(0);                       // v305: e=そのまま包んだ、z=縮めてから包んだ
+  return (c==='e'||c==='z')&&v.split('.').length===3&&v.indexOf('【')<0;
+}
+function shareBytesFromB64u(t){
+  const b=String(t).replace(/-/g,'+').replace(/_/g,'/');
+  const bin=atob(b), a=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);
+  return a;
+}
+async function shareOpen(blob,pass){
+  const v=String(blob).trim(), mark=v.charAt(0);
+  const parts=v.slice(1).split('.');
+  if(parts.length!==3)throw new Error('form');
+  const salt=shareBytesFromB64u(parts[0]), iv=shareBytesFromB64u(parts[1]), ct=shareBytesFromB64u(parts[2]);
+  const k=await shareKeyFrom(pass,salt);
+  let pt=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},k,ct));
+  if(mark==='z')pt=await shareUnzip(pt);     // v305: 縮めて送られた分をもどす
+  return new TextDecoder().decode(pt);
+}
+function shareKeyText(){ return (DB.shareKey||'').trim(); }
+function ssSetKey(v){ DB.shareKey=(v||'').trim().slice(0,40);
+  clearTimeout(_ssKeyTimer); _ssKeyTimer=setTimeout(()=>save(),400); renderShareKeyHint(); }
+let _ssKeyTimer=null;
+/* v300: 合言葉の欄は「予定を共有」と「設定 › セキュリティ」の2か所にある。
+   どちらも同じ DB.shareKey を見るので、片方で直せばもう片方にも映る。
+   送る側（事務）と受け取る側（選手）で、注意書きの中身を変える。 */
+function shareIsRecvSide(){ return !obIsOffice(); }   // 選手用アプリ（personal）と、Web版の選手モード
+function shareKeyHintHtml(){
+  const v=shareKeyText();
+  if(!shareCryptoOk())
+    return shareIsRecvSide()
+      ? '<b style="color:#c77f0a">'+T('この端末では、合言葉つきの予定を自動で開けません。リンク先のページで合言葉を入れてから「取り込み用の文字をコピー」をお使いください。')+'</b>'
+      : '<b style="color:var(--red)">'+T('この端末では合言葉で包めません。送るリンクは、中身がそのまま読める状態になります。')+'</b>';
+  if(!v)
+    return shareIsRecvSide()
+      ? '<b style="color:#c77f0a">'+T('まだ登録されていません。道場から合言葉を教わっている方は入力してください。')+'</b>'
+      : '<b style="color:var(--red)">'+T('合言葉なし＝リンクを持つ人は誰でも中身を読めます。')+'</b>';
+  if(v.length<8)
+    return '<b style="color:#c77f0a">'+T('短い合言葉は破られやすいです。英数字8文字以上をおすすめします。')+'</b>';
+  return shareIsRecvSide()
+    ? T('届いたリンクは、この合言葉で自動で開きます。')
+    : T('このリンクは、合言葉を知っている人しか開けません。');
+}
+function renderShareKeyHint(){
+  const html=shareKeyHintHtml();
+  ['ssKeyHint','skHint'].forEach(id=>{ const el=document.getElementById(id); if(el)el.innerHTML=html; });
+  const v=shareKeyText();
+  ['ssKey','skKey'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el!==document.activeElement&&el.value!==v)el.value=v;
+  });
+}
+async function schedShareUrl(ym){
+  const r=schedShareText(ym);
+  if(!r||!r.text)return null;
+  const pass=shareKeyText();
+  let frag;
+  if(pass&&window.crypto&&crypto.subtle){
+    try{ frag=await shareSeal(r.text,pass); }
+    catch(e){ frag=encodeURIComponent(r.text); }     // 包めなければ、そのまま（画面で警告する）
+  }else{ frag=encodeURIComponent(r.text); }
+  const _m=frag.charAt(0);                   // v305: e も z も「包めた」
+  return {url:SHARE_PAGE+'#'+frag, count:r.count, ym:r.ym, sender:r.sender, msg:r.msg, sealed:(_m==='e'||_m==='z')};
+}
 function ssMsgText(){ return (DB.ssMsg||'').trim(); }
 let _ssMsgTimer=null;
 function ssSetMsg(v){ DB.ssMsg=(v||'').slice(0,60);
   clearTimeout(_ssMsgTimer); _ssMsgTimer=setTimeout(()=>save(),400);   // v240: 打鍵ごとの保存をやめる
   renderSchedShare(true); }
-function openSchedShare(){ ssMonth=schedCalMonth||thisMonthStr(); const el=document.getElementById('ssMsg'); if(el)el.value=ssMsgText(); renderSchedShare(); openModal('schedShareModal'); }
+/* v298: リンクと案内文をまとめてLINEへ。送れない端末ではコピーに落とす。 */
+async function ssSendLink(){
+  const r=await schedShareUrl(ssMonth);
+  if(!r){ toast(T('この月の予定がありません')); return; }
+  /* v302: 合言葉を入れてあるのに包めなかったとき。
+     黙って平文を配るのがいちばん危ないので、必ず止めて選んでもらう。 */
+  if(shareKeyText()&&!r.sealed&&!_ssPlainOk){
+    askConfirm('<b>'+T('合言葉で包めませんでした。')+'</b><br>'
+      +T('このまま送ると、リンクを持っている人は誰でも、お名前を含む予定の中身を読めます。')+'<br><br>'
+      +T('この端末では暗号の機能が使えないようです。Web版（ブラウザ）からなら包めることがあります。'),
+      ()=>{ _ssPlainOk=true; ssSendLink(); },
+      T('それでも送る'), T('確認'), 'var(--red)');
+    return;
+  }
+  _ssPlainOk=false;
+  /* v303: 合言葉を入れずに送ろうとしたとき。画面には赤字で出ているが、
+     見落として名前入りの平文リンクを配る事故を防ぐ。一度だけ聞く。 */
+  if(!shareKeyText()&&!DB.ssPlainAck){
+    askConfirm('<b>'+T('合言葉を入れずに送ります。')+'</b><br>'
+      +T('このリンクを持っている人は誰でも、お名前を含む予定の中身を読めます。')+'<br><br>'
+      +T('道場の合言葉を決めている場合は、「やめる」を押して 🔑 の欄に入れてから送ってください。'),
+      ()=>{ DB.ssPlainAck=true; save(); ssSendLink(); },
+      T('このまま送る'), T('確認'), 'var(--red)');
+    return;
+  }
+  const [y,m]=r.ym.split('-');
+  const L=['【'+r.sender+'】'+y+T('年')+Number(m)+T('月')+T('の予定')+'　'+r.count+T('件')];
+  if(r.msg)L.push('📣 '+r.msg);
+  L.push('');
+  L.push(T('下のリンクから、予定を確認して取り込んでください。'));
+  L.push(T('アプリが無い方も、リンク先で予定を見られます。'));
+  if(r.sealed){                                  // v300: 合言葉が要ることを、リンクと同じ文面で先に伝える
+    L.push('');
+    L.push(T('※ はじめての方は、道場の合言葉が必要です。'));
+    L.push(T('アプリの「設定 › セキュリティ › 予定表の合言葉」に登録しておくと、次からは聞かれません。'));
+  }
+  L.push('');
+  L.push(r.url);
+  const text=L.join('\n');
+  if(navigator.share){
+    navigator.share({text:text}).catch(e=>{ if(e&&e.name==='AbortError')return; ssCopy(text); });
+  }else{ ssCopy(text); }
+}
+let _ssPlainOk=false;   // v302: 「包めなくても送る」と選んだ直後だけ true
+function ssCopy(text){
+  const done=()=>toast(T('コピーしました。LINEに貼って送ってください'));
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done,()=>toast(T('コピーできませんでした')));
+  }else{ toast(T('コピーできませんでした')); }
+}
+function openSchedShare(){ ssMonth=schedCalMonth||thisMonthStr(); const el=document.getElementById('ssMsg'); if(el)el.value=ssMsgText();
+  const ek=document.getElementById('ssKey'); if(ek)ek.value=shareKeyText(); renderShareKeyHint(); renderSchedShare(); openModal('schedShareModal'); }
 function ssMove(d){ let[y,m]=ssMonth.split('-').map(Number); m+=d; if(m<1){m=12;y--;} if(m>12){m=1;y++;} ssMonth=`${y}-${String(m).padStart(2,'0')}`; renderSchedShare(); }
 function ssSetNote(v){ DB.shareNote=!!v; save(); renderSchedShare(); }   // v224: メモ送信の切替（記憶される）
 function renderSchedShare(keepInput){
@@ -13303,8 +13582,53 @@ function renderSrForPick(){
     stars.map(s=>`<button class="${srForId===s.id?'on':''}" onclick="srPickFor('${s.id}')">${esc(s.name)}</button>`).join('');
 }
 function srPickFor(id){ srForId=id; renderSrForPick(); schedRecvAnalyze(); }
+/* v300: 包まれたまま届いたとき（リンクの c= / 貼り付け / QR）。
+   登録してある合言葉でその場で開く。無い・違うときだけ聞く。 */
+let _srUnsealing=false;
+function srUnsealTry(blob,pass){
+  const pv=document.getElementById('srPreview');
+  const btn=document.getElementById('srApplyBtn'); if(btn)btn.style.display='none';
+  if(!pv)return;
+  if(!shareCryptoOk()){
+    pv.innerHTML='<p class="list-mini" style="color:#c77f0a"><b>'+T('この端末では、合言葉つきの予定を自動で開けません。リンク先のページで合言葉を入れてから「取り込み用の文字をコピー」をお使いください。')+'</b></p>';
+    return;
+  }
+  const key=(pass===undefined||pass===null)?shareKeyText():String(pass).trim();
+  if(!key){ srAskKey(''); return; }
+  if(_srUnsealing)return;
+  _srUnsealing=true;
+  pv.innerHTML='<p class="list-mini">'+T('合言葉で開いています…')+'</p>';
+  shareOpen(blob,key).then(text=>{
+    _srUnsealing=false;
+    if(shareKeyText()!==key){ DB.shareKey=key.slice(0,40); save(); renderShareKeyHint(); }
+    const ta=document.getElementById('srText'); if(ta)ta.value=text;
+    schedRecvAnalyze();
+  },()=>{
+    _srUnsealing=false;
+    srAskKey(T('合言葉が違うようです。道場の先生にご確認ください。'));
+  });
+}
+function srAskKey(msg){
+  const pv=document.getElementById('srPreview'); if(!pv)return;
+  pv.innerHTML='<div class="card" style="margin:0">'
+    +'<p class="list-mini" style="margin:0 0 8px"><b>'+T('この予定は、道場の合言葉で守られています。')+'</b></p>'
+    +(msg?'<p class="list-mini" style="margin:0 0 8px;color:var(--red);font-weight:700">'+msg+'</p>':'')
+    +'<label class="fld">'+T('合言葉')+'</label>'
+    +'<input type="text" id="srKey" maxlength="40" placeholder="'+T('例：aoisora2026')+'" autocapitalize="off" autocorrect="off" spellcheck="false">'
+    +'<button class="btn gold full" style="margin-top:10px" onclick="srUnsealNow()">'+T('予定を見る')+'</button>'
+    +'<p class="list-mini" style="margin:8px 0 0">'+T('一度入れると、この端末では次から聞かれません。')+'</p></div>';
+  const el=document.getElementById('srKey');
+  if(el){ el.value=shareKeyText(); setTimeout(()=>{try{el.focus();}catch(_){}} ,120);
+    el.addEventListener('keydown',e=>{ if(e.key==='Enter')srUnsealNow(); }); }
+}
+function srUnsealNow(){
+  const ta=document.getElementById('srText'), el=document.getElementById('srKey');
+  srUnsealTry((ta?ta.value:'').trim(), el?el.value:'');
+}
 function schedRecvAnalyze(){
-  const p=schedShareParse(document.getElementById('srText').value);
+  const _raw=document.getElementById('srText').value;
+  if(shareLooksSealed(_raw)){ srUnsealTry(_raw.trim()); return; }
+  const p=schedShareParse(_raw);
   const btn=document.getElementById('srApplyBtn'), pv=document.getElementById('srPreview');
   // v258: 「--- 予定 ---」が無い＝途中までしか貼れていない。0件（全件取消）と区別する
   if(!p.sender||!/^\d{4}-\d{2}$/.test(p.ym)||(!p.items.length&&!p.sawBody)){ pv.innerHTML=''; btn.style.display='none'; return; }
@@ -13316,10 +13640,15 @@ function schedRecvAnalyze(){
   const exist=(DB.schedule||[]).filter(s=>s.src===p.sender&&(s.date||'').slice(0,7)===p.ym&&(s.forId||'')===srForId).length;
   const [y,m]=p.ym.split('-');
   const forName=srForId?studentName(srForId):T('全員');
-  pv.innerHTML=`<div class="gw-field-row" style="border-bottom:none"><span class="nm"><b>${esc(p.sender)}</b>・${y}${T('年')} ${Number(m)}${T('月')}・${p.items.length}${T('件')}<span class="mate-tag" style="background:#33507e">${esc(forName)}</span></span></div>`+
+  // v297: 差分のときは、どの日のことかを見出しに出す
+  const _when=p.patch?`${Number(m)}/${Number(p.patchDay)}`:`${y}${T('年')} ${Number(m)}${T('月')}`;
+  pv.innerHTML=`<div class="gw-field-row" style="border-bottom:none"><span class="nm"><b>${esc(p.sender)}</b>・${_when}・${p.items.length}${T('件')}<span class="mate-tag" style="background:#33507e">${esc(forName)}</span></span></div>`+
     (p.msg?`<p class="list-mini" style="font-weight:800;color:var(--navy)">📣 ${esc(p.msg)}</p>`:'')+
-    (exist?`<p class="list-mini" style="color:#c77f0a;font-weight:700">${T('この送り主のこの月の予定')} ${exist}${T('件を置き換えます')}</p>`:'')+
-    (!p.items.length?`<p class="list-mini" style="color:#c0392b;font-weight:800">${T('予定は0件です。この月の予定はすべて取り消しになります。')}</p>`:'');
+    // v297: 差分は「その分だけ直す」。置き換えの警告を出すと実際と食い違う
+    (p.patch
+      ? `<p class="list-mini" style="color:var(--navy);font-weight:700">${T('この日の予定だけを直します。ほかの日は変わりません。')}</p>`
+      : (exist?`<p class="list-mini" style="color:#c77f0a;font-weight:700">${T('この送り主のこの月の予定')} ${exist}${T('件を置き換えます')}</p>`:''))+
+    (!p.patch&&!p.items.length?`<p class="list-mini" style="color:#c0392b;font-weight:800">${T('予定は0件です。この月の予定はすべて取り消しになります。')}</p>`:'');
   btn.style.display='';
   btn.dataset.ready='1';
 }
@@ -13332,7 +13661,7 @@ function schedRecvWouldDelete(p){
 function schedRecvApply(){
   const p=schedShareParse(document.getElementById('srText').value);
   // v258: 件数の無い古い形式で、消える予定があるときは確認する（貼り漏れで消さないため）
-  if(p.items.length && p.declared==null && !_srZeroOk){
+  if(!p.patch && p.items.length && p.declared==null && !_srZeroOk){   // v297: 差分は消さないので確認不要
     const n=schedRecvWouldDelete(p);
     if(n>0){
       askConfirm(T('この予定表を取り込むと、いまある予定のうち')+n+T('件が消えます。')+'<br>'
@@ -13342,6 +13671,7 @@ function schedRecvApply(){
     }
   }
   // v258: 0件＝全部取り消し。取り違えると予定が消えるので一度だけ確認する
+  if(p.patch && !p.items.length){ toast(T('予定表を読み取れませんでした')); return; }   // v297
   if(!p.items.length && !_srZeroOk){
     askConfirm(T('この予定表は0件です。')+'<br>'+esc(p.sender)+T('の')+p.ym.replace('-','/')+T('月の予定を、すべて取り消します。')+'<br><br>'+T('よろしいですか？'),
       ()=>{ _srZeroOk=true; schedRecvApply(); },T('すべて取り消す'));
@@ -13354,7 +13684,7 @@ function schedRecvApply(){
   if(n<0){ toast(T('予定表を読み取れませんでした')); return; }
   closeModal('schedRecvModal');
   if(/^\d{4}-\d{2}$/.test(p.ym))gwMonth=p.ym;      // v241: 取り込んだ月を表示する（v255: \d の欠けを修正）
-  toast(`${p.sender}${T('の予定')} ${n}${T('件を取り込みました')}`+(p.msg?'　📣 '+p.msg:''));
+  toast(`${p.sender}${T('の予定')} ${n}${T('件を取り込みました')}`+(p.patch?T('（この日だけ）'):'')+(p.msg?'　📣 '+p.msg:''));
   if(typeof renderGrowth==='function'&&document.getElementById('screen-growth').classList.contains('active'))renderGrowth();
   if(typeof renderSched==='function'&&document.getElementById('screen-sched').classList.contains('active'))renderSched();
 }
@@ -13986,6 +14316,9 @@ function setSetView(v){
   });
   if(v==='data'){ renderBackupStatus(); renderDataUsage(); renderArchiveOptions(); }
   if(v==='use'){ renderUsage(); }
+  if(v==='sec'){ const sl=document.getElementById('skLead');
+    if(sl&&!shareIsRecvSide())sl.textContent=T('この合言葉で、送る予定表のリンクを包みます。受け取る人にも同じ合言葉を伝えてください。');
+    renderShareKeyHint(); }
 }
 // ―― データ使用量の表示（localStorage 目安 5MB に対する割合）――
 const STORAGE_BUDGET=5*1024*1024;
@@ -15080,6 +15413,7 @@ function setLockTitle(){
 }
 function hideLockScreen(){document.getElementById('lockScreen').classList.remove('show');
   if(_gradeNoticePending)setTimeout(()=>{ try{ noticeGradeEntryFix(); }catch(e){} },300);   // v292: ロック中に待たせた学年のお知らせ
+  if(_pendingShareText)setTimeout(()=>{ try{ flushPendingShare(); }catch(e){} },500);        // v296: ロック中に待たせた予定表
 }
 function lockShake(msg){
   const d=document.getElementById('lockDots');
@@ -15474,6 +15808,60 @@ load();
     document.head.appendChild(link);
   }catch(e){}
 })();
+
+/* ===== v296: リンク（myjudo://）から予定表を受け取る =====
+   LINE に貼ったリンクを押すと、このアプリが開いてここへ来る。
+   勝手には取り込まない。いつもの「予定の取り込み」画面を開いて、
+   中身を貼った状態にするだけ。確認して押すのは本人。 */
+let _pendingShareText='';        // ロック中などで、まだ出せていない中身
+function shareTextFromUrl(url){
+  if(!url)return '';
+  const u=String(url);
+  if(u.indexOf('myjudo:')!==0)return '';
+  const mc=u.match(/[?&]c=([^&#]*)/);          // v300: 合言葉で包まれたまま届いた分
+  if(mc){ try{ return decodeURIComponent(mc[1]); }catch(e){ return ''; } }
+  const m=u.match(/[?&]p=([^&#]*)/);
+  if(!m)return '';
+  try{ return decodeURIComponent(m[1].replace(/\+/g,' ')); }catch(e){ return ''; }
+}
+function appUrlReady(){
+  // ロック画面が出ているあいだ・初回の案内中は、まだ出さない
+  const ls=document.getElementById('lockScreen');
+  if(ls&&ls.classList.contains('show'))return false;
+  if(typeof DB==='undefined'||!DB||!DB.onboarded)return false;
+  return true;
+}
+function openSharedSchedule(text){
+  if(!text)return false;
+  if(!appUrlReady()){ _pendingShareText=text; return false; }
+  _pendingShareText='';
+  if(typeof openSchedRecv!=='function')return false;
+  if(typeof switchTab==='function'){ try{ switchTab('growth'); }catch(e){} }
+  openSchedRecv();
+  const ta=document.getElementById('srText');
+  if(ta){ ta.value=text; }
+  if(typeof schedRecvAnalyze==='function'){ try{ schedRecvAnalyze(); }catch(e){} }
+  return true;
+}
+function flushPendingShare(){ if(_pendingShareText)openSharedSchedule(_pendingShareText); }
+(function(){
+  const cap=(typeof window!=='undefined')&&window.Capacitor;
+  const App=cap&&cap.Plugins&&cap.Plugins.App;
+  if(!App)return;                                   // Web版ではこの仕組みは使わない
+  try{
+    App.addListener('appUrlOpen',function(ev){
+      const t=shareTextFromUrl(ev&&ev.url);
+      if(t)setTimeout(function(){ openSharedSchedule(t); },300);
+    });
+  }catch(e){}
+  try{
+    App.getLaunchUrl().then(function(r){                // 閉じている状態から開かれたとき
+      const t=shareTextFromUrl(r&&r.url);
+      if(t)setTimeout(function(){ openSharedSchedule(t); },900);
+    }).catch(function(){});
+  }catch(e){}
+})();
+
 /* ===== v273: 指で拡大したとき、タブの帯を画面の下に貼り直す =====
    iPhone/iPad の Safari は、指でつまんで拡大すると position:fixed の要素を
    「画面」ではなく拡大前の紙に貼り付けたままにする。そのため画面を動かすと、

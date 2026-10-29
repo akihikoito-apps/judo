@@ -22,6 +22,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- 予定表のリンク（myjudo://sched?...）を押したら、このアプリが開く。
+                 iOS 側は Info.plist の CFBundleURLSchemes で同じことをしている。
+                 受け取った中身は勝手に取り込まず、取り込み画面に貼るだけ（index.html の v296）。 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="myjudo" />
+            </intent-filter>
+
         </activity>
 
         <provider
