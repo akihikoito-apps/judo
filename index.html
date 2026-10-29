@@ -5563,7 +5563,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v306'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v307'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -6207,6 +6207,12 @@ Object.assign(DICT,{
   '選手を追加':{en:'Add athlete',fr:'Ajouter un athlète',pt:'Adicionar atleta'},
   '仲間を編集':{en:'Edit member',fr:'Modifier le membre',pt:'Editar membro'},
   '復元しました':{en:'Restored',fr:'Restauré',pt:'Restaurado'},
+  /* v307: Android（Google Play）では言い方が変わる分。Apple 用のすぐ下に並べておく。 */
+  'Google Play側で問題が起きています。少し時間をおいてもう一度お試しください。':{en:'There is a problem on the Google Play side. Please wait a moment and try again.',fr:'Un problème est survenu du côté de Google Play. Merci de réessayer dans un instant.',pt:'Há um problema no lado do Google Play. Aguarde um momento e tente novamente.'},
+  'この端末では購入が許可されていません。ファミリーリンクなどの制限をご確認ください。':{en:'Purchases are not allowed on this device. Please check restrictions such as Family Link.',fr:'Les achats ne sont pas autorisés sur cet appareil. Vérifiez les restrictions telles que Family Link.',pt:'As compras não são permitidas neste dispositivo. Verifique restrições como o Family Link.'},
+  'このご購入は別のGoogleアカウントで使用中です。ご購入時のアカウントでお試しください。':{en:'This purchase is in use by another Google Account. Please try with the account you purchased with.',fr:'Cet achat est utilisé par un autre compte Google. Réessayez avec le compte utilisé lors de l’achat.',pt:'Esta compra está em uso por outra Conta do Google. Tente com a conta usada na compra.'},
+  'このご購入は別のGoogleアカウントで使用中です。':{en:'This purchase is in use by another Google Account.',fr:'Cet achat est utilisé par un autre compte Google.',pt:'Esta compra está em uso por outra Conta do Google.'},
+  'このGoogleアカウントでのご購入が見つかりませんでした':{en:'No purchase was found for this Google Account.',fr:'Aucun achat trouvé pour ce compte Google.',pt:'Nenhuma compra encontrada para esta Conta do Google.'},
   'App Store側で問題が起きています。少し時間をおいてもう一度お試しください。':{en:'There is a problem on the App Store side. Please wait a moment and try again.',fr:'Un problème est survenu du côté de l’App Store. Merci de réessayer dans un instant.',pt:'Há um problema no lado da App Store. Aguarde um momento e tente novamente.'},
   'この端末では購入が許可されていません。設定の「スクリーンタイム」などの制限をご確認ください。':{en:'Purchases are not allowed on this device. Check restrictions such as Screen Time in Settings.',fr:'Les achats ne sont pas autorisés sur cet appareil. Vérifiez les restrictions (Temps d’écran) dans Réglages.',pt:'Compras não são permitidas neste dispositivo. Verifique restrições como Tempo de Uso nos Ajustes.'},
   'この商品はいま購入できません。少し時間をおいてもう一度お試しください。':{en:'This product cannot be purchased right now. Please wait a moment and try again.',fr:'Ce produit ne peut pas être acheté pour le moment. Merci de réessayer dans un instant.',pt:'Este produto não pode ser comprado agora. Aguarde um momento e tente novamente.'},

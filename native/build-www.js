@@ -24,17 +24,40 @@ fs.writeFileSync(path.join(wwwDir, 'index.html'), html, 'utf8');
 
 /* ---- RevenueCat 課金ブリッジ（window.__iap） ----
    アプリ側(index.html)は window.__iap = {buy, restore} を呼ぶだけの設計（v169/v218）。
-   RevenueCatの設定が済んだら、下の API_KEY を各アプリのiOS用 Public API Key に置き換える。 */
+   RevenueCatの設定が済んだら、下の API_KEY を各アプリの Public API Key に置き換える。
+   鍵はストアごとに別物：iOS は appl_ で始まり、Android（Google Play）は goog_ で始まる。
+   Android 用は Play Console の登録が済んでから RevenueCat で発行する。
+   それまでは REVENUECAT_ で始まる仮置きのままにしておく（init が課金を黙って止める）。 */
 const CFG = {
-  office: { API_KEY: 'appl_cqqKOnaJkUfzDJQbkLpNoqCfjJL', ENTITLEMENT: 'pro', LABEL: 'My柔道(事務)' },
-  player: { API_KEY: 'appl_jmVKkdIbocWpbZExUKwhDgBEYBm', ENTITLEMENT: 'pro', LABEL: 'My柔道(選手)' },
+  office: {
+    API_KEY: 'appl_cqqKOnaJkUfzDJQbkLpNoqCfjJL',
+    API_KEY_ANDROID: 'REVENUECAT_ANDROID_PENDING',
+    ENTITLEMENT: 'pro', LABEL: 'My柔道(事務)',
+  },
+  player: {
+    API_KEY: 'appl_jmVKkdIbocWpbZExUKwhDgBEYBm',
+    API_KEY_ANDROID: 'REVENUECAT_ANDROID_PENDING',
+    ENTITLEMENT: 'pro', LABEL: 'My柔道(選手)',
+  },
 }[app];
+
+if (CFG.API_KEY_ANDROID.indexOf('REVENUECAT_') === 0) {
+  console.log('  ※ Android 用の RevenueCat 鍵がまだ仮置きです。Android では課金が動きません（iOS は影響なし）。');
+}
 
 const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: build-www.js） */
 (function(){
-  var API_KEY='${CFG.API_KEY}';
+  var API_KEY_IOS='${CFG.API_KEY}';
+  var API_KEY_ANDROID='${CFG.API_KEY_ANDROID}';
   var ENTITLEMENT='${CFG.ENTITLEMENT}';
   var APP='${app}';
+  // どのストアで動いているか。Capacitor が無い（Web版）なら iOS 扱いでよい
+  // ＝どのみち plugin() が null を返して課金は動かない。
+  var IS_ANDROID=(function(){
+    try{ return !!(window.Capacitor && typeof window.Capacitor.getPlatform==='function'
+                   && window.Capacitor.getPlatform()==='android'); }catch(e){ return false; }
+  })();
+  var API_KEY=IS_ANDROID?API_KEY_ANDROID:API_KEY_IOS;
   function plugin(){ return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Purchases) || null; }
   var ready=null;
   // 注意: configure は Capacitor の returnType=None のため Promise ではなく callbackId(文字列) を返す。
@@ -48,7 +71,10 @@ const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: 
       //        サンドボックスで「The receipt is not valid …」で購入シートすら出ずに失敗した。
       //        ※RevenueCat側に In-App Purchase キーが設定済みであること（両プロジェクト設定済み・2026-09-24確認）。
       //        iOS 15 など StoreKit 2 が使えない端末では、SDKが自動でStoreKit 1に戻す。
-      ready=Promise.resolve(P.configure({ apiKey: API_KEY, storeKitVersion: 'STOREKIT_2' })).then(function(){ return P; })
+      //        storeKitVersion は Apple だけの指定なので、Android には渡さない。
+      var opts={ apiKey: API_KEY };
+      if(!IS_ANDROID) opts.storeKitVersion='STOREKIT_2';
+      ready=Promise.resolve(P.configure(opts)).then(function(){ return P; })
         .catch(function(e){ console.log('iap configure error', e); ready=null; return null; });
     }catch(e){ console.log('iap init error', e); ready=Promise.resolve(null); }
     return ready;
@@ -59,12 +85,12 @@ const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: 
   }
   // v256: 課金側のエラーを日本語の案内に置き換える（従来は英語の原文がそのまま画面に出ていた）。
   //       返す文字列はアプリ側の辞書に登録してあり、en/fr/pt でも訳される。
-  var ERR={
+  var ERR_APPLE={
     '2':'App Store側で問題が起きています。少し時間をおいてもう一度お試しください。',
     '3':'この端末では購入が許可されていません。設定の「スクリーンタイム」などの制限をご確認ください。',
     '5':'この商品はいま購入できません。少し時間をおいてもう一度お試しください。',
     '6':'すでにご購入済みです。「購入を復元する」をお試しください。',
-    '7':'このご購入は別のApple IDで使用中です。ご購入時のApple IDでお試しください。',
+    '7':'このご購入は別のApple IDで使用中です。ご購入時のApple IDでお試しください。',  /* Android では下の ERR_GOOGLE で上書き */
     '8':'購入の確認に失敗しました。アプリをいったん終了して開き直し、もう一度お試しください。',
     '9':'購入の確認に失敗しました。アプリをいったん終了して開き直し、もう一度お試しください。',
     '10':'通信に失敗しました。電波のよい場所でもう一度お試しください。',
@@ -75,6 +101,23 @@ const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: 
     '23':'課金の設定に問題があります。お手数ですがサポートページからご連絡ください。',
     '35':'オフラインのため購入できません。通信を確認してからお試しください。'
   };
+  // Android で言い方が変わる番号だけ差し替える（ほかは Apple 用と同じ文面でそのまま通じる）。
+  // 文言は index.html の辞書で訳すので、組み立てずに1本の文字列で持つこと。
+  var ERR_GOOGLE_DIFF={
+    '2':'Google Play側で問題が起きています。少し時間をおいてもう一度お試しください。',
+    '3':'この端末では購入が許可されていません。ファミリーリンクなどの制限をご確認ください。',
+    '7':'このご購入は別のGoogleアカウントで使用中です。ご購入時のアカウントでお試しください。',
+    '13':'このご購入は別のGoogleアカウントで使用中です。'
+  };
+  var ERR=(function(){
+    if(!IS_ANDROID) return ERR_APPLE;
+    var m={}; for(var k in ERR_APPLE) m[k]=ERR_APPLE[k];
+    for(var k2 in ERR_GOOGLE_DIFF) m[k2]=ERR_GOOGLE_DIFF[k2];
+    return m;
+  })();
+  var NO_PURCHASE_FOUND=IS_ANDROID
+    ?'このGoogleアカウントでのご購入が見つかりませんでした'
+    :'このApple IDでのご購入が見つかりませんでした';
   function errText(e,fallback){
     try{ console.log('iap error', e && e.code, e && e.message); }catch(_){}
     var c=String(e&&e.code!=null?e.code:'');
@@ -97,7 +140,9 @@ const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: 
       try{ var offs=await P.getOfferings(); var pkg=pickPkg(offs&&offs.current); var pr=pkg&&pkg.product;
         if(!pr) return null;
         var intro=(pr.introPrice&&(pr.introPrice.periodNumberOfUnits!=null))?pr.introPrice:null;
-        // 無料トライアルをこのApple IDがまだ使えるか（1=INELIGIBLE / 2=ELIGIBLE / それ以外は不明）
+        // 無料トライアルをこの利用者がまだ使えるか（1=INELIGIBLE / 2=ELIGIBLE / それ以外は不明）
+        // ※ checkTrialOrIntroductoryPriceEligibility は Apple だけの API。
+        //    Android では P に生えていないので、下の if で素通りして eligible=null のままになる。
         var eligible=null;
         if(intro && pr.identifier && P.checkTrialOrIntroductoryPriceEligibility){
           try{
@@ -136,7 +181,7 @@ const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: 
       var P=await init();
       if(!P){ window.__iap.lastError='課金機能を準備できませんでした（通信環境をご確認ください）'; return false; }
       try{ var res=await P.restorePurchases(); var ok=entitled(res);
-        if(!ok) window.__iap.lastError='このApple IDでのご購入が見つかりませんでした';
+        if(!ok) window.__iap.lastError=NO_PURCHASE_FOUND;
         return ok; }
       catch(e){ window.__iap.lastError=errText(e,'復元できませんでした。少し時間をおいてもう一度お試しください。'); return false; }
     },

@@ -528,6 +528,11 @@
   .month-nav .lbl .fy-main{font-size:calc(21px*var(--fs,1));font-weight:700;}
   .month-nav .lbl .fy-sub{font-size:calc(13px*var(--fs,1));font-weight:600;color:var(--muted);margin-top:3px;}
   .month-nav button{min-width:56px;min-height:48px;font-size:calc(24px*var(--fs,1));border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-weight:700;}
+  /* v305: 「予定をLINEで送る」の月選び。白地に白い枠で背景に溶けていたので、
+     この画面だけ枠と色を付ける（カレンダーなど他の .month-nav は変えない）。 */
+  .month-nav.ss-pick{background:var(--paper);border:2px solid var(--navy);border-radius:14px;padding:8px 10px;margin-bottom:6px;}
+  .month-nav.ss-pick .lbl{font-size:calc(22px*var(--fs,1));font-weight:800;letter-spacing:.02em;}
+  .month-nav.ss-pick button{background:var(--navy);color:#fff;border-color:var(--navy);}
 
   /* 時刻クイック選択 */
   .time-quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
@@ -1909,7 +1914,7 @@ function applyUpdate(){
   </div>
 
   <div id="setViewSec" style="display:none">
-    <div class="card">
+    <div class="card" id="lockCard">
       <h3 style="margin-top:0;color:var(--navy)">アプリのロック（パスコード）</h3>
       <p class="list-mini">仲間の個人情報をお預かりするため、起動時に4桁のパスコード入力を求められるようにできます（この端末のみ・バックアップには含まれません）。※のぞき見を防ぐための簡易的なロックです。端末そのものの画面ロックも併せてご利用ください。</p>
       <div class="lock-warn">
@@ -2363,7 +2368,8 @@ function applyUpdate(){
   <div class="modal">
     <h3>📤 予定をLINEで送る</h3>
     <p class="list-mini">選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 予定の取り込み」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。</p>
-    <div class="month-nav" style="margin-top:10px">
+    <label class="fld" style="margin-top:12px">📅 送る月（‹ › で選びます）</label>
+    <div class="month-nav ss-pick">
       <button onclick="ssMove(-1)">‹</button>
       <div class="lbl" id="ssMonthLbl"></div>
       <button onclick="ssMove(1)">›</button>
@@ -5557,7 +5563,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v302'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v307'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -6201,6 +6207,12 @@ Object.assign(DICT,{
   '選手を追加':{en:'Add athlete',fr:'Ajouter un athlète',pt:'Adicionar atleta'},
   '仲間を編集':{en:'Edit member',fr:'Modifier le membre',pt:'Editar membro'},
   '復元しました':{en:'Restored',fr:'Restauré',pt:'Restaurado'},
+  /* v307: Android（Google Play）では言い方が変わる分。Apple 用のすぐ下に並べておく。 */
+  'Google Play側で問題が起きています。少し時間をおいてもう一度お試しください。':{en:'There is a problem on the Google Play side. Please wait a moment and try again.',fr:'Un problème est survenu du côté de Google Play. Merci de réessayer dans un instant.',pt:'Há um problema no lado do Google Play. Aguarde um momento e tente novamente.'},
+  'この端末では購入が許可されていません。ファミリーリンクなどの制限をご確認ください。':{en:'Purchases are not allowed on this device. Please check restrictions such as Family Link.',fr:'Les achats ne sont pas autorisés sur cet appareil. Vérifiez les restrictions telles que Family Link.',pt:'As compras não são permitidas neste dispositivo. Verifique restrições como o Family Link.'},
+  'このご購入は別のGoogleアカウントで使用中です。ご購入時のアカウントでお試しください。':{en:'This purchase is in use by another Google Account. Please try with the account you purchased with.',fr:'Cet achat est utilisé par un autre compte Google. Réessayez avec le compte utilisé lors de l’achat.',pt:'Esta compra está em uso por outra Conta do Google. Tente com a conta usada na compra.'},
+  'このご購入は別のGoogleアカウントで使用中です。':{en:'This purchase is in use by another Google Account.',fr:'Cet achat est utilisé par un autre compte Google.',pt:'Esta compra está em uso por outra Conta do Google.'},
+  'このGoogleアカウントでのご購入が見つかりませんでした':{en:'No purchase was found for this Google Account.',fr:'Aucun achat trouvé pour ce compte Google.',pt:'Nenhuma compra encontrada para esta Conta do Google.'},
   'App Store側で問題が起きています。少し時間をおいてもう一度お試しください。':{en:'There is a problem on the App Store side. Please wait a moment and try again.',fr:'Un problème est survenu du côté de l’App Store. Merci de réessayer dans un instant.',pt:'Há um problema no lado da App Store. Aguarde um momento e tente novamente.'},
   'この端末では購入が許可されていません。設定の「スクリーンタイム」などの制限をご確認ください。':{en:'Purchases are not allowed on this device. Check restrictions such as Screen Time in Settings.',fr:'Les achats ne sont pas autorisés sur cet appareil. Vérifiez les restrictions (Temps d’écran) dans Réglages.',pt:'Compras não são permitidas neste dispositivo. Verifique restrições como Tempo de Uso nos Ajustes.'},
   'この商品はいま購入できません。少し時間をおいてもう一度お試しください。':{en:'This product cannot be purchased right now. Please wait a moment and try again.',fr:'Ce produit ne peut pas être acheté pour le moment. Merci de réessayer dans un instant.',pt:'Este produto não pode ser comprado agora. Aguarde um momento e tente novamente.'},
@@ -6604,6 +6616,14 @@ Object.assign(DICT,{
   'まだ登録されていません。道場から合言葉を教わっている方は入力してください。':{en:'Not saved yet. If your dojo gave you a passphrase, enter it here.',fr:'Pas encore enregistré. Si votre dojo vous a donné un mot de passe, saisissez-le.',pt:'Ainda não salva. Se o dojo lhe deu uma senha, digite-a aqui.'},
   '届いたリンクは、この合言葉で自動で開きます。':{en:'Links you receive will open automatically with this passphrase.',fr:'Les liens reçus s’ouvriront automatiquement avec ce mot de passe.',pt:'Os links recebidos abrirão automaticamente com esta senha.'},
   'この端末では合言葉で包めません。送るリンクは、中身がそのまま読める状態になります。':{en:'This device cannot lock the link. Anything you send will be readable as-is.',fr:'Cet appareil ne peut pas verrouiller le lien. Ce que vous envoyez sera lisible tel quel.',pt:'Este aparelho não consegue proteger o link. O que você enviar será legível como está.'},
+  '🔑 道場の合言葉（決めておくと安心です）':{en:'🔑 Dojo passphrase (recommended)',fr:'🔑 Mot de passe du dojo (recommandé)',pt:'🔑 Senha do dojo (recomendado)'},
+  '送る予定表のリンクを、この合言葉で包みます。知らない人は、リンクを持っていても中身を見られません。':{en:'Schedule links you send are locked with this passphrase. Without it, the link shows nothing.',fr:'Les liens d’agenda que vous envoyez sont verrouillés avec ce mot de passe. Sans lui, le lien ne montre rien.',pt:'Os links de agenda que você envia são protegidos com esta senha. Sem ela, o link não mostra nada.'},
+  '合言葉は、リンクと同じメッセージに書かず、道場で口頭でお伝えください。':{en:'Never put the passphrase in the same message as the link. Tell it in person at the dojo.',fr:'Ne mettez jamais le mot de passe dans le même message que le lien. Dites-le de vive voix au dojo.',pt:'Nunca escreva a senha na mesma mensagem do link. Informe-a pessoalmente no dojo.'},
+  '📅 送る月（‹ › で選びます）':{en:'📅 Month to send (use ‹ ›)',fr:'📅 Mois à envoyer (‹ ›)',pt:'📅 Mês a enviar (‹ ›)'},
+  '合言葉を入れずに送ります。':{en:'Sending without a passphrase.',fr:'Envoi sans mot de passe.',pt:'Enviando sem senha.'},
+  'このリンクを持っている人は誰でも、お名前を含む予定の中身を読めます。':{en:'Anyone with this link can read the schedule, including names.',fr:'Toute personne ayant ce lien pourra lire l’agenda, noms compris.',pt:'Qualquer pessoa com este link poderá ler a agenda, inclusive os nomes.'},
+  '道場の合言葉を決めている場合は、「やめる」を押して 🔑 の欄に入れてから送ってください。':{en:'If your dojo has a passphrase, tap Cancel and enter it in the 🔑 field first.',fr:'Si votre dojo a un mot de passe, appuyez sur Annuler et saisissez-le dans le champ 🔑.',pt:'Se o seu dojo tem uma senha, toque em Cancelar e digite-a no campo 🔑.'},
+  'このまま送る':{en:'Send without it',fr:'Envoyer sans',pt:'Enviar sem senha'},
   '合言葉で包めませんでした。':{en:'The link could not be locked.',fr:'Le lien n’a pas pu être verrouillé.',pt:'Não foi possível proteger o link.'},
   'このまま送ると、リンクを持っている人は誰でも、お名前を含む予定の中身を読めます。':{en:'If you send it anyway, anyone with the link can read the schedule, including names.',fr:'Si vous l’envoyez quand même, toute personne ayant le lien pourra lire l’agenda, noms compris.',pt:'Se enviar assim mesmo, qualquer pessoa com o link poderá ler a agenda, inclusive os nomes.'},
   'この端末では暗号の機能が使えないようです。Web版（ブラウザ）からなら包めることがあります。':{en:'This device does not seem to support encryption. The web version in a browser may be able to lock it.',fr:'Cet appareil ne semble pas prendre en charge le chiffrement. La version web dans un navigateur peut y parvenir.',pt:'Este aparelho parece não suportar criptografia. A versão web no navegador pode conseguir.'},
@@ -7417,11 +7437,16 @@ function applyMode(){
   const o=document.getElementById('modeOfficeB'),p=document.getElementById('modePersonalB');
   if(o)o.classList.toggle('on',!personal);
   if(p)p.classList.toggle('on',personal);
-  // v225: パスコードロックは事務のみ（他人の個人情報を預かるため）。個人アプリでは非表示にする
+  /* v225: パスコードロックは事務のみ（他人の個人情報を預かるため）。
+     v304: ただしタブごと隠すのはやめた。このタブには「予定表の合言葉」（v300）もあり、
+     選手アプリから一生たどり着けなかった。送る文面でも
+     「設定 › セキュリティ › 予定表の合言葉」と案内している。
+     → タブは出したままにして、パスコードの枠だけを個人モードで隠す。
+     v279（個人モードではロックを止めるだけ・設定は消さない）はそのまま。 */
   const secTab=document.getElementById('setTabSec');
-  if(secTab)secTab.style.display=personal?'none':'';
-  // v279: 個人モードではロックを一時的に止めるだけ（設定は消さない）。道場モードに戻すと setAppMode で再びかかる
-  if(personal){ const sv=document.getElementById('setViewSec'); if(sv&&sv.style.display!=='none')setSetView('use'); }
+  if(secTab)secTab.style.display='';
+  const lockCard=document.getElementById('lockCard');
+  if(lockCard)lockCard.style.display=personal?'none':'';
 }
 // v166: エディション適用。個人/事務専用ビルドはモードを固定し、切替UIを隠す。
 function applyEdition(){
@@ -9892,6 +9917,9 @@ function obRenderOffice(body,skip){
          <div class="ob-step"><span class="ob-no">📥</span><div>${T('届いた試合結果は「集計 › 試合結果 › 取り込み」に貼るだけ')}</div></div>
          <div class="ob-step"><span class="ob-no">📈</span><div>${T('取り込んだ結果は勝率・決まり技レーダーで自動分析')}</div></div>
        </div>
+       <label class="fld" style="text-align:center;display:block">${T('🔑 道場の合言葉（決めておくと安心です）')}</label>
+       <input class="ob-input" id="obKey" type="text" placeholder="${T('例：aoisora2026')}" value="${esc(shareKeyText())}" autocapitalize="off" autocorrect="off" spellcheck="false">
+       <p class="ob-p" style="font-size:calc(12.5px*var(--fs,1));margin-bottom:12px">${T('送る予定表のリンクを、この合言葉で包みます。知らない人は、リンクを持っていても中身を見られません。')}<br><b>${T('合言葉は、リンクと同じメッセージに書かず、道場で口頭でお伝えください。')}</b><br>${T('あとで「設定 › セキュリティ › 予定表の合言葉」からでも登録できます。')}</p>
        <button class="ob-btn" onclick="obNext()">${T('次へ')}</button>`+skip;
   }else{
     h=`<div class="ob-emoji">🎉</div>
@@ -9925,7 +9953,8 @@ function obNext(){
     else { self.isSelf=true; if(!self.name)self.name=obNameVal; }
     save();
   }
-  if(obStep===5&&!obIsOffice()){                 // v300: 道場の合言葉（入れていなければ何もしない）
+  if(obStep===5){                                /* v300: 道場の合言葉（入れていなければ何もしない）
+                                                    v306: 事務アプリでも同じ欄を出すようにしたので、両方で保存する */
     const kk=document.getElementById('obKey');
     const kv=kk?(kk.value||'').trim():'';
     if(kv){ DB.shareKey=kv.slice(0,40); save(); }
@@ -13352,12 +13381,32 @@ async function shareKeyFrom(pass,salt){
   return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:SHARE_ITER,hash:'SHA-256'},
     base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
 }
+/* v305: 包む前に縮める。予定表は同じ言葉のくり返しが多く、半分くらいになる。
+   先頭の文字で見分ける：e=そのまま包んだ、z=縮めてから包んだ。
+   縮められない端末（iOS 16.3 以前）は今までどおり e で送るので、どちらでも届く。 */
+function shareZipOk(){ try{ new CompressionStream('deflate-raw'); return true; }catch(e){ return false; } }
+async function shareZip(bytes){
+  const cs=new CompressionStream('deflate-raw');
+  const w=cs.writable.getWriter(); w.write(bytes); w.close();
+  return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+}
+async function shareUnzip(bytes){
+  const ds=new DecompressionStream('deflate-raw');
+  const w=ds.writable.getWriter(); w.write(bytes); w.close();
+  return new Uint8Array(await new Response(ds.readable).arrayBuffer());
+}
 async function shareSeal(text,pass){
   const salt=crypto.getRandomValues(new Uint8Array(16));
   const iv=crypto.getRandomValues(new Uint8Array(12));
   const k=await shareKeyFrom(pass,salt);
-  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,new TextEncoder().encode(text));
-  return 'e'+shareB64u(salt)+'.'+shareB64u(iv)+'.'+shareB64u(ct);
+  const plain=new TextEncoder().encode(text);
+  let body=plain, mark='e';
+  if(shareZipOk()){
+    // 短い予定表では縮まないことがあるので、縮んだときだけ使う
+    try{ const z=await shareZip(plain); if(z.length<plain.length){ body=z; mark='z'; } }catch(e){}
+  }
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,body);
+  return mark+shareB64u(salt)+'.'+shareB64u(iv)+'.'+shareB64u(ct);
 }
 /* v300: 包んだものを解く側。事務用で包むのと同じしくみ（PBKDF2 → AES-GCM）。
    これがあるので、リンク先のページは「包んだまま」アプリへ渡せる。
@@ -13365,7 +13414,8 @@ async function shareSeal(text,pass){
 function shareCryptoOk(){ try{ return !!(window.crypto&&crypto.subtle&&crypto.subtle.deriveKey); }catch(e){ return false; } }
 function shareLooksSealed(t){
   const v=String(t||'').trim();
-  return v.charAt(0)==='e'&&v.split('.').length===3&&v.indexOf('【')<0;
+  const c=v.charAt(0);                       // v305: e=そのまま包んだ、z=縮めてから包んだ
+  return (c==='e'||c==='z')&&v.split('.').length===3&&v.indexOf('【')<0;
 }
 function shareBytesFromB64u(t){
   const b=String(t).replace(/-/g,'+').replace(/_/g,'/');
@@ -13374,11 +13424,13 @@ function shareBytesFromB64u(t){
   return a;
 }
 async function shareOpen(blob,pass){
-  const parts=String(blob).trim().slice(1).split('.');
+  const v=String(blob).trim(), mark=v.charAt(0);
+  const parts=v.slice(1).split('.');
   if(parts.length!==3)throw new Error('form');
   const salt=shareBytesFromB64u(parts[0]), iv=shareBytesFromB64u(parts[1]), ct=shareBytesFromB64u(parts[2]);
   const k=await shareKeyFrom(pass,salt);
-  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},k,ct);
+  let pt=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},k,ct));
+  if(mark==='z')pt=await shareUnzip(pt);     // v305: 縮めて送られた分をもどす
   return new TextDecoder().decode(pt);
 }
 function shareKeyText(){ return (DB.shareKey||'').trim(); }
@@ -13423,7 +13475,8 @@ async function schedShareUrl(ym){
     try{ frag=await shareSeal(r.text,pass); }
     catch(e){ frag=encodeURIComponent(r.text); }     // 包めなければ、そのまま（画面で警告する）
   }else{ frag=encodeURIComponent(r.text); }
-  return {url:SHARE_PAGE+'#'+frag, count:r.count, ym:r.ym, sender:r.sender, msg:r.msg, sealed:frag.charAt(0)==='e'};
+  const _m=frag.charAt(0);                   // v305: e も z も「包めた」
+  return {url:SHARE_PAGE+'#'+frag, count:r.count, ym:r.ym, sender:r.sender, msg:r.msg, sealed:(_m==='e'||_m==='z')};
 }
 function ssMsgText(){ return (DB.ssMsg||'').trim(); }
 let _ssMsgTimer=null;
@@ -13445,6 +13498,16 @@ async function ssSendLink(){
     return;
   }
   _ssPlainOk=false;
+  /* v303: 合言葉を入れずに送ろうとしたとき。画面には赤字で出ているが、
+     見落として名前入りの平文リンクを配る事故を防ぐ。一度だけ聞く。 */
+  if(!shareKeyText()&&!DB.ssPlainAck){
+    askConfirm('<b>'+T('合言葉を入れずに送ります。')+'</b><br>'
+      +T('このリンクを持っている人は誰でも、お名前を含む予定の中身を読めます。')+'<br><br>'
+      +T('道場の合言葉を決めている場合は、「やめる」を押して 🔑 の欄に入れてから送ってください。'),
+      ()=>{ DB.ssPlainAck=true; save(); ssSendLink(); },
+      T('このまま送る'), T('確認'), 'var(--red)');
+    return;
+  }
   const [y,m]=r.ym.split('-');
   const L=['【'+r.sender+'】'+y+T('年')+Number(m)+T('月')+T('の予定')+'　'+r.count+T('件')];
   if(r.msg)L.push('📣 '+r.msg);
