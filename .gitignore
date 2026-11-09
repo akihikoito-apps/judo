@@ -10,3 +10,8 @@ native/*/android/capacitor-cordova-android-plugins/build/
 native/*/android/app/src/main/assets/public/
 native/*/android/app/src/main/assets/capacitor.config.json
 native/*/android/app/src/main/assets/capacitor.plugins.json
+
+# 署名鍵は公開リポジトリに絶対に入れない（本体は OneDrive/judo-署名鍵 と GitHub Secrets）
+*.jks
+*.keystore
+key.properties

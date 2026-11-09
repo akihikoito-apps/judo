@@ -70,12 +70,31 @@ jobs:
           npx cap sync android
           test -f android/app/src/main/assets/public/index.html || { echo "::error::wwwがコピーされていません"; exit 1; }
 
-      - name: AAB を作る
+      - name: 署名鍵を用意（シークレットがあるときだけ）
+        id: keystore
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            printf '%s' "$KS_B64" | base64 -d > "$RUNNER_TEMP/upload-keystore.jks"
+            test -s "$RUNNER_TEMP/upload-keystore.jks" || { echo "::error::鍵の取り出しに失敗しました"; exit 1; }
+            echo "path=$RUNNER_TEMP/upload-keystore.jks" >> "$GITHUB_OUTPUT"
+            echo "::notice::署名鍵を読み込みました（署名ありで作ります）"
+          else
+            echo "::warning::ANDROID_KEYSTORE_B64 が未設定です。署名なしで作ります（Play には出せません）"
+          fi
+
+      - name: AAB と APK を作る
         working-directory: native/office/android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ steps.keystore.outputs.path }}
+          ANDROID_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASS: ${{ secrets.ANDROID_KEY_PASS }}
         run: |
           set +e
           chmod +x ./gradlew
-          ./gradlew bundleRelease --no-daemon --stacktrace 2>&1 | tee /tmp/gradle.log
+          ./gradlew bundleRelease assembleRelease --no-daemon --stacktrace 2>&1 | tee /tmp/gradle.log
           code=${PIPESTATUS[0]}
           if [ "$code" -ne 0 ]; then
             grep -aE "error:|FAILURE|What went wrong|Could not|Execution failed" /tmp/gradle.log | tail -10 > /tmp/e.txt
@@ -88,16 +107,37 @@ jobs:
           fi
           exit $code
 
-      - name: できあがりを確認
+      - name: できあがりを確認（署名も見る）
         run: |
           f=$(find native/office/android -name "*.aab" | head -1)
           echo "::notice::AAB=$f ($(du -h "$f" | cut -f1))"
+          a=$(find native/office/android -name "*.apk" | head -1)
+          echo "::notice::APK=$a ($(du -h "$a" | cut -f1))"
+          case "$a" in
+            *unsigned*) echo "::warning::APK が未署名です（シークレット未設定）";;
+            *)
+              signer=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort | tail -1)
+              if [ -n "$signer" ]; then
+                "$signer" verify --print-certs "$a" | tee /tmp/sig.txt
+                grep -q "SHA-256 digest: ac180fdbda146b1e8a03f435226e90929448577fb37ff0a33dbaeb2a677cd5c4" /tmp/sig.txt || { echo "::error::APK の署名が想定の鍵と違います"; exit 1; }
+                echo "::notice::署名を確認しました（アップロード鍵 Aki-TT）"
+              fi
+              ;;
+          esac
 
       - name: AAB を保存
         uses: actions/upload-artifact@v4
         with:
           name: office-aab
           path: native/office/android/app/build/outputs/bundle/release/*.aab
+          retention-days: 14
+
+      # 実機（moto g06）に入れて動作確認するための APK。Play には出さない。
+      - name: APK を保存（実機確認用）
+        uses: actions/upload-artifact@v4
+        with:
+          name: office-apk
+          path: native/office/android/app/build/outputs/apk/release/*.apk
           retention-days: 14
 
       - name: 失敗時：ログを保存
