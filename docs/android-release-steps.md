@@ -193,3 +193,109 @@ Play の定期購入は「定期購入 ID」＋「基本プラン」＋「特典
   ※この3枚は Pages で公開中なので `main` にはまだ入れていない。**公開日に一緒に入れる。**
 - 予定表リンク `myjudo://` の Android 側の受け口
 - `versionName` を iOS に合わせた（事務 1.3 / 選手 1.4）
+
+---
+
+## 9. Play Console で聞かれる残りの項目（回答案）
+
+### アプリのアクセス権
+
+| 設問 | 回答 |
+|---|---|
+| 特別なアクセス権が必要か | **すべての機能が制限なく利用可能** |
+
+ログインが無く、審査担当者が何の手続きもなく全機能を触れるため。
+（課金部分は Google の審査環境でテスト購入ができる。）
+
+### 広告
+
+| 設問 | 回答 |
+|---|---|
+| アプリに広告が含まれているか | **いいえ** |
+
+広告 SDK は一切入っていない。
+
+### ターゲット層と内容
+
+| 設問 | 回答 |
+|---|---|
+| 対象年齢層 | **13〜15歳 / 16〜17歳 / 18歳以上**（13歳未満は選ばない） |
+| 子ども向けに設計されているか | **いいえ** |
+
+**理由**：事務アプリを使うのは道場の運営者（大人）。選手アプリも、記録をつけ、
+課金を判断し、家族に共有するのは保護者か中学生以上の選手である。
+小さい子どもを対象に設計された画面・演出・キャラクターは無い。
+
+> **13歳未満を選ぶと「ファミリー向けポリシー」が適用され**、使ってよい SDK の制限、
+> 広告の制限、追加の審査が発生する。RevenueCat を入れている以上、
+> 実態に合わない申告をしてまで選ぶ理由は無い。
+> ただし**実態として小学生が自分で使う場面が多い**なら話が変わるので、
+> 社長の感覚と違っていたら教えてください。
+
+### カテゴリとタグ
+
+| | 事務 | 選手 |
+|---|---|---|
+| アプリ / ゲーム | アプリ | アプリ |
+| カテゴリ | スポーツ | スポーツ |
+| タグ（5つまで） | 柔道 / 武道 / チーム管理 / 出欠 / スケジュール | 柔道 / 武道 / トレーニング記録 / スポーツ記録 / 日記 |
+
+### データ削除の窓口
+
+アカウントが無いため**削除リクエストの仕組みは不要**。
+データは端末の中だけにあり、アプリを消せば消える。
+
+---
+
+## 10. 初回リリースのリリースノート
+
+500文字以内。4言語とも同じ内容。
+
+**ja-JP**
+```
+Google Play での最初の公開です。iPhone 版と同じ機能がすべて入っています。
+
+・データは端末の中だけ。どのサーバーにも送られません
+・アカウントもログインも登録もありません
+・日本語・英語・フランス語・ポルトガル語に対応
+```
+
+**en-US**
+```
+First release on Google Play. Everything from the iPhone version is here.
+
+- Your data stays on the device. Nothing is sent to any server
+- No account, no login, no sign-up
+- Japanese, English, French and Portuguese
+```
+
+**fr-FR**
+```
+Première version sur Google Play. Tout ce que propose la version iPhone est là.
+
+- Vos données restent sur l'appareil. Rien n'est envoyé à un serveur
+- Aucun compte, aucune connexion, aucune inscription
+- Japonais, anglais, français et portugais
+```
+
+**pt-BR**
+```
+Primeira versão no Google Play. Tudo o que a versão para iPhone oferece está aqui.
+
+- Seus dados ficam no aparelho. Nada é enviado a nenhum servidor
+- Sem conta, sem login, sem cadastro
+- Japonês, inglês, francês e português
+```
+
+---
+
+## 11. Android で見つけて直した不具合
+
+- **カメラ権限が抜けていた（2026-11-09 修正・commit c50f376）。**
+  `index.html` は `navigator.mediaDevices.getUserMedia` で QR コードを読む。
+  iOS は `Info.plist` の `NSCameraUsageDescription` で宣言していたが、
+  `AndroidManifest.xml` には `INTERNET` しか書いていなかった。
+  Capacitor は実行時に許可を求めるものの、**マニフェストに無い権限は Android が
+  自動で拒否する**ため、カメラが一度も起動しないまま失敗していたはず。
+  `uses-feature` に `required="false"` も付けた（無いとカメラの無い端末が配信対象から外れる）。
+  **実機で QR の読み取りを必ず試すこと。**
