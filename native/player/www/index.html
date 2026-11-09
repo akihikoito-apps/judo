@@ -301,10 +301,14 @@
   .view-toggle button.on{background:var(--navy);color:#fff;}
   /* v263: 集計タブの上段は「書類のつまみ」にする。選んだ項目が下の枠と地続きになり、
      その中身が枠の中に入っていることが形だけで伝わる。動きや保存されるデータには触っていない。 */
-  #screen-list > .view-toggle{gap:4px;margin-bottom:0;position:relative;z-index:2;}
-  #screen-list > .view-toggle button{border-radius:12px 12px 0 0;border-bottom-width:0;min-height:46px;
+  /* v310: お金タブの「月謝／その他収支」も同じつまみにする（切り替えだと形で分かるように） */
+  #screen-list > .view-toggle,
+  #screen-money > .view-toggle{gap:4px;margin-bottom:0;position:relative;z-index:2;}
+  #screen-list > .view-toggle button,
+  #screen-money > .view-toggle button{border-radius:12px 12px 0 0;border-bottom-width:0;min-height:46px;
     background:rgba(0,0,0,.05);color:var(--muted);border-color:var(--line);}
-  #screen-list > .view-toggle button.on{background:var(--paper-card);color:var(--navy);border-color:var(--navy);
+  #screen-list > .view-toggle button.on,
+  #screen-money > .view-toggle button.on{background:var(--paper-card);color:var(--navy);border-color:var(--navy);
     border-bottom:2px solid var(--paper-card);margin-bottom:-2px;box-shadow:none;}
   .sheet-body{border:2px solid var(--navy);border-radius:0 12px 12px 12px;background:var(--paper-card);
     padding:12px 8px 8px;margin-bottom:14px;}
@@ -524,14 +528,16 @@
 
   .empty{text-align:center;color:var(--muted);padding:36px 12px;font-size:calc(17px*var(--fs,1));}
   .month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;}
-  .month-nav .lbl{color:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;text-align:center;}
+  /* v310: 年月えらびは出欠の日付えらび（.date-display-wrap）と同じ白い枠に入れる。
+     枠が無いと「ただの見出し」に見えて、月を選ぶ場所だと気づけなかった。 */
+  .month-nav .lbl{color:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;text-align:center;flex:1;min-width:0;min-height:52px;padding:6px 8px;border:2px solid var(--line);border-radius:12px;background:var(--paper-card);font-size:calc(17px*min(var(--fs,1),1.6));font-weight:700;}
   .month-nav .lbl .fy-main{font-size:calc(21px*var(--fs,1));font-weight:700;}
   .month-nav .lbl .fy-sub{font-size:calc(13px*var(--fs,1));font-weight:600;color:var(--muted);margin-top:3px;}
-  .month-nav button{min-width:56px;min-height:48px;font-size:calc(24px*var(--fs,1));border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-weight:700;}
+  .month-nav button{min-width:56px;min-height:52px;font-size:calc(24px*var(--fs,1));border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-weight:700;}
   /* v305: 「予定をLINEで送る」の月選び。白地に白い枠で背景に溶けていたので、
      この画面だけ枠と色を付ける（カレンダーなど他の .month-nav は変えない）。 */
   .month-nav.ss-pick{background:var(--paper);border:2px solid var(--navy);border-radius:14px;padding:8px 10px;margin-bottom:6px;}
-  .month-nav.ss-pick .lbl{font-size:calc(22px*var(--fs,1));font-weight:800;letter-spacing:.02em;}
+  .month-nav.ss-pick .lbl{font-size:calc(22px*var(--fs,1));font-weight:800;letter-spacing:.02em;border:0;background:none;min-height:0;padding:0;}
   .month-nav.ss-pick button{background:var(--navy);color:#fff;border-color:var(--navy);}
 
   /* 時刻クイック選択 */
@@ -1243,7 +1249,13 @@
   .mate-group-head{display:flex;align-items:center;gap:8px;font-size:calc(15px*var(--fs,1));font-weight:700;color:var(--navy);margin:16px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--line);}
   .mate-group-head:first-child{margin-top:2px;}
   /* v133: 属性グループの折りたたみ見出し（畳み込み表示） */
-  .fold-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;row-gap:6px;font-size:calc(15px*var(--fs,1));font-weight:700;margin:12px 0 8px;padding:10px 12px;border:1.5px solid var(--line);border-left:5px solid currentColor;border-radius:12px;background:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;box-shadow:0 1px 4px rgba(20,30,55,.05);}
+  /* v310: 属性の見出しは「枠」ではなく「区切りの帯」。名前の枠（.mate-cell）と同じ
+     白・角丸・影だったため、どれが名前でどれが見出しか形で見分けられなかった。
+     区分の色の縦棒だけ残し、地色を下げて名前より一段うしろに引く。 */
+  .fold-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;row-gap:6px;font-size:calc(14px*var(--fs,1));font-weight:700;margin:16px 0 6px;padding:8px 12px;border:0;border-left:5px solid currentColor;border-radius:0 9px 9px 0;background:var(--paper);cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;box-shadow:none;}
+  .fold-head:active{background:var(--line);}
+  /* 地色を下げたぶん、人数の丸だけは白くして読めるようにする */
+  .fold-head .mate-count{background:var(--paper-card);}
   .fold-head:first-child{margin-top:2px;}
   .fold-head .fold-tri{font-size:.72em;flex:0 0 auto;width:1em;text-align:center;opacity:.85;}
   .fold-head .fold-lbl{flex:0 0 auto;}
@@ -1571,7 +1583,7 @@ function applyUpdate(){
   </div>
 
   <!-- 月謝ビュー -->
-  <div id="moneyFeeView">
+  <div id="moneyFeeView" class="sheet-body">
     <div class="month-nav">
       <button onclick="changeFeeMonth(-1)">‹</button>
       <div class="lbl" id="feeMonthLbl"></div>
@@ -1586,7 +1598,7 @@ function applyUpdate(){
   </div>
 
   <!-- 入出金ビュー -->
-  <div id="moneyCashView" style="display:none">
+  <div id="moneyCashView" class="sheet-body" style="display:none">
     <div class="month-nav">
       <button onclick="changeCashMonth(-1)">‹</button>
       <div class="lbl" id="cashMonthLbl"></div>
@@ -5563,7 +5575,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v309'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v310'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
