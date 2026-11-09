@@ -48,4 +48,13 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- QRコードの読み取りに使う（index.html の navigator.mediaDevices.getUserMedia）。
+         Capacitor は実行時に許可を求めるが、ここに書いていないと Android が自動で拒否し、
+         カメラが一度も起動しないまま失敗する。iOS 側は Info.plist の
+         NSCameraUsageDescription で同じことをしている。
+         required="false" は必須：これが無いと「カメラの無い端末」が Google Play の
+         配信対象から外れてしまう。写真の選択は <input type="file"> なので権限は要らない。 -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 </manifest>
