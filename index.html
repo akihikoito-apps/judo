@@ -5563,7 +5563,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v307'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v308'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -10251,7 +10251,7 @@ function demoSampleDB(){
   const students=[]; let i=0;
   cats.forEach(function(c){ for(let k=0;k<c[1];k++,i++){
     students.push({id:"demo"+i,name:sei[i%sei.length]+" "+mei[i%mei.length],kana:"",category:c[0],
-      fee:(c[0]==="一般")?3000:2000,feeReq:true,feeType:"monthly",rank:(c[0]==="高校生")?"初段":"3級",
+      feeAmount:(c[0]==="一般")?3000:2000,feeReq:true,feeType:"monthly",rank:(c[0]==="高校生")?"初段":"三級",
       sex:(i%2)?"女":"男",birth:"",judoId:"",note:"",startDate:"",endDate:""}); } });
   const schedule=[], attendance={}, fees={};
   const days=new Date(Y,M,0).getDate(), today=+t.slice(8);
@@ -10263,7 +10263,7 @@ function demoSampleDB(){
     }
   }
   schedule.push({id:"devt",name:"大会",title:"市民スポーツ大会",date:d(today+9),time:"09:30",place:"県立武道館",showMatch:true,forId:""});
-  fees[ym]={}; students.forEach(function(s,ix){ if(ix%4!==0)fees[ym][s.id]=s.fee; });
+  fees[ym]={}; students.forEach(function(s,ix){ if(ix%4!==0)fees[ym][s.id]=s.feeAmount; });
   const A=students[8]||students[0], B=students[9]||students[0];
   const matchResults={ devt:{ individual:[
     {id:"mb1",selfId:A.id,division:"高校男子60kg級",round:"1回戦",result:"○",grade:"一本",waza:"内股",oppName:"青葉 剛",oppAffil:"青葉柔道会",grip:"右",note:""},
