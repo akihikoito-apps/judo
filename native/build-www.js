@@ -3,7 +3,7 @@
            node build-www.js player   … ../../personal.html → player/www/index.html
    やること:
    - リポジトリ直下でビルド済みの単一HTML（node ../build.js で生成）を www/index.html にコピー
-   - </body> 直前に iap.js（RevenueCat課金ブリッジ）を注入
+   - </body> 直前に iap.js（RevenueCat課金ブリッジ）と nativefile.js（保存・共有ブリッジ）を注入
    - iap.js をアプリ別設定（APIキー・商品情報）付きで www/ に書き出す
    注意: 元HTMLを編集したら「リポジトリ直下で node build.js」→「ここで node build-www.js <app>」の順で反映。 */
 const fs = require('fs');
@@ -19,7 +19,7 @@ fs.mkdirSync(wwwDir, { recursive: true });
 
 let html = fs.readFileSync(path.join(ROOT, srcFile), 'utf8');
 if (!html.includes('</body>')) { console.error('</body> が見つかりません'); process.exit(2); }
-html = html.replace('</body>', '<script src="iap.js"></script>\n</body>');
+html = html.replace('</body>', '<script src="iap.js"></script>\n<script src="nativefile.js"></script>\n</body>');
 fs.writeFileSync(path.join(wwwDir, 'index.html'), html, 'utf8');
 
 /* ---- RevenueCat 課金ブリッジ（window.__iap） ----
@@ -214,4 +214,59 @@ const iapJs = `/* ${CFG.LABEL} — RevenueCat課金ブリッジ（自動生成: 
 })();
 `;
 fs.writeFileSync(path.join(wwwDir, 'iap.js'), iapJs, 'utf8');
-console.log('generated', app + '/www/index.html', '+ iap.js');
+
+/* ---- 保存・共有ブリッジ（window.__nativeFile） ----
+   Android の WebView には Web Share API（ファイル）が無く、Capacitor は DownloadListener も
+   付けないため、navigator.share({files}) も <a download> も何も起きないまま失敗する。
+   ＝バックアップの書き出し・シェア画像・退避データが、Android のアプリ版では一つも保存できない。
+   そこで Capacitor の Filesystem でキャッシュに書き、Share で共有シートに渡す。
+   iPhone と Web版では window.__nativeFile を作らない（index.html が今までの道をそのまま通る）。 */
+const nativeFileJs = `/* ${CFG.LABEL} — 保存・共有ブリッジ（自動生成: build-www.js） */
+(function(){
+  function platform(){
+    try{ return (window.Capacitor && typeof window.Capacitor.getPlatform==='function')
+                 ? window.Capacitor.getPlatform() : ''; }catch(e){ return ''; }
+  }
+  if(platform()!=='android')return;        // iPhone・Web版は一行も変えない
+
+  function plugin(n){
+    try{ return (window.Capacitor && window.Capacitor.Plugins) ? window.Capacitor.Plugins[n] : null; }
+    catch(e){ return null; }
+  }
+  // 本人が共有シートを閉じただけ（＝失敗ではない）かどうか
+  function isCancel(e){
+    var m=''; try{ m=String((e && (e.message || e.errorMessage)) || ''); }catch(_){}
+    return /cancel|abort|dismiss/i.test(m);
+  }
+  // ファイル名に使えない文字を落とす（シェア画像の名前は大会名から作られるため）
+  function safeName(n){
+    n=String(n||'file').replace(/[\\\\/:*?"<>|\\u0000-\\u001f]/g,'_').replace(/^\\.+/,'').trim();
+    return n.slice(0,80) || 'file';
+  }
+
+  var lastPath='';   // 前回書いた一時ファイル（次に呼ばれたときに消す。受け取り側が読む前に消さない）
+
+  // 返り値: 'ok'（渡せた）/'cancel'（本人がやめた）/'fail'（できなかった）
+  function share(o){
+    var Fs=plugin('Filesystem'), Sh=plugin('Share');
+    if(!Fs || !Sh) return Promise.resolve('fail');
+    var name=safeName(o && o.name);
+    var del = lastPath ? Fs.deleteFile({path:lastPath,directory:'CACHE'}).catch(function(){}) : Promise.resolve();
+    return del.then(function(){
+      lastPath='';
+      return Fs.writeFile({path:name,data:(o&&o.base64)||'',directory:'CACHE',recursive:true});
+    }).then(function(w){
+      var uri=(w && w.uri) || '';
+      if(!uri) throw new Error('no uri');
+      lastPath=name;
+      return Sh.share({title:(o&&o.title)||'',text:(o&&o.text)||'',url:uri,dialogTitle:(o&&o.title)||''});
+    }).then(function(){ return 'ok'; })
+      .catch(function(e){ return isCancel(e) ? 'cancel' : 'fail'; });
+  }
+
+  window.__nativeFile={ share:share };
+})();
+`;
+fs.writeFileSync(path.join(wwwDir, 'nativefile.js'), nativeFileJs, 'utf8');
+
+console.log('generated', app + '/www/index.html', '+ iap.js + nativefile.js');

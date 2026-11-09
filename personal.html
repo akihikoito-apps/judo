@@ -2652,8 +2652,8 @@ function applyUpdate(){
     <p class="list-mini" style="text-align:left;line-height:1.7;margin:10px 0 4px">このアプリのデータは<b>この端末の中だけ</b>に保存されています。<b>アプリを削除すると、バックアップがない限りデータは元に戻せません</b>（端末の故障・紛失・機種変更も同じです）。</p>
     <p class="list-mini" style="text-align:left;line-height:1.7;margin:6px 0 10px">保存はかんたん・約10秒。ファイルを1つ置くだけで、いつでもまるごと復元できます。</p>
     <div class="bk-where" style="text-align:left">
-      <b>📍 保存先は「iCloud Drive」を選んでください</b>
-      <div>「このiPhone内」に保存すると、端末が壊れた時にバックアップも一緒に失われます。端末の外（iCloud Driveなど）に置くことが大切です。</div>
+      <b id="bkWhereTitle">📍 保存先は「iCloud Drive」を選んでください</b>
+      <div id="bkWhereBody">「このiPhone内」に保存すると、端末が壊れた時にバックアップも一緒に失われます。端末の外（iCloud Driveなど）に置くことが大切です。</div>
     </div>
     <button class="btn gold full" onclick="backupEduSave()">💾 今すぐバックアップを保存（おすすめ）</button>
     <button class="btn ghost full" style="margin-top:10px" onclick="closeModal('backupEduModal')">あとで（設定 › データ管理 からいつでも）</button>
@@ -5563,7 +5563,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v308'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v309'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -6557,6 +6557,9 @@ Object.assign(DICT,{
   '📍 保存先は「iCloud Drive」を選んでください':{en:'📍 Please choose iCloud Drive as the destination',fr:'📍 Choisissez iCloud Drive comme destination',pt:'📍 Escolha o iCloud Drive como destino'},
   'バックアップは端末が壊れた・なくした時に備えるものです。「このiPhone内」に保存すると、端末と一緒にバックアップも失われるため意味がありません。':{en:'A backup exists for when your device breaks or is lost. Saving it “On My iPhone” means it is lost together with the device.',fr:'Une sauvegarde sert en cas de panne ou de perte de l’appareil. L’enregistrer « Sur mon iPhone » la fait disparaître avec l’appareil.',pt:'O backup serve para quando o aparelho quebra ou é perdido. Salvá-lo “No meu iPhone” faz com que ele se perca junto com o aparelho.'},
   '「このiPhone内」に保存すると、端末が壊れた時にバックアップも一緒に失われます。端末の外（iCloud Driveなど）に置くことが大切です。':{en:'If you save it “On My iPhone”, the backup is lost with the device. Keep it outside the device (iCloud Drive etc.).',fr:'Enregistré « Sur mon iPhone », la sauvegarde disparaît avec l’appareil. Conservez-la hors de l’appareil (iCloud Drive, etc.).',pt:'Se salvar “No meu iPhone”, o backup se perde com o aparelho. Guarde-o fora do aparelho (iCloud Drive etc.).'},
+  '📍 保存先は「Google ドライブ」を選んでください':{en:'📍 Please choose “Google Drive” as the destination',fr:'📍 Choisissez « Google Drive » comme destination',pt:'📍 Escolha “Google Drive” como destino'},
+  '「このデバイス内」に保存すると、端末が壊れた時にバックアップも一緒に失われます。端末の外（Google ドライブなど）に置くことが大切です。':{en:'If you save it on the device, the backup is lost with the device. Keep it outside the device (Google Drive etc.).',fr:'Enregistrée sur l’appareil, la sauvegarde disparaît avec lui. Conservez-la hors de l’appareil (Google Drive, etc.).',pt:'Se salvar no aparelho, o backup se perde com ele. Guarde-o fora do aparelho (Google Drive etc.).'},
+  '保存先は端末の外（Google ドライブなど）になっていますか？「このデバイス内」だと、端末が壊れた時にバックアップも一緒に失われます。':{en:'Did you save it outside the device (e.g. Google Drive)? If it is on the device, the backup is lost together with the device.',fr:'L’avez-vous enregistrée hors de l’appareil (Google Drive) ? Sur l’appareil, elle disparaîtrait avec lui.',pt:'Você salvou fora do aparelho (Google Drive)? No aparelho, o backup se perde junto com ele.'},
   '保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。':{en:'Did you save it outside the device (e.g. iCloud Drive)? If it is “On My iPhone”, the backup is lost together with the device.',fr:'L’avez-vous enregistrée hors de l’appareil (iCloud Drive) ? « Sur mon iPhone », elle disparaîtrait avec l’appareil.',pt:'Você salvou fora do aparelho (iCloud Drive)? Se for “No meu iPhone”, o backup se perde junto com o aparelho.'},
   '確認しました':{en:'Got it',fr:'Compris',pt:'Entendi'},
   'おすすめ：':{en:'Recommended: ',fr:'Recommandé : ',pt:'Recomendado: '},
@@ -7136,7 +7139,16 @@ function startI18nObserver(){
   _mo=new MutationObserver(()=>scheduleI18n());
   _mo.observe(document.body,{childList:true,subtree:true,characterData:true});
 }
-function applyI18n(){runI18nScan();}
+/* v309: Android では保存先の案内を Google ドライブに言い換える。
+   「このiPhone内」のままでは Android の人に通じない。日本語を入れ替えてから
+   走査するので、英仏葡にも訳が当たる（下の辞書に3つ足してある）。 */
+function applyPlatformWording(){
+  if(!isAndroidApp())return;
+  const t=document.getElementById('bkWhereTitle'), b=document.getElementById('bkWhereBody');
+  if(t)t.textContent='📍 保存先は「Google ドライブ」を選んでください';
+  if(b)b.textContent='「このデバイス内」に保存すると、端末が壊れた時にバックアップも一緒に失われます。端末の外（Google ドライブなど）に置くことが大切です。';
+}
+function applyI18n(){applyPlatformWording();runI18nScan();}
 function setLang(L){
   LANG=L;DB.lang=L;DB.langChosen=true;save();   // v255: 自分で選んだ言語は端末の言語より優先
   runI18nScan();
@@ -11696,6 +11708,10 @@ function rkDoShare(){
   catch(e){ rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); }
 }
 async function rkShareBlobGo(b){
+  // v309: Android は共有シートに渡す（これまでは必ず「長押しして保存」に落ちていた）
+  const nf=await nativeFileShare(b,shareFileName(),'image/png','My柔道','#柔道 #My柔道');
+  if(nf==='ok'||nf==='cancel')return;
+  if(nf==='fail'){ rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); return; }
   const file=new File([b],'card.png',{type:'image/png'});
   if(navigator.canShare&&navigator.canShare({files:[file]})){
     try{ await navigator.share({files:[file],text:'#柔道 #My柔道'}); }
@@ -14405,6 +14421,9 @@ function renderArchivePhotoNote(){
 async function archiveBackup(fy){
   const json=JSON.stringify(DB,null,2);
   const fname='judo_archive_before_FY'+fy+'_'+todayStr()+'.json';
+  const nf=await nativeFileShare(json,fname,'application/json','My柔道 アーカイブ前バックアップ');
+  if(nf==='ok'){ markBackedUp(); return true; }
+  if(nf==='cancel'||nf==='fail')return false;   // 保存できていない＝何も外さない
   try{
     const file=new File([json],fname,{type:'application/json'});
     if(navigator.canShare&&navigator.canShare({files:[file]})){
@@ -15539,6 +15558,42 @@ function maybeBackupEdu(){
   openModal('backupEduModal');
 }
 function backupEduSave(){ closeModal('backupEduModal'); exportData(); }
+/* v309: Android のアプリ版だけ、ファイルの保存・共有をネイティブ側に渡す。
+   Android の WebView は navigator.share（ファイル）を持たず、Capacitor は <a download> も
+   受け取らないので、これまでは共有シートもダウンロードも何も起きないまま失敗していた
+   （バックアップ・アーカイブ前バックアップ・退避データ・シェア画像の4か所）。
+   window.__nativeFile は nativefile.js（build-www.js が作る）が置く。iPhone と Web版では
+   作られないので 'none' が返り、これまでの道をそのまま通る＝iPhone の動きは1つも変えない。
+   返り値: 'ok'（渡せた）/'cancel'（本人がやめた）/'fail'（できなかった）/'none'（ブリッジ無し） */
+function isAndroidApp(){
+  try{ return !!(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform()==='android'); }
+  catch(e){ return false; }
+}
+function blobToBase64(data,mime){
+  return new Promise(res=>{
+    try{
+      const blob=(data instanceof Blob)?data:new Blob([data],{type:mime});
+      const fr=new FileReader();
+      fr.onload=()=>{const s=String(fr.result||''),i=s.indexOf(',');res(i>=0?s.slice(i+1):'');};
+      fr.onerror=()=>res('');
+      fr.readAsDataURL(blob);
+    }catch(e){res('');}
+  });
+}
+async function nativeFileShare(data,fname,mime,title,text){
+  if(!(window.__nativeFile&&window.__nativeFile.share))return 'none';
+  try{
+    const b64=await blobToBase64(data,mime);
+    if(!b64)return 'fail';
+    return await window.__nativeFile.share({name:fname,mime:mime,base64:b64,title:title||'',text:text||''});
+  }catch(e){return 'fail';}
+}
+// 保存先の確かめ方は端末で違う（iPhone=iCloud Drive / Android=Google ドライブ）
+function backupDestAsk(){
+  return isAndroidApp()
+    ? T('保存先は端末の外（Google ドライブなど）になっていますか？「このデバイス内」だと、端末が壊れた時にバックアップも一緒に失われます。')
+    : T('保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。');
+}
 function downloadBackup(json,fname){
   const blob=new Blob([json],{type:'application/json'});
   const url=URL.createObjectURL(blob);const a=document.createElement('a');
@@ -15549,6 +15604,14 @@ function downloadBackup(json,fname){
 async function exportData(){
   const json=JSON.stringify(DB,null,2);
   const fname=backupFilename();
+  const nf=await nativeFileShare(json,fname,'application/json','My柔道 バックアップ');
+  if(nf==='cancel')return;                      // 本人がやめた＝保存扱いにしない
+  if(nf==='ok'){
+    markBackedUp();
+    askConfirm(`${T('バックアップを保存しました')}<br><br>${backupDestAsk()}`,()=>{},'確認しました','保存先の確認','var(--navy)',true);
+    return;
+  }
+  if(nf==='fail'){ backupNativeFail(); return; }
   try{
     const file=new File([json],fname,{type:'application/json'});
     if(navigator.canShare&&navigator.canShare({files:[file]})){
@@ -15556,7 +15619,7 @@ async function exportData(){
         await navigator.share({files:[file],title:'My柔道 バックアップ'});
         markBackedUp();
         // v226: 「このiPhone内」に保存すると端末故障時に一緒に失われるため、保存先を確認してもらう
-        askConfirm(`${T('バックアップを保存しました')}<br><br>${T('保存先は端末の外（iCloud Driveなど）になっていますか？「このiPhone内」だと、端末が壊れた時にバックアップも一緒に失われます。')}`,()=>{},'確認しました','保存先の確認','var(--navy)',true);
+        askConfirm(`${T('バックアップを保存しました')}<br><br>${backupDestAsk()}`,()=>{},'確認しました','保存先の確認','var(--navy)',true);
       }catch(e){
         if(e&&e.name==='AbortError')return;   // ユーザーがキャンセル＝保存扱いにしない
         if(isNativeApp()){ backupNativeFail(); return; }   // v255: アプリ版はダウンロードでは保存されない
@@ -15581,6 +15644,8 @@ async function exportBrokenData(){
   const raw=brokenRaw();
   if(!raw){ toast(T('退避データはありません')); return; }
   const fname=`judo_unreadable_${todayStr()}.txt`;
+  const nf=await nativeFileShare(raw,fname,'text/plain','My柔道 退避データ');
+  if(nf==='ok'||nf==='cancel')return;
   try{
     const file=new File([raw],fname,{type:'text/plain'});
     if(navigator.canShare&&navigator.canShare({files:[file]})){
