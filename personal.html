@@ -1414,8 +1414,13 @@
   .ra-rc.w b{color:var(--green);} .ra-rc.l b{color:var(--red);} .ra-rc.d b{color:var(--muted);}
   /* 成長タブ（けいこカレンダー） */
   .gw-cal{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px 8px;}
-  .gw-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 2px;}
-  .gw-cal-head b{font-size:calc(16px*var(--fs,1));color:var(--navy);}
+  /* v311: カレンダーの月を「表札」にする。白地に文字だけだったので、
+     開いたときに「何月の予定を見ているか」が最初に目に入らなかった。
+     「予定をLINEで送る」の月えらび（.month-nav.ss-pick）と同じ形にそろえる。 */
+  .gw-cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;padding:6px 8px;background:var(--paper);border:2px solid var(--navy);border-radius:12px;}
+  .gw-cal-head b{flex:1;min-width:0;text-align:center;font-size:calc(20px*min(var(--fs,1),1.6));font-weight:800;color:var(--navy);letter-spacing:.02em;}
+  /* 仕上げ（metal/glass など）の上書きより強くするため、クラス3つで指定する */
+  .gw-cal .gw-cal-head .gw-nav{flex:0 0 auto;background:var(--navy);color:#fff;border-color:var(--navy);}
   .gw-nav{width:42px;min-height:40px;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;font-weight:800;font-size:calc(16px*var(--fs,1));cursor:pointer;font-family:inherit;}
   .gw-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
   .gw-dow{text-align:center;font-size:calc(10.5px*var(--fs,1));color:var(--muted);font-weight:700;padding:2px 0;}
@@ -5575,7 +5580,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v310'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v311'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
@@ -7403,6 +7408,8 @@ function seedIfEmpty(){
 function todayStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function thisMonthStr(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function shiftMonth(ym,delta){let[y,m]=ym.split('-').map(Number);m=m-1+delta;y+=Math.floor(m/12);m=((m%12)+12)%12;return `${y}-${String(m+1).padStart(2,'0')}`;}
+// v311: 「2026-11」を「2026年 11月」に。お金の年月（renderFee/renderCash）と同じ書き方にそろえる。
+function ymLabel(ym){const p=String(ym||'').split('-');return p.length<2?'':`${p[0]}年 ${Number(p[1])}月`;}
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 // v255: onclick="f('…')" の中に入れる文字列用。先にJSの文字列として無害化し、そのあとHTML属性用にエスケープする
 // （esc だけでは「'」が残り、O'Neil のような名前でボタンが壊れ、細工した名前ではコードが実行されてしまう）
@@ -11807,14 +11814,14 @@ function gwSchedByDate(){
 function renderGrowth(){
   const stars=gwStars();
   const chips=document.getElementById('gwChips');
-  if(!stars.length){ chips.innerHTML=''; const g=document.getElementById('gwGrid'); if(g)g.innerHTML=`<div class="ent-empty" style="grid-column:1/-1">${T('「選手」から主役を登録してください')}</div>`; const ml=document.getElementById('gwMonthLbl'); if(ml)ml.textContent=gwMonth?gwMonth.replace('-','/'):''; return; }
+  if(!stars.length){ chips.innerHTML=''; const g=document.getElementById('gwGrid'); if(g)g.innerHTML=`<div class="ent-empty" style="grid-column:1/-1">${T('「選手」から主役を登録してください')}</div>`; const ml=document.getElementById('gwMonthLbl'); if(ml)ml.textContent=gwMonth?ymLabel(gwMonth):''; return; }
   if(!gwSelfId||!stars.some(s=>s.id===gwSelfId))gwSelfId=stars[0].id;
   if(stars.length<2)gwAllView=false;
   chips.innerHTML=stars.length>1?
     `<button class="${gwAllView?'on':''}" onclick="gwSelectAll()"><span class="rk-av">👥</span>${T('全員')}</button>`+
     stars.map(s=>`<button class="${(!gwAllView&&s.id===gwSelfId)?'on':''}" onclick="gwSelect('${s.id}')"><span class="rk-av">${esc(avatarChar(s))}</span>${esc(s.name)}</button>`).join(''):'';
   if(!gwMonth)gwMonth=thisMonthStr();
-  document.getElementById('gwMonthLbl').textContent=gwMonth.replace('-','/');
+  document.getElementById('gwMonthLbl').textContent=ymLabel(gwMonth);
   const viewStars=gwAllView?stars:[stars.find(s=>s.id===gwSelfId)];
   const K=keikoOf(gwSelfId), sched=gwSchedByDate();
   // ―― カレンダー ――
@@ -13166,7 +13173,7 @@ function ofDaySchedList(ds){
 }
 function renderSchedCal(){
   if(!schedCalMonth)schedCalMonth=thisMonthStr();
-  document.getElementById('schedCalLbl').textContent=schedCalMonth.replace('-','/');
+  document.getElementById('schedCalLbl').textContent=ymLabel(schedCalMonth);
   const [gy,gm]=schedCalMonth.split('-').map(Number);
   const first=new Date(gy,gm-1,1), start=new Date(first); start.setDate(1-first.getDay());
   const daysInMonth=new Date(gy,gm,0).getDate();
