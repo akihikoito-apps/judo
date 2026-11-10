@@ -1435,7 +1435,17 @@
   /* v289: 点検 U-8。カレンダーの文字は 10px 以上に（帯の高さが変わらないよう行の高さを詰める）。文字サイズ「大」はほかの日付と同じ1.3倍まで */
   .gw-dhead .kk{font-size:calc(10px*min(var(--fs,1),1.3));font-weight:800;color:#c0442e;white-space:nowrap;}
   .gw-band{display:block;color:#fff;border-radius:4px;padding:0 3px;font-size:calc(10px*min(var(--fs,1),1.3));line-height:1.45;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}
-  .gw-cd{color:#fff;border-radius:12px;padding:11px 14px;font-weight:800;font-size:calc(15px*min(var(--fs,1),1.3));margin-top:10px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(20,30,55,.15);letter-spacing:.02em;}
+  /* v312: 大会のお知らせ。ただの横長の四角では、まわりの四角に埋もれて気づけなかった。
+     左に印、右に白い札を置いて形そのものを変え、いちばん知りたい日数を大きく出す。
+     札は縮めない（flex:0 0 auto）。大会名が長いときは名前のほうを折り返す。 */
+  .gw-cd{display:flex;align-items:center;gap:10px;min-height:56px;margin-top:10px;padding:8px 10px 8px 12px;border-radius:14px;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 8px rgba(20,30,55,.18);}
+  .gw-cd:active{transform:scale(.99);}
+  .gw-cd .cd-mk{flex:0 0 auto;width:30px;height:30px;color:#fff;}
+  .gw-cd .cd-ttl{flex:1;min-width:0;font-size:calc(14px*min(var(--fs,1),1.3));font-weight:800;line-height:1.3;letter-spacing:.01em;}
+  .gw-cd .cd-day{flex:0 0 auto;min-width:84px;padding:5px 10px;border-radius:11px;background:#fff;text-align:center;line-height:1.05;}
+  .gw-cd .cd-day .cd-pre{display:block;font-size:calc(10px*min(var(--fs,1),1.3));font-weight:800;opacity:.85;}
+  .gw-cd .cd-day .cd-n{font-size:calc(23px*min(var(--fs,1),1.3));font-weight:900;}
+  .gw-cd .cd-day.cd-today .cd-n{font-size:calc(18px*min(var(--fs,1),1.3));}
   .gw-more{font-size:calc(10px*min(var(--fs,1),1.3));color:var(--muted);text-align:right;padding-right:2px;line-height:1;}
   .gw-field-row{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--line);}
   /* v198: 日別モーダルのセクション分け（けいこ／予定） */
@@ -1534,6 +1544,14 @@ function applyUpdate(){
 </script>
 </head>
 <body>
+
+<!-- v312: 大会のお知らせの印。外部ファイルを使わないよう、ここに1つだけ置いて使い回す。 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <symbol id="cdMark" viewBox="0 0 48 48">
+    <path d="m26 3 4 11 12-2-5 11 8 8-13 2-4 12-8-10-12 4 3-13-9-8 13-3Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="m15 24 6 6 13-14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</defs></svg>
 
 <div id="lockScreen">
   <div class="lock-inner">
@@ -1641,11 +1659,13 @@ function applyUpdate(){
     <button id="schedFilterMatchB" onclick="setSchedFilter('match')"><span>🥋</span> 試合のみ</button>
   </div>
   <div id="schedAlertBanner"></div>
-  <div id="schedCountdown"></div>
   <div class="gw-cal" id="schedCalWrap" style="display:none">
     <div class="gw-cal-head"><button class="gw-nav" onclick="ofCalMove(-1)">‹</button><b id="schedCalLbl"></b><button class="gw-nav" onclick="ofCalMove(1)">›</button></div>
     <div class="gw-grid" id="schedCalGrid"></div>
   </div>
+  <!-- v312: お知らせはカレンダーの下。選手アプリと同じ並びにそろえた。
+       上に何本も積むと、操作するところが押し下げられて見づらくなる。 -->
+  <div id="schedCountdown"></div>
   <div class="card" id="schedList"></div>
 </section>
 
@@ -5580,7 +5600,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v311'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v312'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -7042,9 +7062,8 @@ const PATTERNS=[
   // v193: 試合申込・報告の数値入り表示
   [/^無料で登録できる主役は(\d+)人までです。Proにすると人数の制限がなくなります。$/, (m,L)=>({en:'The free plan allows up to '+m[1]+' main people. Pro removes the limit.',fr:'La version gratuite permet jusqu\u2019\u00e0 '+m[1]+' profils principaux. Pro supprime cette limite.',pt:'O plano gratuito permite at\u00e9 '+m[1]+' protagonistas. O Pro remove o limite.'}[L])],
   [/^(\d+)試合目$/, (m,L)=>({en:'Match '+m[1],fr:'Combat '+m[1],pt:'Luta '+m[1]}[L])],                     // 1試合目
-  // v290: 点検 U-10。予定名は日本語のまま差し込み、ここで訳す（言語を切り替えても追従する）
-  [/^🥋 (.+)まで あと(\d+)日！！$/, (m,L)=>{const n=tr(m[1],L);return {en:'🥋 '+m[2]+' days until '+n+'!!',fr:'🥋 J-'+m[2]+' avant '+n+' !!',pt:'🥋 '+m[2]+' dias para '+n+'!!'}[L];}],  // カウントダウン
-  [/^🥋 (.+)は きょう！！$/, (m,L)=>{const n=tr(m[1],L);return {en:'🥋 Today: '+n+'!!',fr:'🥋 Aujourd’hui : '+n+' !!',pt:'🥋 Hoje: '+n+'!!'}[L];}],
+  // v312: カウントダウンの2行はここから外した。日数を札に抜き出したので文が丸ごと1つでは
+  //       なくなり、このパターンは当たらない。訳は cdTexts() が言語ごとに組み立てる。
   // v290: 点検 U-10。金額は通貨記号を問わずそのまま出す（¥ 以外の通貨でも訳す）
   [/^集金済 (.+)$/, (m,L)=>({en:'Collected '+m[1],fr:'Collecté '+m[1],pt:'Recolhido '+m[1]}[L])],       // 集金済 ¥3,000
   [/^未集金 (.+)$/, (m,L)=>({en:'Not collected '+m[1],fr:'Non collecté '+m[1],pt:'A recolher '+m[1]}[L])],// 未集金 ¥3,000
@@ -7169,6 +7188,9 @@ function applyI18n(){applyPlatformWording();runI18nScan();}
 function setLang(L){
   LANG=L;DB.lang=L;DB.langChosen=true;save();   // v255: 自分で選んだ言語は端末の言語より優先
   runI18nScan();
+  // v312: お知らせの帯は言語ごとに組み立てが違うので、走査では追従できない。描き直す。
+  try{ if(typeof renderSchedCountdown==='function')renderSchedCountdown(); }catch(e){}
+  try{ if(typeof renderGwCountdown==='function')renderGwCountdown(); }catch(e){}
   if(typeof toast==='function')toast(tr('言語を変更しました',LANG));
 }
 function setCurrency(c){
@@ -7252,6 +7274,35 @@ const SEX_COLOR={男性:'#2d4373',女性:'#c0392b',その他:'#7d3c98'};
 const BADGE_COLOR={稽古:'#2d4373',練習:'#2d4373',トレーニング:'#7d3c98',大会:'#c0392b',イベント:'#1a8c8c',昇級審査:'#d68910',合宿:'#2e7d4f',休み:'#9aa0a6',その他:'#6b6b6b'};
 const SCHED_COLORS=['#2d4373','#c0392b','#1a8c8c','#d68910','#2e7d4f','#7d3c98','#1a2b4a','#b8860b'];
 const SCHED_GRAY='#6b6b6b';
+// v312: お知らせの文は、言語で組み立ても語順も変わる（日本語「〇〇まで あと9日」／
+//       英語「〇〇 / in 9 days」／フランス語「〇〇 / J-9」）。日数を札に抜き出したことで、
+//       文を丸ごと1つで訳す走査（PATTERNS）では追従できなくなったため、ここで作り分ける。
+//       言語を切り替えたときは setLang から描き直す。
+function cdTexts(rawName,days){
+  const n=tr(rawName,LANG);
+  if(days===0){
+    const big={ja:'きょう！！',en:'TODAY!!',fr:'JOUR J !!',pt:'É HOJE!!'}[LANG];
+    return {lead:(LANG==='ja')?(n+'は'):n, pre:'', big:big||'きょう！！', today:true};
+  }
+  const tbl={
+    ja:{lead:n+'まで', pre:'あと', big:days+'日'},
+    en:{lead:n,        pre:'in',   big:days+(days===1?' day':' days')},
+    fr:{lead:n,        pre:'',     big:'J-'+days},
+    pt:{lead:n,        pre:'em',   big:days+(days===1?' dia':' dias')}
+  };
+  const t=tbl[LANG]||tbl.ja;
+  return {lead:t.lead, pre:t.pre, big:t.big, today:false};
+}
+function cdHtml(color,rawName,days,ds,handler){
+  const t=cdTexts(rawName,days);
+  return `<div class="gw-cd" style="background:${color}" onclick="${handler}('${ds}')">`+
+    `<svg class="cd-mk" aria-hidden="true" focusable="false"><use href="#cdMark"/></svg>`+
+    `<span class="cd-ttl">${esc(t.lead)}</span>`+
+    `<span class="cd-day${t.today?' cd-today':''}" style="color:${color}">`+
+      (t.pre?`<span class="cd-pre">${esc(t.pre)}</span>`:'')+
+      `<span class="cd-n">${esc(t.big)}</span>`+
+    `</span></div>`;
+}
 // 予定の色は「種類」に紐づく。登録済みの種類はその色、未登録・自由記載はグレー
 function typeColor(name){
   const tc=(DB.schedPresets&&DB.schedPresets.typeColors)||{};
@@ -11885,11 +11936,9 @@ function renderGwCountdown(){
   const ups=(DB.schedule||[]).filter(s=>s.date&&schedIsMatch(s)&&(gwAllView||!s.forId||s.forId===gwSelfId))
     .map(s=>({s,days:Math.round((new Date(s.date+'T00:00')-nowD)/86400000)}))
     .filter(x=>x.days>=0&&x.days<=30).sort((a,b)=>a.days-b.days).slice(0,3);
-  box.innerHTML=ups.map(({s,days})=>{
-    const nm=esc(s.title||s.name);   // v290: 名前は PATTERNS 側で訳す（点検 U-10）
-    const txt=(days===0)?`${nm}は きょう！！`:`${nm}まで あと${days}日！！`;
-    return `<div class="gw-cd" style="background:${typeColor(s.name)}" onclick="gwOpenDay('${s.date}')">🥋 ${txt}</div>`;
-  }).join('');
+  box.innerHTML=ups.map(({s,days})=>
+    cdHtml(typeColor(s.name), s.title||s.name, days, s.date, 'gwOpenDay')
+  ).join('');
 }
 function gwSelect(id){gwSelfId=id;gwAllView=false;renderGrowth();}
 function gwSelectAll(){gwAllView=true;renderGrowth();}
@@ -13759,11 +13808,9 @@ function renderSchedCountdown(){
   const ups=(DB.schedule||[]).filter(s=>s.date&&schedIsMatch(s))
     .map(s=>({s,days:Math.round((new Date(s.date+'T00:00')-nowD)/86400000)}))
     .filter(x=>x.days>=0&&x.days<=30).sort((a,b)=>a.days-b.days).slice(0,3);
-  box.innerHTML=ups.map(({s,days})=>{
-    const nm=esc(s.title||s.name);   // v290: 名前は PATTERNS 側で訳す（点検 U-10）
-    const txt=(days===0)?`${nm}は きょう！！`:`${nm}まで あと${days}日！！`;
-    return `<div class="gw-cd" style="background:${typeColor(s.name)}" onclick="ofOpenDay('${s.date}')">🥋 ${txt}</div>`;
-  }).join('');
+  box.innerHTML=ups.map(({s,days})=>
+    cdHtml(typeColor(s.name), s.title||s.name, days, s.date, 'ofOpenDay')
+  ).join('');
 }
 function ofOpenDay(ds){
   ofDayDs=ds;
