@@ -2060,6 +2060,7 @@ function applyUpdate(){
 
       <h4 style="color:var(--navy);margin:16px 0 4px">6. データの保存・バックアップ・消去</h4>
       <p style="margin:0">データは端末内に保存されるため、アプリの削除・端末の初期化・故障・紛失により失われる場合があります。重要なデータはバックアップ機能で利用者ご自身の責任で保管してください。バックアップの送受信は利用者自身の手段で行われ、制作者は関与しません。端末内のデータは、アプリ内で削除するかアプリを削除することで消去できます。</p>
+      <p style="margin:6px 0 0">なお、iPhone・Android には、アプリのデータを利用者ご自身のクラウド（iCloud バックアップ／Google ドライブのバックアップ）へ自動で控えるOS の仕組みがあります。本アプリはこれを止めていません。端末を買い替えたときに記録を引き継げるようにするためです。控えは利用者ご自身のアカウントに保管されるもので、制作者はその中身を見ることも取り出すこともできません。不要な場合は、端末の設定でアプリごとに止められます。</p>
 
       <h4 style="color:var(--navy);margin:16px 0 4px">7. セキュリティ</h4>
       <p style="margin:0">本アプリは端末内データ保護のため、起動時のパスコードロック機能を提供します。端末そのものの管理（画面ロック・紛失対策等）は利用者ご自身で行ってください。</p>
@@ -5600,7 +5601,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v313'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v314'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
