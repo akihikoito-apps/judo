@@ -63,12 +63,27 @@ jobs:
             native/office/android/app/build.gradle
           grep -n "versionCode\|versionName" native/office/android/app/build.gradle
 
+      - name: index.html と派生HTMLが合っているか確かめる（ついでに回帰テスト）
+        run: |
+          node build.js
+          git diff --exit-code -- office.html personal.html || {
+            echo "::error::office.html / personal.html が index.html と合っていません。手元で node build.js を実行して、生成された2つのファイルも一緒に commit してください"; exit 1; }
+
       - name: www を生成して Android 側へ同期
         working-directory: native/office
         run: |
           node ../build-www.js office
           npx cap sync android
           test -f android/app/src/main/assets/public/index.html || { echo "::error::wwwがコピーされていません"; exit 1; }
+
+      - name: Android の課金鍵が仮置きのままでないか
+        run: |
+          if grep -q "REVENUECAT_ANDROID_PENDING" native/office/www/iap.js; then
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              echo "::error::Android の RevenueCat 鍵が仮置きのままです。この AAB は Google Play に出せません（買っても課金が動きません）"; exit 1
+            fi
+            echo "::warning::Android の RevenueCat 鍵が仮置きです。このビルドでは課金が動きません（実機の見た目確認には使えます）"
+          fi
 
       - name: 署名鍵を用意（シークレットがあるときだけ）
         id: keystore

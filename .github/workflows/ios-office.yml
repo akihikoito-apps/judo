@@ -96,6 +96,12 @@ jobs:
           echo "::notice::このビルドは $MV (${{ github.run_number }}) です"
           echo "※ App Store で公開済みのバージョン番号は使えません。公開したら MARKETING_VERSION を上げてください。"
 
+      - name: index.html と派生HTMLが合っているか確かめる（ついでに回帰テスト）
+        run: |
+          node build.js
+          git diff --exit-code -- office.html personal.html || {
+            echo "::error::office.html / personal.html が index.html と合っていません。手元で node build.js を実行して、生成された2つのファイルも一緒に commit してください"; exit 1; }
+
       - name: www を生成して iOS 側へ同期（pod install もここで走る）
         working-directory: native/office
         run: |
