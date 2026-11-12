@@ -130,7 +130,7 @@ async function run(src, opts) {
     ["const nf=await nativeFileShare(json,fname,'application/json','My柔道 バックアップ');", 'バックアップの書き出し'],
     ["const nf=await nativeFileShare(json,fname,'application/json','My柔道 アーカイブ前バックアップ');", 'アーカイブ前のバックアップ'],
     ["const nf=await nativeFileShare(raw,fname,'text/plain','My柔道 退避データ');", '退避データの書き出し'],
-    ["const nf=await nativeFileShare(b,shareFileName(),'image/png','My柔道','#柔道 #My柔道');", 'メモリーのシェア画像'],
+    ["const nf=await nativeFileShare(b,shareFileName(),shareImgMime(),'My柔道','#柔道 #My柔道',pre);", 'メモリーのシェア画像'],
   ].forEach(([needle, label]) => ok(index.indexOf(needle) >= 0, 'ブリッジを通る: ' + label));
 
   // (9) 保存先の案内は端末で言い換える（Android に「このiPhone内」と出さない）

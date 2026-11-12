@@ -5601,7 +5601,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v314'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v315'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -6538,6 +6538,7 @@ Object.assign(DICT,{
   '画像をドラッグして位置を調整、スライダー（またはピンチ）でズームできます。':{en:'Drag the image to reposition; use the slider (or pinch) to zoom.',fr:'Faites glisser l’image pour la repositionner ; utilisez le curseur (ou le pincement) pour zoomer.',pt:'Arraste a imagem para reposicionar; use o controle (ou pinça) para dar zoom.'},
   'この大会のひとことメモ（任意）':{en:'A note about this event (optional)',fr:'Une note sur cet événement (facultatif)',pt:'Uma nota sobre este evento (opcional)'},
   'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
+  '画像を準備しています…':{en:'Preparing the image…',fr:'Préparation de l’image…',pt:'Preparando a imagem…'},
   'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'},
   '画像を保存':{en:'Save image',fr:'Enregistrer l’image',pt:'Salvar imagem'},
   '画像を長押しして「写真に保存」を選んでください。':{en:'Press and hold the image, then choose “Save to Photos”.',fr:'Appuyez longuement sur l’image, puis choisissez « Enregistrer dans Photos ».',pt:'Toque e segure a imagem e escolha “Salvar em Fotos”.'},
@@ -7198,7 +7199,7 @@ function applyPlatformWording(){
 function applyI18n(){applyPlatformWording();runI18nScan();}
 function setLang(L){
   LANG=L;DB.lang=L;DB.langChosen=true;save();   // v255: 自分で選んだ言語は端末の言語より優先
-  runI18nScan();
+  applyI18n();   // v315: 端末ごとの言い換えを当ててから走査する（runI18nScan だけだと当たらない）
   // v312: お知らせの帯は言語ごとに組み立てが違うので、走査では追従できない。描き直す。
   try{ if(typeof renderSchedCountdown==='function')renderSchedCountdown(); }catch(e){}
   try{ if(typeof renderGwCountdown==='function')renderGwCountdown(); }catch(e){}
@@ -9605,11 +9606,11 @@ async function dojoSendShare(){
     if(need>1||bs.length!==need){
       toast(T('QRが複数枚になるため、テキストでお送りします')); dojoSetFmt('text');
       // v285: 点検E-2。テキストのときも先に共有を試す（従来はコピーだけで終わっていた）
-      if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
+      if(await shareTextOrFalse(text,'My柔道 試合結果'))return;   // v315: Android もここから共有シートへ
     }
     dojoSendCopy(); return;
   }
-  if(navigator.share){ try{ await navigator.share({text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
+  if(await shareTextOrFalse(text,'My柔道 試合結果'))return;   // v315: Android もここから共有シートへ
   dojoSendCopy();
 }
 async function dojoSendCopy(){
@@ -11733,7 +11734,7 @@ function drawShareCard(ev,img){
   ctx.restore();
   rkPrepareShareBlob();   // v285: 点検E-1。シェア用の画像を作り置き
 }
-function shareFileName(){ const ev=rkShareEv||{}; return (ev.title||ev.name||'memory')+'.png'; }
+function shareFileName(){ const ev=rkShareEv||{}; return (ev.title||ev.name||'memory')+(isAndroidApp()?'.jpg':'.png'); }
 /* v252: 保存したカードは、メモリー一覧に重ねる最大110px幅のサムネイルとしてしか使わない。
    シェアと端末保存はそのつど原寸のキャンバスから作り直すので、ここを小さくしても
    共有画像の画質は落ちない。640×800だと1枚150〜240KBになり、5MBの保存領域を
@@ -11792,11 +11793,28 @@ function rkDownloadShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=
 /* v285: 点検E-1。iOS は「押した操作」の直後でないと share を拒むため、画像はプレビューを描いた時点で
    作り置きし、押したらすぐ share を呼ぶ。中止（AbortError）以外の失敗と、アプリ版で共有できないときは
    画像を大きく出して長押しで保存してもらう（アプリ内ではダウンロードが何も起きないため） */
-let rkShareBlob=null, _rkBlobSeq=0, _rkBlobTimer=0;
+let rkShareBlob=null, rkShareB64='', _rkBlobSeq=0, _rkBlobTimer=0;
+/* v315: Android は共有の受け渡しが base64 の文字列（JS↔ネイティブの橋）なので、
+   1080x1350 の PNG（写真入りで3MB超）だと渡すだけで何秒もかかる。実機で「ものすごく遅い」のはここ。
+   Android だけ JPEG にして量を10分の1にし、さらにプレビューを描いた時点で base64 まで作っておく。
+   JPEG は透明を扱えないので、白く塗ったキャンバスに重ねてから書き出す（構図によっては黒く出るため）。
+   iPhone は Blob をそのまま navigator.share に渡せるので PNG のまま＝動きは1つも変えない。 */
+function shareImgMime(){ return isAndroidApp()?'image/jpeg':'image/png'; }
+function shareBlobMake(cb){
+  const cv=document.getElementById('rkcv');
+  if(!isAndroidApp()){ cv.toBlob(b=>cb(b),'image/png'); return; }
+  const o=document.createElement('canvas'); o.width=cv.width; o.height=cv.height;
+  const x=o.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,o.width,o.height); x.drawImage(cv,0,0);
+  o.toBlob(b=>cb(b),'image/jpeg',0.92);
+}
 function rkPrepareShareBlob(){
-  rkShareBlob=null; const seq=++_rkBlobSeq;
+  rkShareBlob=null; rkShareB64=''; const seq=++_rkBlobSeq;
   clearTimeout(_rkBlobTimer);
-  _rkBlobTimer=setTimeout(()=>{ try{ document.getElementById('rkcv').toBlob(b=>{ if(seq===_rkBlobSeq)rkShareBlob=b||null; },'image/png'); }catch(e){} },400);
+  _rkBlobTimer=setTimeout(()=>{ try{ shareBlobMake(b=>{
+    if(seq!==_rkBlobSeq)return;
+    rkShareBlob=b||null;
+    if(b&&isAndroidApp())blobToBase64(b,shareImgMime()).then(s=>{ if(seq===_rkBlobSeq)rkShareB64=s||''; });
+  }); }catch(e){} },400);
 }
 function showImgSave(src,msg){
   const im=document.getElementById('imgSaveImg'), mg=document.getElementById('imgSaveMsg');
@@ -11807,12 +11825,15 @@ function showImgSave(src,msg){
 function rkShowImgSave(msg){ let u=''; try{ u=document.getElementById('rkcv').toDataURL('image/png'); }catch(e){} showImgSave(u,msg); }
 function rkDoShare(){
   if(rkShareBlob){ rkShareBlobGo(rkShareBlob); return; }
-  try{ document.getElementById('rkcv').toBlob(b=>{ if(b)rkShareBlobGo(b); else rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); },'image/png'); }
+  try{ shareBlobMake(b=>{ if(b)rkShareBlobGo(b); else rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); }); }
   catch(e){ rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); }
 }
 async function rkShareBlobGo(b){
   // v309: Android は共有シートに渡す（これまでは必ず「長押しして保存」に落ちていた）
-  const nf=await nativeFileShare(b,shareFileName(),'image/png','My柔道','#柔道 #My柔道');
+  // v315: プレビュー中に作っておいた base64 があればそれを使う（押してからの待ちが消える）
+  const pre=(b===rkShareBlob&&rkShareB64)?rkShareB64:'';
+  if(isAndroidApp()&&!pre)toast(T('画像を準備しています…'));
+  const nf=await nativeFileShare(b,shareFileName(),shareImgMime(),'My柔道','#柔道 #My柔道',pre);
   if(nf==='ok'||nf==='cancel')return;
   if(nf==='fail'){ rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); return; }
   const file=new File([b],'card.png',{type:'image/png'});
@@ -13639,9 +13660,7 @@ async function ssSendLink(){
   L.push('');
   L.push(r.url);
   const text=L.join('\n');
-  if(navigator.share){
-    navigator.share({text:text}).catch(e=>{ if(e&&e.name==='AbortError')return; ssCopy(text); });
-  }else{ ssCopy(text); }
+  if(!await shareTextOrFalse(text,'My柔道 予定'))ssCopy(text);   // v315: Android もここから共有シートへ
 }
 let _ssPlainOk=false;   // v302: 「包めなくても送る」と選んだ直後だけ true
 function ssCopy(text){
@@ -13672,7 +13691,7 @@ function renderSchedShare(keepInput){
 async function ssSend(){
   // v258: 0件でも送れる。「この月の予定はすべて取り消し」を伝えるため
   const r=schedShareText(ssMonth);
-  if(navigator.share){ try{ await navigator.share({text:r.text}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }   // v285: 点検E-3。閉じただけならコピーへ進まない
+  if(await shareTextOrFalse(r.text,'My柔道 予定'))return;   // v285: 閉じただけならコピーへ進まない／v315: Android もここから共有シートへ
   try{ await navigator.clipboard.writeText(r.text); toast(T('コピーしました。LINE等に貼り付けて送ってください')); }
   catch(e){ toast(T('コピーできませんでした')); }
 }
@@ -15679,13 +15698,26 @@ function blobToBase64(data,mime){
     }catch(e){res('');}
   });
 }
-async function nativeFileShare(data,fname,mime,title,text){
+async function nativeFileShare(data,fname,mime,title,text,b64pre){
   if(!(window.__nativeFile&&window.__nativeFile.share))return 'none';
   try{
-    const b64=await blobToBase64(data,mime);
+    const b64=b64pre||await blobToBase64(data,mime);   // v315: 作り置きがあれば変換を省く
     if(!b64)return 'fail';
     return await window.__nativeFile.share({name:fname,mime:mime,base64:b64,title:title||'',text:text||''});
   }catch(e){return 'fail';}
+}
+/* v315: テキストだけの共有（予定表を送る・道場に送る）。Android の WebView には
+   navigator.share が無いため、共有シートが出ないままコピーに落ちていた。
+   戻り値 true = 共有できた／本人がやめた（＝コピーに進まない）。
+   iPhone と Web版は window.__nativeFile を持たないので、これまでの道をそのまま通る。 */
+async function shareTextOrFalse(text,title){
+  if(window.__nativeFile&&window.__nativeFile.text){
+    let nf='fail';
+    try{ nf=await window.__nativeFile.text({text:text,title:title||''}); }catch(e){}
+    if(nf==='ok'||nf==='cancel')return true;
+  }
+  if(navigator.share){ try{ await navigator.share({text:text}); return true; }catch(e){ if(e&&e.name==='AbortError')return true; } }
+  return false;
 }
 // 保存先の確かめ方は端末で違う（iPhone=iCloud Drive / Android=Google ドライブ）
 function backupDestAsk(){
@@ -15933,7 +15965,8 @@ function initUI(){
   schedYear=schedFY(todayStr());
   applyLogo();
   startI18nObserver();
-  runI18nScan();
+  applyI18n();   // v315: ここが runI18nScan() だったため applyPlatformWording() が一度も動かず、
+                 //       Android の購読画面に「iPhoneの設定から解約」と出ていた
   applyMode();                                  // v143: 表示モードでタブを出し分け
   renderAtt();
   if(APP_EDITION==='personal')switchTab('growth');   // v203: 個人専用アプリは「予定・記録」から開始（社長方針）

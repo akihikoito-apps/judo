@@ -41,5 +41,15 @@
       .catch(function(e){ return isCancel(e) ? 'cancel' : 'fail'; });
   }
 
-  window.__nativeFile={ share:share };
+  // v315: テキストだけの共有（予定表を送る・道場に送る）。ファイルは要らないので Share だけ。
+  //       これが無いと Android では共有シートが出ず、黙ってコピーに落ちていた。
+  function shareText(o){
+    var Sh=plugin('Share');
+    if(!Sh) return Promise.resolve('fail');
+    return Sh.share({title:(o&&o.title)||'',text:(o&&o.text)||'',dialogTitle:(o&&o.title)||''})
+      .then(function(){ return 'ok'; })
+      .catch(function(e){ return isCancel(e) ? 'cancel' : 'fail'; });
+  }
+
+  window.__nativeFile={ share:share, text:shareText };
 })();
