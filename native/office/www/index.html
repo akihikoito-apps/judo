@@ -1925,9 +1925,9 @@ function applyUpdate(){
       <div id="backupStatus" style="margin-bottom:10px"></div>
       <p class="list-mini">保存を押すと共有メニューが開きます。仲間への共有もこのファイルで行えます。</p>
       <div class="bk-where">
-        <b>📍 保存先は「iCloud Drive」がおすすめです</b>
-        <div>バックアップは<b>端末が壊れた・なくした時に備えるもの</b>です。「このiPhone内」に保存すると、端末と一緒にバックアップも失われるため意味がありません。</div>
-        <div><b>おすすめ：</b>共有メニューで「ファイルに保存」→ <b>iCloud Drive</b>（またはGoogleドライブ・Dropbox）を選ぶ。端末の外に残るので、機種変更・故障・紛失でも復元できます。</div>
+        <b id="bkSetTitle">📍 保存先は「iCloud Drive」がおすすめです</b>
+        <div id="bkSetBody">バックアップは<b>端末が壊れた・なくした時に備えるもの</b>です。「このiPhone内」に保存すると、端末と一緒にバックアップも失われるため意味がありません。</div>
+        <div id="bkSetHow"><b>おすすめ：</b>共有メニューで「ファイルに保存」→ <b>iCloud Drive</b>（またはGoogleドライブ・Dropbox）を選ぶ。端末の外に残るので、機種変更・故障・紛失でも復元できます。</div>
       </div>
       <p class="list-mini" style="color:#8a6d1f;font-weight:700">※ アプリを削除すると、バックアップがない限りデータは元に戻せません。</p>
       <button class="btn gold full bk-stack" style="margin-top:10px" onclick="exportData()"><span>💾 バックアップを保存</span><span class="bk-btn-sub">（クラウド/ファイルへ）</span></button>
@@ -5601,7 +5601,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v315'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v316'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -6593,6 +6593,8 @@ Object.assign(DICT,{
   '※ アプリを削除すると、バックアップがない限りデータは元に戻せません。':{en:'※ If you delete the app, data cannot be recovered without a backup.',fr:'※ Si vous supprimez l’app, les données sont irrécupérables sans sauvegarde.',pt:'※ Se você excluir o app, os dados não podem ser recuperados sem backup.'},
   // v226: 保存先の助言
   '📍 保存先は「iCloud Drive」がおすすめです':{en:'📍 Save to iCloud Drive (recommended)',fr:'📍 Enregistrez sur iCloud Drive (recommandé)',pt:'📍 Salve no iCloud Drive (recomendado)'},
+  // v316: Android 版。日本語の文ごと別キーにしてある（語順が言語で違うため）
+  '📍 保存先は「Google ドライブ」がおすすめです':{en:'📍 Save to Google Drive (recommended)',fr:'📍 Enregistrez sur Google Drive (recommandé)',pt:'📍 Salve no Google Drive (recomendado)'},
   '📍 保存先は「iCloud Drive」を選んでください':{en:'📍 Please choose iCloud Drive as the destination',fr:'📍 Choisissez iCloud Drive comme destination',pt:'📍 Escolha o iCloud Drive como destino'},
   'バックアップは端末が壊れた・なくした時に備えるものです。「このiPhone内」に保存すると、端末と一緒にバックアップも失われるため意味がありません。':{en:'A backup exists for when your device breaks or is lost. Saving it “On My iPhone” means it is lost together with the device.',fr:'Une sauvegarde sert en cas de panne ou de perte de l’appareil. L’enregistrer « Sur mon iPhone » la fait disparaître avec l’appareil.',pt:'O backup serve para quando o aparelho quebra ou é perdido. Salvá-lo “No meu iPhone” faz com que ele se perca junto com o aparelho.'},
   '「このiPhone内」に保存すると、端末が壊れた時にバックアップも一緒に失われます。端末の外（iCloud Driveなど）に置くことが大切です。':{en:'If you save it “On My iPhone”, the backup is lost with the device. Keep it outside the device (iCloud Drive etc.).',fr:'Enregistré « Sur mon iPhone », la sauvegarde disparaît avec l’appareil. Conservez-la hors de l’appareil (iCloud Drive, etc.).',pt:'Se salvar “No meu iPhone”, o backup se perde com o aparelho. Guarde-o fora do aparelho (iCloud Drive etc.).'},
@@ -7195,6 +7197,16 @@ function applyPlatformWording(){
   const t=document.getElementById('bkWhereTitle'), b=document.getElementById('bkWhereBody');
   if(t)t.textContent='📍 保存先は「Google ドライブ」を選んでください';
   if(b)b.textContent='「このデバイス内」に保存すると、端末が壊れた時にバックアップも一緒に失われます。端末の外（Google ドライブなど）に置くことが大切です。';
+  /* v316: 設定 →「データの保存・共有」の案内。Codex の点検。
+     v309 で言い換えていたのは初回案内だけで、社長が実機で実際に押すこの画面には
+     「iCloud Drive がおすすめ」「このiPhone内」「ファイルに保存」が残っていた。
+     Android にはどれも無いので、そのとおりにやろうとしても辿り着けない。 */
+  const st=document.getElementById('bkSetTitle');
+  if(st)st.textContent='📍 保存先は「Google ドライブ」がおすすめです';
+  const sb=document.getElementById('bkSetBody');
+  if(sb)sb.innerHTML='バックアップは<b>端末が壊れた・なくした時に備えるもの</b>です。「このデバイス内」に保存すると、端末と一緒にバックアップも失われるため意味がありません。';
+  const sh=document.getElementById('bkSetHow');
+  if(sh)sh.innerHTML='<b>おすすめ：</b>共有メニューで <b>Google ドライブ</b>（またはDropboxなど）を選ぶ。端末の外に残るので、機種変更・故障・紛失でも復元できます。';
 }
 function applyI18n(){applyPlatformWording();runI18nScan();}
 function setLang(L){
@@ -9600,6 +9612,13 @@ async function dojoSendShare(){
     // v285: 点検E-2。作り置きがあれば待たずに share を呼ぶ（まだなら従来どおりその場で作る）
     const bs=(dojoQrBlobCache&&dojoQrBlobCache.length===need)?dojoQrBlobCache:await dojoQrPngBlobs();
     if(bs.length&&bs.length===need){
+      /* v316: Android はネイティブの共有シートへ。Codex の点検。
+         v315 で直したのはテキストの共有だけで、QR 画像は navigator.share({files}) のままだった。
+         ブリッジは1ファイルずつなので、QR が1枚のときだけ。複数枚は下のテキスト送りに任せる。 */
+      if(need===1){
+        const nf=await nativeFileShare(bs[0],'match-qr.png','image/png','My柔道 試合結果');
+        if(nf==='ok'||nf==='cancel')return;
+      }
       const files=bs.map((b,i)=>new File([b],bs.length>1?('match-qr-'+(i+1)+'.png'):'match-qr.png',{type:'image/png'}));
       if(navigator.canShare&&navigator.canShare({files})){ try{ await navigator.share({files}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
     }

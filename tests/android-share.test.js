@@ -17,6 +17,7 @@
            node tests/android-share.test.js --mutate=boot  … 起動時の呼び出しを戻す（失敗するのが正しい）
            node tests/android-share.test.js --mutate=text  … 共有をnavigator.shareに戻す（失敗するのが正しい）
            node tests/android-share.test.js --mutate=jpeg  … 画像をPNGに戻す（失敗するのが正しい）
+           node tests/android-share.test.js --mutate=bkset … 設定の案内の目印を1つ外す（失敗するのが正しい）
    build.js の最後からも run() が呼ばれる。 */
 const fs = require('fs');
 const path = require('path');
@@ -47,6 +48,10 @@ function run(src, opts) {
     if (index.indexOf(TEXT_CALL) < 0) throw new Error('mutate=text の置き換え先が見つかりません');
     index = index.split(TEXT_CALL).join('await navigator.share(');
   }
+  if (opts.mutate === 'bkset') {
+    if (index.indexOf('id="bkSetHow"') < 0) throw new Error('mutate=bkset の置き換え先が見つかりません');
+    index = index.replace('id="bkSetHow"', '');   // 3行のうち1行だけ目印を外す
+  }
   if (opts.mutate === 'jpeg') {
     if (index.indexOf(MIME) < 0) throw new Error('mutate=jpeg の置き換え先が見つかりません');
     index = index.replace(MIME, "function shareImgMime(){ return 'image/png'; }");
@@ -67,6 +72,26 @@ function run(src, opts) {
   ok(index.indexOf("const pw=document.getElementById('paywallTerms'); if(pw)pw.textContent=payTermsText('auto');") >= 0,
      '選手の購読画面の解約の案内を入れ替える');
   ok(index.indexOf('id="paywallTerms"') >= 0, '選手の購読画面に目印の id がある');
+
+  /* v316: Codex の点検。設定 →「データの保存・共有」の案内は、v309 の言い換えが
+     届いていなかった（初回案内にしか id が無かった）。社長が実機で押すのはこの画面。 */
+  for (const id of ['bkSetTitle', 'bkSetBody', 'bkSetHow']) {
+    ok(index.indexOf('id="' + id + '"') >= 0, '設定の保存案内に目印がある: ' + id);
+    ok(index.indexOf("document.getElementById('" + id + "')") >= 0,
+       '設定の保存案内を Android で言い換える: ' + id);
+  }
+  ok(index.indexOf("if(st)st.textContent='📍 保存先は「Google ドライブ」がおすすめです';") >= 0,
+     'Android に「iCloud Drive がおすすめ」と出さない');
+  ok(index.indexOf("  '📍 保存先は「Google ドライブ」がおすすめです':{en:") >= 0,
+     'その見出しの英仏葡の訳がある');
+  // 言い換えの対象になっていない「iPhone」「iCloud」が、設定の保存案内に残っていないか
+  const bk = index.slice(index.indexOf('<div class="bk-where">'), index.indexOf('<div class="bk-where">') + 900);
+  ok(bk.indexOf('id="bkSetTitle"') >= 0 && bk.indexOf('id="bkSetBody"') >= 0 && bk.indexOf('id="bkSetHow"') >= 0,
+     'iPhone 向けの3行すべてに目印がついている（1つでも漏れると Android にそのまま出る）');
+
+  /* v316: Codex の点検。QR が1枚のときだけ、ネイティブの共有シートを通っていなかった。 */
+  ok(index.indexOf("const nf=await nativeFileShare(bs[0],'match-qr.png','image/png','My柔道 試合結果');") >= 0,
+     '道場に送る（QR画像1枚）もネイティブの共有シートを通る');
 
   // ───── (2) テキストの共有は、すべてネイティブを通る ─────
   ok(index.indexOf('async function shareTextOrFalse(text,title)') >= 0, 'テキスト共有の入口がある');
@@ -121,7 +146,7 @@ function run(src, opts) {
   return fail === 0;
 }
 
-module.exports = { run, mutations: ['boot', 'text', 'jpeg'] };
+module.exports = { run, mutations: ['boot', 'text', 'jpeg', 'bkset'] };
 
 if (require.main === module) {
   const m = (process.argv.find((a) => a.startsWith('--mutate=')) || '').split('=')[1];
