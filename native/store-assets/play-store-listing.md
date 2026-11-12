@@ -52,7 +52,7 @@ My柔道（事務）- 道場の運営
 My柔道（事務）は、柔道の道場・クラブ・学校の部活のための運営アプリです。名簿、出欠、月謝、予定、試合の申込、試合結果の分析まで。紙とエクセルに散らばっていたものが、ひとつにまとまります。
 
 ■ データは端末から出ません
-入力したものは、どのサーバーにも送られません。アカウントもログインも登録もありません。よその家の子どもを預かる立場なら、「クラウドに置かない」という選び方があってよいはずです。バックアップはワンタップで1つのファイルになり、端末の中にも、自分で選んだ保存先にも置けます。
+入力したものは、制作者のサーバーには送られません。アカウントもログインも登録もありません。よその家の子どもを預かる立場なら、「クラウドに置かない」という選び方があってよいはずです。バックアップはワンタップで1つのファイルになり、端末の中にも、自分で選んだ保存先にも置けます。
 
 ■ おもな機能
 ・名簿：会員の登録、区分でのグループ分け、在籍と休会の管理
@@ -100,7 +100,7 @@ No account. No login. Nothing leaves the device. Run your dojo in one app.
 My Judo: Dojo Manager is the admin app for judo dojos, clubs and school teams. Roster, attendance, monthly dues, schedules, tournament entries and match analysis — everything that used to be scattered across paper and spreadsheets, in one place.
 
 ■ YOUR DATA NEVER LEAVES THE DEVICE
-Nothing you enter is sent to any server. No account, no login, no sign-up. When you look after other people’s children, “not in the cloud” is a choice you are allowed to make. One tap writes a backup file you can keep on your device or in a storage location you choose.
+Nothing you enter is sent to the developer’s servers. No account, no login, no sign-up. When you look after other people’s children, “not in the cloud” is a choice you are allowed to make. One tap writes a backup file you can keep on your device or in a storage location you choose.
 
 ■ MAIN FEATURES
 • Members: roster, grouping by category, active and on-leave status
@@ -148,7 +148,7 @@ Sans compte ni connexion. Votre dojo dans une app. Tout reste sur l’appareil.
 My Judo : Gestion Dojo est l’application de gestion des dojos, des clubs et des sections scolaires de judo. Effectif, présences, cotisations, planning, inscriptions aux compétitions et analyse des combats : tout ce qui était dispersé entre le papier et les tableurs, réuni au même endroit.
 
 ■ VOS DONNÉES NE QUITTENT JAMAIS L’APPAREIL
-Rien de ce que vous saisissez n’est envoyé à un serveur. Pas de compte, pas de connexion, pas d’inscription. Quand on vous confie les enfants des autres, « pas dans le cloud » est un choix que vous avez le droit de faire. Une seule touche exporte une sauvegarde que vous conservez sur votre appareil ou à l’emplacement de votre choix.
+Rien de ce que vous saisissez n’est envoyé aux serveurs du développeur. Pas de compte, pas de connexion, pas d’inscription. Quand on vous confie les enfants des autres, « pas dans le cloud » est un choix que vous avez le droit de faire. Une seule touche exporte une sauvegarde que vous conservez sur votre appareil ou à l’emplacement de votre choix.
 
 ■ FONCTIONS PRINCIPALES
 • Membres : effectif, classement par catégorie, statut actif ou en pause
@@ -196,7 +196,7 @@ Sem conta. Sem login. Nada sai do aparelho. Todo o dojo em um aplicativo só.
 My Judo: Gestão de Dojo é o aplicativo administrativo para dojos, clubes e equipes escolares de judô. Lista de alunos, presença, mensalidades, agenda, inscrições em campeonatos e análise de lutas: tudo o que vivia espalhado entre papel e planilhas, reunido em um lugar só.
 
 ■ SEUS DADOS NUNCA SAEM DO APARELHO
-Nada do que você digita é enviado para servidor nenhum. Sem conta, sem login, sem cadastro. Quando são os filhos dos outros que estão sob a sua responsabilidade, “fora da nuvem” é uma escolha que você pode fazer. Um toque gera um arquivo de backup para você guardar no seu aparelho ou em um local de armazenamento escolhido por você.
+Nada do que você digita é enviado para os servidores do desenvolvedor. Sem conta, sem login, sem cadastro. Quando são os filhos dos outros que estão sob a sua responsabilidade, “fora da nuvem” é uma escolha que você pode fazer. Um toque gera um arquivo de backup para você guardar no seu aparelho ou em um local de armazenamento escolhido por você.
 
 ■ PRINCIPAIS RECURSOS
 • Alunos: lista, organização por categoria, situação ativo ou afastado
@@ -253,7 +253,7 @@ My柔道（選手）は、柔道の選手と、それを見守る家族のため
 稽古した日に炎の印をつけます。その日の調子は5段階の顔からタップで1つ。ひとことのメモ、タグ、体重も入ります。道場が「My柔道（事務）」を使っていれば、送られてきた予定を文章か QR コードから取り込むだけでカレンダーが埋まります。兄弟姉妹は別々に記録できます。
 
 ■ データは端末から出ません
-入力したものは、どのサーバーにも送られません。つくるアカウントもありません。バックアップはワンタップで1つのファイルになり、端末の中にも、自分で選んだ保存先にも置けます。
+入力したものは、制作者のサーバーには送られません。つくるアカウントもありません。バックアップはワンタップで1つのファイルになり、端末の中にも、自分で選んだ保存先にも置けます。
 
 ■ Pro でできること
 ・思い出が無制限（無料では10件まで）
@@ -299,7 +299,7 @@ Matches, gradings and other milestones become photo cards. Choose colors and a l
 Mark a session with a flame. Rate how you felt on a five-face scale with one tap. There is room for a short note, tags and body weight. If your dojo uses My Judo: Dojo Manager, import the schedule they send as text or a QR code and it fills your calendar. Brothers and sisters are tracked separately.
 
 ■ YOUR DATA NEVER LEAVES THE DEVICE
-Nothing you enter is sent to any server, and there is no account to create. One tap writes a backup file you can keep on your device or in a storage location you choose.
+Nothing you enter is sent to the developer’s servers, and there is no account to create. One tap writes a backup file you can keep on your device or in a storage location you choose.
 
 ■ PRO TAKES IT FURTHER
 • Unlimited memories (the free plan keeps 10)
@@ -345,7 +345,7 @@ Combats, passages de grade et autres étapes deviennent des cartes avec photo. C
 Marquez une séance d’une flamme. Notez votre forme du jour sur une échelle de cinq visages, d’un seul appui. Il y a aussi une note courte, des étiquettes et le poids. Si votre club utilise My Judo : Gestion Dojo, importez le planning qu’il envoie, en texte ou par QR code, et votre calendrier se remplit. Les frères et sœurs sont suivis séparément.
 
 ■ VOS DONNÉES NE QUITTENT JAMAIS L’APPAREIL
-Rien n’est envoyé à un serveur et il n’y a aucun compte à créer. Une seule touche exporte une sauvegarde que vous gardez sur votre appareil ou à l’emplacement de votre choix.
+Rien n’est envoyé aux serveurs du développeur et il n’y a aucun compte à créer. Une seule touche exporte une sauvegarde que vous gardez sur votre appareil ou à l’emplacement de votre choix.
 
 ■ PRO POUR ALLER PLUS LOIN
 • Souvenirs sans limite (10 avec la version gratuite)
@@ -391,7 +391,7 @@ Lutas, exames de faixa e outros marcos viram cartões com foto. Escolha as cores
 Marque o treino com uma chama. Registre como você estava numa escala de cinco rostos, com um toque. Há espaço para uma nota curta, etiquetas e o peso. Se o seu dojo usa o My Judo: Gestão de Dojo, importe a agenda que ele envia, em texto ou por QR code, e o calendário se preenche. Irmãos são acompanhados separadamente.
 
 ■ SEUS DADOS NUNCA SAEM DO APARELHO
-Nada do que você digita vai para servidor nenhum, e não há conta para criar. Um toque gera um arquivo de backup para guardar no seu aparelho ou em um local de armazenamento escolhido por você.
+Nada do que você digita vai para os servidores do desenvolvedor, e não há conta para criar. Um toque gera um arquivo de backup para guardar no seu aparelho ou em um local de armazenamento escolhido por você.
 
 ■ PRO PARA IR MAIS LONGE
 • Memórias sem limite (no plano gratuito são 10)

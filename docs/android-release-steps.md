@@ -64,7 +64,7 @@
 除外の指定（`dataExtractionRules`）は無い。
 つまり **Android のおまかせバックアップで、道場のデータが利用者自身の Google ドライブに入る。**
 
-ストア文言は「データは端末の中だけ。どのサーバーにも送られません」と書いている。
+ストア文言は「どのサーバーにも送られません」と書いていた。**2026-11-12 に「制作者のサーバーには送られません」へ直した**（アプリが送らないという本来の意味。日英仏葡×2アプリ＋リリースノート）。
 
 - **そのままにする場合**：iPhone も同じ（iCloud バックアップに入る）ので、**2つのアプリの動きはそろう**。
   端末を失くしても買い替えで戻る。プライバシーポリシーの「**制作者のサーバーや第三者に**送信されません」は
@@ -325,7 +325,7 @@ Play の定期購入は「定期購入 ID」＋「基本プラン」＋「特典
 ```
 Google Play での最初の公開です。iPhone 版と同じ機能がすべて入っています。
 
-・データは端末の中だけ。どのサーバーにも送られません
+・データは端末の中だけ。制作者のサーバーには送られません
 ・アカウントもログインも登録もありません
 ・日本語・英語・フランス語・ポルトガル語に対応
 ```
@@ -334,7 +334,7 @@ Google Play での最初の公開です。iPhone 版と同じ機能がすべて�
 ```
 First release on Google Play. Everything from the iPhone version is here.
 
-- Your data stays on the device. Nothing is sent to any server
+- Your data stays on the device. Nothing is sent to the developer's servers
 - No account, no login, no sign-up
 - Japanese, English, French and Portuguese
 ```
@@ -343,7 +343,7 @@ First release on Google Play. Everything from the iPhone version is here.
 ```
 Première version sur Google Play. Tout ce que propose la version iPhone est là.
 
-- Vos données restent sur l'appareil. Rien n'est envoyé à un serveur
+- Vos données restent sur l'appareil. Rien n'est envoyé aux serveurs du développeur
 - Aucun compte, aucune connexion, aucune inscription
 - Japonais, anglais, français et portugais
 ```
@@ -352,7 +352,7 @@ Première version sur Google Play. Tout ce que propose la version iPhone est là
 ```
 Primeira versão no Google Play. Tudo o que a versão para iPhone oferece está aqui.
 
-- Seus dados ficam no aparelho. Nada é enviado a nenhum servidor
+- Seus dados ficam no aparelho. Nada é enviado aos servidores do desenvolvedor
 - Sem conta, sem login, sem cadastro
 - Japonês, inglês, francês e português
 ```
