@@ -92,6 +92,16 @@
 
 ---
 
+## 0.8 公開前に必ず外すもの（v317 の確認用表示）
+
+シェア画像の待ち時間を実機で測るため、**確認用の表示**を入れてある。公開前に外すこと。
+
+- `index.html` … `rkShowShareMs()`、`<div id="rkShareMs">`、`rkShareBlobGo()` の中の呼び出し
+- `native/build-www.js` … ブリッジの `lastMs` と `marks`
+- `tests/android-share.test.js` … `marks` を許す正規表現は、外したあともそのまま通る
+
+外したら `node build.js` と `node build-www.js` を走らせ直す。
+
 ## 1. 準備が済んだもの（2026-11-09 に用意した）
 
 | | 中身 | 置き場所 |

@@ -114,7 +114,8 @@ function run(src, opts) {
 
   // ブリッジ側にテキストの口があること（生成元と、生成済みの2アプリ）
   const gen = fs.readFileSync(path.join(ROOT, 'native', 'build-www.js'), 'utf8');
-  ok(gen.indexOf('window.__nativeFile={ share:share, text:shareText };') >= 0, 'ブリッジが text を出している');
+  ok(/window\.__nativeFile=\{ share:share, text:shareText[,}]/.test(gen),
+     'ブリッジが text を出している');   // v317: 後ろに確認用の marks が付くことがある
   ok(gen.indexOf("if(platform()!=='android')return;") >= 0,
      'ブリッジは Android だけ（iPhone の共有の道を変えない）');
   for (const app of ['office', 'player']) {
@@ -130,10 +131,16 @@ function run(src, opts) {
      'ファイル名の拡張子も中身に合わせる');
   ok(index.indexOf("x.fillStyle='#fff'; x.fillRect(0,0,o.width,o.height); x.drawImage(cv,0,0);") >= 0,
      'JPEG は透明を扱えないので白で塗ってから書き出す');
-  ok(index.indexOf("if(b&&isAndroidApp())blobToBase64(b,shareImgMime()).then(") >= 0,
+  ok(index.indexOf("blobToBase64(b,shareImgMime()).then(s=>res({blob:b,b64:s||''") >= 0,
      'プレビュー中に base64 まで作り置きする（押してからの待ちを消す）');
-  ok(index.indexOf("const pre=(b===rkShareBlob&&rkShareB64)?rkShareB64:'';") >= 0,
+  /* v317: 押したときに作り置きがまだなら、v315 までは**ゼロから作り直して**いた。
+     作りかけを捨てて二度手間になるので、約束（Promise）をそのまま待つ。 */
+  ok(index.indexOf("const p=rkSharePrep||rkStartPrep(_rkBlobSeq);") >= 0,
+     '押したら作りかけを待つ（作り直さない）');
+  ok(index.indexOf("  p.then(r=>{ if(seq!==_rkBlobSeq||!r)return; rkShareBlob=r.blob; rkShareB64=r.b64; });") >= 0,
      '作り置きが今の絵のものか確かめてから使う（古い絵を送らない）');
+  ok(index.indexOf("const pre=(prep&&prep.b64)||((b===rkShareBlob&&rkShareB64)?rkShareB64:'');") >= 0,
+     '待って受け取った base64 をそのまま使う');
   ok(index.indexOf("const b64=b64pre||await blobToBase64(data,mime);") >= 0,
      '作り置きがなければ、これまでどおりその場で作る');
   ok(index.indexOf("  '画像を準備しています…':{en:") >= 0, '待たせるときの一言が辞書にある');

@@ -245,12 +245,14 @@ const nativeFileJs = `/* ${CFG.LABEL} — 保存・共有ブリッジ（自動�
   }
 
   var lastPath='';   // 前回書いた一時ファイル（次に呼ばれたときに消す。受け取り側が読む前に消さない）
+  var lastMs=null;   // v317: 確認用。ファイルに書くまでに何ミリ秒かかったか。公開前に外す
 
   // 返り値: 'ok'（渡せた）/'cancel'（本人がやめた）/'fail'（できなかった）
   function share(o){
     var Fs=plugin('Filesystem'), Sh=plugin('Share');
     if(!Fs || !Sh) return Promise.resolve('fail');
     var name=safeName(o && o.name);
+    var t0=Date.now();   // v317: 確認用
     var del = lastPath ? Fs.deleteFile({path:lastPath,directory:'CACHE'}).catch(function(){}) : Promise.resolve();
     return del.then(function(){
       lastPath='';
@@ -259,6 +261,7 @@ const nativeFileJs = `/* ${CFG.LABEL} — 保存・共有ブリッジ（自動�
       var uri=(w && w.uri) || '';
       if(!uri) throw new Error('no uri');
       lastPath=name;
+      lastMs={write:Date.now()-t0};   // v317: 確認用
       return Sh.share({title:(o&&o.title)||'',text:(o&&o.text)||'',url:uri,dialogTitle:(o&&o.title)||''});
     }).then(function(){ return 'ok'; })
       .catch(function(e){ return isCancel(e) ? 'cancel' : 'fail'; });
@@ -274,7 +277,7 @@ const nativeFileJs = `/* ${CFG.LABEL} — 保存・共有ブリッジ（自動�
       .catch(function(e){ return isCancel(e) ? 'cancel' : 'fail'; });
   }
 
-  window.__nativeFile={ share:share, text:shareText };
+  window.__nativeFile={ share:share, text:shareText, marks:function(){ return lastMs; } };
 })();
 `;
 fs.writeFileSync(path.join(wwwDir, 'nativefile.js'), nativeFileJs, 'utf8');
