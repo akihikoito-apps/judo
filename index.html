@@ -2147,8 +2147,6 @@ function applyUpdate(){
       <button class="btn" style="flex:1;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:#fff;color:var(--navy)" onclick="rkSaveShare()">保存</button>
       <button class="btn" style="flex:1;min-width:0;white-space:normal;line-height:1.1;font-size:min(calc(16px*var(--fs,1)),19px);background:#06C755;color:#fff" onclick="rkDoShare()">シェア</button>
     </div>
-    <!-- v317: 確認用。どこで待っているかを実機で測るための表示。公開前に外す -->
-    <div id="rkShareMs" style="display:none;margin-top:8px;color:#fff;opacity:.75;font-size:12px;text-align:center;line-height:1.5"></div>
   </div>
 </div>
 
@@ -5603,7 +5601,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v317'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v318'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -11815,9 +11813,12 @@ function rkDownloadShare(){const cv=document.getElementById('rkcv');cv.toBlob(b=
    作り置きし、押したらすぐ share を呼ぶ。中止（AbortError）以外の失敗と、アプリ版で共有できないときは
    画像を大きく出して長押しで保存してもらう（アプリ内ではダウンロードが何も起きないため） */
 let rkShareBlob=null, rkShareB64='', rkSharePrep=null, _rkBlobSeq=0, _rkBlobTimer=0;
-/* v315: Android は共有の受け渡しが base64 の文字列（JS↔ネイティブの橋）なので、
-   1080x1350 の PNG（写真入りで3MB超）だと渡すだけで何秒もかかる。実機で「ものすごく遅い」のはここ。
-   Android だけ JPEG にして量を10分の1にし、さらにプレビューを描いた時点で base64 まで作っておく。
+/* v315〜v318: Android のシェア画像が実機（moto g06）で5〜10秒かかっていた件。
+   v317 で実測した内訳：画像づくり 1224ms ／ 文字化 3ms ／ 受け渡し 18ms ／ 59KB。
+   当初は「base64 の文字列を橋に渡すのが重い」と見たが、**それは外れ**だった（18ms・59KB）。
+   重いのは canvas から画像を書き出す処理そのもので、それを押すたびにやり直していたのが原因。
+   （v315 までは作り置きがまだなら捨ててゼロから作り直していた＝二度手間。v317 で待つように直した。）
+   JPEG にしたのは書き出しが PNG より速いため（容量は結果的に問題ではなかった）。
    JPEG は透明を扱えないので、白く塗ったキャンバスに重ねてから書き出す（構図によっては黒く出るため）。
    iPhone は Blob をそのまま navigator.share に渡せるので PNG のまま＝動きは1つも変えない。 */
 function shareImgMime(){ return isAndroidApp()?'image/jpeg':'image/png'; }
@@ -11826,7 +11827,7 @@ function shareBlobMake(cb){
   if(!isAndroidApp()){ cv.toBlob(b=>cb(b),'image/png'); return; }
   const o=document.createElement('canvas'); o.width=cv.width; o.height=cv.height;
   const x=o.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,o.width,o.height); x.drawImage(cv,0,0);
-  o.toBlob(b=>cb(b),'image/jpeg',0.85);   // v317: 0.92→0.85。写真のカードでは見た目はほぼ変わらず、量と手間が減る
+  o.toBlob(b=>cb(b),'image/jpeg',0.92);   // v318: 実測で容量は問題でないと分かった（59KB・受け渡し18ms）ので画質を戻す
 }
 /* v317: 作り置きを「約束」で持つ。
    v315 までは、押したときに作り置きがまだできていないと**もう一度ゼロから作り直して**いた。
@@ -11872,25 +11873,11 @@ async function rkDoShare(){
   if(!r||!r.blob){ rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); return; }
   rkShareBlobGo(r.blob,r);
 }
-/* v317: 確認用。アプリの中で何ミリ秒かかったかをシェア画面に出す。
-   これで「こちらで縮められる時間」と「Android が共有画面を出すまでの時間」を切り分ける。
-   公開前に外す。 */
-function rkShowShareMs(r,handMs){
-  const el=document.getElementById('rkShareMs'); if(!el||!isAndroidApp())return;
-  let w=0; try{ const m=window.__nativeFile&&window.__nativeFile.marks&&window.__nativeFile.marks(); if(m)w=m.write||0; }catch(e){}
-  const kb=r&&r.size?Math.round(r.size/1024):0;
-  el.style.display='block';
-  el.textContent='確認用：画像づくり '+((r&&r.img)||0)+'ms ／ 文字化 '+((r&&r.b64ms)||0)+'ms ／ 受け渡し '+w+'ms ／ '+kb+'KB'
-                +'\n押してから渡し終わるまで '+handMs+'ms（このあと共有画面が出るまではAndroid側）';
-  el.style.whiteSpace='pre-line';
-}
 async function rkShareBlobGo(b,prep){
   // v309: Android は共有シートに渡す（これまでは必ず「長押しして保存」に落ちていた）
   // v315: プレビュー中に作っておいた base64 があればそれを使う（押してからの待ちが消える）
   const pre=(prep&&prep.b64)||((b===rkShareBlob&&rkShareB64)?rkShareB64:'');
-  const tHand=Date.now();
   const nf=await nativeFileShare(b,shareFileName(),shareImgMime(),'My柔道','#柔道 #My柔道',pre);
-  if(isAndroidApp()&&(nf==='ok'||nf==='cancel'))rkShowShareMs(prep,Date.now()-tHand);
   if(nf==='ok'||nf==='cancel')return;
   if(nf==='fail'){ rkShowImgSave(T('共有できませんでした。画像を長押しして保存してください。')); return; }
   const file=new File([b],'card.png',{type:'image/png'});

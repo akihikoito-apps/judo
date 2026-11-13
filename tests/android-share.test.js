@@ -114,7 +114,7 @@ function run(src, opts) {
 
   // ブリッジ側にテキストの口があること（生成元と、生成済みの2アプリ）
   const gen = fs.readFileSync(path.join(ROOT, 'native', 'build-www.js'), 'utf8');
-  ok(/window\.__nativeFile=\{ share:share, text:shareText[,}]/.test(gen),
+  ok(/window\.__nativeFile=\{ share:share, text:shareText\s*[,}]/.test(gen),
      'ブリッジが text を出している');   // v317: 後ろに確認用の marks が付くことがある
   ok(gen.indexOf("if(platform()!=='android')return;") >= 0,
      'ブリッジは Android だけ（iPhone の共有の道を変えない）');
