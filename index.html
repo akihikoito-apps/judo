@@ -2427,6 +2427,9 @@ function applyUpdate(){
     <p class="list-mini" style="margin:0 2px 10px;color:#c77f0a">⚠️ 合言葉は、<b>リンクと同じメッセージに書かないでください。</b>道場で口頭などで、一度だけお伝えください。</p>
     <button class="btn gold full" style="margin-top:4px" onclick="ssSendLink()">🔗 リンクで送る（おすすめ）</button>
     <p class="list-mini" style="margin:6px 2px 10px">受け取った人は、リンクを押すだけで取り込めます。アプリが無い人も、予定を見られます。</p>
+    <!-- v319: LINEへ「ボタンだけのカード」で送る。LIFFの登録が済むまでは出さない（liffShareReady）-->
+    <button class="btn gold full" id="ssCardBtn" style="display:none;margin-bottom:4px" onclick="ssSendCard()">💬 LINEでカードを送る<small style="display:block;font-weight:500;font-size:12px;opacity:.9;margin-top:3px">長いURLが出ません</small></button>
+    <p class="list-mini" id="ssCardHint" style="display:none;margin:6px 2px 10px">LINEが開きます。送る相手を選ぶと、ボタンだけのカードが届きます。</p>
     <button class="btn ghost full" onclick="ssSend()">📝 文字で送る（これまでどおり）</button>
     <button class="btn ghost full" style="margin-top:10px" id="ssQrBtn" onclick="ssShowQr()">📷 QRコードを表示</button>
     <div id="ssQrBox" style="margin-top:10px;text-align:center"></div>
@@ -5601,7 +5604,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v318'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v319'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -6539,6 +6542,11 @@ Object.assign(DICT,{
   'この大会のひとことメモ（任意）':{en:'A note about this event (optional)',fr:'Une note sur cet événement (facultatif)',pt:'Uma nota sobre este evento (opcional)'},
   'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
   '画像を準備しています…':{en:'Preparing the image…',fr:'Préparation de l’image…',pt:'Preparando a imagem…'},
+  /* v319: LINEへカードで送る */
+  '💬 LINEでカードを送る':{en:'💬 Send a card on LINE',fr:'💬 Envoyer une carte sur LINE',pt:'💬 Enviar um cartão no LINE'},
+  '長いURLが出ません':{en:'No long link in the message',fr:'Pas de lien interminable dans le message',pt:'Sem link longo na mensagem'},
+  'LINEが開きます。送る相手を選ぶと、ボタンだけのカードが届きます。':{en:'LINE opens. Pick who to send to, and they receive a card with just a button.',fr:'LINE s’ouvre. Choisissez les destinataires : ils reçoivent une carte avec un simple bouton.',pt:'O LINE abre. Escolha para quem enviar e eles recebem um cartão com só um botão.'},
+  'LINEを開けませんでした。「リンクで送る」をお使いください。':{en:'Could not open LINE. Please use “Send a link” instead.',fr:'Impossible d’ouvrir LINE. Utilisez « Envoyer un lien ».',pt:'Não foi possível abrir o LINE. Use “Enviar um link”.'},
   'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'},
   '画像を保存':{en:'Save image',fr:'Enregistrer l’image',pt:'Salvar imagem'},
   '画像を長押しして「写真に保存」を選んでください。':{en:'Press and hold the image, then choose “Save to Photos”.',fr:'Appuyez longuement sur l’image, puis choisissez « Enregistrer dans Photos ».',pt:'Toque e segure a imagem e escolha “Salvar em Fotos”.'},
@@ -13660,6 +13668,73 @@ async function schedShareUrl(ym){
   const _m=frag.charAt(0);                   // v305: e も z も「包めた」
   return {url:SHARE_PAGE+'#'+frag, count:r.count, ym:r.ym, sender:r.sender, msg:r.msg, sealed:(_m==='e'||_m==='z')};
 }
+/* v319: 予定表を「ボタンだけのカード」として LINE へ送る。
+   LINE の通常メッセージは「表示する文字」と「飛び先」を分けられないため、
+   予定の中身を抱えた 683〜850文字のリンクがトーク画面を埋めてしまう。
+   liff.shareTargetPicker() を使うと、ボタンに URL を仕込んだカードを
+   本人の名前で送れる（公式アカウントは要らない）。URL は1文字も表示されない。
+
+   必ず LINE の中（LIFFブラウザ）で開かせる：
+     外部ブラウザでピッカーを出すには SSO のログインセッションが必要で、
+     LINE 公式は「自動ログインでは SSO セッションが発行されず、
+     メールアドレスのログイン画面が出ることがある」と明記している。
+     LINE の中なら、すでにログイン済みなので何も聞かれない。
+
+   予定の中身は # に載せる（# はどのサーバーにも送られない＝LINE も GitHub も
+   暗号文を受け取らない）。ただし LIFF の起動で # が残るかは実機で確かめる必要が
+   あるため、受け側（share-liff.html）は hash / liff.state / query の3経路から読む。 */
+const LIFF_SHARE_ID='LIFF_ID_PENDING';   // LINE Developers で LIFF アプリを作ったら差し替える
+const LIFF_SHARE_PAGE='https://akihikoito-apps.github.io/judo/share-liff.html';
+function liffShareReady(){ return !!LIFF_SHARE_ID && LIFF_SHARE_ID.indexOf('PENDING')<0; }
+/* v319: 合言葉まわりの確認。「リンクで送る」と「カードで送る」で同じものを通す。
+   ここを1か所にしないと、片方だけ直してもう片方が平文を配る事故になる。
+   戻り値 true=進んでよい／false=ここで止める（確認の問いを出した） */
+function ssPlainGuard(r,retry){
+  /* v302: 合言葉を入れてあるのに包めなかったとき。
+     黙って平文を配るのがいちばん危ないので、必ず止めて選んでもらう。 */
+  if(shareKeyText()&&!r.sealed&&!_ssPlainOk){
+    askConfirm('<b>'+T('合言葉で包めませんでした。')+'</b><br>'
+      +T('このまま送ると、リンクを持っている人は誰でも、お名前を含む予定の中身を読めます。')+'<br><br>'
+      +T('この端末では暗号の機能が使えないようです。Web版（ブラウザ）からなら包めることがあります。'),
+      ()=>{ _ssPlainOk=true; retry(); },
+      T('それでも送る'), T('確認'), 'var(--red)');
+    return false;
+  }
+  _ssPlainOk=false;
+  /* v303: 合言葉を入れずに送ろうとしたとき。画面には赤字で出ているが、
+     見落として名前入りの平文リンクを配る事故を防ぐ。一度だけ聞く。 */
+  if(!shareKeyText()&&!DB.ssPlainAck){
+    askConfirm('<b>'+T('合言葉を入れずに送ります。')+'</b><br>'
+      +T('このリンクを持っている人は誰でも、お名前を含む予定の中身を読めます。')+'<br><br>'
+      +T('道場の合言葉を決めている場合は、「やめる」を押して 🔑 の欄に入れてから送ってください。'),
+      ()=>{ DB.ssPlainAck=true; save(); retry(); },
+      T('このまま送る'), T('確認'), 'var(--red)');
+    return false;
+  }
+  return true;
+}
+async function ssSendCard(){
+  const r=await schedShareUrl(ssMonth);
+  if(!r){ toast(T('この月の予定がありません')); return; }
+  if(!ssPlainGuard(r,ssSendCard))return;
+  const q='u='+encodeURIComponent(r.url)
+         +'&t='+encodeURIComponent(r.sender)
+         +'&ym='+encodeURIComponent(r.ym)
+         +'&c='+encodeURIComponent(String(r.count))
+         +(r.msg?('&g='+encodeURIComponent(r.msg)):'');
+  const to='https://liff.line.me/'+LIFF_SHARE_ID+'#'+q;
+  /* v319: LINE のアプリへ渡す道が、プラットフォームで違う。
+     アプリ版（iOS/Android）は location.href で出す。Capacitor は自分のホスト以外への
+     移動を横取りして OS に渡すため、WebView は動かず、OS が LINE を開く。
+     Android の WebView は window.open が塞がれていることがあるので、こちらが確実。
+     Web版（ブラウザ）は別タブで開く（location.href だと予定の画面から出てしまう）。 */
+  if(isNativeApp()){
+    try{ location.href=to; return; }catch(e){}
+  }
+  let w=null;
+  try{ w=window.open(to,'_blank'); }catch(e){}
+  if(!w){ toast(T('LINEを開けませんでした。「リンクで送る」をお使いください。')); }
+}
 function ssMsgText(){ return (DB.ssMsg||'').trim(); }
 let _ssMsgTimer=null;
 function ssSetMsg(v){ DB.ssMsg=(v||'').slice(0,60);
@@ -13669,27 +13744,8 @@ function ssSetMsg(v){ DB.ssMsg=(v||'').slice(0,60);
 async function ssSendLink(){
   const r=await schedShareUrl(ssMonth);
   if(!r){ toast(T('この月の予定がありません')); return; }
-  /* v302: 合言葉を入れてあるのに包めなかったとき。
-     黙って平文を配るのがいちばん危ないので、必ず止めて選んでもらう。 */
-  if(shareKeyText()&&!r.sealed&&!_ssPlainOk){
-    askConfirm('<b>'+T('合言葉で包めませんでした。')+'</b><br>'
-      +T('このまま送ると、リンクを持っている人は誰でも、お名前を含む予定の中身を読めます。')+'<br><br>'
-      +T('この端末では暗号の機能が使えないようです。Web版（ブラウザ）からなら包めることがあります。'),
-      ()=>{ _ssPlainOk=true; ssSendLink(); },
-      T('それでも送る'), T('確認'), 'var(--red)');
-    return;
-  }
-  _ssPlainOk=false;
-  /* v303: 合言葉を入れずに送ろうとしたとき。画面には赤字で出ているが、
-     見落として名前入りの平文リンクを配る事故を防ぐ。一度だけ聞く。 */
-  if(!shareKeyText()&&!DB.ssPlainAck){
-    askConfirm('<b>'+T('合言葉を入れずに送ります。')+'</b><br>'
-      +T('このリンクを持っている人は誰でも、お名前を含む予定の中身を読めます。')+'<br><br>'
-      +T('道場の合言葉を決めている場合は、「やめる」を押して 🔑 の欄に入れてから送ってください。'),
-      ()=>{ DB.ssPlainAck=true; save(); ssSendLink(); },
-      T('このまま送る'), T('確認'), 'var(--red)');
-    return;
-  }
+  // v319: 合言葉まわりの確認は ssPlainGuard() に集約した（カードで送る側と同じものを通す）
+  if(!ssPlainGuard(r,ssSendLink))return;
   const [y,m]=r.ym.split('-');
   const L=['【'+r.sender+'】'+y+T('年')+Number(m)+T('月')+T('の予定')+'　'+r.count+T('件')];
   if(r.msg)L.push('📣 '+r.msg);
@@ -13731,6 +13787,11 @@ function renderSchedShare(keepInput){
   document.getElementById('ssPreview').value=r.text;
   document.getElementById('ssQrBox').innerHTML='';
   const qb=document.getElementById('ssQrBtn'); if(qb)qb.textContent=T('📷 QRコードを表示');   // v221: 月を変えたらQRを畳んでボタンも戻す
+  // v319: カードで送るボタンは、LIFFの登録が済んでいるときだけ出す（済むまで押せても失敗するだけ）
+  const cb=document.getElementById('ssCardBtn'), ch=document.getElementById('ssCardHint');
+  const showCard=liffShareReady();
+  if(cb)cb.style.display=showCard?'block':'none';
+  if(ch)ch.style.display=showCard?'block':'none';
 }
 async function ssSend(){
   // v258: 0件でも送れる。「この月の予定はすべて取り消し」を伝えるため
