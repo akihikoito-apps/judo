@@ -11,6 +11,18 @@ function build(edition, outFile, opts) {
   opts = opts || {};
   if (src.indexOf("const APP_EDITION='suite'") < 0) { console.error('APP_EDITION マーカーが見つかりません'); process.exit(2); }
   let p = src.replace("const APP_EDITION='suite'", "const APP_EDITION='" + edition + "'");
+  /* v326: 事務用だけの記述（<!--ED:OFFICE--> … <!--/ED:OFFICE--> で囲んだところ）を、
+     選手用ビルドでは中身ごと削る。プライバシーポリシーの「予定表をLINEで送る機能」などは
+     選手用アプリに無い機能なので、そのまま載せると事実と食い違う。 */
+  const OPEN = '<!--ED:OFFICE-->', CLOSE = '<!--/ED:OFFICE-->';
+  const nOpen = p.split(OPEN).length - 1, nClose = p.split(CLOSE).length - 1;
+  if (nOpen === 0 || nOpen !== nClose) {
+    console.error('ED:OFFICE の囲みが合いません（開き ' + nOpen + ' / 閉じ ' + nClose + '）'); process.exit(2);
+  }
+  p = (edition === 'personal')
+    ? p.replace(/<!--ED:OFFICE-->[\s\S]*?<!--\/ED:OFFICE-->/g, '')
+    : p.split(OPEN).join('').split(CLOSE).join('');
+  if (p.indexOf('ED:OFFICE') >= 0) { console.error('ED:OFFICE の印が残っています'); process.exit(2); }
   // 派生ビルドは Web プレビュー時にマスター(index.html)の Service Worker と干渉させない
   if (opts.disableSW) {
     const swLine = "if(!('serviceWorker' in navigator))return;";
