@@ -287,6 +287,17 @@
     W.innerHTML = h;
 
     document.getElementById('go').onclick = send;
+    /* v323: クリップボードから読めたときは、そのまま相手選びを開く。
+       これまでは「予定を読み込む」→「送る相手を選ぶ」と2回押させていたが、
+       読み込みはこちらの都合であって、本人がしたいのは送ることだけ。
+       iPhone が出す「ペースト」の確認は OS のもので消せないので、せめて
+       こちら側の1タップを削る。相手を選ぶ画面は必ず出るので、本人の知らない
+       うちに送られることはない。
+       ブラウザで開かれている（!inClient）ときは送れないので、出さない。 */
+    if(AUTO_SEND){
+      AUTO_SEND = false;
+      if(inClient){ try{ send(); }catch(e){} }
+    }
     /* 「LINEで開き直す」は本物の <a href> なので、ここで onclick を付けてはいけない。
        JS で location.href に入れ直すと、iOS でユニバーサルリンクが効かなくなる。 */
     var cl = document.getElementById('cpliff');
@@ -361,6 +372,8 @@
      だから URL には載せず、アプリが LINE を開く直前にクリップボードへ写す。
      ここで読み出せば、どのサーバーも通らずに受け取れる。 */
   var CLIP_TAG = 'myjudo-sched:v1:';
+  /* v323: クリップボードから読めた直後かどうか。読めたら、そのまま相手選びを出す。 */
+  var AUTO_SEND = false;
 
   function applyQuery(q){
     var o = parseQS(String(q || ''));
@@ -376,10 +389,12 @@
 
   function askPaste(){
     W.innerHTML =
-        '<div class="err" style="margin:0 0 14px"><b>あと1回だけタップしてください。</b><br>'
-      + 'LINEは開きました。予定の中身は、アプリからコピーで渡してあります。</div>'
-      + '<button class="btn gold" id="pst">📋 予定を読み込む'
-      + '<small>「ペーストを許可しますか」と出たら、許可してください</small></button>'
+        '<h1 style="margin:0 0 6px">予定をカードで送る</h1>'
+      + '<p class="hint" style="margin:0 2px 14px">LINEは開きました。あとは送る相手を選ぶだけです。<br>'
+      + '途中で iPhone が<b>「ペースト」</b>と聞いてきます。予定の中身をアプリから'
+      + '受け取るために要るので、押してください。</p>'
+      + '<button class="btn gold" id="pst">📤 送る相手を選ぶ'
+      + '<small>「ペースト」と出たら、押してください</small></button>'
       + '<div class="res" id="rp">　</div>'
       + '<div id="man" style="display:none">'
       + '<p class="hint" style="margin:14px 2px 6px">下の枠を<b>長押し</b>して'
@@ -410,6 +425,7 @@
         showMan();
         return;
       }
+      AUTO_SEND = true;
       start();
     };
 

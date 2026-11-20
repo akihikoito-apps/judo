@@ -167,6 +167,10 @@ function run(src, opts) {
      '自動で読めないときに、手で貼り付ける道がある');
   ok(page.indexOf('ta.oninput = function(){ take(ta.value, true); };') >= 0,
      '貼り付けた時点で進む（「読み込む」を押させない）');
+  /* v323: 読み込みはこちらの都合。本人がしたいのは送ることだけなので、
+     読めたらそのまま相手選びを開く。ここが落ちると2回押させる形に戻る。 */
+  ok(page.indexOf('if(inClient){ try{ send(); }catch(e){} }') >= 0,
+     'クリップボードから読めたら、そのまま相手選びを開く');
   // クリップボードから読んだ中身も、必ず飛び先の確かめを通ること
   const si = page.indexOf('function start(){');
   const pi = page.indexOf('function applyQuery(q){');
@@ -181,11 +185,14 @@ function run(src, opts) {
   ok(index.indexOf("function liffShareReady(){ return !!LIFF_SHARE_ID && LIFF_SHARE_ID.indexOf('PENDING')<0; }") >= 0,
      '仮置きのあいだは「使えない」と判定する');
   ok(index.indexOf(GATE) >= 0, 'ボタンの出し分けが liffShareReady を見ている');
-  ok(index.indexOf('id="ssCardBtn" style="display:none;') >= 0, 'ボタンは既定で隠れている');
+  ok(index.indexOf('id="ssCardBtn" style="display:none"') >= 0, 'ボタンは既定で隠れている');
 
   /* 文言が辞書にある（英仏葡で日本語のまま出ない） ------------------------ */
-  ['💬 LINEでカードを送る', '長いURLが出ません',
-   'LINEが開きます。送る相手を選ぶと、ボタンだけのカードが届きます。',
+  ['📤 送り方を選ぶ', 'どれで送っても、受け取った人は選手アプリに取り込めます。',
+   '🔗 リンク', '📝 文字', '📷 QRコード',
+   'カードで届きます', 'アプリが無い人も見られます',
+   '予定を文章で送ります', 'その場で読み取ります',
+   '予定をコピーできませんでした。「リンクで送る」をお使いください。',
    'LINEを開けませんでした。「リンクで送る」をお使いください。',
    'LINEが開きませんでした。',
    '別の開き方を試します。これでも開かないときは「リンクで送る」をお使いください。',

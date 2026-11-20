@@ -69,6 +69,15 @@
   .btn.full{width:100%;}
   .btn.gold{background:var(--gold);color:#3a2e00;}
   .btn.ghost{background:#fff;color:var(--navy);border:2px solid var(--navy);}
+  /* v323: 予定の送り方を4つ並べる（LINE／リンク／文字／QRコード）。
+     以前は縦に1つずつ積んで、それぞれの下に説明文を敷いていた。見比べられず、
+     説明文が「おすすめ」「これまでどおり」など、初めての人には意味の分からない
+     言い回しになっていた。横に並べて、説明はボタンの中に短く入れる。 */
+  .ss-ways{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 2px;}
+  .ss-ways>.btn{flex-direction:column;gap:3px;min-height:78px;padding:12px 8px;text-align:center;}
+  .ss-ways>.btn>b{font-size:calc(17px*var(--fs,1));font-weight:800;line-height:1.2;}
+  .ss-ways>.btn>small{font-size:calc(11.5px*var(--fs,1));font-weight:600;line-height:1.25;opacity:.85;}
+  @media (max-width:330px){ .ss-ways{grid-template-columns:1fr;} }
   .btn.del-full{width:100%;margin-top:14px;background:#fff;color:var(--red);border:2px solid var(--red);font-weight:700;}
   .toggle-line{display:flex;align-items:center;gap:10px;font-size:calc(16px*var(--fs,1));font-weight:600;color:var(--navy);cursor:pointer;}
   .toggle-line input{width:22px;height:22px;flex-shrink:0;}
@@ -2404,7 +2413,7 @@ function applyUpdate(){
 <!-- v219: 予定の共有（事務→選手）：送る側モーダル -->
 <div class="modal-bg" id="schedShareModal">
   <div class="modal">
-    <h3>📤 予定をLINEで送る</h3>
+    <h3>📤 予定を送る</h3>
     <p class="list-mini">選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 予定の取り込み」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。</p>
     <label class="fld" style="margin-top:12px">📅 送る月（‹ › で選びます）</label>
     <div class="month-nav ss-pick">
@@ -2425,13 +2434,15 @@ function applyUpdate(){
     <input type="text" id="ssKey" maxlength="40" placeholder="例：aoisora2026" oninput="ssSetKey(this.value)" autocapitalize="off" autocorrect="off" spellcheck="false">
     <p class="list-mini" id="ssKeyHint" style="margin:5px 2px 4px"></p>
     <p class="list-mini" style="margin:0 2px 10px;color:#c77f0a">⚠️ 合言葉は、<b>リンクと同じメッセージに書かないでください。</b>道場で口頭などで、一度だけお伝えください。</p>
-    <button class="btn gold full" style="margin-top:4px" onclick="ssSendLink()">🔗 リンクで送る（おすすめ）</button>
-    <p class="list-mini" style="margin:6px 2px 10px">受け取った人は、リンクを押すだけで取り込めます。アプリが無い人も、予定を見られます。</p>
-    <!-- v319: LINEへ「ボタンだけのカード」で送る。LIFFの登録が済むまでは出さない（liffShareReady）-->
-    <button class="btn gold full" id="ssCardBtn" style="display:none;margin-bottom:4px" onclick="ssSendCard()">💬 LINEでカードを送る<small style="display:block;font-weight:500;font-size:12px;opacity:.9;margin-top:3px">長いURLが出ません</small></button>
-    <p class="list-mini" id="ssCardHint" style="display:none;margin:6px 2px 10px">LINEが開きます。送る相手を選ぶと、ボタンだけのカードが届きます。</p>
-    <button class="btn ghost full" onclick="ssSend()">📝 文字で送る（これまでどおり）</button>
-    <button class="btn ghost full" style="margin-top:10px" id="ssQrBtn" onclick="ssShowQr()">📷 QRコードを表示</button>
+    <label class="fld" style="margin-top:14px">📤 送り方を選ぶ</label>
+    <p class="list-mini" style="margin:4px 2px 8px">どれで送っても、受け取った人は選手アプリに取り込めます。</p>
+    <div class="ss-ways">
+      <!-- v319: LINEへ「ボタンだけのカード」で送る。LIFFの登録が済むまでは出さない（liffShareReady）-->
+      <button class="btn gold" id="ssCardBtn" style="display:none" onclick="ssSendCard()"><b>💬 LINE</b><small>カードで届きます</small></button>
+      <button class="btn gold" onclick="ssSendLink()"><b>🔗 リンク</b><small>アプリが無い人も見られます</small></button>
+      <button class="btn ghost" onclick="ssSend()"><b>📝 文字</b><small>予定を文章で送ります</small></button>
+      <button class="btn ghost" id="ssQrBtn" onclick="ssShowQr()"><b id="ssQrLbl">📷 QRコード</b><small>その場で読み取ります</small></button>
+    </div>
     <div id="ssQrBox" style="margin-top:10px;text-align:center"></div>
     <div class="row" style="margin-top:12px"><button class="btn ghost full" onclick="closeModal('schedShareModal')">とじる</button></div>
   </div>
@@ -5604,7 +5615,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v322'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v323'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='suite'; // 'suite' | 'personal' | 'office'
@@ -6543,9 +6554,6 @@ Object.assign(DICT,{
   'シェア画像':{en:'Share image',fr:'Image à partager',pt:'Imagem p/ compartilhar'},
   '画像を準備しています…':{en:'Preparing the image…',fr:'Préparation de l’image…',pt:'Preparando a imagem…'},
   /* v319: LINEへカードで送る */
-  '💬 LINEでカードを送る':{en:'💬 Send a card on LINE',fr:'💬 Envoyer une carte sur LINE',pt:'💬 Enviar um cartão no LINE'},
-  '長いURLが出ません':{en:'No long link in the message',fr:'Pas de lien interminable dans le message',pt:'Sem link longo na mensagem'},
-  'LINEが開きます。送る相手を選ぶと、ボタンだけのカードが届きます。':{en:'LINE opens. Pick who to send to, and they receive a card with just a button.',fr:'LINE s’ouvre. Choisissez les destinataires : ils reçoivent une carte avec un simple bouton.',pt:'O LINE abre. Escolha para quem enviar e eles recebem um cartão com só um botão.'},
   'LINEを開けませんでした。「リンクで送る」をお使いください。':{en:'Could not open LINE. Please use “Send a link” instead.',fr:'Impossible d’ouvrir LINE. Utilisez « Envoyer un lien ».',pt:'Não foi possível abrir o LINE. Use “Enviar um link”.'},
   '予定をコピーできませんでした。「リンクで送る」をお使いください。':{en:'Could not copy the schedule. Please use “Send a link” instead.',fr:'Impossible de copier le planning. Utilisez « Envoyer un lien ».',pt:'Não foi possível copiar a agenda. Use “Enviar um link”.'},
   'LINEが開きませんでした。':{en:'LINE did not open.',fr:"LINE ne s'est pas ouvert.",pt:'O LINE nao abriu.'},
@@ -6645,10 +6653,18 @@ Object.assign(DICT,{
   // v219: 予定の共有（事務→選手）
   '予定を共有':{en:'Share schedule',fr:'Partager le planning',pt:'Compartilhar agenda'},
   '📥 道場の予定':{en:'📥 Dojo schedule',fr:'📥 Planning du dojo',pt:'📥 Agenda do dojô'},
-  '📤 予定をLINEで送る':{en:'📤 Send schedule via LINE',fr:'📤 Envoyer le planning via LINE',pt:'📤 Enviar agenda pelo LINE'},
+  '📤 予定を送る':{en:'📤 Send the schedule',fr:'📤 Envoyer le planning',pt:'📤 Enviar a agenda'},
   '選んだ月の予定を、選手・保護者に送れます。受け取った人は選手アプリの「予定・記録 › 📥 道場の予定」で取り込めます。同じ月を送り直すと、相手側では最新の内容に置き換わります。':{en:'Send the selected month’s schedule to athletes and parents. They import it in the athlete app via “Plans & Records › 📥 Dojo schedule”. Re-sending the same month replaces it on their side.',fr:'Envoyez le planning du mois choisi aux athlètes et parents. Ils l’importent dans l’appli athlète via « Agenda & Notes › 📥 Planning du dojo ». Renvoyer le même mois le remplace chez eux.',pt:'Envie a agenda do mês escolhido para atletas e responsáveis. Eles importam no app do atleta em “Agenda e Registros › 📥 Agenda do dojô”. Reenviar o mesmo mês substitui a versão deles.'},
   '📩 LINE等で送る':{en:'📩 Send via LINE etc.',fr:'📩 Envoyer via LINE, etc.',pt:'📩 Enviar pelo LINE etc.'},
-  '📷 QRコードを表示':{en:'📷 Show QR code',fr:'📷 Afficher le code QR',pt:'📷 Mostrar código QR'},
+  '📤 送り方を選ぶ':{en:'📤 Choose how to send',fr:'📤 Choisissez le mode d’envoi',pt:'📤 Escolha como enviar'},
+  'どれで送っても、受け取った人は選手アプリに取り込めます。':{en:'Whichever you pick, the recipient can import it in the athlete app.',fr:'Quel que soit le choix, le destinataire peut l’importer dans l’app athlète.',pt:'Em qualquer opção, quem recebe consegue importar no app do atleta.'},
+  '🔗 リンク':{en:'🔗 Link',fr:'🔗 Lien',pt:'🔗 Link'},
+  '📝 文字':{en:'📝 Text',fr:'📝 Texte',pt:'📝 Texto'},
+  'カードで届きます':{en:'Arrives as a card',fr:'Arrive sous forme de carte',pt:'Chega como um cartão'},
+  'アプリが無い人も見られます':{en:'Readable without the app',fr:'Lisible sans l’app',pt:'Dá para ver sem o app'},
+  '予定を文章で送ります':{en:'Sends the schedule as text',fr:'Envoie le planning en texte',pt:'Envia a agenda como texto'},
+  'その場で読み取ります':{en:'Scanned on the spot',fr:'À scanner sur place',pt:'Para ler na hora'},
+  '📷 QRコード':{en:'📷 QR code',fr:'📷 Code QR',pt:'📷 Código QR'},
   '件の予定を送ります':{en:' events will be sent',fr:' événements seront envoyés',pt:' eventos serão enviados'},
   'この月に予定はありません':{en:'No events in this month',fr:'Aucun événement ce mois-ci',pt:'Sem eventos neste mês'},
   '受け取る側は、順番に全部のQRを読み取ってください。':{en:'The receiver should scan all QR codes in order.',fr:'Le destinataire doit scanner tous les codes QR dans l’ordre.',pt:'O destinatário deve ler todos os códigos QR em ordem.'},
@@ -6703,9 +6719,6 @@ Object.assign(DICT,{
   '※ はじめての方は、道場の合言葉が必要です。':{en:'* First time? You will need your dojo’s passphrase.',fr:'* Première fois ? Le mot de passe du dojo est nécessaire.',pt:'* Primeira vez? Você vai precisar da senha do dojo.'},
   'アプリの「設定 › セキュリティ › 予定表の合言葉」に登録しておくと、次からは聞かれません。':{en:'Save it in Settings › Security › Schedule passphrase and you will not be asked again.',fr:'Enregistrez-le dans Réglages › Sécurité › Mot de passe de l’agenda et on ne vous le redemandera plus.',pt:'Salve em Ajustes › Segurança › Senha da agenda e não será perguntado novamente.'},
   'このリンクは、合言葉を知っている人しか開けません。':{en:'Only people who know the passphrase can open this link.',fr:'Seules les personnes connaissant le mot de passe peuvent ouvrir ce lien.',pt:'Só quem sabe a senha consegue abrir este link.'},
-  '🔗 リンクで送る（おすすめ）':{en:'🔗 Send a link (recommended)',fr:'🔗 Envoyer un lien (recommandé)',pt:'🔗 Enviar um link (recomendado)'},
-  '📝 文字で送る（これまでどおり）':{en:'📝 Send as text (as before)',fr:'📝 Envoyer en texte (comme avant)',pt:'📝 Enviar como texto (como antes)'},
-  '受け取った人は、リンクを押すだけで取り込めます。アプリが無い人も、予定を見られます。':{en:'Tapping the link is all it takes. People without the app can still read the schedule.',fr:'Il suffit d’appuyer sur le lien. Ceux qui n’ont pas l’app peuvent quand même lire l’agenda.',pt:'Basta tocar no link. Quem não tem o app ainda consegue ver a agenda.'},
   '下のリンクから、予定を確認して取り込んでください。':{en:'Open the link below to check the schedule and import it.',fr:'Ouvrez le lien ci-dessous pour vérifier l’agenda et l’importer.',pt:'Abra o link abaixo para conferir a agenda e importar.'},
   'アプリが無い方も、リンク先で予定を見られます。':{en:'Even without the app, you can read the schedule there.',fr:'Même sans l’application, vous pouvez y consulter l’agenda.',pt:'Mesmo sem o app, dá para ver a agenda lá.'},
   'の予定':{en:' schedule',fr:' agenda',pt:' agenda'},
@@ -13841,12 +13854,14 @@ function renderSchedShare(keepInput){
   const mi=document.getElementById('ssMsg'); if(mi&&!keepInput)mi.value=ssMsgText();
   document.getElementById('ssPreview').value=r.text;
   document.getElementById('ssQrBox').innerHTML='';
-  const qb=document.getElementById('ssQrBtn'); if(qb)qb.textContent=T('📷 QRコードを表示');   // v221: 月を変えたらQRを畳んでボタンも戻す
+  const qb=document.getElementById('ssQrLbl'); if(qb)qb.textContent=T('📷 QRコード');   // v221: 月を変えたらQRを畳んでボタンも戻す（v323: 説明文を残すため中の見出しだけ差し替える）
   // v319: カードで送るボタンは、LIFFの登録が済んでいるときだけ出す（済むまで押せても失敗するだけ）
-  const cb=document.getElementById('ssCardBtn'), ch=document.getElementById('ssCardHint');
+  const cb=document.getElementById('ssCardBtn');
   const showCard=liffShareReady();
-  if(cb)cb.style.display=showCard?'block':'none';
-  if(ch)ch.style.display=showCard?'block':'none';
+  /* v323: 並びは CSS（.ss-ways）に任せるので、出すときは指定を空に戻す。
+     'block' を入れると flex-direction:column が効かず、中の b と small が
+     1行に並んでしまう。 */
+  if(cb)cb.style.display=showCard?'':'none';
 }
 async function ssSend(){
   // v258: 0件でも送れる。「この月の予定はすべて取り消し」を伝えるため
@@ -13856,8 +13871,8 @@ async function ssSend(){
   catch(e){ toast(T('コピーできませんでした')); }
 }
 function ssShowQr(){
-  const box=document.getElementById('ssQrBox'), qb=document.getElementById('ssQrBtn');
-  if(box.innerHTML){ box.innerHTML=''; if(qb)qb.textContent=T('📷 QRコードを表示'); return; }   // v221: 表示中はトグルで閉じる
+  const box=document.getElementById('ssQrBox'), qb=document.getElementById('ssQrLbl');
+  if(box.innerHTML){ box.innerHTML=''; if(qb)qb.textContent=T('📷 QRコード'); return; }   // v221: 表示中はトグルで閉じる
   const r=schedShareText(ssMonth);
   if(qb)qb.textContent=T('QRコードを閉じる');
   const parts=schedShareParts(r.text);
