@@ -381,41 +381,52 @@
       + '<button class="btn gold" id="pst">📋 予定を読み込む'
       + '<small>「ペーストを許可しますか」と出たら、許可してください</small></button>'
       + '<div class="res" id="rp">　</div>'
-      + '<details id="man"><summary>読み込めないときは</summary>'
-      + '<p>下の枠を長押しして「ペースト」を選び、「読み込む」を押してください。</p>'
-      + '<textarea id="ta" rows="3" style="width:100%;font-size:13px;font-family:inherit;'
+      + '<div id="man" style="display:none">'
+      + '<p class="hint" style="margin:14px 2px 6px">下の枠を<b>長押し</b>して'
+      + '「ペースト」を選んでください。貼り付けると、そのまま進みます。</p>'
+      + '<textarea id="ta" rows="3" placeholder="ここに長押しでペースト" '
+      + 'style="width:100%;font-size:13px;font-family:inherit;'
       + 'border:2px solid var(--navy);border-radius:9px;padding:9px;box-sizing:border-box"></textarea>'
-      + '<button class="btn ghost" id="pst2">読み込む</button></details>'
+      + '<button class="btn ghost" id="pst2">読み込む</button></div>'
       + debugBlock();
 
-    var rp  = document.getElementById('rp');
+    var rp = document.getElementById('rp');
     var man = document.getElementById('man');
-    var take = function(text){
+    var ta = document.getElementById('ta');
+
+    var showMan = function(){
+      man.style.display = '';
+      try{ ta.focus(); }catch(e){}
+    };
+    /* quiet=true のときは、入っていなくても何も言わない（入力中に毎回しかられないため） */
+    var take = function(text, quiet){
       var t = String(text || '');
       var i = t.indexOf(CLIP_TAG);
       if(i < 0 || !applyQuery(t.slice(i + CLIP_TAG.length))){
+        if(quiet) return;
         rp.className = 'res ng';
         rp.textContent = '予定が見つかりませんでした。My柔道（事務）の「予定を共有」から'
                        + '「LINEでカードを送る」を、もう一度押してください。';
-        man.open = true;
+        showMan();
         return;
       }
       start();
     };
+
     document.getElementById('pst').onclick = function(){
+      var ng = function(){
+        rp.className = 'res ng';
+        rp.textContent = '自動では読み込めませんでした。下の枠に、長押しでペーストしてください。';
+        showMan();
+      };
       if(navigator.clipboard && navigator.clipboard.readText){
-        navigator.clipboard.readText().then(take, function(){
-          rp.className = 'res ng';
-          rp.textContent = '読み込めませんでした。下の「読み込めないときは」をお使いください。';
-          man.open = true;
-        });
-      } else {
-        man.open = true;
-      }
+        try{ navigator.clipboard.readText().then(function(t){ take(t); }, ng); }
+        catch(e){ ng(); }
+      } else { ng(); }
     };
-    document.getElementById('pst2').onclick = function(){
-      take(document.getElementById('ta').value);
-    };
+    /* 貼り付けた時点で進む。「読み込む」を押させない。 */
+    ta.oninput = function(){ take(ta.value, true); };
+    document.getElementById('pst2').onclick = function(){ take(ta.value); };
   }
 
   /* ---- 起動 --------------------------------------------------------------- */
