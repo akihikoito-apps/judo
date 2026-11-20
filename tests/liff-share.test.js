@@ -42,6 +42,7 @@
            node tests/liff-share.test.js --mutate=gate   … 未登録でもボタンを出す（失敗するのが正しい）
            node tests/liff-share.test.js --mutate=scheme … アプリ版を https に戻す（失敗するのが正しい）
            node tests/liff-share.test.js --mutate=clip   … クリップボード渡しをやめる（失敗するのが正しい）
+           node tests/liff-share.test.js --mutate=clipnative … 書き込みを Web の API だけに戻す（失敗するのが正しい）
    build.js の最後からも run() が呼ばれる。 */
 const fs = require('fs');
 const path = require('path');
@@ -53,6 +54,8 @@ const HASH_PASS = "const web='https://liff.line.me/'+LIFF_SHARE_ID+'#'+q;";
 const SCHEME_PASS = "const app='line://app/'+LIFF_SHARE_ID+'#'+q;";
 const ORIGIN_CHECK = "if(!/^https:\\/\\/akihikoito-apps\\.github\\.io\\/judo\\//.test(D.url)){";
 const GATE = 'const showCard=liffShareReady();';
+const CLIP_CALL = "ssClipWrite('myjudo-sched:v1:'+q)";
+const CLIP_NATIVE = 'if(p&&p.write){ await p.write({string:text}); return true; }';
 
 function run(src, opts) {
   opts = opts || {};
@@ -66,6 +69,7 @@ function run(src, opts) {
 
   let index = src || fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   let page = fs.readFileSync(path.join(ROOT, 'share-liff.html'), 'utf8');
+  const pkg = fs.readFileSync(path.join(ROOT, 'native', 'office', 'package.json'), 'utf8');
 
   if (opts.mutate === 'guard') {
     if (index.indexOf(GUARD_CARD) < 0) throw new Error('mutate=guard の置き換え先が見つかりません');
@@ -81,10 +85,14 @@ function run(src, opts) {
     index = index.replace(SCHEME_PASS, "const app='line://app/'+LIFF_SHARE_ID+'?'+q;");
   }
   if (opts.mutate === 'clip') {
-    const CLIP = "navigator.clipboard.writeText('myjudo-sched:v1:'+q)";
-    if (index.indexOf(CLIP) < 0) throw new Error('mutate=clip の置き換え先が見つかりません');
+    if (index.indexOf(CLIP_CALL) < 0) throw new Error('mutate=clip の置き換え先が見つかりません');
     // クリップボードをやめる（＝URLに載せるしか道がなくなる）
-    index = index.replace(CLIP, 'void 0');
+    index = index.replace(CLIP_CALL, 'Promise.resolve(true)');
+  }
+  if (opts.mutate === 'clipnative') {
+    if (index.indexOf(CLIP_NATIVE) < 0) throw new Error('mutate=clipnative の置き換え先が見つかりません');
+    // v321 と同じ、Web の API だけに戻す（＝await のあとで iOS に拒まれ、黙って空になる）
+    index = index.replace(CLIP_NATIVE, '');
   }
   if (opts.mutate === 'scheme') {
     if (index.indexOf(SCHEME_PASS) < 0) throw new Error('mutate=scheme の置き換え先が見つかりません');
@@ -142,13 +150,23 @@ function run(src, opts) {
      予定の中身が LINE と GitHub のサーバーを通る。合言葉なしの月は氏名が
      平文でサーバーの記録に残る。だからクリップボードで渡している。
      ここが崩れたら、その事故に気づけない。 */
-  ok(index.indexOf("navigator.clipboard.writeText('myjudo-sched:v1:'+q)") >= 0,
+  ok(index.indexOf(CLIP_CALL) >= 0,
      'LINEを開く直前に、予定をクリップボードへ写している');
+  /* v322: ここが肝。iOS は Web の writeText を「押した直後」しか許さず、
+     ssSendCard は共有URLを作るのに await を挟む。だから Capacitor の
+     クリップボード（OSの貼り付け板）を先に試すこと。これを外すと v321 に戻り、
+     書けていないのに LINE だけ開いて、受け側が空になる。 */
+  ok(index.indexOf(CLIP_NATIVE) >= 0,
+     'アプリ版は Capacitor のクリップボードで書いている（await のあとでも書ける）');
+  ok(pkg.indexOf('"@capacitor/clipboard"') >= 0,
+     '事務アプリに @capacitor/clipboard が入っている（無いと黙って Web の API に落ちる）');
   ok(page.indexOf("var CLIP_TAG = 'myjudo-sched:v1:';") >= 0,
      '受け側が同じ合図でクリップボードを読む');
   ok(page.indexOf('navigator.clipboard.readText()') >= 0, '受け側に読み出す道がある');
-  ok(page.indexOf("take(document.getElementById('ta').value);") >= 0,
+  ok(page.indexOf('take(ta.value);') >= 0,
      '自動で読めないときに、手で貼り付ける道がある');
+  ok(page.indexOf('ta.oninput = function(){ take(ta.value, true); };') >= 0,
+     '貼り付けた時点で進む（「読み込む」を押させない）');
   // クリップボードから読んだ中身も、必ず飛び先の確かめを通ること
   const si = page.indexOf('function start(){');
   const pi = page.indexOf('function applyQuery(q){');
@@ -225,7 +243,7 @@ function run(src, opts) {
   return fail === 0;
 }
 
-module.exports = { run, mutations: ['guard', 'alttext', 'query', 'origin', 'gate', 'scheme', 'clip'] };
+module.exports = { run, mutations: ['guard', 'alttext', 'query', 'origin', 'gate', 'scheme', 'clip', 'clipnative'] };
 
 if (require.main === module) {
   const m = (process.argv.find((a) => a.startsWith('--mutate=')) || '').split('=')[1];

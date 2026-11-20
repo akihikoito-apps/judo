@@ -5604,7 +5604,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v321'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v322'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -6547,6 +6547,7 @@ Object.assign(DICT,{
   '長いURLが出ません':{en:'No long link in the message',fr:'Pas de lien interminable dans le message',pt:'Sem link longo na mensagem'},
   'LINEが開きます。送る相手を選ぶと、ボタンだけのカードが届きます。':{en:'LINE opens. Pick who to send to, and they receive a card with just a button.',fr:'LINE s’ouvre. Choisissez les destinataires : ils reçoivent une carte avec un simple bouton.',pt:'O LINE abre. Escolha para quem enviar e eles recebem um cartão com só um botão.'},
   'LINEを開けませんでした。「リンクで送る」をお使いください。':{en:'Could not open LINE. Please use “Send a link” instead.',fr:'Impossible d’ouvrir LINE. Utilisez « Envoyer un lien ».',pt:'Não foi possível abrir o LINE. Use “Enviar um link”.'},
+  '予定をコピーできませんでした。「リンクで送る」をお使いください。':{en:'Could not copy the schedule. Please use “Send a link” instead.',fr:'Impossible de copier le planning. Utilisez « Envoyer un lien ».',pt:'Não foi possível copiar a agenda. Use “Enviar um link”.'},
   'LINEが開きませんでした。':{en:'LINE did not open.',fr:"LINE ne s'est pas ouvert.",pt:'O LINE nao abriu.'},
   '別の開き方を試します。これでも開かないときは「リンクで送る」をお使いください。':{en:'We will try another way. If it still does not open, use Send as link.',fr:"Nous allons essayer autrement. Si cela ne s'ouvre toujours pas, utilisez Envoyer le lien.",pt:'Vamos tentar de outra forma. Se ainda nao abrir, use Enviar link.'},
   '別の方法で開く':{en:'Try another way',fr:'Essayer autrement',pt:'Tentar de outra forma'},
@@ -13716,6 +13717,22 @@ function ssPlainGuard(r,retry){
   }
   return true;
 }
+/* v322: 予定の中身をクリップボードへ写す。
+   iOS は Web の navigator.clipboard.writeText() を「指で押した直後」しか許さない。
+   ssSendCard は共有URLを組み立てるのに await を挟むので、そこへ来たときには
+   その資格が切れている。v321 はここで黙って失敗しており（catch で握りつぶしていた）、
+   LINE 側で読み出したときに空だったのは、読めなかったのではなく書けていなかったから。
+   アプリ版は Capacitor のクリップボード（OSの貼り付け板を直接触る）を使う。
+   こちらは押した直後かどうかを問われないので、await のあとでも確実に書ける。
+   Web版は従来どおり navigator.clipboard に任せる。 */
+async function ssClipWrite(text){
+  try{
+    const p=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Clipboard;
+    if(p&&p.write){ await p.write({string:text}); return true; }
+  }catch(e){}
+  try{ await navigator.clipboard.writeText(text); return true; }catch(e){}
+  return false;
+}
 async function ssSendCard(){
   const r=await schedShareUrl(ssMonth);
   if(!r){ toast(T('この月の予定がありません')); return; }
@@ -13747,7 +13764,9 @@ async function ssSendCard(){
        だから URL には載せず、開く直前にクリップボードへ写して渡す。
        受け側（share-liff.html）が「予定を読み込む」で読み出す。
        # も付けたままにしておく。将来 LINE が残すようになれば、貼り付けは不要になる。 */
-    try{ await navigator.clipboard.writeText('myjudo-sched:v1:'+q); }catch(e){}
+    /* 書けなかったら LINE は開かない。中身の無い画面を出しても詰むだけなので。 */
+    if(!await ssClipWrite('myjudo-sched:v1:'+q)){
+      toast(T('予定をコピーできませんでした。「リンクで送る」をお使いください。')); return; }
     const app='line://app/'+LIFF_SHARE_ID+'#'+q;
     try{ location.href=app; }catch(e){}
     ssCardWatch(web);
