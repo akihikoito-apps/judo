@@ -13683,7 +13683,7 @@ async function schedShareUrl(ym){
    予定の中身は # に載せる（# はどのサーバーにも送られない＝LINE も GitHub も
    暗号文を受け取らない）。ただし LIFF の起動で # が残るかは実機で確かめる必要が
    あるため、受け側（share-liff.html）は hash / liff.state / query の3経路から読む。 */
-const LIFF_SHARE_ID='LIFF_ID_PENDING';   // LINE Developers で LIFF アプリを作ったら差し替える
+const LIFF_SHARE_ID='2012717291-srXnnCVb';   // LINE Login チャネル 2012717291「My柔道 予定カード」の LIFF アプリ
 const LIFF_SHARE_PAGE='https://akihikoito-apps.github.io/judo/share-liff.html';
 function liffShareReady(){ return !!LIFF_SHARE_ID && LIFF_SHARE_ID.indexOf('PENDING')<0; }
 /* v319: 合言葉まわりの確認。「リンクで送る」と「カードで送る」で同じものを通す。
