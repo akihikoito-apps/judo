@@ -2,28 +2,48 @@
 
 作成日 2026-11-20。**下書きです。** App Store Connect への入力・提出はまだしていません。
 
+> **2026-11-20 改訂（第2版）。** Codex に出荷前点検を依頼し、**9件の指摘**を受けて書き直した。
+> こちらでコードを読んで裏を取ったうえで、**全件そのとおりだったので採った。**おもな直しは次のとおり。
+>
+> - **選手用から「パスコードロック」の項目を削除。**`lockRequired()`（index.html:15667）は
+>   `APP_EDITION==='personal'` のとき必ず `false` を返す。**選手用ではロックがそもそも働かない。**
+>   「横向きのロック画面」も同じ理由で選手用から削除。事務用の再ロックは「60秒以上離れたとき」なので、
+>   「戻ったときに必ず」ではなく「一定時間離れて戻ったとき」と書き直した。
+> - **「カードを押すだけで取り込める」をやめた。**実際はカード →表示ページ →「アプリで取り込む」→
+>   アプリ内の確認、という流れ。1回押して保存完了ではない。
+> - **月の表示例を削除。**アプリの実表示は `Nov 2026`／`nov. 2026`／`nov 2026`（index.html:5639）で、
+>   `November 2026` とは出ない。仏の設定名は `Mot de passe de l'agenda`、葡の「設定」は `Ajustes`（index.html:5647）。
+> - **カードのボタン名は実装上「予定を見る」固定**（share-liff.html:202）。英仏葡に存在しないボタン名を
+>   書いていたので削除。
+> - **データ読み取り失敗の説明を、今回入ったぶんだけに絞った。**外国語の "recovered data" は
+>   「復旧できたデータ」と読めるが、書き出すのは**読み取れなかった元の文字列**なので言い換えた。
+> - **「App のプライバシー」の節は、結論を削って確認手順に置き換えた**（下記）。
+
 ## もとにした変更
 
-前回リリースのコミット `9cadfaa`（事務用 1.2・選手用 1.3 を出した版）から `HEAD` までの **107 コミット・31 版**（v276〜v324）。
+前回リリースのコミット `9cadfaa`（事務用 1.2・選手用 1.3 を出した版）から `HEAD` までの **107 コミット・31 版**（v276〜v325）。
 CHANGELOG ファイルはないので、版ごとのコミット本文と `docs/app-audit-20261008.md`（10/8 の総点検）から書いた。
 
 ## 書き方の決まり（前回 docs/whats-new-draft.md と同じ）
 
 - アプリ名の表記は `docs/store-text-check.md` に合わせる。
   事務用 en「My Judo: Dojo Manager」／fr「My Judo : Gestion Dojo」／pt「My Judo: Gestão de Dojo」。選手用は 3 言語とも「My Judo History」。
-- 機能名・ボタン名は、アプリの中の訳（`index.html` の辞書）に合わせる。
+- 機能名・ボタン名・画面名は、**アプリの中の訳（`index.html` の辞書）に合わせる。**勝手に訳さない。
 - 大げさな言い方はしない。直したこと・増えたことだけを書く。
 - en はアメリカ式のつづり。fr の「タップ」は appui にそろえる。
-- 上限 4000 文字。いちばん長いもので 1200 文字前後なので、十分収まる。
+- 上限 4000 文字。
 
-## 入力前に必ず確かめること
+## 入力前に確かめること
 
-- **LINEのカードは、選手用 1.3 以前でも開ける。**カードのボタンは予定表のリンクを開くだけなので、受け取る側のアプリの版は問わない。だから「相手も更新が必要」とは書いていない。
-- **【未確認】合言葉つきの予定表を、選手用 1.3（現在ストアに出ている版）で開けるかどうか。**暗号化は v299〜v300 ＝ 1.3 を出したあとに入れたもの。
-  リンクを開くと復号は表示ページ側で行われるので 1.3 でも通るはずだが、**実機で確かめていない。**
-  確かめるまで「相手の更新が必要」とも「不要」とも書かない。本文にもその話は入れていない。
-- **選手用の「日別シートに場所・メモ・出場者を出す」は、すでに選手用 1.3 で出している**（v274・v275）。
-  今回の新機能に入れないこと。下書きでいったん入れてしまい、`9cadfaa` のコミット本文を読み直して取り消した。
+- **【未確認】合言葉つきの予定表を、選手用 1.3（現在ストアに出ている版）で開けるか。**
+  暗号化は v299〜v300 ＝ 1.3 を出したあとに入れたもの。表示ページ側で復号するので
+  「ページで中身を見て、文字をコピーしてアプリに貼る」経路は通るはずだが、**実機で確かめていない。**
+- **【確認済み】リンクから直接取り込めるのは選手用 1.4 から。**`myjudo` の URL スキームは v296 で足したもので、
+  選手用 1.3 には登録がない。旧版の方は、表示ページから文字をコピーして取り込む形になる。
+  **ストア文面では「1.4 から」と断っていないので、断りを入れるか、文面から外すかを決めること。**
+  いまの下書きは「リンクからそのまま取り込めるようになりました」としか書いていない（新機能の説明としては正しい）。
+- **【確認済み】選手用の「日別シートに場所・メモ・出場者」は、すでに選手用 1.3 で出している**（v274・v275）。
+  今回の新機能に入れないこと。
 
 ---
 
@@ -33,10 +53,10 @@ CHANGELOG ファイルはないので、版ごとのコミット本文と `docs/
 
 ```
 ■ 予定表をLINEのカードで送れるようになりました
-・長いリンクがトーク画面に出ません。受け取った方は、カードの「予定を見る」を押すだけです。
+・長いリンクがトーク画面に出ません。受け取った方は、カードのボタンから予定を開けます。
 ・送り方の画面を作り直しました。LINE／リンク／文字／QRコードの4つから選べます。
 
-■ 予定表に合言葉をかけられます
+■ 予定表を合言葉で保護して送れます
 ・合言葉を決めると、予定の中身が暗号化されます。合言葉を知らない人はリンクを開いても読めません。
 ・合言葉を決めずに送ろうとしたときは、一度お止めして確認します。
 ・リンクの長さを、これまでの約半分にしました。
@@ -49,11 +69,11 @@ CHANGELOG ファイルはないので、版ごとのコミット本文と `docs/
 ・試合結果の取り込みで、名字だけの一致などで別の方に結び付くことがありました。必ず確認してから選べるようにしました。
 ・団体戦で人数を変えると、並びがずれたり結果が消えたりすることがありました。
 ・試合報告で、何も入力していないのに「勝ち」が記録されることがありました。
-・パスコードロックが、まれにかからないことがありました。戻ってきたときにもかかるようにしました。
-・データが読めなかったとき、空のまま入力して消えてしまうおそれがありました。帯でお知らせし、退避データを書き出せるようにしました。
+・一定時間アプリを離れて戻ったときにも、パスコードロックがかかるようにしました。
+・データを読み取れないときは、保存できないことを画面に表示し続けるようにしました。読み取れなかったデータを書き出して保管できます。
 ・写真やファイルの共有が、黙って失敗することがありました。
 ・横向きのロック画面、キーボードで隠れる保存ボタンなど、画面の崩れを直しました。
-・カレンダーの月を「2026年 11月」の形にしました。大会までの日数も大きく出します。
+・カレンダーの月表示を見やすくしました。大会までの日数も大きく出します。
 ・ご利用料金の説明を、実際の内容に合わせて書き直しました。
 ・端末のおまかせバックアップの扱いについて、ヘルプに明記しました。
 ```
@@ -62,7 +82,7 @@ CHANGELOG ファイルはないので、版ごとのコミット本文と `docs/
 
 ```
 Send your schedule to LINE as a card
-- No more long link filling up the chat. Recipients just tap "See schedule" on the card.
+- No more long link filling up the chat. Recipients open the schedule from the button on the card.
 - The sharing screen has been rebuilt: choose LINE, Link, Text or QR code.
 
 Protect a schedule with a passphrase
@@ -78,11 +98,11 @@ Fixes
 - Importing match results could attach a result to the wrong person when only the family name matched. You are now always asked to confirm.
 - Changing the roster size in a team match could shift the order or lose results.
 - A match report could record a win with nothing entered.
-- The passcode lock could occasionally fail to engage. It now also locks when you return to the app.
-- If saved data could not be read, you could type into an empty app and lose it. A banner now stays up and you can export the recovered data.
+- The passcode lock now also engages when you come back after leaving the app for a while.
+- When saved data cannot be read, a banner now stays up to say nothing is being saved, and you can export the unreadable data to keep it.
 - Sharing photos and files could fail silently.
 - Layout fixes: the lock screen in landscape, the save button hidden by the keyboard, and others.
-- Calendar months now read "November 2026", and the countdown to a tournament is larger.
+- Calendar months are easier to read, and the countdown to a tournament is larger.
 - Pricing wording now matches what the app actually offers.
 - The help text now explains how the device's automatic backup treats your data.
 ```
@@ -91,7 +111,7 @@ Fixes
 
 ```
 Envoyez le planning sur LINE sous forme de carte
-- Fini le lien interminable dans la conversation. Il suffit d'un appui sur « Voir le planning ».
+- Fini le lien interminable dans la conversation. Les destinataires ouvrent le planning depuis le bouton de la carte.
 - L'écran de partage a été refait : LINE, Lien, Texte ou code QR.
 
 Protégez un planning par un mot de passe
@@ -107,11 +127,11 @@ Corrections
 - À l'import des résultats, une correspondance sur le seul nom de famille pouvait rattacher un résultat à la mauvaise personne. Une confirmation est désormais toujours demandée.
 - Modifier l'effectif d'une rencontre par équipes pouvait décaler l'ordre ou effacer des résultats.
 - Un rapport de combat pouvait enregistrer une victoire alors que rien n'était saisi.
-- Le verrouillage par code pouvait, rarement, ne pas s'activer. Il s'active aussi au retour dans l'app.
-- Si les données enregistrées ne pouvaient pas être lues, vous pouviez saisir dans une app vide et tout perdre. Un bandeau reste affiché et vous pouvez exporter les données récupérées.
+- Le verrouillage par code s'active aussi au retour, après une absence prolongée de l'app.
+- Lorsque les données enregistrées sont illisibles, un bandeau reste affiché pour signaler que rien n'est enregistré, et vous pouvez exporter les données illisibles afin de les conserver.
 - Le partage de photos et de fichiers pouvait échouer sans message.
 - Corrections d'affichage : écran de verrouillage en paysage, bouton d'enregistrement masqué par le clavier, et d'autres.
-- Les mois du calendrier s'affichent « novembre 2026 », et le compte à rebours avant une compétition est plus grand.
+- Les mois du calendrier sont plus lisibles, et le compte à rebours avant une compétition est plus grand.
 - Les mentions tarifaires correspondent maintenant à ce que l'app propose réellement.
 - L'aide explique désormais comment la sauvegarde automatique de l'appareil traite vos données.
 ```
@@ -120,7 +140,7 @@ Corrections
 
 ```
 Envie a agenda pelo LINE como um cartão
-- Sem link interminável na conversa. Quem recebe só toca em "Ver agenda" no cartão.
+- Sem link interminável na conversa. Quem recebe abre a agenda pelo botão do cartão.
 - A tela de envio foi refeita: escolha LINE, Link, Texto ou código QR.
 
 Proteja a agenda com uma senha
@@ -136,11 +156,11 @@ Correções
 - Ao importar resultados, uma correspondência apenas pelo sobrenome podia vincular o resultado à pessoa errada. Agora sempre pedimos confirmação.
 - Alterar o número de atletas em uma competição por equipes podia desalinhar a ordem ou apagar resultados.
 - Um relatório de luta podia registrar uma vitória sem nada preenchido.
-- O bloqueio por senha podia, raramente, não ser aplicado. Agora também bloqueia ao voltar para o app.
-- Se os dados salvos não pudessem ser lidos, você podia digitar em um app vazio e perder tudo. Um aviso permanece na tela e você pode exportar os dados recuperados.
+- O bloqueio por senha agora também é aplicado ao voltar, depois de um tempo fora do app.
+- Quando os dados salvos não podem ser lidos, um aviso permanece na tela informando que nada está sendo salvo, e você pode exportar os dados ilegíveis para guardá-los.
 - O compartilhamento de fotos e arquivos podia falhar sem aviso.
 - Ajustes de layout: tela de bloqueio na horizontal, botão de salvar escondido pelo teclado, entre outros.
-- Os meses do calendário aparecem como "novembro de 2026", e a contagem regressiva para a competição ficou maior.
+- Os meses do calendário ficaram mais fáceis de ler, e a contagem regressiva para a competição ficou maior.
 - Os textos sobre preços agora correspondem ao que o app realmente oferece.
 - A ajuda explica como o backup automático do aparelho trata os seus dados.
 ```
@@ -153,7 +173,7 @@ Correções
 
 ```
 ■ 予定表の受け取りが楽になりました
-・LINEで届いたカードの「予定を見る」を押すだけで取り込めます。
+・LINEで届いたカードのボタンから予定を開き、内容を確かめて取り込めます。
 ・リンクからそのまま取り込めるようになりました。
 ・道場が1日だけ直して送った予定も、そのまま受け取れます。
 
@@ -163,11 +183,10 @@ Correções
 ■ 直したところ
 ・学年の自動計算が1年ずれていたのを直しました。保存済みの学年も直しますが、自動で付けたものだけです（手で直した学年はそのままです）。
 ・試合報告で、何も入力していないのに「勝ち」が記録されることがありました。
-・パスコードロックが、まれにかからないことがありました。戻ってきたときにもかかるようにしました。
-・データが読めなかったとき、空のまま入力して消えてしまうおそれがありました。帯でお知らせし、退避データを書き出せるようにしました。
+・データを読み取れないときは、保存できないことを画面に表示し続けるようにしました。読み取れなかったデータを書き出して保管できます。
 ・写真やファイルの共有が、黙って失敗することがありました。
-・横向きのロック画面、キーボードで隠れる保存ボタンなど、画面の崩れを直しました。
-・カレンダーの月を「2026年 11月」の形にしました。大会までの日数も大きく出します。
+・キーボードで保存ボタンが隠れるなど、画面の崩れを直しました。
+・カレンダーの月表示を見やすくしました。大会までの日数も大きく出します。
 ・無料でお使いいただける範囲の説明を、実際の内容に合わせて書き直しました。
 ・端末のおまかせバックアップの扱いについて、ヘルプに明記しました。
 ```
@@ -176,7 +195,7 @@ Correções
 
 ```
 Receiving a schedule is easier
-- When a card arrives on LINE, just tap "See schedule" to import it.
+- When a card arrives on LINE, open the schedule from the button on it, check the contents and import.
 - Links now import directly.
 - If your dojo changed a single day, that update comes through on its own.
 
@@ -186,11 +205,10 @@ Schedule passphrase
 Fixes
 - School year was calculated one year early. Saved years are corrected too, but only those set automatically — years you edited by hand are left alone.
 - A match report could record a win with nothing entered.
-- The passcode lock could occasionally fail to engage. It now also locks when you return to the app.
-- If saved data could not be read, you could type into an empty app and lose it. A banner now stays up and you can export the recovered data.
+- When saved data cannot be read, a banner now stays up to say nothing is being saved, and you can export the unreadable data to keep it.
 - Sharing photos and files could fail silently.
-- Layout fixes: the lock screen in landscape, the save button hidden by the keyboard, and others.
-- Calendar months now read "November 2026", and the countdown to a tournament is larger.
+- Layout fixes, including the save button hidden by the keyboard.
+- Calendar months are easier to read, and the countdown to a tournament is larger.
 - The description of what you get for free now matches what the app actually offers.
 - The help text now explains how the device's automatic backup treats your data.
 ```
@@ -199,21 +217,20 @@ Fixes
 
 ```
 Recevoir un planning est plus simple
-- Quand une carte arrive sur LINE, un appui sur « Voir le planning » suffit pour l'importer.
+- Quand une carte arrive sur LINE, ouvrez le planning depuis son bouton, vérifiez le contenu et importez-le.
 - Les liens s'importent désormais directement.
 - Si votre dojo n'a modifié qu'une journée, cette mise à jour arrive seule.
 
-Mot de passe du planning
-- Enregistrez le mot de passe donné par votre dojo dans Réglages › Sécurité › Mot de passe du planning : les plannings chiffrés s'ouvrent aussitôt. Une seule saisie suffit.
+Mot de passe de l'agenda
+- Enregistrez le mot de passe donné par votre dojo dans Réglages › Sécurité › Mot de passe de l'agenda : les plannings chiffrés s'ouvrent aussitôt. Une seule saisie suffit.
 
 Corrections
 - L'année scolaire était calculée un an trop tôt. Les années enregistrées sont corrigées, mais uniquement celles calculées automatiquement : vos saisies manuelles restent intactes.
 - Un rapport de combat pouvait enregistrer une victoire alors que rien n'était saisi.
-- Le verrouillage par code pouvait, rarement, ne pas s'activer. Il s'active aussi au retour dans l'app.
-- Si les données enregistrées ne pouvaient pas être lues, vous pouviez saisir dans une app vide et tout perdre. Un bandeau reste affiché et vous pouvez exporter les données récupérées.
+- Lorsque les données enregistrées sont illisibles, un bandeau reste affiché pour signaler que rien n'est enregistré, et vous pouvez exporter les données illisibles afin de les conserver.
 - Le partage de photos et de fichiers pouvait échouer sans message.
-- Corrections d'affichage : écran de verrouillage en paysage, bouton d'enregistrement masqué par le clavier, et d'autres.
-- Les mois du calendrier s'affichent « novembre 2026 », et le compte à rebours avant une compétition est plus grand.
+- Corrections d'affichage, dont le bouton d'enregistrement masqué par le clavier.
+- Les mois du calendrier sont plus lisibles, et le compte à rebours avant une compétition est plus grand.
 - La description de ce qui est gratuit correspond maintenant à ce que l'app propose réellement.
 - L'aide explique désormais comment la sauvegarde automatique de l'appareil traite vos données.
 ```
@@ -222,21 +239,20 @@ Corrections
 
 ```
 Receber a agenda ficou mais fácil
-- Quando um cartão chega pelo LINE, basta tocar em "Ver agenda" para importar.
+- Quando um cartão chega pelo LINE, abra a agenda pelo botão dele, confira o conteúdo e importe.
 - Links agora importam direto.
 - Se o seu dojo alterou apenas um dia, essa atualização chega sozinha.
 
 Senha da agenda
-- Salve a senha que o seu dojo informou em Configurações › Segurança › Senha da agenda, e as agendas criptografadas abrem na hora. Basta digitar uma vez.
+- Salve a senha que o seu dojo informou em Ajustes › Segurança › Senha da agenda, e as agendas criptografadas abrem na hora. Basta digitar uma vez.
 
 Correções
 - O ano escolar era calculado um ano antes. Os anos já salvos também são corrigidos, mas só os definidos automaticamente — o que você editou à mão permanece.
 - Um relatório de luta podia registrar uma vitória sem nada preenchido.
-- O bloqueio por senha podia, raramente, não ser aplicado. Agora também bloqueia ao voltar para o app.
-- Se os dados salvos não pudessem ser lidos, você podia digitar em um app vazio e perder tudo. Um aviso permanece na tela e você pode exportar os dados recuperados.
+- Quando os dados salvos não podem ser lidos, um aviso permanece na tela informando que nada está sendo salvo, e você pode exportar os dados ilegíveis para guardá-los.
 - O compartilhamento de fotos e arquivos podia falhar sem aviso.
-- Ajustes de layout: tela de bloqueio na horizontal, botão de salvar escondido pelo teclado, entre outros.
-- Os meses do calendário aparecem como "novembro de 2026", e a contagem regressiva para a competição ficou maior.
+- Ajustes de layout, incluindo o botão de salvar escondido pelo teclado.
+- Os meses do calendário ficaram mais fáceis de ler, e a contagem regressiva para a competição ficou maior.
 - A descrição do que é gratuito agora corresponde ao que o app realmente oferece.
 - A ajuda explica como o backup automático do aparelho trata os seus dados.
 ```
@@ -247,16 +263,27 @@ Correções
 
 1. App Store Connect › 対象のアプリ › 左の「+ バージョンまたはプラットフォーム」で **1.3**（事務）／**1.4**（選手）を作る。
 2. 「このバージョンの新機能」に、上の **ja** を貼る。言語を切り替えて en-US・fr-FR・pt-BR も貼る。
-3. 「ビルド」で **1.3 (36)**（事務）／**1.4 (31)**（選手）を選ぶ。
+3. 「ビルド」で、**Codex の指摘を直したあとの新しいビルド**を選ぶ。
+   （事務 1.3 (36)／選手 1.4 (31) は、アプリ内プライバシーポリシーが改定前のままなので使わない。）
 4. 「App のプライバシー」を見直す（下記）。
 5. 「審査へ提出」。
 
-## 「App のプライバシー」で見直すところ
+## 「App のプライバシー」で確認すること
 
-今回 LINE 連携が入ったので、申告を確認しておく必要がある。
+**結論を先に決めない。**「アプリの中に LINE の SDK が入っていないから申告は変えなくてよい」とは**言えない**。
+Apple の基準は「実際に何を集め、何に使い、第三者がどう扱うか」であって、SDK の置き場所ではない。
+利用者が選んだときだけ動く機能であることも、申告を省く理由にはならない。
+参考：[Apple の申告基準](https://developer.apple.com/app-store/app-privacy-details/)
 
-- 本アプリの中に **LINE の SDK は入っていない**。「LINEでカードを送る」は、LINE アプリを URL で呼び出し、その先（LINE の中）で LINEヤフーの仕組みが動く形。
-  したがって **アプリが集める／アプリから第三者へ渡すデータが増えたわけではない**、というのが素直な読み方。
-- ただし、プライバシーポリシー（2026-11-20 改定）には「LINEヤフーが取得する情報と、広告の最適化を含む利用目的」を明記した。
-  **申告とポリシーが食い違っていないか**を、提出前に社長と一緒に見ること。
-- 既存の申告（RevenueCat まわり）は変更なしのはず。
+提出前に、社長と一緒に次を1つずつ確かめる。
+
+1. **現在 App Store Connect に入っている回答を、まず読む。**（今回のファイル点検では中身を確認できていない。）
+2. **LINE連携で何が出ていくか。**カードに載る道場名・対象の月・件数・ひとこと・予定表のリンク。
+   送信先は LINEヤフー株式会社。利用目的に**広告の最適化が含まれる**（LINE の同意文面のとおり）。
+   これが Apple のいう「Data Linked to You」「Third-Party Advertising」「Tracking」のどれに当たるかを判断する。
+   **LINE連携があるというだけで ATT（トラッキングの許可）が要る、とは決めつけない。**
+3. **RevenueCat の回答を照合する。**「変更なしのはず」で済ませない。
+   RevenueCat 自身の案内では、購入履歴について少なくとも「分析」「App の機能」の用途を指定するよう求めている。
+   参考：[RevenueCat の申告案内](https://www.revenuecat.com/docs/platform-resources/apple-platform-resources/apple-app-privacy)
+4. **公開中のプライバシーポリシーと、申告の内容が食い違っていないか。**
+   ポリシーは 2026-11-20 改定版（第4章に（ア）〜（オ）の送信経路を列挙）。
