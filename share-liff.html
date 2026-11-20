@@ -243,10 +243,17 @@
       h += '<div class="err" style="margin:0 0 14px"><b>このままでは送れません。</b><br>'
          + 'ブラウザで開かれています。下のボタンでLINEの中に入り直してください。</div>'
          + '<a class="btn" id="reopen" href="' + esc(liffUrl()) + '">📲 LINEで開き直す</a>'
-         + '<p class="hint" style="margin:-2px 2px 16px">開かないときは、上のボタンを<b>長押し</b>して'
+         + '<p class="hint" style="margin:-2px 2px 10px">開かないときは、上のボタンを<b>長押し</b>して'
          + '「LINEで開く」を選んでください。<br>'
          + 'それでも開かないときは <a href="' + esc(schemeUrl()) + '" id="reopen2">'
-         + 'こちらから開く</a> をお試しください。</p>';
+         + 'こちらから開く</a> をお試しください。</p>'
+         /* Edge など、LINE へ渡してくれないブラウザがある（実機で確認）。
+            そのときに確実なのは「LINEに貼ってタップする」。長いが一度きりで、
+            しかも貼るのは予定表そのものではなくこの画面を開くリンクなので、
+            トークに残るのはこの1本だけで済む。 */
+         + '<button class="btn ghost" id="cpliff">📋 LINEで開くリンクをコピー'
+         + '<small>LINEの「Keepメモ」に貼ってタップすると開きます</small></button>'
+         + '<div class="res" id="r3">　</div>';
     }
 
     h += '<p class="from">' + esc(D.team) + '</p>';
@@ -282,6 +289,19 @@
     document.getElementById('go').onclick = send;
     /* 「LINEで開き直す」は本物の <a href> なので、ここで onclick を付けてはいけない。
        JS で location.href に入れ直すと、iOS でユニバーサルリンクが効かなくなる。 */
+    var cl = document.getElementById('cpliff');
+    if(cl) cl.onclick = function(){
+      var el = document.getElementById('r3');
+      var u = liffUrl();
+      var done = function(){ el.className = 'res ok';
+        el.textContent = '✅ コピーしました。LINEを開いて、自分あての「Keepメモ」に貼り付けて送り、'
+                       + 'その文字をタップしてください。この画面がLINEの中で開きます。'; };
+      var ng = function(){ el.className = 'res ng';
+        el.textContent = 'コピーできませんでした。下の文字を長押しで選んでコピーしてください。\n\n' + u; };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(u).then(done, ng);
+      } else { ng(); }
+    };
     document.getElementById('cp').onclick = function(){
       var el = document.getElementById('r2');
       var done = function(){ el.className = 'res ok'; el.textContent = '✅ コピーしました。LINEに貼って送ってください。'; };

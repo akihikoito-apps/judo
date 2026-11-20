@@ -25,6 +25,11 @@
 
    (5) LIFF の登録が済むまでボタンを出さないこと（押しても失敗するだけ）。
 
+   (7) アプリ版が line:// で LINE を直接開くこと。
+       https の LIFF URL だと iOS のユニバーサルリンクの判定にゆだねられ、効かないと
+       既定のブラウザが開いてしまう（実機で踏んだ。既定が Edge だと長押ししても
+       「LINEで開く」が出ず、手の打ちようがない）。
+
    (6) 受け側が3経路（hash / liff.state / query）から読むこと。
        LIFF の起動で # が残るかは実機で確かめるまで分からないため、
        どれで届いても動くようにしてある。1つでも落ちると実機で詰まる。
@@ -35,6 +40,7 @@
            node tests/liff-share.test.js --mutate=query  … 予定データをクエリで渡す（失敗するのが正しい）
            node tests/liff-share.test.js --mutate=origin … 飛び先の確かめを外す（失敗するのが正しい）
            node tests/liff-share.test.js --mutate=gate   … 未登録でもボタンを出す（失敗するのが正しい）
+           node tests/liff-share.test.js --mutate=scheme … アプリ版を https に戻す（失敗するのが正しい）
    build.js の最後からも run() が呼ばれる。 */
 const fs = require('fs');
 const path = require('path');
@@ -42,7 +48,8 @@ const ROOT = path.join(__dirname, '..');
 
 const GUARD_LINK = 'if(!ssPlainGuard(r,ssSendLink))return;';
 const GUARD_CARD = 'if(!ssPlainGuard(r,ssSendCard))return;';
-const HASH_PASS = "const to='https://liff.line.me/'+LIFF_SHARE_ID+'#'+q;";
+const HASH_PASS = "const web='https://liff.line.me/'+LIFF_SHARE_ID+'#'+q;";
+const SCHEME_PASS = "const app='line://app/'+LIFF_SHARE_ID+'#'+q;";
 const ORIGIN_CHECK = "if(!/^https:\\/\\/akihikoito-apps\\.github\\.io\\/judo\\//.test(D.url)){";
 const GATE = 'const showCard=liffShareReady();';
 
@@ -69,8 +76,13 @@ function run(src, opts) {
     page = page.replace("altText:'【'", "altText:D.url+'【'");
   }
   if (opts.mutate === 'query') {
-    if (index.indexOf(HASH_PASS) < 0) throw new Error('mutate=query の置き換え先が見つかりません');
-    index = index.replace(HASH_PASS, "const to='https://liff.line.me/'+LIFF_SHARE_ID+'?'+q;");
+    if (index.indexOf(SCHEME_PASS) < 0) throw new Error('mutate=query の置き換え先が見つかりません');
+    index = index.replace(SCHEME_PASS, "const app='line://app/'+LIFF_SHARE_ID+'?'+q;");
+  }
+  if (opts.mutate === 'scheme') {
+    if (index.indexOf(SCHEME_PASS) < 0) throw new Error('mutate=scheme の置き換え先が見つかりません');
+    // アプリ版を v319 の https に戻す（＝実機で既定のブラウザが開いてしまう形）
+    index = index.replace(SCHEME_PASS, "const app='https://liff.line.me/'+LIFF_SHARE_ID+'#'+q;");
   }
   if (opts.mutate === 'origin') {
     if (page.indexOf(ORIGIN_CHECK) < 0) throw new Error('mutate=origin の置き換え先が見つかりません');
@@ -101,10 +113,22 @@ function run(src, opts) {
   ok(index.indexOf(HASH_PASS) >= 0, '予定データを # で渡している（どのサーバーにも渡らない）');
   ok(index.indexOf("'u='+encodeURIComponent(r.url)") >= 0, '予定表のリンクを u= で渡す');
 
-  // アプリ版は location.href で OS に渡す（Android は window.open が塞がれていることがある）
-  ok(index.indexOf('  if(isNativeApp()){\n    try{ location.href=to; return; }catch(e){}\n  }') >= 0,
-     'アプリ版は location.href で OS に渡す（Androidでも LINE が開く）');
-  ok(index.indexOf("w=window.open(to,'_blank');") >= 0, 'Web版は別タブで開く');
+  /* (7) アプリ版はカスタムURLスキームで LINE を直接開く --------------------
+     v319 は https の LIFF URL を渡していたが、実機（iPhone）で LINE ではなく
+     既定のブラウザが開いた。Capacitor は外部URLを canOpenURL も通さず
+     UIApplication.shared.open(url, options: [:]) に素通しするだけなので、
+     https だと「ユニバーサルリンクが効くかどうか」次第になる。しかも社長の端末の
+     既定ブラウザは Safari ではなく Edge で、長押ししても「LINEで開く」が出ない。
+     スキームなら iOS がスキームから直接 LINE を引くので、判定に左右されない。 */
+  ok(index.indexOf(SCHEME_PASS) >= 0,
+     'アプリ版はカスタムURLスキームで LINE を直接開く（既定ブラウザに逃げない）');
+  ok(index.indexOf('try{ location.href=app; }catch(e){}') >= 0,
+     'アプリ版はスキームのURLへ出す');
+  ok(index.indexOf('ssCardWatch(web);') >= 0,
+     'スキームで出したあと、開けたかどうかを見張る');
+  ok(index.indexOf("if(document.visibilityState!=='visible')return;") >= 0,
+     'LINE に移れたときは余計な案内を出さない');
+  ok(index.indexOf("w=window.open(web,'_blank');") >= 0, 'Web版は別タブで開く');
 
   /* (5) 未登録のうちは出さない -------------------------------------------- */
   ok(index.indexOf("const LIFF_SHARE_ID='LIFF_ID_PENDING';") >= 0 ||
@@ -118,7 +142,10 @@ function run(src, opts) {
   /* 文言が辞書にある（英仏葡で日本語のまま出ない） ------------------------ */
   ['💬 LINEでカードを送る', '長いURLが出ません',
    'LINEが開きます。送る相手を選ぶと、ボタンだけのカードが届きます。',
-   'LINEを開けませんでした。「リンクで送る」をお使いください。'].forEach((k) => {
+   'LINEを開けませんでした。「リンクで送る」をお使いください。',
+   'LINEが開きませんでした。',
+   '別の開き方を試します。これでも開かないときは「リンクで送る」をお使いください。',
+   '別の方法で開く'].forEach((k) => {
     ok(index.indexOf("  '" + k + "':{en:") >= 0, '辞書にある: ' + k);
   });
 
@@ -172,7 +199,7 @@ function run(src, opts) {
   return fail === 0;
 }
 
-module.exports = { run, mutations: ['guard', 'alttext', 'query', 'origin', 'gate'] };
+module.exports = { run, mutations: ['guard', 'alttext', 'query', 'origin', 'gate', 'scheme'] };
 
 if (require.main === module) {
   const m = (process.argv.find((a) => a.startsWith('--mutate=')) || '').split('=')[1];

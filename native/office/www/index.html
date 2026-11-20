@@ -5604,7 +5604,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v319'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v320'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -6547,6 +6547,9 @@ Object.assign(DICT,{
   '長いURLが出ません':{en:'No long link in the message',fr:'Pas de lien interminable dans le message',pt:'Sem link longo na mensagem'},
   'LINEが開きます。送る相手を選ぶと、ボタンだけのカードが届きます。':{en:'LINE opens. Pick who to send to, and they receive a card with just a button.',fr:'LINE s’ouvre. Choisissez les destinataires : ils reçoivent une carte avec un simple bouton.',pt:'O LINE abre. Escolha para quem enviar e eles recebem um cartão com só um botão.'},
   'LINEを開けませんでした。「リンクで送る」をお使いください。':{en:'Could not open LINE. Please use “Send a link” instead.',fr:'Impossible d’ouvrir LINE. Utilisez « Envoyer un lien ».',pt:'Não foi possível abrir o LINE. Use “Enviar um link”.'},
+  'LINEが開きませんでした。':{en:'LINE did not open.',fr:"LINE ne s'est pas ouvert.",pt:'O LINE nao abriu.'},
+  '別の開き方を試します。これでも開かないときは「リンクで送る」をお使いください。':{en:'We will try another way. If it still does not open, use Send as link.',fr:"Nous allons essayer autrement. Si cela ne s'ouvre toujours pas, utilisez Envoyer le lien.",pt:'Vamos tentar de outra forma. Se ainda nao abrir, use Enviar link.'},
+  '別の方法で開く':{en:'Try another way',fr:'Essayer autrement',pt:'Tentar de outra forma'},
   'この端末は直接シェア非対応のため画像を保存しました。':{en:'This device can’t share directly, so the image was saved.',fr:'Partage direct non pris en charge : l’image a été enregistrée.',pt:'Este aparelho não compartilha direto; a imagem foi salva.'},
   '画像を保存':{en:'Save image',fr:'Enregistrer l’image',pt:'Salvar imagem'},
   '画像を長押しして「写真に保存」を選んでください。':{en:'Press and hold the image, then choose “Save to Photos”.',fr:'Appuyez longuement sur l’image, puis choisissez « Enregistrer dans Photos ».',pt:'Toque e segure a imagem e escolha “Salvar em Fotos”.'},
@@ -13722,18 +13725,42 @@ async function ssSendCard(){
          +'&ym='+encodeURIComponent(r.ym)
          +'&c='+encodeURIComponent(String(r.count))
          +(r.msg?('&g='+encodeURIComponent(r.msg)):'');
-  const to='https://liff.line.me/'+LIFF_SHARE_ID+'#'+q;
-  /* v319: LINE のアプリへ渡す道が、プラットフォームで違う。
-     アプリ版（iOS/Android）は location.href で出す。Capacitor は自分のホスト以外への
-     移動を横取りして OS に渡すため、WebView は動かず、OS が LINE を開く。
-     Android の WebView は window.open が塞がれていることがあるので、こちらが確実。
+  const web='https://liff.line.me/'+LIFF_SHARE_ID+'#'+q;
+  /* v320: アプリ版は https ではなく line:// で渡す。
+     v319 は https の LIFF URL を渡していたが、実機（iPhone）で LINE ではなく
+     既定のブラウザが開いた。Capacitor は自分のホスト以外への移動を横取りして
+     UIApplication.shared.open(url, options: [:]) に素通しするだけで、
+     https の場合そこから先は iOS のユニバーサルリンクの判定にゆだねられる。
+     これが効かないと既定のブラウザが開く。しかも社長の端末の既定は Safari では
+     なく Edge で、長押ししても「LINEで開く」が出ず、手の打ちようがなかった。
+     カスタムURLスキームなら iOS がスキームから直接 LINE を引くので、判定に
+     左右されない。Capacitor は canOpenURL を通さないので、確実に OS まで届く。
+     line://app/{liffId} は LINE 公式が「非推奨」としている LIFF v1 の形だが、
+     「line:// を廃止する時期は未定です」とも明記されており、今は動く。
      Web版（ブラウザ）は別タブで開く（location.href だと予定の画面から出てしまう）。 */
   if(isNativeApp()){
-    try{ location.href=to; return; }catch(e){}
+    const app='line://app/'+LIFF_SHARE_ID+'#'+q;
+    try{ location.href=app; }catch(e){}
+    ssCardWatch(web);
+    return;
   }
   let w=null;
-  try{ w=window.open(to,'_blank'); }catch(e){}
+  try{ w=window.open(web,'_blank'); }catch(e){}
   if(!w){ toast(T('LINEを開けませんでした。「リンクで送る」をお使いください。')); }
+}
+/* LINE に移れたかどうかを、画面が隠れたかで見る。
+   移れていればここは何もしない。移れていないときだけ、別の開き方を出す。
+   iOS は「"LINE"を開きますか？」を一度はさむので、短く待つと空振りする。 */
+let _ssCardTimer=null;
+function ssCardWatch(web){
+  if(_ssCardTimer){ clearTimeout(_ssCardTimer); _ssCardTimer=null; }
+  _ssCardTimer=setTimeout(()=>{
+    _ssCardTimer=null;
+    if(document.visibilityState!=='visible')return;
+    askConfirm('<b>'+T('LINEが開きませんでした。')+'</b><br>'
+      +T('別の開き方を試します。これでも開かないときは「リンクで送る」をお使いください。'),
+      ()=>{ try{ location.href=web; }catch(e){} }, T('別の方法で開く'), T('確認'));
+  },4000);
 }
 function ssMsgText(){ return (DB.ssMsg||'').trim(); }
 let _ssMsgTimer=null;
