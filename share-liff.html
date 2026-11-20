@@ -352,41 +352,110 @@
     });
   }
 
+  /* ---- 予定をコピー（クリップボード）から受け取る ------------------------
+     line://app/{liffId} は LINE を確実に開くが、URLフラグメント（#）を落とす。
+     実機で確認した（届いた経路：none／URLの長さ：0文字／LINEの中か：はい）。
+     クエリ（?）に移せば届くが、そのときは予定の中身が LINE と GitHub の
+     サーバーを通ってしまい、「中身はどのサーバーにも渡らない」という
+     このアプリの前提が崩れる。合言葉なしで送られた月は氏名が平文で通る。
+     だから URL には載せず、アプリが LINE を開く直前にクリップボードへ写す。
+     ここで読み出せば、どのサーバーも通らずに受け取れる。 */
+  var CLIP_TAG = 'myjudo-sched:v1:';
+
+  function applyQuery(q){
+    var o = parseQS(String(q || ''));
+    if(!o.u) return false;
+    D.url   = o.u;
+    D.team  = o.t  || '道場';
+    D.ym    = o.ym || '';
+    D.count = o.c  || '0';
+    D.msg   = o.g  || '';
+    SRC.how = 'clipboard';
+    return true;
+  }
+
+  function askPaste(){
+    W.innerHTML =
+        '<div class="err" style="margin:0 0 14px"><b>あと1回だけタップしてください。</b><br>'
+      + 'LINEは開きました。予定の中身は、アプリからコピーで渡してあります。</div>'
+      + '<button class="btn gold" id="pst">📋 予定を読み込む'
+      + '<small>「ペーストを許可しますか」と出たら、許可してください</small></button>'
+      + '<div class="res" id="rp">　</div>'
+      + '<details id="man"><summary>読み込めないときは</summary>'
+      + '<p>下の枠を長押しして「ペースト」を選び、「読み込む」を押してください。</p>'
+      + '<textarea id="ta" rows="3" style="width:100%;font-size:13px;font-family:inherit;'
+      + 'border:2px solid var(--navy);border-radius:9px;padding:9px;box-sizing:border-box"></textarea>'
+      + '<button class="btn ghost" id="pst2">読み込む</button></details>'
+      + debugBlock();
+
+    var rp  = document.getElementById('rp');
+    var man = document.getElementById('man');
+    var take = function(text){
+      var t = String(text || '');
+      var i = t.indexOf(CLIP_TAG);
+      if(i < 0 || !applyQuery(t.slice(i + CLIP_TAG.length))){
+        rp.className = 'res ng';
+        rp.textContent = '予定が見つかりませんでした。My柔道（事務）の「予定を共有」から'
+                       + '「LINEでカードを送る」を、もう一度押してください。';
+        man.open = true;
+        return;
+      }
+      start();
+    };
+    document.getElementById('pst').onclick = function(){
+      if(navigator.clipboard && navigator.clipboard.readText){
+        navigator.clipboard.readText().then(take, function(){
+          rp.className = 'res ng';
+          rp.textContent = '読み込めませんでした。下の「読み込めないときは」をお使いください。';
+          man.open = true;
+        });
+      } else {
+        man.open = true;
+      }
+    };
+    document.getElementById('pst2').onclick = function(){
+      take(document.getElementById('ta').value);
+    };
+  }
+
   /* ---- 起動 --------------------------------------------------------------- */
-  if(SRC.how === 'none' || !D.url){
-    fail('<b>予定が渡されていません。</b><br>'
-      + 'My柔道（事務）の「予定を共有」から、'
-      + '「LINEでカードを送る」を押して開き直してください。');
-    return;
-  }
-  if(!/^https:\/\/akihikoito-apps\.github\.io\/judo\//.test(D.url)){
-    // 知らない飛び先をボタンに仕込まない（このページに別のURLを運ばせない）
-    fail('<b>リンクの形が違います。</b><br>'
-      + 'My柔道（事務）から開き直してください。');
-    return;
-  }
-  if(LIFF_ID === 'LIFF_ID_PENDING'){
-    fail('<b>まだ準備中です。</b><br>'
-      + 'このページはLINEの設定（LIFFアプリの登録）が終わってから使えます。'
-      + '<br><br>リンクは下からコピーできます。'
-      + '<pre>' + esc(D.url) + '</pre>');
-    return;
-  }
+  var _inited = false;
 
-  if(typeof liff === 'undefined'){
-    fail('<b>LINEの部品を読み込めませんでした。</b><br>'
-      + '通信の状態を確かめて、開き直してください。');
-    return;
-  }
-
-  liff.init({ liffId: LIFF_ID })
-    .then(function(){ render(); })
-    .catch(function(e){
-      var m = ''; try{ m = String((e && (e.message || e.code)) || ''); }catch(_){}
-      fail('<b>LINEとつながりませんでした。</b>' + (m ? '<br>（' + esc(m) + '）' : '')
-        + '<br><br>予定表のリンクは下からコピーできます。'
+  function start(){
+    if(!D.url){ askPaste(); return; }
+    if(!/^https:\/\/akihikoito-apps\.github\.io\/judo\//.test(D.url)){
+      // 知らない飛び先をボタンに仕込まない（このページに別のURLを運ばせない）。
+      // クリップボードから読んだ中身も、ここを必ず通す。
+      fail('<b>リンクの形が違います。</b><br>'
+        + 'My柔道（事務）から開き直してください。');
+      return;
+    }
+    if(LIFF_ID === 'LIFF_ID_PENDING'){
+      fail('<b>まだ準備中です。</b><br>'
+        + 'このページはLINEの設定（LIFFアプリの登録）が終わってから使えます。'
+        + '<br><br>リンクは下からコピーできます。'
         + '<pre>' + esc(D.url) + '</pre>');
-    });
+      return;
+    }
+    if(typeof liff === 'undefined'){
+      fail('<b>LINEの部品を読み込めませんでした。</b><br>'
+        + '通信の状態を確かめて、開き直してください。');
+      return;
+    }
+    if(_inited){ render(); return; }
+    _inited = true;
+    liff.init({ liffId: LIFF_ID })
+      .then(function(){ render(); })
+      .catch(function(e){
+        var m = ''; try{ m = String((e && (e.message || e.code)) || ''); }catch(_){}
+        _inited = false;
+        fail('<b>LINEとつながりませんでした。</b>' + (m ? '<br>（' + esc(m) + '）' : '')
+          + '<br><br>予定表のリンクは下からコピーできます。'
+          + '<pre>' + esc(D.url) + '</pre>');
+      });
+  }
+
+  start();
 })();
 </script>
 </body>

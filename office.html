@@ -5604,7 +5604,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v320'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v321'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='office'; // 'suite' | 'personal' | 'office'
@@ -13739,6 +13739,15 @@ async function ssSendCard(){
      「line:// を廃止する時期は未定です」とも明記されており、今は動く。
      Web版（ブラウザ）は別タブで開く（location.href だと予定の画面から出てしまう）。 */
   if(isNativeApp()){
+    /* v321: line://app/ は LINE を確実に開くが、URLフラグメント（#）を落とす。
+       実機で確認した（LINEの中か：はい／届いた経路：none／URLの長さ：0文字）。
+       クエリ（?）に移せば届くが、そのときは予定の中身が LINE と GitHub の
+       サーバーを通る。「中身はどのサーバーにも渡らない」という前提が崩れるし、
+       合言葉なしで送られた月は氏名が平文でサーバーの記録に残ってしまう。
+       だから URL には載せず、開く直前にクリップボードへ写して渡す。
+       受け側（share-liff.html）が「予定を読み込む」で読み出す。
+       # も付けたままにしておく。将来 LINE が残すようになれば、貼り付けは不要になる。 */
+    try{ await navigator.clipboard.writeText('myjudo-sched:v1:'+q); }catch(e){}
     const app='line://app/'+LIFF_SHARE_ID+'#'+q;
     try{ location.href=app; }catch(e){}
     ssCardWatch(web);

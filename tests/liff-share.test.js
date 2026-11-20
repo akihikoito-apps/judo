@@ -41,6 +41,7 @@
            node tests/liff-share.test.js --mutate=origin … 飛び先の確かめを外す（失敗するのが正しい）
            node tests/liff-share.test.js --mutate=gate   … 未登録でもボタンを出す（失敗するのが正しい）
            node tests/liff-share.test.js --mutate=scheme … アプリ版を https に戻す（失敗するのが正しい）
+           node tests/liff-share.test.js --mutate=clip   … クリップボード渡しをやめる（失敗するのが正しい）
    build.js の最後からも run() が呼ばれる。 */
 const fs = require('fs');
 const path = require('path');
@@ -78,6 +79,12 @@ function run(src, opts) {
   if (opts.mutate === 'query') {
     if (index.indexOf(SCHEME_PASS) < 0) throw new Error('mutate=query の置き換え先が見つかりません');
     index = index.replace(SCHEME_PASS, "const app='line://app/'+LIFF_SHARE_ID+'?'+q;");
+  }
+  if (opts.mutate === 'clip') {
+    const CLIP = "navigator.clipboard.writeText('myjudo-sched:v1:'+q)";
+    if (index.indexOf(CLIP) < 0) throw new Error('mutate=clip の置き換え先が見つかりません');
+    // クリップボードをやめる（＝URLに載せるしか道がなくなる）
+    index = index.replace(CLIP, 'void 0');
   }
   if (opts.mutate === 'scheme') {
     if (index.indexOf(SCHEME_PASS) < 0) throw new Error('mutate=scheme の置き換え先が見つかりません');
@@ -129,6 +136,25 @@ function run(src, opts) {
   ok(index.indexOf("if(document.visibilityState!=='visible')return;") >= 0,
      'LINE に移れたときは余計な案内を出さない');
   ok(index.indexOf("w=window.open(web,'_blank');") >= 0, 'Web版は別タブで開く');
+
+  /* (8) 予定の中身を URL に載せずに渡す ------------------------------------
+     line:// は # を落とすので、クエリに移したくなる。だがクエリに移すと
+     予定の中身が LINE と GitHub のサーバーを通る。合言葉なしの月は氏名が
+     平文でサーバーの記録に残る。だからクリップボードで渡している。
+     ここが崩れたら、その事故に気づけない。 */
+  ok(index.indexOf("navigator.clipboard.writeText('myjudo-sched:v1:'+q)") >= 0,
+     'LINEを開く直前に、予定をクリップボードへ写している');
+  ok(page.indexOf("var CLIP_TAG = 'myjudo-sched:v1:';") >= 0,
+     '受け側が同じ合図でクリップボードを読む');
+  ok(page.indexOf('navigator.clipboard.readText()') >= 0, '受け側に読み出す道がある');
+  ok(page.indexOf("take(document.getElementById('ta').value);") >= 0,
+     '自動で読めないときに、手で貼り付ける道がある');
+  // クリップボードから読んだ中身も、必ず飛び先の確かめを通ること
+  const si = page.indexOf('function start(){');
+  const pi = page.indexOf('function applyQuery(q){');
+  const sBody = si >= 0 ? page.slice(si, page.indexOf('start();', si)) : '';
+  ok(pi >= 0 && sBody.indexOf('.test(D.url)') >= 0,
+     'クリップボードから読んだ中身も、飛び先の確かめを通る');
 
   /* (5) 未登録のうちは出さない -------------------------------------------- */
   ok(index.indexOf("const LIFF_SHARE_ID='LIFF_ID_PENDING';") >= 0 ||
@@ -199,7 +225,7 @@ function run(src, opts) {
   return fail === 0;
 }
 
-module.exports = { run, mutations: ['guard', 'alttext', 'query', 'origin', 'gate', 'scheme'] };
+module.exports = { run, mutations: ['guard', 'alttext', 'query', 'origin', 'gate', 'scheme', 'clip'] };
 
 if (require.main === module) {
   const m = (process.argv.find((a) => a.startsWith('--mutate=')) || '').split('=')[1];
