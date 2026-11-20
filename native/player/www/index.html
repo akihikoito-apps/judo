@@ -72,7 +72,9 @@
   /* v323: 予定の送り方を4つ並べる（LINE／リンク／文字／QRコード）。
      以前は縦に1つずつ積んで、それぞれの下に説明文を敷いていた。見比べられず、
      説明文が「おすすめ」「これまでどおり」など、初めての人には意味の分からない
-     言い回しになっていた。横に並べて、説明はボタンの中に短く入れる。 */
+     言い回しになっていた。横に並べて、説明はボタンの中に短く入れる。
+     v324: 4つとも同じ色（gold）にする。色を分けると、薄い方が「おまけ」に見えて
+     しまい、どれを選んでもよいことが伝わらない。4つは対等な選択肢。 */
   .ss-ways{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 2px;}
   .ss-ways>.btn{flex-direction:column;gap:3px;min-height:78px;padding:12px 8px;text-align:center;}
   .ss-ways>.btn>b{font-size:calc(17px*var(--fs,1));font-weight:800;line-height:1.2;}
@@ -2440,8 +2442,8 @@ function applyUpdate(){
       <!-- v319: LINEへ「ボタンだけのカード」で送る。LIFFの登録が済むまでは出さない（liffShareReady）-->
       <button class="btn gold" id="ssCardBtn" style="display:none" onclick="ssSendCard()"><b>💬 LINE</b><small>カードで届きます</small></button>
       <button class="btn gold" onclick="ssSendLink()"><b>🔗 リンク</b><small>アプリが無い人も見られます</small></button>
-      <button class="btn ghost" onclick="ssSend()"><b>📝 文字</b><small>予定を文章で送ります</small></button>
-      <button class="btn ghost" id="ssQrBtn" onclick="ssShowQr()"><b id="ssQrLbl">📷 QRコード</b><small>その場で読み取ります</small></button>
+      <button class="btn gold" onclick="ssSend()"><b>📝 文字</b><small>予定を文章で送ります</small></button>
+      <button class="btn gold" id="ssQrBtn" onclick="ssShowQr()"><b id="ssQrLbl">📷 QRコード</b><small>その場で読み取ります</small></button>
     </div>
     <div id="ssQrBox" style="margin-top:10px;text-align:center"></div>
     <div class="row" style="margin-top:12px"><button class="btn ghost full" onclick="closeModal('schedShareModal')">とじる</button></div>
@@ -5615,7 +5617,7 @@ var qrcode = function() {
 </script>
 <script>
 const STORE_KEY='judoTeamApp_v2';
-const APP_VERSION='v323'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
+const APP_VERSION='v324'; // アプリ表示用バージョン（sw.js の VERSION と揃える）
 // v166: 1ソース→2ビルドの土台。'suite'=両モード（マスター/道場配布）。build.js が
 //       この値を 'personal'（個人専用アプリ）に置換して personal.html を生成する。
 const APP_EDITION='personal'; // 'suite' | 'personal' | 'office'
