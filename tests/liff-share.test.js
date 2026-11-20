@@ -153,7 +153,14 @@ function run(src, opts) {
   ok(page.indexOf('リンクをコピー') >= 0, 'カードで送れないときの逃げ道がある');
   // 外部ブラウザで開かれたら、LINE の中へ入り直せる（SSOのログイン画面を避ける）
   ok(page.indexOf('inClient = liff.isInClient();') >= 0, 'LINEの中かどうかを見ている');
-  ok(page.indexOf("location.href = liffUrl();") >= 0, 'LINEで開き直せる');
+  // LINE 公式（2026-05-07）：iOS は「JSによる自動リダイレクトではなく、ユーザーのタップで」
+  // 始めないとユニバーサルリンクが効かず、ブラウザに留まる。実機でこれを踏んだ。
+  ok(page.indexOf('id="reopen" href="') >= 0,
+     'LINEで開き直すのは本物の <a href>（タップでないと iOS で効かない）');
+  ok(page.indexOf('location.href = liffUrl()') < 0,
+     '開き直しを JS の自動遷移でやっていない');
+  ok(page.indexOf('function schemeUrl()') >= 0 && page.indexOf("'line://app/' + LIFF_ID") >= 0,
+     'ユニバーサルリンクが効かない端末向けの逃げ道（line://app/）がある');
 
   /* 受け取り側の道は1つも変えていない ------------------------------------ */
   ok(index.indexOf("return {url:SHARE_PAGE+'#'+frag,") >= 0,
