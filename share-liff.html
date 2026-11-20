@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>予定をカードで送る｜My柔道</title>
+<style>
+  :root{ --navy:#1a2b4a; --gold:#c8a44d; --red:#c0392b; --green:#2f6b46;
+         --ink:#222; --sub:#5e6473; --line:#e2ddd3; --bg:#f5f2ea; --card:#fff; --shade:#eceae4; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.8;
+       font-family:'Hiragino Sans','Yu Gothic UI','Meiryo',sans-serif;
+       padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);}
+  .wrap{max-width:580px;margin:0 auto;padding:20px 18px 60px}
+  .from{font-size:13px;color:var(--sub);margin:0 0 2px}
+  h1{font-size:23px;line-height:1.35;margin:0 0 4px;color:var(--navy)}
+  .cnt{font-size:14px;color:var(--sub);margin:0 0 18px}
+  h2{font-size:16px;margin:26px 0 8px;color:var(--navy);border-left:4px solid var(--red);padding-left:11px}
+  p{margin:0 0 13px;font-size:14.5px}
+  .btn{display:block;width:100%;min-height:58px;margin:11px 0;padding:14px 16px;
+       font-family:inherit;font-size:17px;font-weight:700;line-height:1.35;
+       border:none;border-radius:12px;background:var(--navy);color:#fff;cursor:pointer;text-align:center}
+  .btn.gold{background:var(--gold);color:#3a2e00}
+  .btn.ghost{background:var(--card);color:var(--navy);border:2px solid var(--navy)}
+  .btn:active{opacity:.75}
+  .btn:disabled{opacity:.45}
+  .btn small{display:block;font-weight:500;font-size:12px;opacity:.9;margin-top:3px}
+  .res{margin:6px 0 0;padding:11px 13px;border-radius:9px;background:#eef1f6;
+       font-size:13.5px;white-space:pre-wrap;word-break:break-all}
+  .res.ok{background:#e8f4ea}
+  .res.ng{background:#fbeceb}
+  .err{background:#fbeceb;border:1px solid var(--red);border-radius:11px;padding:16px;font-size:15px}
+  .hint{font-size:13px;color:var(--sub)}
+  details{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px 15px;margin:16px 0}
+  summary{font-size:14.5px;font-weight:700;color:var(--navy);cursor:pointer}
+  details p{margin:11px 0 0;font-size:14px}
+  pre{background:var(--shade);padding:11px;border-radius:8px;font-size:12px;
+      white-space:pre-wrap;word-break:break-all;margin:8px 0 0;max-height:40vh;overflow:auto}
+
+  /* 送られるカードの見本（LINEのFlex Messageを模したもの） */
+  .peek{margin:0 0 6px}
+  .peek .bub{max-width:260px;background:#fff;border-radius:11px;overflow:hidden;
+             box-shadow:0 1px 4px rgba(0,0,0,.18)}
+  .peek .hd{background:var(--navy);padding:17px 14px;text-align:center}
+  .peek .hd .k{font-size:26px;font-weight:800;line-height:1;color:#f0e2b8;font-variant-numeric:tabular-nums}
+  .peek .hd .s{font-size:11.5px;color:var(--gold);margin-top:5px;letter-spacing:.06em}
+  .peek .bd{padding:12px 13px 13px}
+  .peek .bd .t{font-size:14px;font-weight:700;line-height:1.45;color:#222}
+  .peek .bd .c{font-size:12.5px;color:#5e6473;margin-top:2px}
+  .peek .bd .g{font-size:12.5px;color:#222;margin-top:5px;line-height:1.6;word-break:break-word}
+  .peek .ft{padding:0 13px 13px}
+  .peek .ft .b{display:block;text-align:center;background:var(--gold);color:#3a2e00;
+               font-size:13.5px;font-weight:700;padding:10px;border-radius:7px}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="wrap">
+  <p class="hint" id="loading">読み込んでいます…</p>
+</div>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  /* ===========================================================================
+     予定表を「ボタンだけのカード」としてLINEへ送るページ。
+
+     なぜこのページが要るのか：
+       予定表のリンクは中身をすべて抱えているため683〜850文字ある。
+       LINEの通常メッセージは「表示する文字」と「飛び先」を分けられないので、
+       そのまま送るとトーク画面がURLで埋まる。
+       liff.shareTargetPicker() を使うと、ボタンにURLを仕込んだカードを
+       本人の名前で送れる。URLは1文字も表示されない。
+
+     なぜ「LINEの中」で開くのか：
+       外部ブラウザでピッカーを出すにはSSOのログインセッションが必要で、
+       LINE公式は「自動ログインではSSOセッションが発行されず、
+       メールアドレスのログイン画面が出ることがある」としている。
+       LINEの中（LIFFブラウザ）なら、すでにログイン済みなので何も聞かれない。
+
+     予定データの渡し方：
+       URLの # 以降はどのサーバーにも送られない。だから本来はそこに載せたい。
+       ただしLIFFの起動でそれが残るかは実機で確かめる必要がある
+       （LINE公式の説明では、追加情報は liff.state というクエリにまとめられる）。
+       そこで3つの経路すべてから読み、どれで届いたかを控える。
+       - hash      … # のまま届いた（LINEにもGitHubにも暗号文が渡っていない）
+       - liff.state… LINEがクエリにまとめ直した
+       - query     … 素のクエリで届いた
+       どの経路でも中身は合言葉で包まれているので、LINEもGitHubも読めない。
+     =========================================================================== */
+
+  var LIFF_ID = 'LIFF_ID_PENDING';   // LINE Developers でLIFFアプリを作ったら差し替える
+
+  var W = document.getElementById('wrap');
+  var esc = function(s){ return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+
+  /* ---- 届いた情報を取り出す ---------------------------------------------- */
+  function parseQS(s){
+    var o = {};
+    String(s||'').replace(/^[?#]/,'').split('&').forEach(function(kv){
+      if(!kv) return;
+      var i = kv.indexOf('=');
+      var k = i<0 ? kv : kv.slice(0,i);
+      var v = i<0 ? '' : kv.slice(i+1);
+      try{ o[decodeURIComponent(k)] = decodeURIComponent(v.replace(/\+/g,' ')); }
+      catch(e){ o[k] = v; }
+    });
+    return o;
+  }
+  function pickSource(){
+    // 1) # のまま残っていれば、それがいちばん望ましい
+    var h = parseQS(location.hash);
+    if(h.u) return {how:'hash', q:h};
+    // 2) LINEが liff.state にまとめた場合
+    var q = parseQS(location.search);
+    if(q['liff.state']){
+      var st = parseQS(q['liff.state']);
+      if(st.u) return {how:'liff.state', q:st};
+      // liff.state の中に # が入っていることがある
+      var hi = String(q['liff.state']).indexOf('#');
+      if(hi >= 0){
+        var inner = parseQS(String(q['liff.state']).slice(hi));
+        if(inner.u) return {how:'liff.state#', q:inner};
+      }
+    }
+    // 3) 素のクエリ
+    if(q.u) return {how:'query', q:q};
+    return {how:'none', q:{}};
+  }
+
+  var SRC = pickSource();
+  var Q = SRC.q;
+  var DEBUG = /(^|[?&#])debug=1(&|$)/.test(location.search + location.hash);
+
+  var D = {
+    url:   Q.u || '',                         // s.html の完全なURL（予定の中身を抱えている）
+    team:  Q.t || '道場',                     // 送り主（道場名）
+    ym:    Q.ym || '',                        // 2026-12
+    count: Q.c || '0',
+    msg:   Q.g || ''
+  };
+
+  function ymParts(){
+    var m = /^(\d{4})-(\d{2})$/.exec(D.ym);
+    if(!m) return {y:'', m:'', label:''};
+    return {y:m[1], m:String(Number(m[2])), label:m[1]+'年'+String(Number(m[2]))+'月'};
+  }
+
+  function fail(html){
+    W.innerHTML = '<div class="err">' + html + '</div>' + debugBlock();
+  }
+  function debugBlock(){
+    if(!DEBUG) return '';
+    var info = {
+      '届いた経路': SRC.how,
+      'URLの長さ': String(D.url.length) + '文字',
+      '送り主': D.team, '月': D.ym, '件数': D.count,
+      'LIFF ID': LIFF_ID,
+      'LINEの中か': (function(){ try{ return liff.isInClient() ? 'はい' : 'いいえ（外部ブラウザ）'; }catch(e){ return '不明'; } })(),
+      'ピッカーが使えるか': (function(){ try{ return liff.isApiAvailable('shareTargetPicker') ? 'はい' : 'いいえ'; }catch(e){ return '不明'; } })()
+    };
+    var s = Object.keys(info).map(function(k){ return k + '：' + info[k]; }).join('\n');
+    return '<details open><summary>確認用</summary><pre>' + esc(s) + '</pre></details>';
+  }
+
+  /* ---- 送るカード（Flex Message）を組む ---------------------------------- */
+  function buildFlex(){
+    var p = ymParts();
+    var body = [
+      { type:'text', text:'予定表　' + D.count + '件', weight:'bold', size:'md', wrap:true, color:'#222222' },
+      { type:'text', text:p.label || D.ym, size:'sm', color:'#5E6473', wrap:true }
+    ];
+    if(D.msg){
+      body.push({ type:'text', text:'📣 ' + D.msg, size:'sm', wrap:true, color:'#222222', margin:'sm' });
+    }
+    return {
+      type:'flex',
+      // altText は通知やトーク一覧に出る文字。ここにURLを入れると長い文字列が復活するので入れない
+      altText:'【' + D.team + '】' + (p.label || D.ym) + 'の予定表（' + D.count + '件）',
+      contents:{
+        type:'bubble',
+        header:{
+          type:'box', layout:'vertical', backgroundColor:'#1A2B4A', paddingAll:'18px',
+          contents:[
+            { type:'text', text:(p.m ? p.m + '月' : '予定表'), size:'xxl', weight:'bold',
+              color:'#F0E2B8', align:'center' },
+            { type:'text', text:D.team, size:'xs', color:'#C8A44D', align:'center', margin:'sm', wrap:true }
+          ]
+        },
+        body:{ type:'box', layout:'vertical', spacing:'xs', contents:body },
+        footer:{
+          type:'box', layout:'vertical', paddingTop:'0px',
+          contents:[
+            { type:'button', style:'primary', color:'#C8A44D', height:'md',
+              action:{ type:'uri', label:'予定を見る', uri:D.url } }
+          ]
+        }
+      }
+    };
+  }
+
+  /* このページ自身を LINE の中で開き直すための URL（届いた経路に関わらず組み直す） */
+  function liffUrl(){
+    var q = 'u='  + encodeURIComponent(D.url)
+          + '&t=' + encodeURIComponent(D.team)
+          + '&ym='+ encodeURIComponent(D.ym)
+          + '&c=' + encodeURIComponent(D.count)
+          + (D.msg ? '&g=' + encodeURIComponent(D.msg) : '');
+    return 'https://liff.line.me/' + LIFF_ID + '#' + q;
+  }
+
+  /* ---- 画面 --------------------------------------------------------------- */
+  function render(){
+    var p = ymParts();
+    var h = '';
+
+    /* 外部ブラウザで開かれた場合。LINE 公式は「外部ブラウザでピッカーを出すには
+       SSO のログインセッションが必要で、自動ログインでは発行されない」としている。
+       つまりここで送ろうとすると、メールアドレスのログイン画面が出てしまう。
+       LINE の中へ入り直せば何も聞かれないので、先に案内する。 */
+    var inClient = true;
+    try{ inClient = liff.isInClient(); }catch(e){}
+    if(!inClient){
+      h += '<div class="err" style="margin:0 0 14px"><b>このままでは送れないことがあります。</b><br>'
+         + 'ブラウザで開かれています。LINEの中から開き直すと、'
+         + '何も聞かれずにそのまま送れます。</div>'
+         + '<button class="btn" id="reopen">📲 LINEで開き直す</button>';
+    }
+
+    h += '<p class="from">' + esc(D.team) + '</p>';
+    h += '<h1>' + esc(p.label || '予定表') + 'をカードで送る</h1>';
+    h += '<p class="cnt">' + esc(D.count) + '件の予定　／　URLは表示されません</p>';
+
+    h += '<h2>こう届きます</h2>';
+    h += '<div class="peek"><div class="bub">';
+    h += '<div class="hd"><div class="k">' + esc(p.m ? p.m + '月' : '予定表') + '</div>'
+       + '<div class="s">' + esc(D.team) + '</div></div>';
+    h += '<div class="bd"><div class="t">予定表　' + esc(D.count) + '件</div>'
+       + '<div class="c">' + esc(p.label || D.ym) + '</div>'
+       + (D.msg ? '<div class="g">📣 ' + esc(D.msg) + '</div>' : '')
+       + '</div>';
+    h += '<div class="ft"><div class="b">予定を見る</div></div>';
+    h += '</div></div>';
+    h += '<p class="hint">「予定を見る」の中に予定表のリンクが入っています。'
+       + '受け取った方は、今までと同じ3タップで取り込めます。</p>';
+
+    h += '<button class="btn gold" id="go">📤 送る相手を選ぶ'
+       + '<small>グループでも個人でも選べます</small></button>';
+    h += '<div class="res" id="r">　</div>';
+
+    h += '<details><summary>カードで送れないときは</summary>'
+       + '<p>下のボタンで予定表のリンクをコピーして、LINEに貼って送ってください。'
+       + '長い文字列になりますが、中身は同じです。</p>'
+       + '<button class="btn ghost" id="cp">リンクをコピー</button>'
+       + '<div class="res" id="r2">　</div></details>';
+
+    h += debugBlock();
+    W.innerHTML = h;
+
+    document.getElementById('go').onclick = send;
+    var ro = document.getElementById('reopen');
+    if(ro) ro.onclick = function(){ location.href = liffUrl(); };
+    document.getElementById('cp').onclick = function(){
+      var el = document.getElementById('r2');
+      var done = function(){ el.className = 'res ok'; el.textContent = '✅ コピーしました。LINEに貼って送ってください。'; };
+      var ng = function(){ el.className = 'res ng'; el.textContent = 'コピーできませんでした。下の文字を長押しで選んでコピーしてください。\n\n' + D.url; };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(D.url).then(done, ng);
+      } else { ng(); }
+    };
+  }
+
+  function send(){
+    var btn = document.getElementById('go');
+    var el = document.getElementById('r');
+    el.className = 'res'; el.textContent = '送る相手を選んでください…';
+    btn.disabled = true;
+
+    var ok = false;
+    try{ ok = liff.isApiAvailable('shareTargetPicker'); }catch(e){}
+    if(!ok){
+      btn.disabled = false;
+      el.className = 'res ng';
+      el.textContent = 'この画面ではカードを送れません。\n'
+        + 'LINEの中から開き直すか、下の「カードで送れないときは」をお使いください。';
+      return;
+    }
+
+    liff.shareTargetPicker([buildFlex()]).then(function(r){
+      btn.disabled = false;
+      if(r){
+        el.className = 'res ok';
+        el.textContent = '✅ 送りました。LINEのトークを確認してください。';
+      }else{
+        // 本人が選ばずに閉じた（失敗ではない）
+        el.className = 'res';
+        el.textContent = '送るのをやめました。';
+      }
+    }, function(e){
+      btn.disabled = false;
+      el.className = 'res ng';
+      var m = ''; try{ m = String((e && (e.message || e.code)) || ''); }catch(_){}
+      if(/consent/i.test(m)){
+        el.textContent = 'LINE Developers で「シェアターゲットピッカー」の利用規約に同意していません。\n'
+          + '設定を済ませてから、もう一度お試しください。';
+      }else{
+        el.textContent = '送れませんでした。' + (m ? '\n（' + m + '）' : '')
+          + '\n下の「カードで送れないときは」をお使いください。';
+      }
+    });
+  }
+
+  /* ---- 起動 --------------------------------------------------------------- */
+  if(SRC.how === 'none' || !D.url){
+    fail('<b>予定が渡されていません。</b><br>'
+      + 'My柔道（事務）の「予定を共有」から、'
+      + '「LINEでカードを送る」を押して開き直してください。');
+    return;
+  }
+  if(!/^https:\/\/akihikoito-apps\.github\.io\/judo\//.test(D.url)){
+    // 知らない飛び先をボタンに仕込まない（このページに別のURLを運ばせない）
+    fail('<b>リンクの形が違います。</b><br>'
+      + 'My柔道（事務）から開き直してください。');
+    return;
+  }
+  if(LIFF_ID === 'LIFF_ID_PENDING'){
+    fail('<b>まだ準備中です。</b><br>'
+      + 'このページはLINEの設定（LIFFアプリの登録）が終わってから使えます。'
+      + '<br><br>リンクは下からコピーできます。'
+      + '<pre>' + esc(D.url) + '</pre>');
+    return;
+  }
+
+  if(typeof liff === 'undefined'){
+    fail('<b>LINEの部品を読み込めませんでした。</b><br>'
+      + '通信の状態を確かめて、開き直してください。');
+    return;
+  }
+
+  liff.init({ liffId: LIFF_ID })
+    .then(function(){ render(); })
+    .catch(function(e){
+      var m = ''; try{ m = String((e && (e.message || e.code)) || ''); }catch(_){}
+      fail('<b>LINEとつながりませんでした。</b>' + (m ? '<br>（' + esc(m) + '）' : '')
+        + '<br><br>予定表のリンクは下からコピーできます。'
+        + '<pre>' + esc(D.url) + '</pre>');
+    });
+})();
+</script>
+</body>
+</html>
