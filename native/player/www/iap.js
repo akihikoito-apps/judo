@@ -1,7 +1,7 @@
 /* My柔道(選手) — RevenueCat課金ブリッジ（自動生成: build-www.js） */
 (function(){
   var API_KEY_IOS='appl_jmVKkdIbocWpbZExUKwhDgBEYBm';
-  var API_KEY_ANDROID='REVENUECAT_ANDROID_PENDING';
+  var API_KEY_ANDROID='goog_rmqhfAckggLoANSkaXnwEABtbAZ';
   var ENTITLEMENT='pro';
   var APP='player';
   // どのストアで動いているか。Capacitor が無い（Web版）なら iOS 扱いでよい

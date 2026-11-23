@@ -51,13 +51,14 @@ function run(src, opts) {
     ok(!!i.captured.configure && /^appl_/.test(i.captured.configure.apiKey), app + ' iPhone: Apple の鍵を使う');
     ok(!!i.captured.configure && i.captured.configure.storeKitVersion === 'STOREKIT_2', app + ' iPhone: storeKitVersion を渡す');
 
-    // (2) Android・鍵が仮置きのあいだ — 黙って止まる（落ちない）
-    const a = boot(code, 'android');
+    // (2) Android・鍵を仮置きに戻したとき — 黙って止まる（落ちない）
+    //     2026-11-23 に本物の goog_ 鍵が入ったので、ここは逆に仮置きへ差し替えて確かめる。
+    const a = boot(code.replace(/goog_[A-Za-z0-9]+/, 'REVENUECAT_ANDROID_PENDING'), 'android');
     ok(!!a.iap, app + ' Android: window.__iap ができる');
     ok(!a.captured.configure, app + ' Android: 仮置きの鍵では configure を呼ばない');
 
-    // (3) Android・鍵が入ったあと（Play 登録後の姿を先に確かめる）
-    const g = boot(code.replace('REVENUECAT_ANDROID_PENDING', 'goog_TESTKEY'), 'android');
+    // (3) Android・本物の鍵が入っている状態
+    const g = boot(code, 'android');
     ok(!!g.captured.configure && /^goog_/.test(g.captured.configure.apiKey), app + ' Android: Google の鍵を使う');
     ok(!!g.captured.configure && g.captured.configure.storeKitVersion === undefined, app + ' Android: storeKitVersion を渡さない');
 

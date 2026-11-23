@@ -1,7 +1,7 @@
 /* My柔道(事務) — RevenueCat課金ブリッジ（自動生成: build-www.js） */
 (function(){
   var API_KEY_IOS='appl_cqqKOnaJkUfzDJQbkLpNoqCfjJL';
-  var API_KEY_ANDROID='REVENUECAT_ANDROID_PENDING';
+  var API_KEY_ANDROID='goog_TImyNnFWSrOaTLPLizqtLGQsJfk';
   var ENTITLEMENT='pro';
   var APP='office';
   // どのストアで動いているか。Capacitor が無い（Web版）なら iOS 扱いでよい

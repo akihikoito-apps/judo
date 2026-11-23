@@ -27,16 +27,17 @@ fs.writeFileSync(path.join(wwwDir, 'index.html'), html, 'utf8');
    RevenueCatの設定が済んだら、下の API_KEY を各アプリの Public API Key に置き換える。
    鍵はストアごとに別物：iOS は appl_ で始まり、Android（Google Play）は goog_ で始まる。
    Android 用は Play Console の登録が済んでから RevenueCat で発行する。
-   それまでは REVENUECAT_ で始まる仮置きのままにしておく（init が課金を黙って止める）。 */
+   Android 用の鍵は 2026-11-23 に入れた（事務・選手それぞれ別プロジェクト）。
+   もし REVENUECAT_ で始まる仮置きに戻すと、init が課金を黙って止める。 */
 const CFG = {
   office: {
     API_KEY: 'appl_cqqKOnaJkUfzDJQbkLpNoqCfjJL',
-    API_KEY_ANDROID: 'REVENUECAT_ANDROID_PENDING',
+    API_KEY_ANDROID: 'goog_TImyNnFWSrOaTLPLizqtLGQsJfk',
     ENTITLEMENT: 'pro', LABEL: 'My柔道(事務)',
   },
   player: {
     API_KEY: 'appl_jmVKkdIbocWpbZExUKwhDgBEYBm',
-    API_KEY_ANDROID: 'REVENUECAT_ANDROID_PENDING',
+    API_KEY_ANDROID: 'goog_rmqhfAckggLoANSkaXnwEABtbAZ',
     ENTITLEMENT: 'pro', LABEL: 'My柔道(選手)',
   },
 }[app];
