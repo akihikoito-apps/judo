@@ -39,7 +39,16 @@
   （privacy・terms・support・s・share-liff・qrgen・Search Console の確認ファイル）で、
   **index.html にも native/ にも触れていない。**アプリ内のポリシーは Pages へのリンクなので、
   **android-prep で作った AAB でも最新のポリシーが出る。**よって android-prep でビルドしてよい。
-- push で Android のワークフローが2本とも自動で走った（`native/build-www.js` と `native/*/` が対象のため）。
+- push で Android のワークフローが2本とも自動で走り、**どちらも成功**（実行 #30・約2分50秒）。
+  **できた AAB の中身を開いて、鍵が本当に入っているかを確かめた**（ビルドが通っただけでは足りないため）。
+  `base/assets/public/iap.js` を取り出して確認：
+  事務 `API_KEY_ANDROID='goog_TImy…'`／選手 `API_KEY_ANDROID='goog_rmqh…'`。
+  **アプリと鍵の対応も正しい**（iOS 側の `appl_` もそれぞれ別の鍵のまま）。
+- **versionCode は 30**（ワークフローが `github.run_number` を入れる作り）。
+  内部テストに上げてある **29 より大きいので、そのままアップロードできる。**
+  事務 1.3 / 6,608,775バイト、選手 1.4 / 6,603,574バイト。
+- **ただし、まだ Play には上げていない。**定期購入の商品が無い状態で上げても購入は試せないので、
+  **販売アカウント → 定期購入を作る → そのあと1回だけ上げる**のが無駄がない。
 
 ### 2026-11-22（その2） iOS を公開。はじめて数字をひととおり確認した
 
