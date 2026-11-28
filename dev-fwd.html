@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- 検索に載せない。これは製品ではなく、開発者本人のための道具 -->
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>予定の転送（開発用）</title>
+<style>
+  :root{ --navy:#0b1a33; --navy2:#16294a; --gold:#C8A44D; --cream:#F0E2B8;
+         --amber:#c77f0a; --line:#2c4068; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--navy);color:#eef2f8;
+       font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+       line-height:1.7;
+       padding:max(16px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom));}
+  .wrap{max-width:560px;margin:0 auto}
+  .dev{background:#3a2a0a;border:1px solid var(--amber);color:#ffd98a;
+       border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;margin-bottom:18px}
+  h1{font-size:21px;margin:0 0 6px;color:var(--cream)}
+  .lead{font-size:13px;color:#9fb0cc;margin:0 0 22px}
+  .card{background:var(--navy2);border:1px solid var(--line);border-radius:14px;
+        padding:16px;margin-bottom:16px}
+  .step{font-size:12px;font-weight:800;color:var(--gold);letter-spacing:.08em;margin:0 0 8px}
+  label{display:block;font-weight:700;font-size:14px;margin:0 0 6px}
+  textarea,input[type=text]{
+    width:100%;background:#0a1730;color:#eef2f8;border:1px solid var(--line);
+    border-radius:10px;padding:11px 12px;font-size:15px;font-family:inherit;}
+  textarea{min-height:150px;resize:vertical;line-height:1.5}
+  .hint{font-size:12px;color:#9fb0cc;margin:7px 2px 0}
+  .btn{display:block;width:100%;border:0;border-radius:12px;padding:15px;
+       font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;margin-top:12px}
+  .btn.go{background:var(--gold);color:#17120a}
+  .btn.go:disabled{background:#4a4634;color:#9a937c;cursor:default}
+  .btn.ghost{background:transparent;color:#9fb0cc;border:1px solid var(--line)}
+  .pv{border-top:1px solid var(--line);margin-top:14px;padding-top:14px;display:none}
+  .pv dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:14px}
+  .pv dt{color:#9fb0cc}
+  .pv dd{margin:0;font-weight:700;word-break:break-all}
+  .ng{color:#ff9b8f;font-weight:700;font-size:14px}
+  .warn{color:#ffce7a;font-weight:700;font-size:13px}
+  .ok{color:#8fe0a6;font-weight:700;font-size:14px}
+  .note{font-size:12px;color:#8fa2c0;margin-top:22px;border-top:1px solid var(--line);padding-top:14px}
+  .note b{color:#bccbe2}
+  code{background:#0a1730;padding:1px 5px;border-radius:5px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="dev">⚙️ 開発用のページです。ストアには出していません。</div>
+
+  <h1>受け取った予定を、カードで転送する</h1>
+  <p class="lead">
+    事務アプリから「文字」で届いた予定表を、道場主が送ったのと<b>同じLINEカード</b>に包み直して転送します。
+    送り主の名前は文字の中のものをそのまま使うので、<b>あとから事務アプリが修正版を送れば、この転送分は上書きされます。</b>
+  </p>
+
+  <div class="card">
+    <p class="step">STEP 1　受け取った文字を貼る</p>
+    <label for="src">予定表のテキスト</label>
+    <textarea id="src" spellcheck="false" placeholder="【My柔道 予定表】&#10;送り主｜…&#10;月｜2026-12&#10;件数｜8&#10;--- 予定 ---&#10;…"></textarea>
+    <p class="hint">LINEのメッセージを長押し →「コピー」して、ここに貼ってください。前後に余計な文字が付いていても、【My柔道 予定表】から後ろだけを読みます。</p>
+
+    <div class="pv" id="pv"></div>
+  </div>
+
+  <div class="card">
+    <p class="step">STEP 2　合言葉（道場と同じもの）</p>
+    <label for="key">🔑 予定表の合言葉</label>
+    <input type="text" id="key" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="例：aoisora2026">
+    <p class="hint" id="keyHint"></p>
+  </div>
+
+  <div class="card">
+    <p class="step">STEP 3　送る</p>
+    <button class="btn go" id="go" disabled>💬 LINEカードで転送</button>
+    <button class="btn ghost" id="copy">🔗 リンクをコピー（カードが使えないとき）</button>
+    <p class="hint" id="res"></p>
+  </div>
+
+  <p class="note">
+    <b>どう作っているか。</b>貼られた文字は<b>1文字も書き換えません</b>。そのまま
+    <code>s.html</code> のURLに包み、送り主・月・件数・ひとことだけを読み取って、
+    事務アプリと同じ形で既存のLIFFに渡しています。だから選手アプリ側から見ると、
+    道場主が送ったカードと区別がつきません。<br><br>
+    <b>上書きが効く理由。</b>選手アプリは「同じ送り主 × 同じ月 × 同じ対象」を単位に置き換え、
+    さらに各予定に付いている送り元のIDで照合します。ここを変えないので、紐付きは切れません。
+  </p>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* 事務アプリ（index.html）と同じ値。ここがずれると、受け取る側が開けない。 */
+var SHARE_PAGE = 'https://akihikoito-apps.github.io/judo/s.html';
+var LIFF_SHARE_ID = '2012717291-srXnnCVb';
+var SHARE_ITER = 200000;
+
+var $ = function(id){ return document.getElementById(id); };
+var src = $('src'), keyEl = $('key'), pv = $('pv'), go = $('go'), res = $('res');
+var cur = null;   /* いま読み取れている内容（null=送れない） */
+
+function esc(s){ return String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+/* ---- 合言葉はこの端末に覚えておく（毎回打つのは現実的でない） ---- */
+try{ keyEl.value = localStorage.getItem('devFwdKey') || ''; }catch(e){}
+keyEl.addEventListener('input', function(){
+  try{ localStorage.setItem('devFwdKey', keyEl.value); }catch(e){}
+  renderKeyHint();
+});
+function renderKeyHint(){
+  var v = keyEl.value.trim(), el = $('keyHint');
+  if(!cryptoOk()){ el.innerHTML = '<span class="ng">この端末では包めません。合言葉なしのリンクになります。</span>'; return; }
+  if(!v){ el.innerHTML = '<span class="ng">空のまま送ると、リンクを持つ人は誰でも名前入りの予定を読めます。</span>'; return; }
+  if(v.length < 8){ el.innerHTML = '<span class="warn">短い合言葉は破られやすいです。8文字以上をおすすめします。</span>'; return; }
+  el.textContent = '道場と同じ合言葉で包みます。受け取る人は、登録済みなら何も聞かれません。';
+}
+
+/* ---- 貼られたものから、予定表の部分だけを切り出す ---- */
+function cut(raw){
+  var t = String(raw || '');
+  var i = t.indexOf('【My柔道 予定表');
+  if(i >= 0) t = t.slice(i);
+  return t.trim();
+}
+
+/* ---- 文字をほどく（index.html の schedShareParse と同じ読み方） ---- */
+function parseText(raw){
+  var lines = String(raw || '').replace(/\r/g, '').split('\n')
+    .map(function(l){ return l.trim(); })
+    .filter(function(l){ return l; });
+  var sender = '', ym = '', msg = '', inBody = false, sawBody = false, declared = null, n = 0;
+  lines.forEach(function(line){
+    if(/^【.*】$/.test(line)) return;
+    if(/^[-—―]+\s*予定\s*[-—―]+$/.test(line)){ inBody = true; sawBody = true; return; }
+    if(line.indexOf('ひとこと｜') === 0){ msg = line.slice(5).trim(); return; }
+    if(line.indexOf('送り主｜') === 0){ sender = line.slice(4).trim(); return; }
+    if(line.indexOf('月｜') === 0){
+      var v = line.slice(2).trim();
+      var md = v.match(/^(\d{4}-\d{2})-\d{2}$/);
+      ym = md ? md[1] : v;          /* 1日だけ直す形（月｜YYYY-MM-DD）も、カードの表示は月までにする */
+      return;
+    }
+    if(line.indexOf('件数｜') === 0){
+      var d = parseInt(line.slice(3).trim(), 10); if(!isNaN(d)) declared = d; return;
+    }
+    if(!inBody) return;
+    if(/^\d{1,2}$/.test(line.split('｜')[0])) n++;   /* 予定の行は「日｜…」で始まる */
+  });
+  return {sender:sender, ym:ym, msg:msg, count:n, sawBody:sawBody, declared:declared};
+}
+
+/* ---- 読み取り結果を出す ---- */
+function analyze(){
+  var text = cut(src.value);
+  cur = null; go.disabled = true; res.textContent = '';
+  if(!text){ pv.style.display = 'none'; return; }
+  pv.style.display = 'block';
+
+  if(/^[ez][A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\./.test(text)){
+    pv.innerHTML = '<p class="ng">これは「リンク」で届いたもの（包まれた状態）のようです。'
+      + 'このページは「文字」で届いた予定表を転送するためのものです。</p>';
+    return;
+  }
+
+  var p = parseText(text);
+  var bad = [];
+  if(!p.sawBody) bad.push('「--- 予定 ---」の区切りが見つかりません。');
+  if(!p.sender)  bad.push('「送り主｜…」の行が見つかりません。送り主が分からないと、上書きの紐付きが切れます。');
+  if(!/^\d{4}-\d{2}$/.test(p.ym)) bad.push('「月｜…」の行が読めません。');
+
+  var mismatch = (p.declared !== null && p.declared !== p.count);
+  var rows = '<dl>'
+    + '<dt>送り主</dt><dd>' + esc(p.sender || '—') + '</dd>'
+    + '<dt>月</dt><dd>' + esc(p.ym || '—') + '</dd>'
+    + '<dt>件数</dt><dd>' + p.count + '件'
+      + (mismatch ? ' <span class="warn">（文字には ' + p.declared + '件 と書かれています）</span>' : '')
+      + '</dd>'
+    + (p.msg ? '<dt>ひとこと</dt><dd>' + esc(p.msg) + '</dd>' : '')
+    + '</dl>';
+
+  if(bad.length){
+    pv.innerHTML = rows + '<p class="ng">' + bad.map(esc).join('<br>') + '</p>';
+    return;
+  }
+  pv.innerHTML = rows
+    + '<p class="ok">✔ 送り主「' + esc(p.sender) + '」のまま転送します。</p>'
+    + (mismatch ? '<p class="warn">件数が合いません。メッセージが途中で切れている可能性があります。'
+        + 'このまま送ると、受け取った人の予定が足りない状態で置き換わります。</p>' : '');
+  cur = {text:text, sender:p.sender, ym:p.ym, count:p.count, msg:p.msg};
+  go.disabled = false;
+}
+src.addEventListener('input', analyze);
+src.addEventListener('paste', function(){ setTimeout(analyze, 0); });
+
+/* ---- 包む（index.html の shareSeal と同じ。ここがずれると s.html が開けない） ---- */
+function cryptoOk(){ try{ return !!(window.crypto && crypto.subtle && crypto.subtle.deriveKey); }catch(e){ return false; } }
+function b64u(buf){
+  var b = '', a = new Uint8Array(buf);
+  for(var i = 0; i < a.length; i++) b += String.fromCharCode(a[i]);
+  return btoa(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function keyFrom(pass, salt){
+  return crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey'])
+    .then(function(base){
+      return crypto.subtle.deriveKey({name:'PBKDF2', salt:salt, iterations:SHARE_ITER, hash:'SHA-256'},
+        base, {name:'AES-GCM', length:256}, false, ['encrypt', 'decrypt']);
+    });
+}
+function zipOk(){ try{ new CompressionStream('deflate-raw'); return true; }catch(e){ return false; } }
+function zip(bytes){
+  var cs = new CompressionStream('deflate-raw');
+  var w = cs.writable.getWriter(); w.write(bytes); w.close();
+  return new Response(cs.readable).arrayBuffer().then(function(b){ return new Uint8Array(b); });
+}
+function seal(text, pass){
+  var salt = crypto.getRandomValues(new Uint8Array(16));
+  var iv = crypto.getRandomValues(new Uint8Array(12));
+  var plain = new TextEncoder().encode(text);
+  return keyFrom(pass, salt).then(function(k){
+    var step = Promise.resolve({body:plain, mark:'e'});
+    if(zipOk()){
+      /* 短い予定表では縮まないことがあるので、縮んだときだけ使う（事務アプリと同じ判断） */
+      step = zip(plain).then(function(z){
+        return z.length < plain.length ? {body:z, mark:'z'} : {body:plain, mark:'e'};
+      }, function(){ return {body:plain, mark:'e'}; });
+    }
+    return step.then(function(s){
+      return crypto.subtle.encrypt({name:'AES-GCM', iv:iv}, k, s.body).then(function(ct){
+        return s.mark + b64u(salt) + '.' + b64u(iv) + '.' + b64u(ct);
+      });
+    });
+  });
+}
+
+/* ---- s.html のURLを組む ---- */
+function buildUrl(){
+  var pass = keyEl.value.trim();
+  if(pass && cryptoOk()){
+    return seal(cur.text, pass).then(
+      function(f){ return SHARE_PAGE + '#' + f; },
+      function(){ return SHARE_PAGE + '#' + encodeURIComponent(cur.text); });
+  }
+  return Promise.resolve(SHARE_PAGE + '#' + encodeURIComponent(cur.text));
+}
+
+/* ---- LIFF へ渡す（事務アプリの ssSendCard と同じ並び） ---- */
+function buildLiff(url){
+  var q = 'u=' + encodeURIComponent(url)
+        + '&t=' + encodeURIComponent(cur.sender)
+        + '&ym=' + encodeURIComponent(cur.ym)
+        + '&c=' + encodeURIComponent(String(cur.count))
+        + (cur.msg ? ('&g=' + encodeURIComponent(cur.msg)) : '');
+  return 'https://liff.line.me/' + LIFF_SHARE_ID + '#' + q;
+}
+
+go.addEventListener('click', function(){
+  if(!cur) return;
+  if(!keyEl.value.trim() && !confirm('合言葉を入れずに送ります。\nこのリンクを持っている人は誰でも、お名前を含む予定の中身を読めます。\n\nこのまま送りますか？')) return;
+  go.disabled = true; res.textContent = 'LINEを開いています…';
+  buildUrl().then(function(url){
+    var w = null;
+    try{ w = window.open(buildLiff(url), '_blank'); }catch(e){}
+    go.disabled = false;
+    res.innerHTML = w
+      ? '<span class="ok">LINEで送る相手を選んでください。</span>'
+      : '<span class="ng">LINEを開けませんでした。下の「リンクをコピー」をお使いください。</span>';
+  }, function(e){
+    go.disabled = false;
+    res.innerHTML = '<span class="ng">包めませんでした（' + esc(String((e && e.message) || e)) + '）</span>';
+  });
+});
+
+$('copy').addEventListener('click', function(){
+  if(!cur){ res.innerHTML = '<span class="ng">先に予定表の文字を貼ってください。</span>'; return; }
+  buildUrl().then(function(url){
+    var y = cur.ym.split('-')[0], m = Number(cur.ym.split('-')[1]);
+    var L = ['【' + cur.sender + '】' + y + '年' + m + '月の予定　' + cur.count + '件'];
+    if(cur.msg) L.push('📣 ' + cur.msg);
+    L.push('', '下のリンクから、予定を確認して取り込んでください。', '', url);
+    var text = L.join('\n');
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(
+        function(){ res.innerHTML = '<span class="ok">コピーしました。LINEに貼って送ってください。</span>'; },
+        function(){ res.innerHTML = '<span class="ng">コピーできませんでした。</span>'; });
+    }else{
+      res.innerHTML = '<span class="ng">コピーできませんでした。</span>';
+    }
+  });
+});
+
+renderKeyHint();
+})();
+</script>
+</body>
+</html>
