@@ -87,17 +87,16 @@
   <div class="card">
     <p class="step">STEP 3　LINEで送る</p>
 
-    <!-- ここを <button> + JS の遷移にしてはいけない。
-         LINE 公式（2026-05-07「『LINEで開く』が期待どおりに動かないとき」）は
-         「iOSではLIFF URLへのアクセス時に、JavaScriptによる自動リダイレクトではなく、
-         ユーザーのタップでログイン処理を開始する」と明記している。
-         JSの自動遷移だとユニバーサルリンクが効かず、ブラウザに留まってしまう。
-         本物の <a href> なら、タップで効くうえに、長押しで「LINEで開く」も選べる。
-         share-liff.html が同じ理由で同じ形にしてある。 -->
-    <a class="btn go off" id="goLiff" role="button">📲 LINEで開いてカードを送る</a>
-    <p class="hint">開かないときは、上のボタンを<b>長押し</b>して「LINEで開く」を選んでください。</p>
+    <!-- ここを <button> + JS の遷移にしてはいけない（移動は <a href> に任せる）。
+         いちばん上は line://app/ にする。実機で確かめて確実に LINE が開くのはこちらで、
+         事務アプリ（アプリ版 ssSendCard）も同じ理由で line:// を使っている。
+         https://liff.line.me/ はユニバーサルリンク頼みで、既定のブラウザが Edge などだと
+         LINE に渡らずブラウザの中で開いてしまい、そこで止まる。
+         line://app/ は # 以降を落とすので、押したときに同じ中身をクリップボードへ写し、
+         share-liff.html の「送る相手を選ぶ」で読み出してもらう。 -->
+    <a class="btn go off" id="goScheme" role="button">📲 LINEを開いてカードを送る<small>LINEで「送る相手を選ぶ」→ 出てきた「ペースト」を押してください</small></a>
 
-    <a class="btn ghost off" id="goScheme" role="button">▶ それでも開かないとき<small>LINEアプリを直接呼び出します</small></a>
+    <a class="btn ghost off" id="goLiff" role="button">▶ それでも開かないとき<small>別の形（https のリンク）で開きます。長押しで「LINEで開く」も選べます</small></a>
 
     <button class="btn ghost" id="cpLiff">📋 LINEで開くリンクをコピー<small>LINEの「Keepメモ」に貼って、その文字をタップすると開きます</small></button>
 
@@ -365,18 +364,24 @@ function paint(){
     : '';
 }
 
-/* ---- LINEアプリを直接呼ぶ側は、# が落ちる分をクリップボードで補う --------
-   line://app/{liffId} は LINE を確実に開くが、URLフラグメント（#）を落とす。
-   share-liff.html は読めなかったときクリップボードを見にいくので、
-   移動する前に同じ内容を置いておく。preventDefault はしない（移動は <a> に任せる）。 */
-goScheme.addEventListener('click', function(){
+/* ---- # が落ちる分をクリップボードで補う -------------------------------
+   line://app/{liffId} は LINE を確実に開くが、URLフラグメント（#）を落とす（実機で確認）。
+   https://liff.line.me/ で LINE に渡ったときも、# が残る保証はない。
+   これまでは line:// の側でしかクリップボードに置いておらず、上のボタン（https）で
+   開くと share-liff.html が「予定が見つかりませんでした」で止まり、相手を選ぶ画面に
+   進めなかった。どちらで開いても、移動する前に同じ内容を置いておく。
+   書き込みは指で押した直後にしか許されないので、押したその場で始める（包むのは済んでいる）。
+   preventDefault はしない（移動は <a> に任せる）。 */
+function stash(){
   if(!ready) return;
   try{
     if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(CLIP_TAG + ready.q);
+      navigator.clipboard.writeText(CLIP_TAG + ready.q).catch(function(){});
     }
   }catch(e){}
-});
+}
+goScheme.addEventListener('click', stash);
+goLiff.addEventListener('click', stash);
 
 /* ---- Keepメモに貼る道（Edge など、LINEへ渡してくれないブラウザ用） ---- */
 $('cpLiff').addEventListener('click', function(){
