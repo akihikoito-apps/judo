@@ -300,6 +300,19 @@
     }
     /* 「LINEで開き直す」は本物の <a href> なので、ここで onclick を付けてはいけない。
        JS で location.href に入れ直すと、iOS でユニバーサルリンクが効かなくなる。 */
+    /* ただしクリップボードに中身を写すだけなら構わない（移動は <a> に任せたまま）。
+       LINE に渡ると # が落ちることがあり、そのとき「送る相手を選ぶ」で読み出せるように。
+       これが無いと、開き直した先で「予定が見つかりませんでした」になって先へ進めない。 */
+    ['reopen', 'reopen2'].forEach(function(id){
+      var a = document.getElementById(id);
+      if(a) a.addEventListener('click', function(){
+        try{
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(CLIP_TAG + liffQuery()).catch(function(){});
+          }
+        }catch(e){}
+      });
+    });
     var cl = document.getElementById('cpliff');
     if(cl) cl.onclick = function(){
       var el = document.getElementById('r3');
@@ -387,6 +400,21 @@
     return true;
   }
 
+  /* クリップボード（または貼られた文字）から予定を取り出す。
+     目印つき（myjudo-sched:v1:…）のほかに、「LINEで開くリンクをコピー」で
+     写した LIFF のリンクそのもの（https://liff.line.me/…#u=…）も受け付ける。
+     Keepメモ経由で開いたときも # が落ちることがあり、そのときクリップボードに
+     残っているのはこのリンクなので。 */
+  function takeText(text){
+    var t = String(text || '').trim();
+    var i = t.indexOf(CLIP_TAG);
+    if(i >= 0) return applyQuery(t.slice(i + CLIP_TAG.length).split(/\s/)[0]);
+    var m = /https:\/\/liff\.line\.me\/[^\s#?]*[#?](u=[^\s]+)/.exec(t)
+         || /line:\/\/app\/[^\s#?]*[#?](u=[^\s]+)/.exec(t);
+    if(m) return applyQuery(m[1]);
+    return false;
+  }
+
   function askPaste(){
     W.innerHTML =
         '<h1 style="margin:0 0 6px">予定をカードで送る</h1>'
@@ -415,9 +443,7 @@
     };
     /* quiet=true のときは、入っていなくても何も言わない（入力中に毎回しかられないため） */
     var take = function(text, quiet){
-      var t = String(text || '');
-      var i = t.indexOf(CLIP_TAG);
-      if(i < 0 || !applyQuery(t.slice(i + CLIP_TAG.length))){
+      if(!takeText(text)){
         if(quiet) return;
         rp.className = 'res ng';
         rp.textContent = '予定が見つかりませんでした。My柔道（事務）の「予定を共有」から'
