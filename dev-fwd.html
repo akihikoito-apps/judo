@@ -9,7 +9,7 @@
 <title>予定の転送（開発用）</title>
 <style>
   :root{ --navy:#0b1a33; --navy2:#16294a; --gold:#C8A44D; --cream:#F0E2B8;
-         --amber:#c77f0a; --line:#2c4068; }
+         --amber:#c77f0a; --red:#c0392b; --line:#2c4068; }
   *{box-sizing:border-box}
   body{margin:0;background:var(--navy);color:#eef2f8;
        font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
@@ -30,10 +30,14 @@
   textarea{min-height:150px;resize:vertical;line-height:1.5}
   .hint{font-size:12px;color:#9fb0cc;margin:7px 2px 0}
   .btn{display:block;width:100%;border:0;border-radius:12px;padding:15px;
-       font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;margin-top:12px}
+       font-size:16px;font-weight:800;font-family:inherit;cursor:pointer;margin-top:12px;
+       text-align:center;text-decoration:none}
+  a.btn{display:block}
   .btn.go{background:var(--gold);color:#17120a}
-  .btn.go:disabled{background:#4a4634;color:#9a937c;cursor:default}
   .btn.ghost{background:transparent;color:#9fb0cc;border:1px solid var(--line)}
+  .btn small{display:block;font-size:11px;font-weight:600;opacity:.75;margin-top:2px}
+  /* 用意ができるまでは押せないようにする。押せてしまうと空のまま LINE が開く */
+  .btn.off{opacity:.45;pointer-events:none}
   .pv{border-top:1px solid var(--line);margin-top:14px;padding-top:14px;display:none}
   .pv dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:14px}
   .pv dt{color:#9fb0cc}
@@ -41,9 +45,15 @@
   .ng{color:#ff9b8f;font-weight:700;font-size:14px}
   .warn{color:#ffce7a;font-weight:700;font-size:13px}
   .ok{color:#8fe0a6;font-weight:700;font-size:14px}
+  .alert{background:#3a1410;border:1px solid var(--red);border-radius:10px;
+         padding:12px;margin-top:12px;font-size:13px;color:#ffc9c0}
+  .res{font-size:13px;margin:10px 2px 0;white-space:pre-wrap;min-height:1.6em}
+  details{margin-top:14px;font-size:13px}
+  summary{cursor:pointer;color:var(--gold);font-weight:700}
+  details p{font-size:12px;color:#9fb0cc}
   .note{font-size:12px;color:#8fa2c0;margin-top:22px;border-top:1px solid var(--line);padding-top:14px}
   .note b{color:#bccbe2}
-  code{background:#0a1730;padding:1px 5px;border-radius:5px;font-size:12px}
+  code{background:#0a1730;padding:1px 5px;border-radius:5px;font-size:12px;word-break:break-all}
 </style>
 </head>
 <body>
@@ -71,13 +81,35 @@
     <label for="key">🔑 予定表の合言葉</label>
     <input type="text" id="key" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="例：aoisora2026">
     <p class="hint" id="keyHint"></p>
+    <div id="plainBox" style="display:none"></div>
   </div>
 
   <div class="card">
-    <p class="step">STEP 3　送る</p>
-    <button class="btn go" id="go" disabled>💬 LINEカードで転送</button>
-    <button class="btn ghost" id="copy">🔗 リンクをコピー（カードが使えないとき）</button>
-    <p class="hint" id="res"></p>
+    <p class="step">STEP 3　LINEで送る</p>
+
+    <!-- ここを <button> + JS の遷移にしてはいけない。
+         LINE 公式（2026-05-07「『LINEで開く』が期待どおりに動かないとき」）は
+         「iOSではLIFF URLへのアクセス時に、JavaScriptによる自動リダイレクトではなく、
+         ユーザーのタップでログイン処理を開始する」と明記している。
+         JSの自動遷移だとユニバーサルリンクが効かず、ブラウザに留まってしまう。
+         本物の <a href> なら、タップで効くうえに、長押しで「LINEで開く」も選べる。
+         share-liff.html が同じ理由で同じ形にしてある。 -->
+    <a class="btn go off" id="goLiff" role="button">📲 LINEで開いてカードを送る</a>
+    <p class="hint">開かないときは、上のボタンを<b>長押し</b>して「LINEで開く」を選んでください。</p>
+
+    <a class="btn ghost off" id="goScheme" role="button">▶ それでも開かないとき<small>LINEアプリを直接呼び出します</small></a>
+
+    <button class="btn ghost" id="cpLiff">📋 LINEで開くリンクをコピー<small>LINEの「Keepメモ」に貼って、その文字をタップすると開きます</small></button>
+
+    <p class="res" id="res"></p>
+
+    <details>
+      <summary>カードで送れないときは</summary>
+      <p>予定表のリンクを文章ごとコピーして、LINEに貼って送ってください。長い文字列になりますが、中身は同じで、受け取る側の取り込み方も変わりません。</p>
+      <button class="btn ghost" id="cpLink">🔗 予定のリンクをコピー</button>
+      <p class="res" id="res2"></p>
+      <p id="diag" style="font-size:11px;color:#7a8ca8;margin-top:10px"></p>
+    </details>
   </div>
 
   <p class="note">
@@ -99,10 +131,19 @@
 var SHARE_PAGE = 'https://akihikoito-apps.github.io/judo/s.html';
 var LIFF_SHARE_ID = '2012717291-srXnnCVb';
 var SHARE_ITER = 200000;
+/* share-liff.html が # を落とされたときに読みにいく置き場所の目印。
+   line://app/{liffId} は LINE を確実に開くが、URLフラグメント（#）を落とすため。 */
+var CLIP_TAG = 'myjudo-sched:v1:';
 
 var $ = function(id){ return document.getElementById(id); };
-var src = $('src'), keyEl = $('key'), pv = $('pv'), go = $('go'), res = $('res');
-var cur = null;   /* いま読み取れている内容（null=送れない） */
+var src = $('src'), keyEl = $('key'), pv = $('pv'), res = $('res');
+var goLiff = $('goLiff'), goScheme = $('goScheme');
+
+var cur = null;    /* 読み取れている内容（null=まだ送れない） */
+var ready = null;  /* 用意できたリンク一式（null=まだ作っていない） */
+var seq = 0;       /* 作り直しの通し番号。古い結果で上書きしないため */
+var plainOk = false;
+var timer = null;
 
 function esc(s){ return String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -111,7 +152,9 @@ function esc(s){ return String(s == null ? '' : s)
 try{ keyEl.value = localStorage.getItem('devFwdKey') || ''; }catch(e){}
 keyEl.addEventListener('input', function(){
   try{ localStorage.setItem('devFwdKey', keyEl.value); }catch(e){}
+  plainOk = false;
   renderKeyHint();
+  schedule();
 });
 function renderKeyHint(){
   var v = keyEl.value.trim(), el = $('keyHint');
@@ -158,14 +201,14 @@ function parseText(raw){
 /* ---- 読み取り結果を出す ---- */
 function analyze(){
   var text = cut(src.value);
-  cur = null; go.disabled = true; res.textContent = '';
-  if(!text){ pv.style.display = 'none'; return; }
+  cur = null; ready = null; plainOk = false;
+  if(!text){ pv.style.display = 'none'; paint(); return; }
   pv.style.display = 'block';
 
   if(/^[ez][A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\./.test(text)){
     pv.innerHTML = '<p class="ng">これは「リンク」で届いたもの（包まれた状態）のようです。'
       + 'このページは「文字」で届いた予定表を転送するためのものです。</p>';
-    return;
+    paint(); return;
   }
 
   var p = parseText(text);
@@ -186,14 +229,14 @@ function analyze(){
 
   if(bad.length){
     pv.innerHTML = rows + '<p class="ng">' + bad.map(esc).join('<br>') + '</p>';
-    return;
+    paint(); return;
   }
   pv.innerHTML = rows
     + '<p class="ok">✔ 送り主「' + esc(p.sender) + '」のまま転送します。</p>'
     + (mismatch ? '<p class="warn">件数が合いません。メッセージが途中で切れている可能性があります。'
         + 'このまま送ると、受け取った人の予定が足りない状態で置き換わります。</p>' : '');
   cur = {text:text, sender:p.sender, ym:p.ym, count:p.count, msg:p.msg};
-  go.disabled = false;
+  schedule();
 }
 src.addEventListener('input', analyze);
 src.addEventListener('paste', function(){ setTimeout(analyze, 0); });
@@ -249,52 +292,123 @@ function buildUrl(){
   return Promise.resolve(SHARE_PAGE + '#' + encodeURIComponent(cur.text));
 }
 
-/* ---- LIFF へ渡す（事務アプリの ssSendCard と同じ並び） ---- */
-function buildLiff(url){
-  var q = 'u=' + encodeURIComponent(url)
-        + '&t=' + encodeURIComponent(cur.sender)
-        + '&ym=' + encodeURIComponent(cur.ym)
-        + '&c=' + encodeURIComponent(String(cur.count))
-        + (cur.msg ? ('&g=' + encodeURIComponent(cur.msg)) : '');
-  return 'https://liff.line.me/' + LIFF_SHARE_ID + '#' + q;
+/* ---- LIFF へ渡す形（事務アプリの ssSendCard と同じ並び） ---- */
+function buildQ(url){
+  return 'u=' + encodeURIComponent(url)
+       + '&t=' + encodeURIComponent(cur.sender)
+       + '&ym=' + encodeURIComponent(cur.ym)
+       + '&c=' + encodeURIComponent(String(cur.count))
+       + (cur.msg ? ('&g=' + encodeURIComponent(cur.msg)) : '');
 }
 
-go.addEventListener('click', function(){
+/* ---- リンクは「押す前」に作っておく --------------------------------------
+   包むのに時間がかかる（PBKDF2 を20万回）。押してから作っていると、
+   その間に「指で押した直後」の資格が切れ、iOS はページの移動も
+   クリップボードへの書き込みも拒む。だから貼られた時点で作っておき、
+   押したときには <a href> をたどるだけにする。 */
+function schedule(){
+  ready = null; paint();
   if(!cur) return;
-  if(!keyEl.value.trim() && !confirm('合言葉を入れずに送ります。\nこのリンクを持っている人は誰でも、お名前を含む予定の中身を読めます。\n\nこのまま送りますか？')) return;
-  go.disabled = true; res.textContent = 'LINEを開いています…';
+  clearTimeout(timer);
+  timer = setTimeout(build, 250);
+}
+function build(){
+  if(!cur) return;
+  var my = ++seq;
   buildUrl().then(function(url){
-    var w = null;
-    try{ w = window.open(buildLiff(url), '_blank'); }catch(e){}
-    go.disabled = false;
-    res.innerHTML = w
-      ? '<span class="ok">LINEで送る相手を選んでください。</span>'
-      : '<span class="ng">LINEを開けませんでした。下の「リンクをコピー」をお使いください。</span>';
+    if(my !== seq) return;            /* 古い結果。捨てる */
+    var q = buildQ(url);
+    ready = {
+      shareUrl: url,
+      q: q,
+      liff: 'https://liff.line.me/' + LIFF_SHARE_ID + '#' + q,
+      scheme: 'line://app/' + LIFF_SHARE_ID + '#' + q
+    };
+    paint();
   }, function(e){
-    go.disabled = false;
+    if(my !== seq) return;
     res.innerHTML = '<span class="ng">包めませんでした（' + esc(String((e && e.message) || e)) + '）</span>';
   });
+}
+
+/* ---- 押せる・押せないを描き直す ---- */
+function paint(){
+  var pass = keyEl.value.trim();
+  var box = $('plainBox');
+
+  /* 合言葉なしのときは、一度だけ確かめてから通す（事務アプリの ssPlainGuard と同じ考え） */
+  if(cur && !pass && !plainOk){
+    box.style.display = '';
+    box.innerHTML = '<div class="alert"><b>合言葉を入れずに送ります。</b><br>'
+      + 'このリンクを持っている人は誰でも、お名前を含む予定の中身を読めます。<br>'
+      + '道場の合言葉を決めているなら、上の🔑の欄に入れてください。'
+      + '<button class="btn ghost" id="plainGo" style="margin-top:10px">それでも合言葉なしで送る</button></div>';
+    $('plainGo').onclick = function(){ plainOk = true; paint(); };
+  }else{
+    box.style.display = 'none'; box.innerHTML = '';
+  }
+
+  var can = !!(cur && ready && (pass || plainOk));
+  [goLiff, goScheme].forEach(function(a){
+    if(can){ a.setAttribute('href', a === goLiff ? ready.liff : ready.scheme); a.className = a.className.replace(/ off\b/, ''); }
+    else { a.removeAttribute('href'); if(a.className.indexOf(' off') < 0) a.className += ' off'; }
+  });
+
+  if(!cur){ res.textContent = ''; }
+  else if(!ready){ res.textContent = 'リンクを用意しています…'; }
+  else if(!can){ res.textContent = ''; }
+  else { res.innerHTML = '<span class="ok">用意できました。上のボタンを押してください。</span>'; }
+
+  var d = $('diag');
+  if(d) d.textContent = ready
+    ? '（控え：予定のリンク ' + ready.shareUrl.length + '文字／LIFFのリンク ' + ready.liff.length + '文字）'
+    : '';
+}
+
+/* ---- LINEアプリを直接呼ぶ側は、# が落ちる分をクリップボードで補う --------
+   line://app/{liffId} は LINE を確実に開くが、URLフラグメント（#）を落とす。
+   share-liff.html は読めなかったときクリップボードを見にいくので、
+   移動する前に同じ内容を置いておく。preventDefault はしない（移動は <a> に任せる）。 */
+goScheme.addEventListener('click', function(){
+  if(!ready) return;
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(CLIP_TAG + ready.q);
+    }
+  }catch(e){}
 });
 
-$('copy').addEventListener('click', function(){
-  if(!cur){ res.innerHTML = '<span class="ng">先に予定表の文字を貼ってください。</span>'; return; }
-  buildUrl().then(function(url){
-    var y = cur.ym.split('-')[0], m = Number(cur.ym.split('-')[1]);
-    var L = ['【' + cur.sender + '】' + y + '年' + m + '月の予定　' + cur.count + '件'];
-    if(cur.msg) L.push('📣 ' + cur.msg);
-    L.push('', '下のリンクから、予定を確認して取り込んでください。', '', url);
-    var text = L.join('\n');
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).then(
-        function(){ res.innerHTML = '<span class="ok">コピーしました。LINEに貼って送ってください。</span>'; },
-        function(){ res.innerHTML = '<span class="ng">コピーできませんでした。</span>'; });
-    }else{
-      res.innerHTML = '<span class="ng">コピーできませんでした。</span>';
-    }
-  });
+/* ---- Keepメモに貼る道（Edge など、LINEへ渡してくれないブラウザ用） ---- */
+$('cpLiff').addEventListener('click', function(){
+  if(!ready){ res.innerHTML = '<span class="ng">まだ用意ができていません。少し待ってからもう一度押してください。</span>'; return; }
+  copy(ready.liff, res,
+    '✅ コピーしました。LINEを開いて、自分あての「Keepメモ」に貼り付けて送り、その文字をタップしてください。');
 });
+
+/* ---- 予定のリンクを文章ごとコピー ---- */
+$('cpLink').addEventListener('click', function(){
+  if(!ready){ $('res2').innerHTML = '<span class="ng">まだ用意ができていません。</span>'; return; }
+  var y = cur.ym.split('-')[0], m = Number(cur.ym.split('-')[1]);
+  var L = ['【' + cur.sender + '】' + y + '年' + m + '月の予定　' + cur.count + '件'];
+  if(cur.msg) L.push('📣 ' + cur.msg);
+  L.push('', '下のリンクから、予定を確認して取り込んでください。', '', ready.shareUrl);
+  copy(L.join('\n'), $('res2'), '✅ コピーしました。LINEに貼って送ってください。');
+});
+
+function copy(text, el, okMsg){
+  var ng = function(){
+    el.innerHTML = '<span class="ng">コピーできませんでした。下の枠を長押しして選んでください。</span>'
+      + '<textarea readonly style="margin-top:8px">' + esc(text) + '</textarea>';
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){
+      el.innerHTML = '<span class="ok">' + esc(okMsg) + '</span>';
+    }, ng);
+  }else{ ng(); }
+}
 
 renderKeyHint();
+paint();
 })();
 </script>
 </body>
