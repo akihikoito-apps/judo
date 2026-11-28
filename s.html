@@ -32,7 +32,6 @@
   .ev .nm{font-size:15.5px;font-weight:700;line-height:1.45;word-break:break-word}
   .ev .nm .tag{display:inline-block;font-size:11px;font-weight:700;color:#fff;
        background:var(--navy);border-radius:4px;padding:1px 7px;margin-right:6px;vertical-align:1px}
-  .ev .nm .tag.m{background:var(--red)}
   .ev .sm{font-size:13px;color:var(--sub);line-height:1.65;word-break:break-word}
   .btn{display:block;width:100%;min-height:58px;margin:11px 0;padding:14px 16px;
        font-family:inherit;font-size:17px;font-weight:700;line-height:1.35;
@@ -244,6 +243,14 @@
   h += '<p class="cnt">' + d.items.length + '件</p>';
   if(d.msg) h += '<div class="msg"><b>お知らせ</b>' + esc(d.msg) + '</div>';
 
+  // 種類の色（上の一覧の印と、下のカレンダーの帯で同じ色を使う）
+  // 色はアプリの種類ごとの既定色（index.html の BADGE_COLOR）に合わせる。
+  // 道場ごとに色を変えていても、その設定はリンクに入っていないので既定色で出す。
+  var CAL_COLOR = {稽古:'#2d4373',練習:'#2d4373',トレーニング:'#7d3c98',大会:'#c0392b',試合:'#c0392b',
+                   イベント:'#1a8c8c',昇級審査:'#d68910',合宿:'#2e7d4f',休み:'#9aa0a6',その他:'#6b6b6b'};
+  function typeColor(name){
+    return CAL_COLOR[name] || (/試合|大会/.test(name) ? '#c0392b' : '#6b6b6b');
+  }
   var sorted = d.items.slice().sort(function(a,b){
     return (('0'+a.dd).slice(-2)+a.time).localeCompare(('0'+b.dd).slice(-2)+b.time);
   });
@@ -253,8 +260,7 @@
     var day = +it.dd;
     var w = new Date(Y, M-1, day).getDay();
     var cls = w===0 ? 'sun' : (w===6 ? 'sat' : '');
-    var isMatch = /試合|大会/.test(it.name);
-    var nm = (it.name ? '<span class="tag' + (isMatch?' m':'') + '">' + esc(it.name) + '</span>' : '')
+    var nm = (it.name ? '<span class="tag" style="background:' + typeColor(it.name) + '">' + esc(it.name) + '</span>' : '')
            + esc(it.title || '');
     var sm = [];
     if(it.time) sm.push(esc(it.time));
@@ -271,10 +277,6 @@
   h += '</div>';
 
   // ---- 月のカレンダー（一覧と同じ予定を、アプリのカレンダーと同じ形で見せる） ----
-  // 色はアプリの種類ごとの既定色（index.html の BADGE_COLOR）に合わせる。
-  // 道場ごとに色を変えていても、その設定はリンクに入っていないので既定色で出す。
-  var CAL_COLOR = {稽古:'#2d4373',練習:'#2d4373',トレーニング:'#7d3c98',大会:'#c0392b',試合:'#c0392b',
-                   イベント:'#1a8c8c',昇級審査:'#d68910',合宿:'#2e7d4f',休み:'#9aa0a6',その他:'#6b6b6b'};
   var byDay = {};
   sorted.forEach(function(it){ (byDay[+it.dd] = byDay[+it.dd] || []).push(it); });
   var first = new Date(Y, M-1, 1).getDay();
@@ -294,9 +296,8 @@
     var evs = byDay[dn] || [];
     h += '<div class="c' + (evs.length ? ' has" data-d="' + dn : '') + '"><div class="n' + wc + '">' + dn + '</div>';
     evs.slice(0, 3).forEach(function(it){
-      var col = CAL_COLOR[it.name] || (/試合|大会/.test(it.name) ? '#c0392b' : '#6b6b6b');
       var lb = it.title || it.name || '予定';
-      h += '<span class="p" style="background:' + col + '">' + esc(lb) + '</span>';
+      h += '<span class="p" style="background:' + typeColor(it.name) + '">' + esc(lb) + '</span>';
     });
     if(evs.length > 3) h += '<div class="more">ほか' + (evs.length - 3) + '件</div>';
     h += '</div>';
